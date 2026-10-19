@@ -1,0 +1,17 @@
+// database/schema.prisma
+generator client {
+  provider     = "prisma-client"
+  output       = "../backend/src/generated/prisma"
+  moduleFormat = "esm"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Business {
+  id        String   @id @default(cuid())
+  name      String
+  isDemo    Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
