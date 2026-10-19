@@ -75,6 +75,7 @@ Aturan: hanya satu tugas `[/]` per agent pada satu waktu.
 - [ ] **T-074** (P0) [DOC] Proposal PDF (A4, Times New Roman 12, spasi 1,5, margin kiri 4 cm lainnya 3 cm, ≤ 15 hlm, logo GTNIC di sampul) — `GTNIC2026_WebDev_NamaTim.pdf`
 - [ ] **T-075** (P0) [DOC] Video demo 3–5 menit (perkenalan tim, masalah & solusi, demo) di YouTube/Drive publik
 - [ ] **T-076** (P0) [DOC] Surat Pernyataan Keaslian Karya + submit Google Form (**target 9 Nov**, batas 10 Nov 23:59 WIB) — dep: semua P0
+- [ ] **T-077** (P0) [OPS] Audit git history sebelum submit: `git log --oneline --stat`; tidak ada commit raksasa, pesan bermakna, tidak ada secret/.env di riwayat (`git log -p -S"DATABASE_URL"`); kontribusi tiap anggota terlihat — dep: semua P0
 
 ---
 

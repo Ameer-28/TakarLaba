@@ -57,6 +57,7 @@ Sebuah tugas/fitur `[x]` hanya jika **semua** terpenuhi:
 ```text
 Tugas: T-xxx — [judul]  → Status: Done | Blocked | Partial
 Perubahan: [3–6 bullet; file/area utama]
+Commit: [hash singkat + pesan, satu per baris]
 Verifikasi: lint ✅ · typecheck ✅ · test ✅ (N lulus) · build ✅ · uji manual: [apa]
 Keputusan/asumsi: [jika ada]
 Risiko / yang belum selesai: [jika ada]
@@ -66,11 +67,51 @@ Tugas berikutnya yang diusulkan: T-xxx
 3. Jika terblokir: tulis penyebab, apa yang sudah dicoba, dan opsi solusi; jangan diam-diam mengganti pendekatan.
 
 ## 6. Git & Alur Kerja
-- Branch: `main` (production, terlindungi) ← `feat/…`, `fix/…`, `docs/…`, `chore/…`. Nama mengacu tugas: `feat/t-041-checkout-fefo`.
-- **Commit kecil & bermakna** (Conventional Commits, Inggris): `feat(pos): allocate stock batches using FEFO`, `test(costing): cover yield loss`, `fix(alerts): resolve alert when margin recovers`. Juri menilai git history: hindari satu commit raksasa di akhir. Perubahan lintas FE & BE dipecah menjadi commit terpisah per sisi (mis. `feat(api): …` lalu `feat(ui): …`).
-- Merge dengan **merge commit atau rebase-and-merge** (jangan squash seluruh fitur menjadi satu commit).
-- Jangan commit: `.env*` (kecuali `.env.example`), `node_modules`, `backend/src/generated`, `dist/`, build output.
-- Sebelum PR/merge: DoD lengkap, CI hijau, tidak ada konflik.
+
+**Tujuan:** riwayat git adalah bukti kualitas teknis (slide TM: "Git history wajar"). Commit harus bertahap, kecil, dan bermakna sejak hari pertama — bukan satu unggahan besar di akhir.
+
+### 6.1 Kapan commit
+- Commit **setiap kali satu unit logis selesai** dan lint/typecheck/test untuk unit itu hijau. Jangan menunggu akhir sesi atau akhir hari.
+- **1 commit = 1 alasan perubahan** yang bisa dijelaskan dalam satu kalimat. Patokan: diff ≤ ±300 baris dan ≤ ±10 file (kecuali scaffold, migrasi, hasil generate, fixture seed).
+- Satu tugas TODO biasanya menghasilkan **3–6 commit**, mis.: `domain + test` → `service` → `route + validasi` → `docs/api.md` → `hook FE` → `UI`.
+- **Setiap commit harus membuat build tetap hijau** (agar riwayat bisa di-bisect). Test ikut di commit yang sama dengan kodenya.
+- Pisahkan commit untuk: refactor, perubahan format, perubahan dependency (`build(deps)`, butuh izin), migrasi DB (`feat(db)`), dan dokumentasi yang berdiri sendiri.
+- Perubahan kontrak API: backend, `docs/api.md`, lalu tipe/hook frontend — commit berurutan, per sisi.
+- Perbarui `TODO.md` di **commit terakhir tugas itu** (bukan commit terpisah per tugas).
+
+### 6.2 Format pesan (Conventional Commits, bahasa Inggris)
+`type(scope): ringkasan imperatif` — ≤ 72 karakter, huruf kecil setelah titik dua, tanpa titik di akhir. Isi (body) opsional untuk menjelaskan *mengapa*; footer `Refs: T-041`.
+- **type:** `feat` `fix` `refactor` `perf` `test` `docs` `style` `build` `ci` `chore` `revert`
+- **scope:** `auth` `ingredients` `purchases` `stock` `menus` `costing` `pos` `fefo` `alerts` `pricing` `dashboard` `analytics` `demo` `seed` `ui` `api` `db` `deps` `ci` `docs`
+
+```text
+BAIK  feat(fefo): allocate stock across batches by earliest expiry
+BAIK  test(costing): assert full HPP matches fixture A (7.740 / 8.940)
+BAIK  fix(alerts): auto-resolve alert when margin recovers above target
+BAIK  feat(ui): add expiry status badges to stock table
+BURUK update · fix · wip · final · revisi · "add all features" · "pos + alerts + dashboard"
+```
+
+### 6.3 Branch & merge
+- `main` (production, terlindungi) ← `feat/…`, `fix/…`, `docs/…`, `chore/…`; nama mengacu tugas: `feat/t-041-checkout-fefo`.
+- Merge dengan **merge commit atau rebase-and-merge**. **Dilarang squash** satu fitur menjadi satu commit.
+
+### 6.4 Larangan
+- Dilarang menumpuk perubahan tak terkait dalam satu commit atau menunda commit berhari-hari.
+- Dilarang `git add .` / `git add -A` tanpa meninjau `git status` dan `git diff --staged` (pastikan tidak ada `.env*`, secret, `backend/src/generated`, `dist/`, `node_modules`).
+- Dilarang menulis ulang riwayat untuk memalsukan kronologi: tanpa backdate (`--date`), tanpa `push --force` ke `main`, tanpa `amend`/rebase pada commit yang sudah di-push, tanpa menggabungkan seluruh riwayat jadi satu commit.
+- Dilarang pesan commit generik (lihat contoh BURUK).
+
+### 6.5 Checklist sebelum commit
+1. `git status` → hanya file yang relevan dengan satu alasan perubahan.
+2. `git diff --staged` → tidak ada secret/debug/`console.log`.
+3. lint + typecheck + test hijau di folder yang disentuh.
+4. Pesan sesuai §6.2.
+
+### 6.6 Ritme target (kebijakan tim, bukan aturan lomba)
+- Setidaknya 1 commit bermakna per hari kerja aktif selama 19 Okt–9 Nov; tidak ada commit raksasa kecuali scaffold, migrasi, atau fixture seed.
+- Sebelum submit: audit `git log --oneline --stat` (lihat TODO T-077).
+- Opsional (butuh izin dependency): `commitlint` + `husky` untuk memvalidasi format pesan otomatis.
 
 ## 7. Awal & Akhir Sesi
 **Awal:** baca `AGENTS.md` → `WORKFLOW.md` → `TODO.md` → bagian PRD/ARCHITECTURE terkait; tentukan sisi yang dikerjakan (FE/BE/DB) dan jalankan perintah di folder yang benar; pastikan hanya satu tugas `[/]`; nyatakan tugas yang akan dikerjakan.
