@@ -80,21 +80,34 @@ Tugas berikutnya yang diusulkan: T-xxx
 - Perbarui `TODO.md` di **commit terakhir tugas itu** (bukan commit terpisah per tugas).
 
 ### 6.2 Format pesan (Conventional Commits, bahasa Inggris)
-`type(scope): ringkasan imperatif` — ≤ 72 karakter, huruf kecil setelah titik dua, tanpa titik di akhir. Isi (body) opsional untuk menjelaskan *mengapa*; footer `Refs: T-041`.
+`type(scope): ringkasan` — imperatif, ≤ 72 karakter, huruf kecil, tanpa titik di akhir.
 - **type:** `feat` `fix` `refactor` `perf` `test` `docs` `style` `build` `ci` `chore` `revert`
-- **scope:** `auth` `ingredients` `purchases` `stock` `menus` `costing` `pos` `fefo` `alerts` `pricing` `dashboard` `analytics` `demo` `seed` `ui` `api` `db` `deps` `ci` `docs`
+- **scope:** nama fitur atau area kode (`auth`, `ingredients`, `purchases`, `menus`, `costing`, `pos`, `fefo`, `alerts`, `pricing`, `dashboard`, `analytics`, `seed`, `ui`, `api`, `db`, `deps`, `ci`, `docs`)
 
-```text
-BAIK  feat(fefo): allocate stock across batches by earliest expiry
-BAIK  test(costing): assert full HPP matches fixture A (7.740 / 8.940)
-BAIK  fix(alerts): auto-resolve alert when margin recovers above target
-BAIK  feat(ui): add expiry status badges to stock table
-BURUK update · fix · wip · final · revisi · "add all features" · "pos + alerts + dashboard"
-```
+**Pesan menjelaskan perubahan di kode, bukan proses perencanaan.** Subject harus menyebut hal konkret yang berubah (fungsi, endpoint, komponen, tabel, aturan bisnis). Body hanya jika *alasan* tidak terlihat dari diff, maksimal 1–3 kalimat.
+
+**Dilarang di subject, body, footer, dan nama branch:**
+- label tahapan: `phase`, `fase`, `tahap`, `stage`, `step`, `sprint`, `milestone`, `iteration`
+- ID tugas internal: `T-041`, nomor di TODO.md, "task 12", dan sejenisnya
+- kata penutup proses atau kosong: `final`, `done`, `complete`, `wip`, `misc`, `update`, `revisi`
+- kata promosi/klise: `comprehensive`, `robust`, `seamless`, `enhance`, `leverage`, `various improvements`
+- emoji, bullet/daftar bernomor panjang di body, kalimat basa-basi
+
+**Pecah scaffold awal menjadi beberapa commit kecil, bukan satu commit "setup project".**
+
+| BURUK | BAIK |
+|---|---|
+| `Phase 0: setup project` | `chore: initialize frontend and backend folders` → `build(frontend): add vite, tailwind and shadcn config` → `feat(backend): add express app with health endpoint` → `ci: add lint and typecheck workflow` |
+| `feat: implement phase 4 POS + FEFO` | `feat(fefo): allocate stock across batches by earliest expiry` → `feat(pos): add checkout endpoint with idempotency key` → `feat(ui): add cart and payment dialog to pos page` |
+| `T-041 checkout FEFO` | `test(pos): cover insufficient stock rollback` |
+| `Complete phase 5 price shock` | `feat(pricing): recommend new price when margin drops below target` |
+| `update`, `fix`, `final`, `wip` | `fix(alerts): resolve open alert when margin recovers` |
 
 ### 6.3 Branch & merge
-- `main` (production, terlindungi) ← `feat/…`, `fix/…`, `docs/…`, `chore/…`; nama mengacu tugas: `feat/t-041-checkout-fefo`.
+- `main` (production, terlindungi) ← `feat/…`, `fix/…`, `docs/…`, `chore/…`.
+- Nama branch mendeskripsikan perubahan, **tanpa ID tugas atau tahap**: `feat/pos-checkout`, `fix/alert-auto-resolve`, `chore/ci-pipeline`.
 - Merge dengan **merge commit atau rebase-and-merge**. **Dilarang squash** satu fitur menjadi satu commit.
+- Dilarang melewati pemeriksaan dengan `--no-verify`.
 
 ### 6.4 Larangan
 - Dilarang menumpuk perubahan tak terkait dalam satu commit atau menunda commit berhari-hari.

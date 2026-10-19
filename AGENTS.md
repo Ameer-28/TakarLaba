@@ -98,7 +98,7 @@ Jika dokumen bertentangan dengan permintaan user, **tanyakan dulu**; jangan mene
 18. **Dilarang** menyalin kode dari repositori lain secara utuh (syarat orisinalitas). Library pihak ketiga harus open-source, berlisensi jelas, dan tercatat di proposal.
 19. **Dilarang** mengarang API library dari ingatan; verifikasi di dokumentasi resmi.
 20. **Dilarang** menyentuh seed/reset di luar bisnis `isDemo=true`.
-21. **Dilarang** menumpuk banyak perubahan tak terkait dalam satu commit, memakai pesan generik, `git add .` tanpa meninjau `git status`/`git diff --staged`, atau menulis ulang riwayat (backdate, force-push ke main, squash seluruh fitur).
+21. **Dilarang** commit yang menumpuk perubahan tak terkait, `git add .` tanpa meninjau `git status`/`git diff --staged`, atau menulis ulang riwayat (backdate, force-push ke `main`, squash seluruh fitur). **Dilarang** memasukkan label tahapan (phase/fase/tahap/sprint/step), ID tugas (T-xxx), kata klise, atau emoji ke pesan commit dan nama branch; subject harus menyebut hal konkret yang berubah (lihat WORKFLOW.md §6.2). Dilarang `--no-verify`.
 
 ## 5. Perintah Standar
 **Frontend (`cd frontend`):** `npm run dev` · `npm run lint` · `npm run typecheck` · `npm run test` · `npm run build`.
