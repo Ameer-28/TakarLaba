@@ -16,13 +16,13 @@ Aturan: hanya satu tugas `[/]` per agent pada satu waktu.
 ### Fase 0 — Setup & deploy awal (19–20 Okt)
 
 - [x] **T-001** (P0) [DOC] Finalisasi dokumen perencanaan (PRD, AGENTS, ARCHITECTURE, TODO, SKILL, WORKFLOW) untuk Paket 1
-- [/] **T-002** (P0) [OPS] Init repo GitHub publik, struktur `frontend/ backend/ database/ docs/`, `.gitignore`, LICENSE (MIT), README kerangka, root `package.json` (script `npm --prefix`), `.env.example` per folder — AC: tidak ada `.env` ter-commit
-- [ ] **T-003** (P0) [FE] Scaffold Vite + React 19 + TS strict, Tailwind v4 (`@tailwindcss/vite`), alias `@/`, ESLint — dep: T-002 — AC: `lint`, `typecheck`, `build` hijau
-- [ ] **T-004** (P0) [FE] shadcn/ui init (+ `tw-animate-css`), Sonner, design token, React Router v7 data router, QueryClientProvider, `api/client.ts` (envelope + ApiError) — dep: T-003
-- [ ] **T-005** (P0) [BE] Scaffold Express 5 ESM TS (`NodeNext`), `config/env.ts` (Zod), `app.ts`/`server.ts`, pino, helmet, `errorHandler` envelope, `/api/health`, tsx dev, tsc build — dep: T-002 — AC: `GET /api/health` 200
-- [ ] **T-006** (P0) [DB/BE] Prisma 7: `database/schema.prisma`, `backend/prisma.config.ts`, adapter-pg, `db.ts`, Docker Postgres lokal. **Spike:** `npm run build && npm start` berjalan dengan client Prisma (fallback: tsx runtime) — dep: T-005 — AC: `prisma validate` OK; start dari `dist/` berhasil
-- [ ] **T-007** (P0) [OPS] GitHub Actions CI: job `backend` (lint, typecheck, test, build) & `frontend` — dep: T-003, T-005
-- [ ] **T-008** (P0) [OPS] Deploy: Neon (pooled + direct URL), backend di Render/VPS, frontend di Vercel dengan `vercel.json` rewrite `/api/*`; monitor uptime — dep: T-004, T-006 — AC: `/api/health` **lewat domain frontend** = ok
+- [x] **T-002** (P0) [OPS] Init repo GitHub publik, struktur `frontend/ backend/ database/ docs/`, `.gitignore`, LICENSE (MIT), README kerangka, root `package.json` (script `npm --prefix`), `.env.example` per folder — AC: tidak ada `.env` ter-commit
+- [x] **T-003** (P0) [FE] Scaffold Vite + React 19 + TS strict, Tailwind v4 (`@tailwindcss/vite`), alias `@/`, ESLint — dep: T-002 — AC: `lint`, `typecheck`, `build` hijau
+- [x] **T-004** (P0) [FE] shadcn/ui init (+ `tw-animate-css`), Sonner, design token, React Router v7 data router, QueryClientProvider, `api/client.ts` (envelope + ApiError) — dep: T-003
+- [x] **T-005** (P0) [BE] Scaffold Express 5 ESM TS (`NodeNext`), `config/env.ts` (Zod), `app.ts`/`server.ts`, pino, helmet, `errorHandler` envelope, `/api/health`, tsx dev, tsc build — dep: T-002 — AC: `GET /api/health` 200
+- [x] **T-006** (P0) [DB/BE] Prisma 7: `database/schema.prisma`, `backend/prisma.config.ts`, adapter-pg, `db.ts`, Docker Postgres lokal. **Spike:** `npm run build && npm start` berjalan dengan client Prisma (fallback: tsx runtime) — dep: T-005 — AC: `prisma validate` OK; start dari `dist/` berhasil
+- [x] **T-007** (P0) [OPS] GitHub Actions CI: job `backend` (lint, typecheck, test, build) & `frontend` — dep: T-003, T-005
+- [x] **T-008** (P0) [OPS] Deploy: Neon (pooled + direct URL), backend di Render/VPS, frontend di Vercel dengan `vercel.json` rewrite `/api/*`; monitor uptime — dep: T-004, T-006 — AC: `/api/health` **lewat domain frontend** = ok
 
 ### Fase 1 — Auth, tenant, shell (20–22 Okt)
 
@@ -129,4 +129,5 @@ Aturan: hanya satu tugas `[/]` per agent pada satu waktu.
 ### Log sesi (tambah baris baru di atas)
 | Tanggal | Agent/Orang | Ringkasan | Tugas terkait |
 |---|---|---|---|
+| 2026-10-19 | Agent | Selesai Fase 0: Setup repo (T-002), Frontend Vite+React 19 (T-003), Router+Query+Client (T-004), Backend Express 5 (T-005), Prisma 7+Neon (T-006), CI (T-007), Vercel Deploy (T-008) | T-002 s.d. T-008 |
 | 2026-10-19 | Planner | Dokumen disesuaikan ke Paket 1 (React + Express) | T-001 |

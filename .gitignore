@@ -16,7 +16,9 @@ build/
 
 # Neon
 .neon
-.neon/
+# Vercel
+.vercel
+.vercel/
 
 # Prisma generated client
 backend/src/generated/
