@@ -1,0 +1,6 @@
+#!/bin/sh
+# Rejects commit subjects that contain planning labels instead of describing the change.
+if head -n1 "$1" | grep -qiE 'phase|fase|tahap|sprint|\bstep\b|\bT-[0-9]{3}\b'; then
+  echo "Commit subject must describe the change, not a phase/step/task label." >&2
+  exit 1
+fi
