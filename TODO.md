@@ -4,6 +4,7 @@
 > Terakhir diperbarui: 2026-10-21 · Stack: React 19 + Vite / Express 5 / Prisma 7 · Status: Hardening & Persiapan Auth
 
 ## Status Legend
+
 `[ ]` Todo · `[/]` In Progress · `[x]` Done · `[~]` Blocked (tulis alasan) · `[-]` Cancelled (tulis alasan)
 
 Format: `- [ ] **T-xxx** (Prioritas) [FE|BE|DB|OPS|DOC] Judul — dep: … — AC: …`
@@ -46,6 +47,7 @@ Aturan: hanya satu tugas `[/]` per agent pada satu waktu.
 - [ ] **T-024** (P0) [DOC] `docs/api.md` untuk endpoint bahan/pembelian/stok
 
 ### Fase 3 — Menu, resep, costing (26–28 Okt)
+
 - [ ] **T-030** (P0) [BE+FE] Overhead + pengaturan bisnis (target margin, step, expectedMonthlyPortions) — AC: FR-OVH-01
 - [ ] **T-031** (P0) [BE+FE] CRUD menu — AC: FR-MENU-01
 - [ ] **T-032** (P0) [BE] `domain/costing.ts` (HPP Bahan/Penuh, Aktual/Pengganti) + test fixture A — AC: 7.740 / 8.940 persis
@@ -53,6 +55,7 @@ Aturan: hanya satu tugas `[/]` per agent pada satu waktu.
 - [ ] **T-034** (P0) [FE] Daftar menu + badge margin (Aman/Waspada/Bahaya) + label "harga bahan belum lengkap" — AC: FR-COST-01
 
 ### Fase 4 — POS + FEFO (29 Okt–1 Nov)
+
 - [ ] **T-040** (P0) [BE] `domain/fefo.ts` `allocateFefo` + unit test (batch campur, kedaluwarsa, null expiry, kurang stok)
 - [ ] **T-041** (P0) [BE] `POST /api/sales` (lock `FOR UPDATE`, `Idempotency-Key`, snapshot biaya) — dep: T-040, T-032
 - [ ] **T-042** (P0) [FE] UI POS (grid, keranjang reducer, pembayaran, struk dialog + print CSS, loading/toast, `Idempotency-Key` per percobaan) — dep: T-041 — AC: FR-POS-01
@@ -60,12 +63,14 @@ Aturan: hanya satu tugas `[/]` per agent pada satu waktu.
 - [ ] **T-044** (P0) [BE+FE] Riwayat penjualan (daftar + detail alokasi batch)
 
 ### Fase 5 — Price Shock + dashboard v1 (2–3 Nov)
+
 - [ ] **T-050** (P0) [BE] `domain/pricing.ts` (Opsi A/B, pembulatan step) + test — AC: 20.000 dan 115 ml
 - [ ] **T-051** (P0) [BE] Evaluasi alert saat pembelian + `reevaluateAlertsForMenu` (resep/harga/overhead/target) + auto-resolve — dep: T-050, T-021
 - [ ] **T-052** (P0) [BE+FE] Modal dampak pasca-pembelian + Pusat Peringatan + aksi terapkan harga/abaikan — AC: FR-PSI-01
 - [ ] **T-053** (P0) [BE+FE] Dashboard v1 (omzet, transaksi, laba estimasi, alert, kedaluwarsa, stok rendah) — AC: FR-DASH-01
 
 ### Demo & submission (paralel, mulai 26 Okt)
+
 - [ ] **T-060** (P0) [BE] Seed penuh fixture A & B (riwayat 30 hari deterministik, opening stock, edge case kedaluwarsa)
 - [ ] **T-061** (P0) [BE+FE] `POST /api/demo/reset` (guard `DEMO_MODE` + `isDemo` + cooldown 60 dtk) + tombol demo login — dep: T-060
 - [ ] **T-062** (P0) [FE] Banner Mode Demo + dry-run skrip demo Lampiran A
@@ -81,6 +86,7 @@ Aturan: hanya satu tugas `[/]` per agent pada satu waktu.
 ---
 
 ## 🟡 Medium Priority — Fitur Sekunder & Polish UI/UX (P1)
+
 - [ ] **T-100** (P1) [BE+FE] `domain/capacity.ts` + endpoint + UI kapasitas/bottleneck di POS, menu, dashboard — AC: FR-CAP-01
 - [ ] **T-101** (P1) [BE+FE] `domain/menu-engineering.ts` + endpoint + scatter Recharts + tabel padanan + rekomendasi terhitung + guard data — AC: fixture B 6/6 (sebelum & sesudah shock)
 - [ ] **T-102** (P1) [BE+FE] Void transaksi (restore ke batch asal, alasan wajib) — AC: FR-POS-03
@@ -98,6 +104,7 @@ Aturan: hanya satu tugas `[/]` per agent pada satu waktu.
 ---
 
 ## 🟢 Low Priority — Technical Debt, Optimasi & Nice-to-Have (P2)
+
 - [ ] **T-200** (P2) [BE+FE] Waste Radar: nilai risiko, menu terkait, harga lantai promo, batas diskon aman — AC: FR-WST-01
 - [ ] **T-201** (P2) [BE+FE] Ekspor CSV penjualan & stok
 - [ ] **T-202** (P2) [OPS] E2E Playwright untuk skrip demo
@@ -112,6 +119,7 @@ Aturan: hanya satu tugas `[/]` per agent pada satu waktu.
 ## Memori Proyek
 
 ### Keputusan (jangan dibalik tanpa persetujuan user)
+
 - D-01: **Paket 1** — React (Vite) + Express 5 + PostgreSQL (Neon) + Prisma 7 + Better Auth; deploy Vercel + Render/VPS.
 - D-02: Satu origin lewat Vercel rewrite `/api/*` (cookie first-party, tanpa CORS); wajib lulus uji Safari (T-017).
 - D-03: Backend otoritatif; frontend tanpa duplikasi rumus; live HPP via `POST /menus/preview-cost`.
@@ -123,17 +131,21 @@ Aturan: hanya satu tugas `[/]` per agent pada satu waktu.
 - D-09: Validasi env fail-fast via `parseEnv` (Zod 4) tanpa membocorkan nilai ke log/klien; `DEMO_MODE` wajib boolean via `z.stringbool()`.
 - D-10: Frontend menggunakan React Router 8 (Data Router) dan Prettier bersama di seluruh codebase.
 - D-11: Direktori root Render dikosongkan agar prisma.config.ts dapat merujuk `../database`.
+- D-12: Backend Express dikonfigurasi dual-mode: Vercel Serverless Functions via `backend/src/index.ts` (project Vercel ke-2, Hobby plan, region `sin1`) karena Render memerlukan billing/kartu kredit; runner standalone tetap tersedia di `backend/src/standalone.ts` (lihat ADR 0002).
 
 ### Pertanyaan terbuka
+
 - OQ-01: Nama tim & anggota (untuk proposal).
 - OQ-02 (terjawab): stack = Paket 1.
 - OQ-03: Sumber asli artikel Qasir (17 Apr 2026), Mekari (30 Jan 2026), statistik "25% gagal 2 tahun" — belum ditemukan.
-- OQ-04: Hosting backend: instance berbayar (Render Starter ±US$7/bln atau VPS) atau free tier + warm-up? Keputusan sebelum T-008.
+- OQ-04 (terjawab via ADR 0002): Backend di-deploy ke Vercel Serverless Functions (Hobby plan, region sin1) dengan fallback VPS/Render berbayar.
 - OQ-05: Pembagian tugas FE/BE antar anggota tim.
 
 ### Log sesi (tambah baris baru di atas)
-| Tanggal | Agent/Orang | Ringkasan | Tugas terkait |
-|---|---|---|---|
-| 2026-10-21 | Agent | Hardening repo: Prettier & Vitest frontend/backend, validasi env fail-fast & z.stringbool(), graceful shutdown server, penanganan error body-parser (400/413), modul health route minimalis, ekstraksi not-found & route-error pages, pembersihan tooling root Neon, integrasi CI format/test, ADR 0001 & docs/api.md | T-004, T-007, T-008, T-009 |
-| 2026-10-19 | Agent | Inisialisasi awal: Setup repo (T-002), Frontend Vite+React 19 (T-003), Router+Query+Client (T-004), Backend Express 5 (T-005), Prisma 7+Neon (T-006), CI (T-007), Vercel Deploy (T-008) | T-002 s.d. T-008 |
-| 2026-10-19 | Planner | Dokumen disesuaikan ke Paket 1 (React + Express) | T-001 |
+
+| Tanggal    | Agent/Orang | Ringkasan                                                                                                                                                                                                                                                                                                             | Tugas terkait              |
+| ---------- | ----------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------- |
+| 2026-10-21 | Agent       | Konfigurasi dual-mode backend untuk Vercel Serverless Functions: entry src/index.ts, rename standalone runner src/standalone.ts, backend/vercel.json (sin1), serverless-friendly pg.Pool (max 5, idle 10s), supertest entry test, ADR 0002, dan pembaruan arsitektur/README                                           | T-008                      |
+| 2026-10-21 | Agent       | Hardening repo: Prettier & Vitest frontend/backend, validasi env fail-fast & z.stringbool(), graceful shutdown server, penanganan error body-parser (400/413), modul health route minimalis, ekstraksi not-found & route-error pages, pembersihan tooling root Neon, integrasi CI format/test, ADR 0001 & docs/api.md | T-004, T-007, T-008, T-009 |
+| 2026-10-19 | Agent       | Inisialisasi awal: Setup repo (T-002), Frontend Vite+React 19 (T-003), Router+Query+Client (T-004), Backend Express 5 (T-005), Prisma 7+Neon (T-006), CI (T-007), Vercel Deploy (T-008)                                                                                                                               | T-002 s.d. T-008           |
+| 2026-10-19 | Planner     | Dokumen disesuaikan ke Paket 1 (React + Express)                                                                                                                                                                                                                                                                      | T-001                      |

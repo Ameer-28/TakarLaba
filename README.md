@@ -3,7 +3,7 @@
 > **Asisten Penjaga Margin & Anti-Waste untuk UMKM Kuliner**  
 > Dibuat untuk kompetisi **GTNIC 2026 (Web Development)**.
 
-TakarLaba adalah aplikasi web modern berbasis multi-tenant yang membantu pengusaha UMKM kuliner menghitung HPP (Harga Pokok Penjualan) secara akurat, mengalokasikan stok berbasis FEFO (*First Expired, First Out*), memitigasi lonjakan harga bahan baku (*Price Shock Impact*), dan menganalisis profitabilitas menu (*Menu Engineering*).
+TakarLaba adalah aplikasi web modern berbasis multi-tenant yang membantu pengusaha UMKM kuliner menghitung HPP (Harga Pokok Penjualan) secara akurat, mengalokasikan stok berbasis FEFO (_First Expired, First Out_), memitigasi lonjakan harga bahan baku (_Price Shock Impact_), dan menganalisis profitabilitas menu (_Menu Engineering_).
 
 ---
 
@@ -17,6 +17,7 @@ TakarLaba adalah aplikasi web modern berbasis multi-tenant yang membantu pengusa
 ## 🛠️ Stack Teknologi
 
 ### Dependensi Terpasang
+
 - **Frontend (`frontend/`):**
   - **Framework & Runtime:** React 19 · Vite 6
   - **Routing:** React Router 8 (Data Router)
@@ -31,6 +32,7 @@ TakarLaba adalah aplikasi web modern berbasis multi-tenant yang membantu pengusa
   - **Testing & Tooling:** Vitest · Supertest · Prettier · ESLint 9 · TypeScript strict
 
 ### Dependensi Direncanakan (Roadmap Fitur)
+
 - **Autentikasi & Multi-tenant:** Better Auth (sesi first-party via proxy)
 - **Keamanan Lanjutan:** express-rate-limit
 - **Perhitungan Desimal Finansial:** decimal.js
@@ -50,6 +52,7 @@ TakarLaba adalah aplikasi web modern berbasis multi-tenant yang membantu pengusa
 ## 🚀 Memulai (Quickstart dari Clone Bersih)
 
 ### 1. Clone & Konfigurasi Git Hook
+
 ```bash
 git clone https://github.com/Ameer-28/TakarLaba.git
 cd TakarLaba
@@ -57,14 +60,19 @@ git config core.hooksPath .githooks
 ```
 
 ### 2. Konfigurasi Variabel Lingkungan
+
 Salin file konfigurasi contoh untuk backend:
+
 ```bash
 cp backend/.env.example backend/.env
 ```
+
 Sesuaikan konfigurasi database (`DATABASE_URL` dan `DIRECT_URL`) serta secret dummy pada `backend/.env`.
 
 ### 3. Persiapan Database
+
 Pilih salah satu metode:
+
 - **Opsi A (Docker lokal):**
   ```bash
   docker compose -f database/docker-compose.yml up -d
@@ -72,21 +80,26 @@ Pilih salah satu metode:
 - **Opsi B (Neon Serverless Postgres):** Gunakan connection string database Neon pada `backend/.env`.
 
 ### 4. Menjalankan Backend
+
 ```bash
 cd backend
 npm ci
 npm run db:generate
 npm run dev
 ```
+
 Backend akan berjalan di `http://localhost:4000` (uji health check: `GET http://localhost:4000/api/health`).
 
 ### 5. Menjalankan Frontend
+
 Di terminal terpisah:
+
 ```bash
 cd frontend
 npm ci
 npm run dev
 ```
+
 Frontend akan berjalan di `http://localhost:5173` dengan proxy `/api` otomatis mengarah ke backend lokal.
 
 ---
@@ -94,28 +107,30 @@ Frontend akan berjalan di `http://localhost:5173` dengan proxy `/api` otomatis m
 ## 📜 Perintah yang Tersedia (NPM Scripts)
 
 ### Backend (`cd backend`)
-| Perintah | Deskripsi |
-|---|---|
-| `npm run dev` | Menjalankan server dev dengan tsx watch (otomatis `db:generate` via predev) |
-| `npm run build` | Mengompilasi TypeScript ke `dist/` |
-| `npm start` | Menjalankan build produksi dari `dist/server.js` |
-| `npm run db:generate` | Menghasilkan client Prisma (`prisma generate`) |
-| `npm run test` | Menjalankan pengujian unit & integrasi dengan Vitest |
-| `npm run lint` | Memeriksa linting dengan ESLint |
-| `npm run typecheck` | Memeriksa tipe TypeScript (`tsc --noEmit`) |
-| `npm run format` | Memformat kode dengan Prettier |
-| `npm run format:check` | Memeriksa kepatuhan format Prettier |
+
+| Perintah               | Deskripsi                                                                   |
+| ---------------------- | --------------------------------------------------------------------------- |
+| `npm run dev`          | Menjalankan server dev dengan tsx watch (otomatis `db:generate` via predev) |
+| `npm run build`        | Mengompilasi TypeScript ke `dist/`                                          |
+| `npm start`            | Menjalankan build produksi dari `dist/standalone.js`                        |
+| `npm run db:generate`  | Menghasilkan client Prisma (`prisma generate`)                              |
+| `npm run test`         | Menjalankan pengujian unit & integrasi dengan Vitest                        |
+| `npm run lint`         | Memeriksa linting dengan ESLint                                             |
+| `npm run typecheck`    | Memeriksa tipe TypeScript (`tsc --noEmit`)                                  |
+| `npm run format`       | Memformat kode dengan Prettier                                              |
+| `npm run format:check` | Memeriksa kepatuhan format Prettier                                         |
 
 ### Frontend (`cd frontend`)
-| Perintah | Deskripsi |
-|---|---|
-| `npm run dev` | Menjalankan Vite dev server dengan proxy API |
-| `npm run build` | Menjalankan typecheck dan kompilasi bundle Vite |
-| `npm run test` | Menjalankan pengujian dengan Vitest |
-| `npm run lint` | Memeriksa linting dengan ESLint |
-| `npm run typecheck` | Memeriksa tipe TypeScript (`tsc -b --noEmit`) |
-| `npm run format` | Memformat kode dengan Prettier |
-| `npm run format:check` | Memeriksa kepatuhan format Prettier |
+
+| Perintah               | Deskripsi                                       |
+| ---------------------- | ----------------------------------------------- |
+| `npm run dev`          | Menjalankan Vite dev server dengan proxy API    |
+| `npm run build`        | Menjalankan typecheck dan kompilasi bundle Vite |
+| `npm run test`         | Menjalankan pengujian dengan Vitest             |
+| `npm run lint`         | Memeriksa linting dengan ESLint                 |
+| `npm run typecheck`    | Memeriksa tipe TypeScript (`tsc -b --noEmit`)   |
+| `npm run format`       | Memformat kode dengan Prettier                  |
+| `npm run format:check` | Memeriksa kepatuhan format Prettier             |
 
 ---
 
@@ -128,6 +143,7 @@ takarlaba/
 │   │   ├── api/          # apiClient dan query hooks
 │   │   ├── pages/        # Halaman dan rute (NotFound, RouteError)
 │   │   └── ...
+│   ├── vercel.json       # Konfigurasi rewrite proxy /api ke backend
 │   └── package.json
 ├── backend/              # Authoritative REST API (Express 5 + Prisma 7)
 │   ├── src/
@@ -135,8 +151,10 @@ takarlaba/
 │   │   ├── lib/          # db, logger, envelope, errors
 │   │   ├── middleware/   # error-handler, auth
 │   │   ├── routes/       # health.routes.ts, dsb.
-│   │   └── server.ts     # Inisialisasi HTTP server & graceful shutdown
+│   │   ├── index.ts      # Serverless entry Vercel Function (export default app)
+│   │   └── standalone.ts # Standalone server runner lokal & graceful shutdown
 │   ├── tests/            # Pengujian unit & integrasi Vitest + Supertest
+│   ├── vercel.json       # Konfigurasi region sin1 Vercel Function
 │   └── package.json
 ├── database/             # Skema Prisma, migrasi, dan konfigurasi Docker Compose
 ├── docs/                 # Dokumentasi API, ADR, dan arsitektur
@@ -151,9 +169,29 @@ takarlaba/
 
 ---
 
+## 🚢 Deployment (Vercel Dual-Project & Neon)
+
+Aplikasi TakarLaba menggunakan arsitektur deployment dua proyek di Vercel:
+
+1. **Frontend Project (Vercel):**
+   - Root Directory: `frontend`
+   - Framework: Vite (`npm run build`, output: `dist`)
+   - Reverse Proxy: `frontend/vercel.json` me-_rewrite_ request `/api/*` ke project backend, menjaga cookie sesi autentikasi tetap _first-party_ (bebas isu CORS dan Safari ITP).
+2. **Backend Project (Vercel Functions):**
+   - Root Directory: `backend`
+   - Runtime: Node.js 22 LTS (Express 5 zero-config serverless function via `src/index.ts`)
+   - Region: `sin1` (Singapura) via `backend/vercel.json`
+   - Database Pool: Dikonfigurasi ramah serverless (`max: 5`, idle timeout 10 detik).
+3. **Database (Neon Serverless PostgreSQL):**
+   - Region: `ap-southeast-1` (Singapura)
+   - Runtime connection pooling via `DATABASE_URL` dan migrasi via `DIRECT_URL`.
+
+---
+
 ## 🤝 Aturan Kolaborasi & Kontribusi
 
 Setiap kontributor dan AI Coding Agent wajib mematuhi panduan pada:
+
 - [AGENTS.md](AGENTS.md) — Aturan arsitektur, larangan keras, dan konvensi kode.
 - [WORKFLOW.md](WORKFLOW.md) — Alur kerja git, format Conventional Commits, dan Definition of Done.
 - [TODO.md](TODO.md) — Pelacak prioritas tugas (P0/P1/P2) dan status implementasi.
@@ -161,4 +199,5 @@ Setiap kontributor dan AI Coding Agent wajib mematuhi panduan pada:
 ---
 
 ## 📜 Lisensi
+
 Proyek ini dilisensikan di bawah lisensi [MIT](LICENSE).
