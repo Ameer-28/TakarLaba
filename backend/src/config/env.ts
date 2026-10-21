@@ -16,21 +16,53 @@ const envSchema = z.object({
   DATABASE_URL: z.string().min(1),
   DIRECT_URL: z.string().optional(),
   DATABASE_URL_UNPOOLED: z.string().optional(),
-  BETTER_AUTH_SECRET: z.string().default("development-fallback-secret-min-32-chars-long"),
-  BETTER_AUTH_URL: z.string().default("http://localhost:5173"),
-  FRONTEND_URL: z.string().default("http://localhost:5173"),
-  DEMO_MODE: z.coerce.boolean().default(true),
+  BETTER_AUTH_SECRET: z.string().min(32),
+  BETTER_AUTH_URL: z.url(),
+  FRONTEND_URL: z.url(),
+  DEMO_MODE: z.stringbool().default(false),
 });
 
-const parsed = envSchema.safeParse(process.env);
+export type AppEnv = {
+  NODE_ENV: "development" | "production" | "test";
+  PORT: number;
+  DATABASE_URL: string;
+  DIRECT_URL?: string;
+  BETTER_AUTH_SECRET: string;
+  BETTER_AUTH_URL: string;
+  FRONTEND_URL: string;
+  DEMO_MODE: boolean;
+};
 
-if (!parsed.success) {
-  console.error("❌ Invalid environment configuration:", parsed.error.issues);
-  throw new Error("Invalid environment configuration. Check logs above.");
+export function parseEnv(source: Record<string, string | undefined>): AppEnv {
+  const parsed = envSchema.safeParse(source);
+
+  if (!parsed.success) {
+    const invalidKeys = Array.from(
+      new Set(parsed.error.issues.map((issue) => issue.path.join(".")).filter(Boolean))
+    );
+    throw new Error(`Invalid environment variables: ${invalidKeys.join(", ")}`);
+  }
+
+  const data = parsed.data;
+  return {
+    NODE_ENV: data.NODE_ENV,
+    PORT: data.PORT,
+    DATABASE_URL: data.DATABASE_URL,
+    DIRECT_URL: data.DIRECT_URL || data.DATABASE_URL_UNPOOLED || undefined,
+    BETTER_AUTH_SECRET: data.BETTER_AUTH_SECRET,
+    BETTER_AUTH_URL: data.BETTER_AUTH_URL,
+    FRONTEND_URL: data.FRONTEND_URL,
+    DEMO_MODE: data.DEMO_MODE,
+  };
 }
 
-export const env = {
-  ...parsed.data,
-  DIRECT_URL:
-    parsed.data.DIRECT_URL || parsed.data.DATABASE_URL_UNPOOLED || parsed.data.DATABASE_URL,
-};
+let loadedEnv: AppEnv;
+try {
+  loadedEnv = parseEnv(process.env);
+} catch (err: unknown) {
+  const message = err instanceof Error ? err.message : String(err);
+  process.stderr.write(`[FATAL] ${message}\n`);
+  process.exit(1);
+}
+
+export const env = loadedEnv;
