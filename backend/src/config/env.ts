@@ -1,14 +1,5 @@
-import "dotenv/config";
-import fs from "node:fs";
-import path from "node:path";
-import dotenv from "dotenv";
+import "./load-env.js";
 import { z } from "zod";
-
-// Check if parent .env.local or root .env exists
-const rootEnvLocal = path.resolve(process.cwd(), "../.env.local");
-if (fs.existsSync(rootEnvLocal)) {
-  dotenv.config({ path: rootEnvLocal });
-}
 
 const envSchema = z.object({
   NODE_ENV: z.enum(["development", "production", "test"]).default("development"),

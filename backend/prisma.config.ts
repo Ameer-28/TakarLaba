@@ -1,18 +1,11 @@
-import fs from "node:fs";
-import path from "node:path";
-import dotenv from "dotenv";
+import "./src/config/load-env.js";
 import { defineConfig, env } from "prisma/config";
 
-// Load root .env.local or local .env
-const rootEnvLocal = path.resolve(process.cwd(), "../.env.local");
-if (fs.existsSync(rootEnvLocal)) {
-  dotenv.config({ path: rootEnvLocal });
+// Resolve DIRECT_URL from DATABASE_URL_UNPOOLED if DIRECT_URL is unset; never fallback to DATABASE_URL (pooled)
+// See backend/src/config/load-env.ts for centralized environment loading.
+if (!process.env.DIRECT_URL && process.env.DATABASE_URL_UNPOOLED) {
+  process.env.DIRECT_URL = process.env.DATABASE_URL_UNPOOLED;
 }
-dotenv.config();
-
-// Set DIRECT_URL from DATABASE_URL_UNPOOLED or DATABASE_URL if not explicitly set
-process.env.DIRECT_URL =
-  process.env.DIRECT_URL || process.env.DATABASE_URL_UNPOOLED || process.env.DATABASE_URL || "";
 
 export default defineConfig({
   schema: "../database/schema.prisma",
