@@ -6,9 +6,6 @@ export const prisma = new PrismaClient({
   adapter: new PrismaPg({ connectionString: env.DATABASE_URL }),
 });
 
-export async function checkPrismaConnection() {
-  // Test query on Prisma client
-  return await prisma.$queryRaw<Array<{ current_time: Date; database_name: string }>>`
-    SELECT NOW() as current_time, current_database() as database_name
-  `;
+export async function checkPrismaConnection(): Promise<void> {
+  await prisma.$queryRaw`SELECT 1`;
 }
