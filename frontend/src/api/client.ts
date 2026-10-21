@@ -43,10 +43,7 @@ export function generateIdempotencyKey(): string {
   return `key_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
 }
 
-export async function apiClient<T>(
-  endpoint: string,
-  options: RequestOptions = {}
-): Promise<T> {
+export async function apiClient<T>(endpoint: string, options: RequestOptions = {}): Promise<T> {
   const { idempotencyKey, params, headers = {}, ...rest } = options;
 
   let url = endpoint.startsWith("/") ? endpoint : `/api/${endpoint}`;

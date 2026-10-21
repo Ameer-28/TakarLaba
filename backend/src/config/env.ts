@@ -31,5 +31,6 @@ if (!parsed.success) {
 
 export const env = {
   ...parsed.data,
-  DIRECT_URL: parsed.data.DIRECT_URL || parsed.data.DATABASE_URL_UNPOOLED || parsed.data.DATABASE_URL,
+  DIRECT_URL:
+    parsed.data.DIRECT_URL || parsed.data.DATABASE_URL_UNPOOLED || parsed.data.DATABASE_URL,
 };

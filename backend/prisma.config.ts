@@ -12,10 +12,7 @@ dotenv.config();
 
 // Set DIRECT_URL from DATABASE_URL_UNPOOLED or DATABASE_URL if not explicitly set
 process.env.DIRECT_URL =
-  process.env.DIRECT_URL ||
-  process.env.DATABASE_URL_UNPOOLED ||
-  process.env.DATABASE_URL ||
-  "";
+  process.env.DIRECT_URL || process.env.DATABASE_URL_UNPOOLED || process.env.DATABASE_URL || "";
 
 export default defineConfig({
   schema: "../database/schema.prisma",
