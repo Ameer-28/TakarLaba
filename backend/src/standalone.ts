@@ -1,7 +1,7 @@
 import { createApp } from "./app.js";
 import { env } from "./config/env.js";
 import { logger } from "./lib/logger.js";
-import { prisma } from "./lib/db.js";
+import { prisma, pool } from "./lib/db.js";
 
 const app = createApp();
 
@@ -25,6 +25,7 @@ const shutdown = (signal: string) => {
     }
     try {
       await prisma.$disconnect();
+      await pool.end();
       logger.info("Database connection closed and HTTP server stopped");
       process.exit(0);
     } catch (dbErr) {
