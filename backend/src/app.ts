@@ -11,7 +11,8 @@ export function createApp() {
   // Security headers via Helmet
   app.use(helmet());
 
-  // Trust proxy for Render/Vercel/Cloudflare reverse proxies
+  // Trust proxy for reverse proxies (Render, Vercel, Cloudflare).
+  // NOTE: Nilai "trust proxy" perlu diverifikasi untuk dua hop di produksi (Vercel rewrite -> host backend).
   app.set("trust proxy", 1);
 
   // Structured HTTP request logging with Pino
@@ -23,6 +24,9 @@ export function createApp() {
       },
     })
   );
+
+  // NOTE: Handler Better Auth WAJIB dipasang sebelum express.json() (lihat AGENTS.md §2 & §4).
+  // app.all("/api/auth/*splat", toNodeHandler(auth));
 
   // Body parsing limited to 100kb
   app.use(express.json({ limit: "100kb" }));
