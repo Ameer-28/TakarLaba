@@ -6,6 +6,7 @@
     "predev": "npm run db:generate",
     "dev": "tsx watch src/standalone.ts",
     "db:generate": "prisma generate",
+    "prebuild": "npm run db:generate",
     "build": "tsc",
     "start": "node dist/standalone.js",
     "lint": "eslint .",
