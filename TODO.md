@@ -1,7 +1,7 @@
 # TODO.md — Pelacak Progres & Memori Proyek
 
 > AI **wajib** memperbarui file ini setiap selesai/mulai/terblokir pada satu tugas (lihat `WORKFLOW.md` §5).
-> Terakhir diperbarui: 2026-10-19 · Stack: React+Vite / Express 5 / Prisma 7 · Fase aktif: 0 (Setup)
+> Terakhir diperbarui: 2026-10-21 · Stack: React 19 + Vite / Express 5 / Prisma 7 · Status: Hardening & Persiapan Auth
 
 ## Status Legend
 `[ ]` Todo · `[/]` In Progress · `[x]` Done · `[~]` Blocked (tulis alasan) · `[-]` Cancelled (tulis alasan)
@@ -21,8 +21,9 @@ Aturan: hanya satu tugas `[/]` per agent pada satu waktu.
 - [x] **T-004** (P0) [FE] shadcn/ui init (+ `tw-animate-css`), Sonner, design token, React Router v8 data router, QueryClientProvider, `api/client.ts` (envelope + ApiError) — dep: T-003
 - [x] **T-005** (P0) [BE] Scaffold Express 5 ESM TS (`NodeNext`), `config/env.ts` (Zod), `app.ts`/`server.ts`, pino, helmet, `errorHandler` envelope, `/api/health`, tsx dev, tsc build — dep: T-002 — AC: `GET /api/health` 200
 - [x] **T-006** (P0) [DB/BE] Prisma 7: `database/schema.prisma`, `backend/prisma.config.ts`, adapter-pg, `db.ts`, Docker Postgres lokal. **Spike:** `npm run build && npm start` berjalan dengan client Prisma (fallback: tsx runtime) — dep: T-005 — AC: `prisma validate` OK; start dari `dist/` berhasil
-- [x] **T-007** (P0) [OPS] GitHub Actions CI: job `backend` (lint, typecheck, test, build) & `frontend` — dep: T-003, T-005
-- [x] **T-008** (P0) [OPS] Deploy: Neon (pooled + direct URL), backend di Render/VPS, frontend di Vercel dengan `vercel.json` rewrite `/api/*`; monitor uptime — dep: T-004, T-006 — AC: `/api/health` **lewat domain frontend** = ok
+- [x] **T-007** (P0) [OPS] GitHub Actions CI: job `backend` (format check, lint, typecheck, test, build) & `frontend` (format check, lint, typecheck, test, build) — dep: T-003, T-005
+- [~] **T-008** (P0) [OPS] Deploy: Neon (pooled + direct URL), backend di Render/VPS, frontend di Vercel dengan `vercel.json` rewrite `/api/*`; monitor uptime — menunggu verifikasi manual oleh pemilik repo (3 perintah curl) dan monitor uptime — dep: T-004, T-006
+- [ ] **T-009** (P0) [OPS] Verifikasi deploy live dan rotasi kredensial Neon, dikerjakan pemilik repo
 
 ### Fase 1 — Auth, tenant, shell (20–22 Okt)
 
@@ -119,6 +120,9 @@ Aturan: hanya satu tugas `[/]` per agent pada satu waktu.
 - D-06: Satu alert OPEN per menu (partial unique index); auto-resolve saat margin pulih.
 - D-07: Stok disimpan dalam raw base unit; resep dalam qty usable; yield dipakai saat potong stok & costing.
 - D-08: Demo reset hanya untuk bisnis `isDemo`, cooldown 60 dtk; seed berada di `backend/src/seed`.
+- D-09: Validasi env fail-fast via `parseEnv` (Zod 4) tanpa membocorkan nilai ke log/klien; `DEMO_MODE` wajib boolean via `z.stringbool()`.
+- D-10: Frontend menggunakan React Router 8 (Data Router) dan Prettier bersama di seluruh codebase.
+- D-11: Direktori root Render dikosongkan agar prisma.config.ts dapat merujuk `../database`.
 
 ### Pertanyaan terbuka
 - OQ-01: Nama tim & anggota (untuk proposal).
@@ -130,5 +134,6 @@ Aturan: hanya satu tugas `[/]` per agent pada satu waktu.
 ### Log sesi (tambah baris baru di atas)
 | Tanggal | Agent/Orang | Ringkasan | Tugas terkait |
 |---|---|---|---|
-| 2026-10-19 | Agent | Selesai Fase 0: Setup repo (T-002), Frontend Vite+React 19 (T-003), Router+Query+Client (T-004), Backend Express 5 (T-005), Prisma 7+Neon (T-006), CI (T-007), Vercel Deploy (T-008) | T-002 s.d. T-008 |
+| 2026-10-21 | Agent | Hardening repo: Prettier & Vitest frontend/backend, validasi env fail-fast & z.stringbool(), graceful shutdown server, penanganan error body-parser (400/413), modul health route minimalis, ekstraksi not-found & route-error pages, pembersihan tooling root Neon, integrasi CI format/test, ADR 0001 & docs/api.md | T-004, T-007, T-008, T-009 |
+| 2026-10-19 | Agent | Inisialisasi awal: Setup repo (T-002), Frontend Vite+React 19 (T-003), Router+Query+Client (T-004), Backend Express 5 (T-005), Prisma 7+Neon (T-006), CI (T-007), Vercel Deploy (T-008) | T-002 s.d. T-008 |
 | 2026-10-19 | Planner | Dokumen disesuaikan ke Paket 1 (React + Express) | T-001 |
