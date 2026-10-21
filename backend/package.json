@@ -4,10 +4,10 @@
   "type": "module",
   "scripts": {
     "predev": "npm run db:generate",
-    "dev": "tsx watch src/server.ts",
+    "dev": "tsx watch src/standalone.ts",
     "db:generate": "prisma generate",
     "build": "tsc",
-    "start": "node dist/server.js",
+    "start": "node dist/standalone.js",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
