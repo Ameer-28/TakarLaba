@@ -10,7 +10,7 @@ Jika dokumen bertentangan dengan permintaan user, **tanyakan dulu**; jangan mene
 - **Nama:** TakarLaba — asisten penjaga margin & anti-waste untuk UMKM kuliner.
 - **Tipe:** Dua aplikasi dalam satu repo: `frontend/` (React SPA) dan `backend/` (Express REST API), ditambah `database/` (skema & migrasi) dan `docs/`. Multi-tenant-ready. Untuk kompetisi GTNIC 2026 (Web Development).
 - **Stack inti:**
-  - Frontend: React 19.2 · Vite · TypeScript strict · React Router v7 · TanStack Query v5 · Tailwind CSS v4 + shadcn/ui · React Hook Form + Zod 4 · Recharts · Sonner.
+  - Frontend: React 19 · Vite · TypeScript strict · React Router v8 · TanStack Query v5 · Tailwind CSS v4 + shadcn/ui · React Hook Form + Zod 4 · Recharts · Sonner.
   - Backend: Node.js 22 · Express 5 · TypeScript (ESM) · Zod 4 · Prisma 7 · Better Auth · decimal.js · pino · helmet · express-rate-limit · Vitest + supertest.
   - Data: PostgreSQL 17 (Neon di produksi). Deploy: Vercel (frontend) + Render/VPS (backend).
 - **Alur data:** Browser → Vercel (`/api/*` di-*rewrite*) → Express → Prisma → PostgreSQL. **Browser hanya berbicara ke origin frontend** (satu origin, tanpa CORS, cookie sesi first-party).
@@ -24,9 +24,9 @@ Jika dokumen bertentangan dengan permintaan user, **tanyakan dulu**; jangan mene
 **Runtime:** Node.js 22 LTS (minimum 20.19, syarat Prisma 7). Package manager: **npm**, dengan lockfile terpisah di `frontend/` dan `backend/` (tanpa workspaces; jangan campur pnpm/yarn).
 
 ### Frontend
-- **React 19.2:** `ref` sebagai prop (tanpa `forwardRef`); tanpa `defaultProps` pada function component; `useActionState` bukan `useFormState`.
+- **React 19:** `ref` sebagai prop (tanpa `forwardRef`); tanpa `defaultProps` pada function component; `useActionState` bukan `useFormState`.
 - **Vite** + `@vitejs/plugin-react`. Alias `@/` → `src/`. Dev server mem-*proxy* `/api` ke backend lokal (`http://localhost:4000`).
-- **React Router v7:** impor dari `react-router`; pakai *data router* (`createBrowserRouter` + `RouterProvider`) dan route `lazy`. **Bukan** framework mode.
+- **React Router v8:** impor dari `react-router`; pakai *data router* (`createBrowserRouter` + `RouterProvider`) dan route `lazy`. **Bukan** framework mode.
 - **TanStack Query v5:** hanya signature objek `useQuery({ queryKey, queryFn })`; `isPending` (bukan `isLoading` untuk status awal); `gcTime` (bukan `cacheTime`); setelah mutasi panggil `invalidateQueries({ queryKey })`. Query key lewat *key factory* per fitur di `src/api/keys.ts`.
 - **Tailwind CSS v4:** plugin `@tailwindcss/vite` (**bukan** PostCSS); CSS-first (`@import "tailwindcss"` dan `@theme` di `src/index.css`); jangan buat `tailwind.config.js`. Browser minimum: Safari 16.4+, Chrome 111+, Firefox 128+ (⚠ cek ulang di docs).
 - **shadcn/ui:** tambah komponen lewat CLI (`npx shadcn@latest add …`) ke `src/components/ui`; animasi memakai `tw-animate-css`.
@@ -99,8 +99,10 @@ Jika dokumen bertentangan dengan permintaan user, **tanyakan dulu**; jangan mene
 19. **Dilarang** mengarang API library dari ingatan; verifikasi di dokumentasi resmi.
 20. **Dilarang** menyentuh seed/reset di luar bisnis `isDemo=true`.
 21. **Dilarang** commit yang menumpuk perubahan tak terkait, `git add .` tanpa meninjau `git status`/`git diff --staged`, atau menulis ulang riwayat (backdate, force-push ke `main`, squash seluruh fitur). **Dilarang** memasukkan label tahapan (phase/fase/tahap/sprint/step), ID tugas (T-xxx), kata klise, atau emoji ke pesan commit dan nama branch; subject harus menyebut hal konkret yang berubah (lihat WORKFLOW.md §6.2). Dilarang `--no-verify`.
+22. **Dilarang** memakai `z.coerce.boolean()` untuk variabel lingkungan; wajib memakai `z.stringbool()` agar string `"false"` tidak menjadi bernilai `true`.
 
 ## 5. Perintah Standar
-**Frontend (`cd frontend`):** `npm run dev` · `npm run lint` · `npm run typecheck` · `npm run test` · `npm run build`.
-**Backend (`cd backend`):** `npm run dev` · `npm run lint` · `npm run typecheck` · `npm run test` (unit) · `npm run test:integration` · `npm run build` · `npm start` · `npx prisma migrate dev` (lokal, dengan izin) · `npm run db:seed` (hanya lokal/demo).
+**Git Hook Setup:** `git config core.hooksPath .githooks` (wajib dijalankan di setiap clone baru).
+**Frontend (`cd frontend`):** `npm run dev` · `npm run lint` · `npm run typecheck` · `npm run test` · `npm run format` · `npm run format:check` · `npm run build`.
+**Backend (`cd backend`):** `npm run db:generate` · `npm run dev` (otomatis predev db:generate) · `npm run lint` · `npm run typecheck` · `npm run test` · `npm run format` · `npm run format:check` · `npm run build` · `npm start` · `npx prisma migrate dev` (lokal, dengan izin) · `npm run db:seed` (hanya lokal/demo).
 Sebelum menyatakan tugas selesai: `lint` + `typecheck` + `test` + `build` hijau di **setiap folder yang disentuh**.

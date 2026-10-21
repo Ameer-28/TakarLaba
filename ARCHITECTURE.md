@@ -6,8 +6,8 @@
 
 | Layer | Teknologi | Kegunaan |
 |---|---|---|
-| Frontend | React 19.2 + Vite + TypeScript strict | SPA: UI, form, dashboard, POS |
-| Routing | React Router v7 (data router, lazy routes) | Navigasi, code splitting per halaman |
+| Frontend | React 19 + Vite + TypeScript strict | SPA: UI, form, dashboard, POS |
+| Routing | React Router v8 (data router, lazy routes) | Navigasi, code splitting per halaman |
 | Server state | TanStack Query v5 | Fetch, cache, loading/error state, invalidation setelah mutasi |
 | Styling & UI kit | Tailwind CSS v4 (`@tailwindcss/vite`) + shadcn/ui + lucide-react + Sonner | Komponen konsisten, responsif, toast feedback |
 | Form & validasi UX | React Hook Form + Zod 4 | Validasi sisi klien (UX); backend tetap otoritatif |
@@ -326,7 +326,7 @@ Dokumentasi rinci (skema request/response, error code per endpoint, contoh `curl
 }
 ```
   Aturan `/api` harus **di atas** fallback SPA. URL backend ditulis langsung (bukan secret); mengubahnya = commit baru.
-- **Backend (Render Starter atau VPS):** Root Directory `backend`; build `npm ci --include=dev && npx prisma generate && npm run build` (⚠ `NODE_ENV=production` dapat melewatkan devDependencies); start `node dist/server.js`; health check `/api/health`; semua env diisi di dashboard. **Instance berbayar kecil dianjurkan selama 19 Okt–14 Nov** karena free tier tidur setelah 15 menit idle dan butuh ±1 menit untuk bangun. Fallback gratis: monitor uptime tiap 5 menit ke `/api/health` (lewat domain frontend) + warm-up sebelum sesi juri/final; siapkan VPS cadangan.
+- **Backend (Render Starter atau VPS):** Root Directory DIKOSONGKAN (karena `backend/prisma.config.ts` merujuk `../database`); build `cd backend && npm ci --include=dev && npx prisma generate && npm run build` (⚠ `NODE_ENV=production` dapat melewatkan devDependencies); start `cd backend && npm start`; health check `/api/health`; Build Filters: `backend/**` dan `database/**`; semua env diisi di dashboard. **Instance berbayar kecil dianjurkan selama 19 Okt–14 Nov** karena free tier tidur setelah 15 menit idle dan butuh ±1 menit untuk bangun. Fallback gratis: monitor uptime tiap 5 menit ke `/api/health` (lewat domain frontend) + warm-up sebelum sesi juri/final; siapkan VPS cadangan.
 - **Database (Neon):** pooled URL untuk runtime, direct URL untuk migrasi. Free tier dapat suspend saat idle — dicakup oleh health ping.
 - **Migrasi:** `prisma migrate deploy` dijalankan **manual dengan izin** (bukan otomatis saat build).
 - **CI (`.github/workflows/ci.yml`):** job `backend` (lint, typecheck, test, integration dengan service Postgres, build) dan job `frontend` (lint, typecheck, test, build).

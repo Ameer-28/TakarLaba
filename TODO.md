@@ -18,7 +18,7 @@ Aturan: hanya satu tugas `[/]` per agent pada satu waktu.
 - [x] **T-001** (P0) [DOC] Finalisasi dokumen perencanaan (PRD, AGENTS, ARCHITECTURE, TODO, SKILL, WORKFLOW) untuk Paket 1
 - [x] **T-002** (P0) [OPS] Init repo GitHub publik, struktur `frontend/ backend/ database/ docs/`, `.gitignore`, LICENSE (MIT), README kerangka, root `package.json` (script `npm --prefix`), `.env.example` per folder — AC: tidak ada `.env` ter-commit
 - [x] **T-003** (P0) [FE] Scaffold Vite + React 19 + TS strict, Tailwind v4 (`@tailwindcss/vite`), alias `@/`, ESLint — dep: T-002 — AC: `lint`, `typecheck`, `build` hijau
-- [x] **T-004** (P0) [FE] shadcn/ui init (+ `tw-animate-css`), Sonner, design token, React Router v7 data router, QueryClientProvider, `api/client.ts` (envelope + ApiError) — dep: T-003
+- [x] **T-004** (P0) [FE] shadcn/ui init (+ `tw-animate-css`), Sonner, design token, React Router v8 data router, QueryClientProvider, `api/client.ts` (envelope + ApiError) — dep: T-003
 - [x] **T-005** (P0) [BE] Scaffold Express 5 ESM TS (`NodeNext`), `config/env.ts` (Zod), `app.ts`/`server.ts`, pino, helmet, `errorHandler` envelope, `/api/health`, tsx dev, tsc build — dep: T-002 — AC: `GET /api/health` 200
 - [x] **T-006** (P0) [DB/BE] Prisma 7: `database/schema.prisma`, `backend/prisma.config.ts`, adapter-pg, `db.ts`, Docker Postgres lokal. **Spike:** `npm run build && npm start` berjalan dengan client Prisma (fallback: tsx runtime) — dep: T-005 — AC: `prisma validate` OK; start dari `dist/` berhasil
 - [x] **T-007** (P0) [OPS] GitHub Actions CI: job `backend` (lint, typecheck, test, build) & `frontend` — dep: T-003, T-005
