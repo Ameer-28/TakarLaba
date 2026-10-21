@@ -5,7 +5,7 @@
   "rewrites": [
     {
       "source": "/api/:path*",
-      "destination": "https://takarlaba-api.onrender.com/api/:path*"
+      "destination": "https://takar-laba-api.vercel.app/api/:path*"
     },
     {
       "source": "/((?!api/).*)",
