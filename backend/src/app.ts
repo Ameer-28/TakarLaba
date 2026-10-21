@@ -8,8 +8,12 @@ import { errorHandler, notFoundHandler } from "./middleware/error-handler.js";
 export function createApp() {
   const app = express();
 
-  // Security headers via Helmet
-  app.use(helmet());
+  // Security headers via Helmet (compatible with ESM namespace and default export interop)
+  type HelmetHandler = () => express.RequestHandler;
+  const helmetFn = (
+    typeof helmet === "function" ? helmet : (helmet as { default: HelmetHandler }).default
+  ) as HelmetHandler;
+  app.use(helmetFn());
 
   // Trust proxy for reverse proxies (Render, Vercel, Cloudflare).
   // NOTE: Nilai "trust proxy" perlu diverifikasi untuk dua hop di produksi (Vercel rewrite -> host backend).
