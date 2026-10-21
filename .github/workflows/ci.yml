@@ -8,7 +8,7 @@ on:
 
 jobs:
   backend:
-    name: Backend (Lint, Typecheck, Build)
+    name: Backend (Format, Lint, Typecheck, Test, Build)
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -30,17 +30,23 @@ jobs:
           DATABASE_URL: "postgresql://dummy:dummy@localhost:5432/dummy?sslmode=disable"
           DIRECT_URL: "postgresql://dummy:dummy@localhost:5432/dummy?sslmode=disable"
 
+      - name: Format check
+        run: cd backend && npm run format:check
+
       - name: Lint
         run: cd backend && npm run lint
 
       - name: Typecheck
         run: cd backend && npm run typecheck
 
+      - name: Test
+        run: cd backend && npm run test
+
       - name: Build
         run: cd backend && npm run build
 
   frontend:
-    name: Frontend (Lint, Typecheck, Build)
+    name: Frontend (Format, Lint, Typecheck, Test, Build)
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -56,11 +62,17 @@ jobs:
       - name: Install dependencies
         run: cd frontend && npm ci
 
+      - name: Format check
+        run: cd frontend && npm run format:check
+
       - name: Lint
         run: cd frontend && npm run lint
 
       - name: Typecheck
         run: cd frontend && npm run typecheck
+
+      - name: Test
+        run: cd frontend && npm run test
 
       - name: Build
         run: cd frontend && npm run build

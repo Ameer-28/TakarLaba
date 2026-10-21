@@ -13,10 +13,12 @@
     "lint": "npm run lint --prefix backend && npm run lint --prefix frontend",
     "typecheck:backend": "npm run typecheck --prefix backend",
     "typecheck:frontend": "npm run typecheck --prefix frontend",
-    "typecheck": "npm run typecheck --prefix backend && npm run typecheck --prefix frontend"
-  },
-  "dependencies": {
-    "@neon/config": "^1.9.2",
-    "@neon/env": "^1.6.3"
+    "typecheck": "npm run typecheck --prefix backend && npm run typecheck --prefix frontend",
+    "format:backend": "npm run format --prefix backend",
+    "format:frontend": "npm run format --prefix frontend",
+    "format": "npm run format --prefix backend && npm run format --prefix frontend",
+    "format:check:backend": "npm run format:check --prefix backend",
+    "format:check:frontend": "npm run format:check --prefix frontend",
+    "format:check": "npm run format:check --prefix backend && npm run format:check --prefix frontend"
   }
 }

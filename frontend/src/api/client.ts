@@ -43,10 +43,7 @@ export function generateIdempotencyKey(): string {
   return `key_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
 }
 
-export async function apiClient<T>(
-  endpoint: string,
-  options: RequestOptions = {}
-): Promise<T> {
+export async function apiClient<T>(endpoint: string, options: RequestOptions = {}): Promise<T> {
   const { idempotencyKey, params, headers = {}, ...rest } = options;
 
   let url = endpoint.startsWith("/") ? endpoint : `/api/${endpoint}`;
@@ -74,19 +71,39 @@ export async function apiClient<T>(
     requestHeaders.set("Idempotency-Key", idempotencyKey);
   }
 
-  const response = await fetch(url, {
-    credentials: "same-origin",
-    headers: requestHeaders,
-    ...rest,
-  });
+  let response: Response;
+  try {
+    response = await fetch(url, {
+      credentials: "same-origin",
+      headers: requestHeaders,
+      ...rest,
+    });
+  } catch (err: unknown) {
+    if (err instanceof Error && err.name === "AbortError") {
+      throw err;
+    }
+    throw new ApiError(0, {
+      code: "NETWORK_ERROR",
+      message: "Gagal terhubung ke server. Periksa koneksi internet Anda.",
+    });
+  }
+
+  if (response.status === 204) {
+    return undefined as T;
+  }
+
+  const text = await response.text();
+  if (!text || text.trim() === "") {
+    return undefined as T;
+  }
 
   let json: ApiResponse<T>;
   try {
-    json = (await response.json()) as ApiResponse<T>;
+    json = JSON.parse(text) as ApiResponse<T>;
   } catch {
     throw new ApiError(response.status, {
-      code: "PARSE_ERROR",
-      message: `Gagal membaca respons dari server (status ${response.status})`,
+      code: "UPSTREAM_ERROR",
+      message: `Terjadi gangguan pada server atau proxy (status ${response.status})`,
     });
   }
 

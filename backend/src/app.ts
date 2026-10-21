@@ -2,8 +2,7 @@ import express from "express";
 import helmet from "helmet";
 import { pinoHttp } from "pino-http";
 import { logger } from "./lib/logger.js";
-import { sendSuccess } from "./lib/envelope.js";
-import { checkPrismaConnection } from "./lib/db.js";
+import { apiRouter } from "./routes/index.js";
 import { errorHandler, notFoundHandler } from "./middleware/error-handler.js";
 
 export function createApp() {
@@ -12,7 +11,8 @@ export function createApp() {
   // Security headers via Helmet
   app.use(helmet());
 
-  // Trust proxy for Render/Vercel/Cloudflare reverse proxies
+  // Trust proxy for reverse proxies (Render, Vercel, Cloudflare).
+  // NOTE: Nilai "trust proxy" perlu diverifikasi untuk dua hop di produksi (Vercel rewrite -> host backend).
   app.set("trust proxy", 1);
 
   // Structured HTTP request logging with Pino
@@ -25,30 +25,21 @@ export function createApp() {
     })
   );
 
+  // Serverless in-memory state note:
+  // In serverless deployment (Vercel Functions), memory state (such as express-rate-limit
+  // MemoryStore) is instance-scoped, resets on cold start, and is not shared across instances.
+  // Sessions rely on PostgreSQL (Better Auth tables), which persists across serverless instances.
+  // For strict distributed rate limiting, an external store (e.g. Redis/Upstash) should be used.
+
+  // NOTE: Handler Better Auth WAJIB dipasang sebelum express.json() (lihat AGENTS.md §2 & §4).
+  // Better Auth consumes the raw request stream; mounting express.json() earlier causes auth requests to hang or fail.
+  // app.all("/api/auth/*splat", toNodeHandler(auth));
+
   // Body parsing limited to 100kb
   app.use(express.json({ limit: "100kb" }));
 
-  // Health check endpoint validating Prisma 7 connection
-  app.get("/api/health", async (_req, res, next) => {
-    try {
-      const dbCheck = await checkPrismaConnection();
-      const firstRow = dbCheck[0];
-
-      sendSuccess(res, {
-        status: "ok",
-        uptime: process.uptime(),
-        timestamp: new Date().toISOString(),
-        database: {
-          connected: true,
-          client: "prisma-7",
-          currentTime: firstRow?.current_time,
-          databaseName: firstRow?.database_name,
-        },
-      });
-    } catch (err) {
-      next(err);
-    }
-  });
+  // API Routes
+  app.use("/api", apiRouter);
 
   // 404 handler
   app.use(notFoundHandler);
