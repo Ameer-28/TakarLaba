@@ -25,7 +25,14 @@ export function createApp() {
     })
   );
 
+  // Serverless in-memory state note:
+  // In serverless deployment (Vercel Functions), memory state (such as express-rate-limit
+  // MemoryStore) is instance-scoped, resets on cold start, and is not shared across instances.
+  // Sessions rely on PostgreSQL (Better Auth tables), which persists across serverless instances.
+  // For strict distributed rate limiting, an external store (e.g. Redis/Upstash) should be used.
+
   // NOTE: Handler Better Auth WAJIB dipasang sebelum express.json() (lihat AGENTS.md §2 & §4).
+  // Better Auth consumes the raw request stream; mounting express.json() earlier causes auth requests to hang or fail.
   // app.all("/api/auth/*splat", toNodeHandler(auth));
 
   // Body parsing limited to 100kb
