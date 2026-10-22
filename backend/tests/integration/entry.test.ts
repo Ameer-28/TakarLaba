@@ -13,13 +13,14 @@ vi.mock("../../src/lib/db.js", () => ({
 
 import { checkPrismaConnection } from "../../src/lib/db.js";
 import app from "../../src/index.js";
+import appFromAppModule from "../../src/app.js";
 
-describe("Serverless entry default export (backend/src/index.ts)", () => {
+describe("Serverless entry default export (backend/src/index.ts and backend/src/app.ts)", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  it("exports an Express application instance that serves /api/health", async () => {
+  it("exports an Express application instance that serves /api/health from index.ts", async () => {
     vi.mocked(checkPrismaConnection).mockResolvedValueOnce(undefined);
 
     expect(typeof app).toBe("function");
@@ -34,5 +35,12 @@ describe("Serverless entry default export (backend/src/index.ts)", () => {
         db: "ok",
       },
     });
+  });
+
+  it("exports an Express application instance as default from app.ts for Vercel discovery", async () => {
+    expect(typeof appFromAppModule).toBe("function");
+
+    const res = await request(appFromAppModule).get("/api/health");
+    expect([200, 503]).toContain(res.status);
   });
 });
