@@ -18,6 +18,7 @@ import {
   Loader2,
   RefreshCw,
   Info,
+  Receipt,
 } from "lucide-react";
 import {
   useIngredients,
@@ -31,6 +32,8 @@ import {
 } from "@/api/hooks/use-ingredients";
 import { ApiError } from "@/api/client";
 import { formatNumber } from "@/lib/format";
+import { PurchaseModal } from "@/components/features/purchase-modal";
+import { PurchaseHistory } from "@/components/features/purchase-history";
 
 // --- Form Schemas (Zod 4) ---
 const ingredientFormSchema = z.object({
@@ -87,6 +90,10 @@ const CATEGORY_MAP: Record<IngredientCategory, { label: string; badgeClass: stri
 };
 
 export function IngredientsPage() {
+  // Navigation tabs state
+  const [mainTab, setMainTab] = useState<"ingredients" | "purchases">("ingredients");
+  const [isPurchaseModalOpen, setIsPurchaseModalOpen] = useState(false);
+
   // Filters state
   const [searchTerm, setSearchTerm] = useState("");
   const [categoryFilter, setCategoryFilter] = useState<string>("ALL");
@@ -330,422 +337,464 @@ export function IngredientsPage() {
         <div>
           <div className="flex items-center gap-2">
             <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
-              Master Bahan Baku
+              Bahan Baku & Stok
             </h1>
             <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
               {totalItems} bahan ({activeItems} aktif)
             </span>
           </div>
           <p className="text-sm text-slate-600 mt-1">
-            Kelola data bahan baku, satuan dasar resep (g/ml/pcs), konversi satuan beli, dan yield
-            penyusutan.
+            Kelola master bahan kuliner, konversi satuan beli, tanggal kedaluwarsa batch FEFO, dan
+            nota belanja.
           </p>
         </div>
 
+        <div className="flex items-center gap-2 w-full sm:w-auto">
+          <button
+            onClick={() => setIsPurchaseModalOpen(true)}
+            className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-semibold text-xs shadow-sm transition-all active:scale-[0.98] flex-1 sm:flex-initial"
+          >
+            <Receipt className="w-4 h-4" />
+            <span>Catat Belanja</span>
+          </button>
+
+          <button
+            onClick={() => setIsCreateOpen(true)}
+            className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs shadow-sm transition-all active:scale-[0.98] flex-1 sm:flex-initial"
+          >
+            <Plus className="w-4 h-4" />
+            <span>Tambah Bahan</span>
+          </button>
+        </div>
+      </div>
+
+      {/* Subtab Navigation */}
+      <div className="flex items-center gap-2 border-b border-slate-200 pb-px">
         <button
-          onClick={() => setIsCreateOpen(true)}
-          className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-sm shadow-sm transition-all active:scale-[0.98] w-full sm:w-auto"
+          onClick={() => setMainTab("ingredients")}
+          className={`inline-flex items-center gap-2 px-4 py-2.5 text-xs font-bold border-b-2 transition-all ${
+            mainTab === "ingredients"
+              ? "border-emerald-600 text-emerald-700 bg-emerald-50/50 rounded-t-xl"
+              : "border-transparent text-slate-500 hover:text-slate-800 hover:border-slate-300"
+          }`}
         >
-          <Plus className="w-4 h-4" />
-          <span>Tambah Bahan</span>
+          <Package className="w-4 h-4" />
+          <span>Master Bahan Baku ({totalItems})</span>
+        </button>
+        <button
+          onClick={() => setMainTab("purchases")}
+          className={`inline-flex items-center gap-2 px-4 py-2.5 text-xs font-bold border-b-2 transition-all ${
+            mainTab === "purchases"
+              ? "border-emerald-600 text-emerald-700 bg-emerald-50/50 rounded-t-xl"
+              : "border-transparent text-slate-500 hover:text-slate-800 hover:border-slate-300"
+          }`}
+        >
+          <Receipt className="w-4 h-4" />
+          <span>Riwayat Nota Belanja</span>
         </button>
       </div>
 
-      {/* Filters Bar */}
-      <div className="bg-white rounded-2xl border border-slate-200 p-4 shadow-xs space-y-3">
-        <div className="flex flex-col md:flex-row gap-3">
-          {/* Search Bar */}
-          <div className="relative flex-1">
-            <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-            <input
-              type="text"
-              placeholder="Cari nama bahan baku (misal: Beras, Kopi, Susu)..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-9 py-2 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 transition-all placeholder:text-slate-400"
-            />
-            {searchTerm && (
-              <button
-                onClick={() => setSearchTerm("")}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            )}
-          </div>
-
-          {/* Category Tabs */}
-          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 md:pb-0 scrollbar-none">
-            {[
-              { id: "ALL", label: "Semua Kategori" },
-              { id: "MAIN", label: "Bahan Utama" },
-              { id: "SUPPORT", label: "Pendukung" },
-              { id: "PACKAGING", label: "Kemasan" },
-            ].map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => setCategoryFilter(tab.id)}
-                className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
-                  categoryFilter === tab.id
-                    ? "bg-slate-900 text-white shadow-xs"
-                    : "bg-slate-100 text-slate-600 hover:bg-slate-200/70"
-                }`}
-              >
-                {tab.label}
-              </button>
-            ))}
-          </div>
-
-          {/* Status Filter */}
-          <div className="flex items-center gap-1.5 self-start md:self-auto">
-            <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value as "ALL" | "ACTIVE" | "INACTIVE")}
-              className="px-3 py-1.5 rounded-xl border border-slate-200 text-xs font-semibold text-slate-700 bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
-            >
-              <option value="ACTIVE">Hanya Aktif</option>
-              <option value="ALL">Semua Status</option>
-              <option value="INACTIVE">Hanya Nonaktif</option>
-            </select>
-          </div>
-        </div>
-      </div>
-
-      {/* Main Content Area */}
-      {isPending ? (
-        <div className="bg-white rounded-2xl border border-slate-200 p-12 text-center space-y-3">
-          <Loader2 className="w-8 h-8 text-emerald-600 animate-spin mx-auto" />
-          <p className="text-sm text-slate-500 font-medium">Memuat data bahan baku...</p>
-        </div>
-      ) : isError ? (
-        <div className="bg-white rounded-2xl border border-rose-200 p-8 text-center space-y-3">
-          <AlertCircle className="w-10 h-10 text-rose-600 mx-auto" />
-          <h2 className="text-base font-bold text-slate-900">Gagal Memuat Bahan Baku</h2>
-          <p className="text-sm text-slate-600 max-w-md mx-auto">
-            {error instanceof Error ? error.message : "Terjadi kesalahan saat mengambil data."}
-          </p>
-          <button
-            onClick={() => refetch()}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-900 text-white text-xs font-semibold hover:bg-slate-800 transition-all"
-          >
-            <RefreshCw className="w-3.5 h-3.5" />
-            <span>Coba Lagi</span>
-          </button>
-        </div>
-      ) : ingredients.length === 0 ? (
-        <div className="bg-white rounded-2xl border border-slate-200 p-12 text-center space-y-4">
-          <div className="w-14 h-14 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto border border-emerald-100">
-            <Package className="w-7 h-7" />
-          </div>
-          <div className="space-y-1">
-            <h3 className="text-base font-bold text-slate-900">
-              {searchTerm || categoryFilter !== "ALL"
-                ? "Tidak ada bahan yang cocok"
-                : "Belum Ada Bahan Baku"}
-            </h3>
-            <p className="text-sm text-slate-500 max-w-sm mx-auto">
-              {searchTerm || categoryFilter !== "ALL"
-                ? "Coba ubah kata kunci pencarian atau bersihkan filter kategori Anda."
-                : "Mulai dengan mendaftarkan bahan baku kuliner Anda untuk menghitung HPP resep dan memantau stok batch."}
-            </p>
-          </div>
-          {searchTerm || categoryFilter !== "ALL" ? (
-            <button
-              onClick={() => {
-                setSearchTerm("");
-                setCategoryFilter("ALL");
-              }}
-              className="px-4 py-2 rounded-xl text-xs font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 transition-all"
-            >
-              Reset Filter
-            </button>
-          ) : (
-            <button
-              onClick={() => setIsCreateOpen(true)}
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-600 text-white text-sm font-semibold hover:bg-emerald-700 transition-all shadow-sm"
-            >
-              <Plus className="w-4 h-4" />
-              <span>Tambah Bahan Pertama</span>
-            </button>
-          )}
-        </div>
+      {mainTab === "purchases" ? (
+        <PurchaseHistory onOpenCreate={() => setIsPurchaseModalOpen(true)} />
       ) : (
         <>
-          {/* Desktop Table View (Hidden on mobile < md) */}
-          <div className="hidden md:block bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-xs">
-            <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse">
-                <thead>
-                  <tr className="bg-slate-50/75 border-b border-slate-200 text-xs font-bold text-slate-600 uppercase tracking-wider">
-                    <th className="py-3.5 px-4">Nama Bahan</th>
-                    <th className="py-3.5 px-4">Kategori</th>
-                    <th className="py-3.5 px-4">Satuan Dasar</th>
-                    <th className="py-3.5 px-4">Yield</th>
-                    <th className="py-3.5 px-4">Min. Stok</th>
-                    <th className="py-3.5 px-4">Satuan Beli</th>
-                    <th className="py-3.5 px-4">Status</th>
-                    <th className="py-3.5 px-4 text-right">Aksi</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100 text-sm">
-                  {ingredients.map((item) => {
-                    const catMeta = CATEGORY_MAP[item.category];
-                    const yieldNum = Number(item.yieldPercent);
-                    const minStockNum = Number(item.minStockBase);
+          {/* Filters Bar */}
+          <div className="bg-white rounded-2xl border border-slate-200 p-4 shadow-xs space-y-3">
+            <div className="flex flex-col md:flex-row gap-3">
+              {/* Search Bar */}
+              <div className="relative flex-1">
+                <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                <input
+                  type="text"
+                  placeholder="Cari nama bahan baku (misal: Beras, Kopi, Susu)..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full pl-10 pr-9 py-2 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 transition-all placeholder:text-slate-400"
+                />
+                {searchTerm && (
+                  <button
+                    onClick={() => setSearchTerm("")}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                )}
+              </div>
 
-                    return (
-                      <tr
-                        key={item.id}
-                        className={`hover:bg-slate-50/60 transition-colors ${
-                          !item.isActive ? "bg-slate-50/40 text-slate-400" : ""
-                        }`}
-                      >
-                        {/* Name */}
-                        <td className="py-3.5 px-4 font-semibold text-slate-900">
-                          <div className="flex items-center gap-2">
-                            <span>{item.name}</span>
+              {/* Category Tabs */}
+              <div className="flex items-center gap-1.5 overflow-x-auto pb-1 md:pb-0 scrollbar-none">
+                {[
+                  { id: "ALL", label: "Semua Kategori" },
+                  { id: "MAIN", label: "Bahan Utama" },
+                  { id: "SUPPORT", label: "Pendukung" },
+                  { id: "PACKAGING", label: "Kemasan" },
+                ].map((tab) => (
+                  <button
+                    key={tab.id}
+                    onClick={() => setCategoryFilter(tab.id)}
+                    className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
+                      categoryFilter === tab.id
+                        ? "bg-slate-900 text-white shadow-xs"
+                        : "bg-slate-100 text-slate-600 hover:bg-slate-200/70"
+                    }`}
+                  >
+                    {tab.label}
+                  </button>
+                ))}
+              </div>
+
+              {/* Status Filter */}
+              <div className="flex items-center gap-1.5 self-start md:self-auto">
+                <select
+                  value={statusFilter}
+                  onChange={(e) => setStatusFilter(e.target.value as "ALL" | "ACTIVE" | "INACTIVE")}
+                  className="px-3 py-1.5 rounded-xl border border-slate-200 text-xs font-semibold text-slate-700 bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+                >
+                  <option value="ACTIVE">Hanya Aktif</option>
+                  <option value="ALL">Semua Status</option>
+                  <option value="INACTIVE">Hanya Nonaktif</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          {/* Main Content Area */}
+          {isPending ? (
+            <div className="bg-white rounded-2xl border border-slate-200 p-12 text-center space-y-3">
+              <Loader2 className="w-8 h-8 text-emerald-600 animate-spin mx-auto" />
+              <p className="text-sm text-slate-500 font-medium">Memuat data bahan baku...</p>
+            </div>
+          ) : isError ? (
+            <div className="bg-white rounded-2xl border border-rose-200 p-8 text-center space-y-3">
+              <AlertCircle className="w-10 h-10 text-rose-600 mx-auto" />
+              <h2 className="text-base font-bold text-slate-900">Gagal Memuat Bahan Baku</h2>
+              <p className="text-sm text-slate-600 max-w-md mx-auto">
+                {error instanceof Error ? error.message : "Terjadi kesalahan saat mengambil data."}
+              </p>
+              <button
+                onClick={() => refetch()}
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-900 text-white text-xs font-semibold hover:bg-slate-800 transition-all"
+              >
+                <RefreshCw className="w-3.5 h-3.5" />
+                <span>Coba Lagi</span>
+              </button>
+            </div>
+          ) : ingredients.length === 0 ? (
+            <div className="bg-white rounded-2xl border border-slate-200 p-12 text-center space-y-4">
+              <div className="w-14 h-14 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto border border-emerald-100">
+                <Package className="w-7 h-7" />
+              </div>
+              <div className="space-y-1">
+                <h3 className="text-base font-bold text-slate-900">
+                  {searchTerm || categoryFilter !== "ALL"
+                    ? "Tidak ada bahan yang cocok"
+                    : "Belum Ada Bahan Baku"}
+                </h3>
+                <p className="text-sm text-slate-500 max-w-sm mx-auto">
+                  {searchTerm || categoryFilter !== "ALL"
+                    ? "Coba ubah kata kunci pencarian atau bersihkan filter kategori Anda."
+                    : "Mulai dengan mendaftarkan bahan baku kuliner Anda untuk menghitung HPP resep dan memantau stok batch."}
+                </p>
+              </div>
+              {searchTerm || categoryFilter !== "ALL" ? (
+                <button
+                  onClick={() => {
+                    setSearchTerm("");
+                    setCategoryFilter("ALL");
+                  }}
+                  className="px-4 py-2 rounded-xl text-xs font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 transition-all"
+                >
+                  Reset Filter
+                </button>
+              ) : (
+                <button
+                  onClick={() => setIsCreateOpen(true)}
+                  className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-600 text-white text-sm font-semibold hover:bg-emerald-700 transition-all shadow-sm"
+                >
+                  <Plus className="w-4 h-4" />
+                  <span>Tambah Bahan Pertama</span>
+                </button>
+              )}
+            </div>
+          ) : (
+            <>
+              {/* Desktop Table View (Hidden on mobile < md) */}
+              <div className="hidden md:block bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-xs">
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left border-collapse">
+                    <thead>
+                      <tr className="bg-slate-50/75 border-b border-slate-200 text-xs font-bold text-slate-600 uppercase tracking-wider">
+                        <th className="py-3.5 px-4">Nama Bahan</th>
+                        <th className="py-3.5 px-4">Kategori</th>
+                        <th className="py-3.5 px-4">Satuan Dasar</th>
+                        <th className="py-3.5 px-4">Yield</th>
+                        <th className="py-3.5 px-4">Min. Stok</th>
+                        <th className="py-3.5 px-4">Satuan Beli</th>
+                        <th className="py-3.5 px-4">Status</th>
+                        <th className="py-3.5 px-4 text-right">Aksi</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100 text-sm">
+                      {ingredients.map((item) => {
+                        const catMeta = CATEGORY_MAP[item.category];
+                        const yieldNum = Number(item.yieldPercent);
+                        const minStockNum = Number(item.minStockBase);
+
+                        return (
+                          <tr
+                            key={item.id}
+                            className={`hover:bg-slate-50/60 transition-colors ${
+                              !item.isActive ? "bg-slate-50/40 text-slate-400" : ""
+                            }`}
+                          >
+                            {/* Name */}
+                            <td className="py-3.5 px-4 font-semibold text-slate-900">
+                              <div className="flex items-center gap-2">
+                                <span>{item.name}</span>
+                                {item.isPerishable && (
+                                  <span
+                                    title="Mudah rusak / ada batas kedaluwarsa"
+                                    className="inline-flex items-center text-amber-600"
+                                  >
+                                    <Clock className="w-3.5 h-3.5" />
+                                  </span>
+                                )}
+                              </div>
+                            </td>
+
+                            {/* Category */}
+                            <td className="py-3.5 px-4">
+                              <span
+                                className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold border ${catMeta.badgeClass}`}
+                              >
+                                {catMeta.label}
+                              </span>
+                            </td>
+
+                            {/* Base Unit */}
+                            <td className="py-3.5 px-4 font-mono font-medium text-slate-700">
+                              {item.baseUnit.toLowerCase()}
+                            </td>
+
+                            {/* Yield */}
+                            <td className="py-3.5 px-4">
+                              <div className="flex items-center gap-1.5 tabular-nums">
+                                <span
+                                  className={`font-semibold ${
+                                    yieldNum < 100 ? "text-amber-600" : "text-emerald-700"
+                                  }`}
+                                >
+                                  {yieldNum}%
+                                </span>
+                                {yieldNum < 100 && (
+                                  <span className="text-xs text-slate-400">
+                                    (susut {100 - yieldNum}%)
+                                  </span>
+                                )}
+                              </div>
+                            </td>
+
+                            {/* Min Stock */}
+                            <td className="py-3.5 px-4 tabular-nums font-mono text-slate-700">
+                              {formatNumber(minStockNum)} {item.baseUnit.toLowerCase()}
+                            </td>
+
+                            {/* Purchase Units */}
+                            <td className="py-3.5 px-4">
+                              <div className="flex flex-wrap items-center gap-1.5 max-w-xs">
+                                {item.units.length === 0 ? (
+                                  <span className="text-xs text-slate-400 italic">
+                                    Belum ada satuan beli
+                                  </span>
+                                ) : (
+                                  item.units.map((u) => (
+                                    <span
+                                      key={u.id}
+                                      className="inline-flex items-center px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 text-xs font-mono border border-slate-200"
+                                    >
+                                      1 {u.name} = {formatNumber(Number(u.toBaseFactor))}{" "}
+                                      {item.baseUnit.toLowerCase()}
+                                    </span>
+                                  ))
+                                )}
+                                <button
+                                  onClick={() => handleOpenUnits(item)}
+                                  title="Kelola Satuan Beli"
+                                  className="text-xs font-semibold text-emerald-600 hover:text-emerald-700 hover:underline inline-flex items-center gap-0.5 ml-1"
+                                >
+                                  <Scale className="w-3 h-3" />
+                                  <span>Kelola</span>
+                                </button>
+                              </div>
+                            </td>
+
+                            {/* Status */}
+                            <td className="py-3.5 px-4">
+                              {item.isActive ? (
+                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                  <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+                                  <span>Aktif</span>
+                                </span>
+                              ) : (
+                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-slate-100 text-slate-500 border border-slate-200">
+                                  <span>Nonaktif</span>
+                                </span>
+                              )}
+                            </td>
+
+                            {/* Actions */}
+                            <td className="py-3.5 px-4 text-right">
+                              <div className="flex items-center justify-end gap-1">
+                                <button
+                                  onClick={() => handleOpenEdit(item)}
+                                  title="Ubah Bahan Baku"
+                                  className="p-1.5 rounded-lg text-slate-500 hover:text-slate-800 hover:bg-slate-100 transition-colors"
+                                >
+                                  <Edit2 className="w-4 h-4" />
+                                </button>
+                                {item.isActive && (
+                                  <button
+                                    onClick={() => setDeactivatingIngredient(item)}
+                                    title="Nonaktifkan Bahan"
+                                    className="p-1.5 rounded-lg text-rose-500 hover:text-rose-700 hover:bg-rose-50 transition-colors"
+                                  >
+                                    <Trash2 className="w-4 h-4" />
+                                  </button>
+                                )}
+                              </div>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              {/* Mobile Cards View (Visible on mobile < md) */}
+              <div className="grid grid-cols-1 gap-3 md:hidden">
+                {ingredients.map((item) => {
+                  const catMeta = CATEGORY_MAP[item.category];
+                  const yieldNum = Number(item.yieldPercent);
+                  const minStockNum = Number(item.minStockBase);
+
+                  return (
+                    <div
+                      key={item.id}
+                      className={`bg-white rounded-2xl border border-slate-200 p-4 shadow-xs space-y-3 ${
+                        !item.isActive ? "bg-slate-50/50 opacity-80" : ""
+                      }`}
+                    >
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="space-y-1">
+                          <div className="flex items-center gap-1.5">
+                            <h4 className="font-bold text-slate-900 text-base">{item.name}</h4>
                             {item.isPerishable && (
                               <span
-                                title="Mudah rusak / ada batas kedaluwarsa"
+                                title="Mudah rusak"
                                 className="inline-flex items-center text-amber-600"
                               >
                                 <Clock className="w-3.5 h-3.5" />
                               </span>
                             )}
                           </div>
-                        </td>
-
-                        {/* Category */}
-                        <td className="py-3.5 px-4">
-                          <span
-                            className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold border ${catMeta.badgeClass}`}
-                          >
-                            {catMeta.label}
-                          </span>
-                        </td>
-
-                        {/* Base Unit */}
-                        <td className="py-3.5 px-4 font-mono font-medium text-slate-700">
-                          {item.baseUnit.toLowerCase()}
-                        </td>
-
-                        {/* Yield */}
-                        <td className="py-3.5 px-4">
-                          <div className="flex items-center gap-1.5 tabular-nums">
+                          <div className="flex items-center gap-1.5">
                             <span
-                              className={`font-semibold ${
-                                yieldNum < 100 ? "text-amber-600" : "text-emerald-700"
-                              }`}
+                              className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold border ${catMeta.badgeClass}`}
                             >
-                              {yieldNum}%
+                              {catMeta.label}
                             </span>
-                            {yieldNum < 100 && (
-                              <span className="text-xs text-slate-400">
-                                (susut {100 - yieldNum}%)
-                              </span>
-                            )}
-                          </div>
-                        </td>
-
-                        {/* Min Stock */}
-                        <td className="py-3.5 px-4 tabular-nums font-mono text-slate-700">
-                          {formatNumber(minStockNum)} {item.baseUnit.toLowerCase()}
-                        </td>
-
-                        {/* Purchase Units */}
-                        <td className="py-3.5 px-4">
-                          <div className="flex flex-wrap items-center gap-1.5 max-w-xs">
-                            {item.units.length === 0 ? (
-                              <span className="text-xs text-slate-400 italic">
-                                Belum ada satuan beli
+                            {item.isActive ? (
+                              <span className="inline-flex items-center gap-0.5 text-xs text-emerald-700 font-medium">
+                                <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+                                <span>Aktif</span>
                               </span>
                             ) : (
-                              item.units.map((u) => (
-                                <span
-                                  key={u.id}
-                                  className="inline-flex items-center px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 text-xs font-mono border border-slate-200"
-                                >
-                                  1 {u.name} = {formatNumber(Number(u.toBaseFactor))}{" "}
-                                  {item.baseUnit.toLowerCase()}
-                                </span>
-                              ))
+                              <span className="text-xs text-slate-400 font-medium">Nonaktif</span>
                             )}
-                            <button
-                              onClick={() => handleOpenUnits(item)}
-                              title="Kelola Satuan Beli"
-                              className="text-xs font-semibold text-emerald-600 hover:text-emerald-700 hover:underline inline-flex items-center gap-0.5 ml-1"
-                            >
-                              <Scale className="w-3 h-3" />
-                              <span>Kelola</span>
-                            </button>
                           </div>
-                        </td>
+                        </div>
 
-                        {/* Status */}
-                        <td className="py-3.5 px-4">
-                          {item.isActive ? (
-                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                              <CheckCircle2 className="w-3 h-3 text-emerald-600" />
-                              <span>Aktif</span>
-                            </span>
-                          ) : (
-                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-slate-100 text-slate-500 border border-slate-200">
-                              <span>Nonaktif</span>
-                            </span>
+                        <div className="flex items-center gap-1">
+                          <button
+                            onClick={() => handleOpenEdit(item)}
+                            className="p-2 rounded-xl text-slate-500 hover:text-slate-800 hover:bg-slate-100"
+                          >
+                            <Edit2 className="w-4 h-4" />
+                          </button>
+                          {item.isActive && (
+                            <button
+                              onClick={() => setDeactivatingIngredient(item)}
+                              className="p-2 rounded-xl text-rose-500 hover:text-rose-700 hover:bg-rose-50"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
                           )}
-                        </td>
-
-                        {/* Actions */}
-                        <td className="py-3.5 px-4 text-right">
-                          <div className="flex items-center justify-end gap-1">
-                            <button
-                              onClick={() => handleOpenEdit(item)}
-                              title="Ubah Bahan Baku"
-                              className="p-1.5 rounded-lg text-slate-500 hover:text-slate-800 hover:bg-slate-100 transition-colors"
-                            >
-                              <Edit2 className="w-4 h-4" />
-                            </button>
-                            {item.isActive && (
-                              <button
-                                onClick={() => setDeactivatingIngredient(item)}
-                                title="Nonaktifkan Bahan"
-                                className="p-1.5 rounded-lg text-rose-500 hover:text-rose-700 hover:bg-rose-50 transition-colors"
-                              >
-                                <Trash2 className="w-4 h-4" />
-                              </button>
-                            )}
-                          </div>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          {/* Mobile Cards View (Visible on mobile < md) */}
-          <div className="grid grid-cols-1 gap-3 md:hidden">
-            {ingredients.map((item) => {
-              const catMeta = CATEGORY_MAP[item.category];
-              const yieldNum = Number(item.yieldPercent);
-              const minStockNum = Number(item.minStockBase);
-
-              return (
-                <div
-                  key={item.id}
-                  className={`bg-white rounded-2xl border border-slate-200 p-4 shadow-xs space-y-3 ${
-                    !item.isActive ? "bg-slate-50/50 opacity-80" : ""
-                  }`}
-                >
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-1.5">
-                        <h4 className="font-bold text-slate-900 text-base">{item.name}</h4>
-                        {item.isPerishable && (
-                          <span
-                            title="Mudah rusak"
-                            className="inline-flex items-center text-amber-600"
-                          >
-                            <Clock className="w-3.5 h-3.5" />
-                          </span>
-                        )}
+                        </div>
                       </div>
-                      <div className="flex items-center gap-1.5">
-                        <span
-                          className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold border ${catMeta.badgeClass}`}
-                        >
-                          {catMeta.label}
-                        </span>
-                        {item.isActive ? (
-                          <span className="inline-flex items-center gap-0.5 text-xs text-emerald-700 font-medium">
-                            <CheckCircle2 className="w-3 h-3 text-emerald-600" />
-                            <span>Aktif</span>
-                          </span>
-                        ) : (
-                          <span className="text-xs text-slate-400 font-medium">Nonaktif</span>
-                        )}
-                      </div>
-                    </div>
 
-                    <div className="flex items-center gap-1">
-                      <button
-                        onClick={() => handleOpenEdit(item)}
-                        className="p-2 rounded-xl text-slate-500 hover:text-slate-800 hover:bg-slate-100"
-                      >
-                        <Edit2 className="w-4 h-4" />
-                      </button>
-                      {item.isActive && (
-                        <button
-                          onClick={() => setDeactivatingIngredient(item)}
-                          className="p-2 rounded-xl text-rose-500 hover:text-rose-700 hover:bg-rose-50"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Metrics grid */}
-                  <div className="grid grid-cols-3 gap-2 bg-slate-50 rounded-xl p-2.5 text-xs border border-slate-100">
-                    <div>
-                      <span className="text-slate-500 block">Satuan Resep</span>
-                      <span className="font-bold text-slate-800 font-mono">
-                        {item.baseUnit.toLowerCase()}
-                      </span>
-                    </div>
-                    <div>
-                      <span className="text-slate-500 block">Yield</span>
-                      <span
-                        className={`font-bold tabular-nums ${
-                          yieldNum < 100 ? "text-amber-600" : "text-emerald-700"
-                        }`}
-                      >
-                        {yieldNum}%
-                      </span>
-                    </div>
-                    <div>
-                      <span className="text-slate-500 block">Min. Stok</span>
-                      <span className="font-bold text-slate-800 tabular-nums">
-                        {formatNumber(minStockNum)}
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Purchase Units summary */}
-                  <div className="space-y-1 pt-1">
-                    <div className="flex items-center justify-between text-xs">
-                      <span className="font-semibold text-slate-600">Satuan Beli</span>
-                      <button
-                        onClick={() => handleOpenUnits(item)}
-                        className="text-emerald-600 font-bold hover:underline flex items-center gap-1"
-                      >
-                        <Scale className="w-3 h-3" />
-                        <span>Kelola Satuan ({item.units.length})</span>
-                      </button>
-                    </div>
-                    <div className="flex flex-wrap gap-1">
-                      {item.units.length === 0 ? (
-                        <span className="text-xs text-slate-400 italic">
-                          Hanya satuan dasar ({item.baseUnit.toLowerCase()})
-                        </span>
-                      ) : (
-                        item.units.map((u) => (
-                          <span
-                            key={u.id}
-                            className="inline-flex items-center px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 text-xs font-mono"
-                          >
-                            1 {u.name} = {formatNumber(Number(u.toBaseFactor))}{" "}
+                      {/* Metrics grid */}
+                      <div className="grid grid-cols-3 gap-2 bg-slate-50 rounded-xl p-2.5 text-xs border border-slate-100">
+                        <div>
+                          <span className="text-slate-500 block">Satuan Resep</span>
+                          <span className="font-bold text-slate-800 font-mono">
                             {item.baseUnit.toLowerCase()}
                           </span>
-                        ))
-                      )}
+                        </div>
+                        <div>
+                          <span className="text-slate-500 block">Yield</span>
+                          <span
+                            className={`font-bold tabular-nums ${
+                              yieldNum < 100 ? "text-amber-600" : "text-emerald-700"
+                            }`}
+                          >
+                            {yieldNum}%
+                          </span>
+                        </div>
+                        <div>
+                          <span className="text-slate-500 block">Min. Stok</span>
+                          <span className="font-bold text-slate-800 tabular-nums">
+                            {formatNumber(minStockNum)}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Purchase Units summary */}
+                      <div className="space-y-1 pt-1">
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="font-semibold text-slate-600">Satuan Beli</span>
+                          <button
+                            onClick={() => handleOpenUnits(item)}
+                            className="text-emerald-600 font-bold hover:underline flex items-center gap-1"
+                          >
+                            <Scale className="w-3 h-3" />
+                            <span>Kelola Satuan ({item.units.length})</span>
+                          </button>
+                        </div>
+                        <div className="flex flex-wrap gap-1">
+                          {item.units.length === 0 ? (
+                            <span className="text-xs text-slate-400 italic">
+                              Hanya satuan dasar ({item.baseUnit.toLowerCase()})
+                            </span>
+                          ) : (
+                            item.units.map((u) => (
+                              <span
+                                key={u.id}
+                                className="inline-flex items-center px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 text-xs font-mono"
+                              >
+                                1 {u.name} = {formatNumber(Number(u.toBaseFactor))}{" "}
+                                {item.baseUnit.toLowerCase()}
+                              </span>
+                            ))
+                          )}
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
+                  );
+                })}
+              </div>
+            </>
+          )}
         </>
       )}
 
@@ -1301,6 +1350,14 @@ export function IngredientsPage() {
           </div>
         </div>
       )}
+
+      {/* MODAL 5: Catat Nota Belanja */}
+      <PurchaseModal
+        isOpen={isPurchaseModalOpen}
+        onClose={() => setIsPurchaseModalOpen(false)}
+        ingredients={ingredients}
+        onSuccess={() => refetch()}
+      />
     </div>
   );
 }
