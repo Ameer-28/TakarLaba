@@ -9,18 +9,103 @@ datasource db {
   provider = "postgresql"
 }
 
+// -------------------------------------------------------------
+// Enums (ARCHITECTURE.md §3)
+// -------------------------------------------------------------
+
+enum Role {
+  OWNER
+  CASHIER
+}
+
+enum BaseUnit {
+  G
+  ML
+  PCS
+}
+
+enum IngredientCategory {
+  MAIN
+  SUPPORT
+  PACKAGING
+}
+
+enum MovementType {
+  PURCHASE
+  SALE
+  VOID_RESTORE
+  WASTE
+  ADJUSTMENT
+}
+
+enum SaleStatus {
+  COMPLETED
+  VOIDED
+}
+
+enum PaymentMethod {
+  CASH
+  QRIS
+  TRANSFER
+}
+
+enum OverheadType {
+  UTILITY
+  LABOR
+  DEPRECIATION
+  OTHER
+}
+
+enum AlertStatus {
+  OPEN
+  ACKNOWLEDGED
+  RESOLVED
+}
+
+enum AlertResolution {
+  PRICE_RAISED
+  RECIPE_ADJUSTED
+  DISMISSED
+  AUTO_RESOLVED
+}
+
+enum PriceChangeReason {
+  MANUAL
+  PRICE_SHOCK_ALERT
+}
+
+// -------------------------------------------------------------
+// Core Business & Auth Models
+// -------------------------------------------------------------
+
 model Business {
-  id        String   @id @default(cuid())
-  name      String
-  isDemo    Boolean  @default(false)
-  createdAt DateTime @default(now())
-  users     User[]
+  id                      String         @id @default(cuid())
+  name                    String
+  isDemo                  Boolean        @default(false)
+  targetMarginDefault     Decimal        @default(50.00) @db.Decimal(5, 2)
+  expiryWarnDays          Int            @default(3)
+  priceRoundingStep       Int            @default(500)
+  expectedMonthlyPortions Int            @default(1000)
+  wastePromoMinMargin     Decimal        @default(10.00) @db.Decimal(5, 2)
+  timezone                String         @default("Asia/Jakarta")
+  demoResetAt             DateTime?
+  createdAt               DateTime       @default(now())
+
+  users                   User[]
+  ingredients             Ingredient[]
+  purchases               Purchase[]
+  stockBatches            StockBatch[]
+  stockMovements          StockMovement[]
+  menus                   Menu[]
+  overheadCosts           OverheadCost[]
+  sales                   Sale[]
+  marginAlerts            MarginAlert[]
 }
 
 model User {
-  id            String    @id
+  id            String    @id @default(cuid())
   name          String
-  email         String
+  email         String    @unique
   emailVerified Boolean   @default(false)
   image         String?
   createdAt     DateTime  @default(now())
@@ -32,7 +117,13 @@ model User {
   sessions      Session[]
   accounts      Account[]
 
-  @@unique([email])
+  createdPurchases      Purchase[]
+  createdStockMovements StockMovement[]
+  priceHistories        MenuPriceHistory[]
+  cashierSales          Sale[]             @relation("SaleCashier")
+  voidedSales           Sale[]             @relation("SaleVoidedBy")
+  resolvedAlerts        MarginAlert[]
+
   @@index([businessId])
   @@map("user")
 }
@@ -40,7 +131,7 @@ model User {
 model Session {
   id        String   @id
   expiresAt DateTime
-  token     String
+  token     String   @unique
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   ipAddress String?
@@ -48,7 +139,6 @@ model Session {
   userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@unique([token])
   @@index([userId])
   @@map("session")
 }
@@ -83,4 +173,264 @@ model Verification {
 
   @@index([identifier])
   @@map("verification")
+}
+
+// -------------------------------------------------------------
+// Domain Models: Ingredients & Stocks
+// -------------------------------------------------------------
+
+model Ingredient {
+  id           String             @id @default(cuid())
+  businessId   String
+  business     Business           @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  name         String
+  nameKey      String
+  category     IngredientCategory
+  baseUnit     BaseUnit
+  yieldPercent Decimal            @default(100.00) @db.Decimal(5, 2)
+  isPerishable Boolean            @default(false)
+  minStockBase Decimal            @default(0) @db.Decimal(14, 3)
+  isActive     Boolean            @default(true)
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime           @updatedAt
+
+  units          IngredientUnit[]
+  stockBatches   StockBatch[]
+  stockMovements StockMovement[]
+  recipeItems    RecipeItem[]
+  triggerAlerts  MarginAlert[]
+
+  @@unique([businessId, nameKey])
+  @@index([businessId])
+}
+
+model IngredientUnit {
+  id           String     @id @default(cuid())
+  ingredientId String
+  ingredient   Ingredient @relation(fields: [ingredientId], references: [id], onDelete: Cascade)
+  name         String
+  toBaseFactor Decimal    @db.Decimal(14, 4)
+  createdAt    DateTime   @default(now())
+
+  @@unique([ingredientId, name])
+  @@index([ingredientId])
+}
+
+model Purchase {
+  id           String       @id @default(cuid())
+  businessId   String
+  business     Business     @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  supplierName String?
+  purchasedAt  DateTime     @default(now())
+  note         String?
+  totalAmount  Decimal      @db.Decimal(14, 2)
+  createdById  String
+  createdBy    User         @relation(fields: [createdById], references: [id], onDelete: Restrict)
+  createdAt    DateTime     @default(now())
+
+  batches       StockBatch[]
+  triggerAlerts MarginAlert[]
+
+  @@index([businessId, purchasedAt])
+}
+
+model StockBatch {
+  id                String     @id @default(cuid())
+  businessId        String
+  business          Business   @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  ingredientId      String
+  ingredient        Ingredient @relation(fields: [ingredientId], references: [id], onDelete: Restrict)
+  purchaseId        String?
+  purchase          Purchase?  @relation(fields: [purchaseId], references: [id], onDelete: SetNull)
+  receivedAt        DateTime   @default(now())
+  expiryDate        DateTime?
+  purchaseQty       Decimal    @db.Decimal(14, 3)
+  purchaseUnit      String
+  purchaseUnitPrice Decimal    @db.Decimal(14, 2)
+  initialQtyBase    Decimal    @db.Decimal(14, 3)
+  remainingQtyBase  Decimal    @db.Decimal(14, 3)
+  costPerBase       Decimal    @db.Decimal(18, 6)
+  createdAt         DateTime   @default(now())
+
+  movements StockMovement[]
+
+  @@index([businessId, ingredientId])
+  @@index([businessId, expiryDate])
+}
+
+model StockMovement {
+  id           String       @id @default(cuid())
+  businessId   String
+  business     Business     @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  ingredientId String
+  ingredient   Ingredient   @relation(fields: [ingredientId], references: [id], onDelete: Restrict)
+  batchId      String?
+  batch        StockBatch?  @relation(fields: [batchId], references: [id], onDelete: SetNull)
+  type         MovementType
+  qtyBaseDelta Decimal      @db.Decimal(14, 3)
+  costPerBase  Decimal      @db.Decimal(18, 6)
+  refType      String?
+  refId        String?
+  note         String?
+  createdById  String?
+  createdBy    User?        @relation(fields: [createdById], references: [id], onDelete: SetNull)
+  createdAt    DateTime     @default(now())
+
+  @@index([businessId, createdAt])
+  @@index([refType, refId])
+}
+
+// -------------------------------------------------------------
+// Domain Models: Menu, Recipe & Overhead
+// -------------------------------------------------------------
+
+model Menu {
+  id           String    @id @default(cuid())
+  businessId   String
+  business     Business  @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  name         String
+  nameKey      String
+  category     String?
+  sellingPrice Decimal   @db.Decimal(14, 2)
+  targetMargin Decimal?  @db.Decimal(5, 2)
+  isActive     Boolean   @default(true)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  recipeItems    RecipeItem[]
+  priceHistories MenuPriceHistory[]
+  saleItems      SaleItem[]
+  marginAlerts   MarginAlert[]
+
+  @@unique([businessId, nameKey])
+  @@index([businessId])
+}
+
+model RecipeItem {
+  id            String     @id @default(cuid())
+  menuId        String
+  menu          Menu       @relation(fields: [menuId], references: [id], onDelete: Cascade)
+  ingredientId  String
+  ingredient    Ingredient @relation(fields: [ingredientId], references: [id], onDelete: Restrict)
+  qtyUsableBase Decimal    @db.Decimal(14, 3)
+  createdAt     DateTime   @default(now())
+
+  @@unique([menuId, ingredientId])
+  @@index([menuId])
+  @@index([ingredientId])
+}
+
+model OverheadCost {
+  id            String       @id @default(cuid())
+  businessId    String
+  business      Business     @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  name          String
+  type          OverheadType
+  monthlyAmount Decimal      @db.Decimal(14, 2)
+  isActive      Boolean      @default(true)
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  @@index([businessId])
+}
+
+model MenuPriceHistory {
+  id          String            @id @default(cuid())
+  menuId      String
+  menu        Menu              @relation(fields: [menuId], references: [id], onDelete: Cascade)
+  oldPrice    Decimal           @db.Decimal(14, 2)
+  newPrice    Decimal           @db.Decimal(14, 2)
+  reason      PriceChangeReason
+  alertId     String?
+  alert       MarginAlert?      @relation(fields: [alertId], references: [id], onDelete: SetNull)
+  changedById String
+  changedBy   User              @relation(fields: [changedById], references: [id], onDelete: Restrict)
+  changedAt   DateTime          @default(now())
+
+  @@index([menuId, changedAt])
+}
+
+// -------------------------------------------------------------
+// Domain Models: Sales & POS Transactions
+// -------------------------------------------------------------
+
+model Sale {
+  id                  String        @id @default(cuid())
+  businessId          String
+  business            Business      @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  invoiceNo           String
+  idempotencyKey      String
+  soldAt              DateTime      @default(now())
+  cashierId           String
+  cashier             User          @relation("SaleCashier", fields: [cashierId], references: [id], onDelete: Restrict)
+  paymentMethod       PaymentMethod
+  totalAmount         Decimal       @db.Decimal(14, 2)
+  totalIngredientCost Decimal       @db.Decimal(14, 2)
+  totalOverhead       Decimal       @db.Decimal(14, 2)
+  status              SaleStatus    @default(COMPLETED)
+  voidedAt            DateTime?
+  voidReason          String?
+  voidedById          String?
+  voidedBy            User?         @relation("SaleVoidedBy", fields: [voidedById], references: [id], onDelete: SetNull)
+  createdAt           DateTime      @default(now())
+
+  items SaleItem[]
+
+  @@unique([businessId, invoiceNo])
+  @@unique([businessId, idempotencyKey])
+  @@index([businessId, soldAt])
+}
+
+model SaleItem {
+  id                   String   @id @default(cuid())
+  saleId               String
+  sale                 Sale     @relation(fields: [saleId], references: [id], onDelete: Cascade)
+  menuId               String
+  menu                 Menu     @relation(fields: [menuId], references: [id], onDelete: Restrict)
+  menuNameSnapshot     String
+  qty                  Int
+  unitPrice            Decimal  @db.Decimal(14, 2)
+  ingredientCostActual Decimal  @db.Decimal(14, 2)
+  overheadAllocated    Decimal  @db.Decimal(14, 2)
+
+  @@index([menuId])
+  @@index([saleId])
+}
+
+// -------------------------------------------------------------
+// Domain Models: Margin Alerts & Price Shock
+// -------------------------------------------------------------
+
+model MarginAlert {
+  id                    String           @id @default(cuid())
+  businessId            String
+  business              Business         @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  menuId                String
+  menu                  Menu             @relation(fields: [menuId], references: [id], onDelete: Cascade)
+  status                AlertStatus      @default(OPEN)
+  resolution            AlertResolution?
+  triggerPurchaseId     String?
+  triggerPurchase       Purchase?        @relation(fields: [triggerPurchaseId], references: [id], onDelete: SetNull)
+  triggerIngredientId   String?
+  triggerIngredient     Ingredient?      @relation(fields: [triggerIngredientId], references: [id], onDelete: SetNull)
+  ingredientCostBefore  Decimal          @db.Decimal(18, 6)
+  ingredientCostAfter   Decimal          @db.Decimal(18, 6)
+  fullCostBefore        Decimal          @db.Decimal(14, 2)
+  fullCostAfter         Decimal          @db.Decimal(14, 2)
+  marginBeforePct       Decimal          @db.Decimal(5, 2)
+  marginAfterPct        Decimal          @db.Decimal(5, 2)
+  targetPct             Decimal          @db.Decimal(5, 2)
+  sellingPriceAtTrigger Decimal          @db.Decimal(14, 2)
+  recommendedPrice      Decimal          @db.Decimal(14, 2)
+  createdAt             DateTime         @default(now())
+  updatedAt             DateTime         @updatedAt
+  resolvedAt            DateTime?
+  resolvedById          String?
+  resolvedBy            User?            @relation(fields: [resolvedById], references: [id], onDelete: SetNull)
+  note                  String?
+
+  priceHistories MenuPriceHistory[]
+
+  @@index([businessId, status])
+  @@index([menuId])
 }

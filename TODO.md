@@ -29,7 +29,7 @@ Aturan: hanya satu tugas `[/]` per agent pada satu waktu.
 ### Fase 1 — Auth, tenant, shell (20–22 Okt)
 
 - [x] **T-010** (P0) [BE] Better Auth di Express (`/api/auth/*splat` sebelum `express.json`), generate skema via CLI, `additionalFields` role/businessId `input:false`, `trustedOrigins`, rate limit — dep: T-006
-- [ ] **T-011** (P0) [DB] Skema domain lengkap + migrasi + `constraints.sql` — dep: T-006 — AC: migrasi bersih dari nol
+- [x] **T-011** (P0) [DB] Skema domain lengkap + migrasi + `constraints.sql` — dep: T-006 — AC: migrasi bersih dari nol
 - [ ] **T-012** (P0) [BE] Middleware: `requireAuth` (ctx tenant), `requireRole`, `validate` (Zod → `req.valid`), `sameOrigin`, rate limit, `requestId` — dep: T-010
 - [ ] **T-013** (P0) [FE] Halaman login + `auth-client` + `ProtectedRoute`/`RoleRoute` + logout + error state; tombol Demo Owner/Kasir (placeholder) — dep: T-010
 - [ ] **T-014** (P0) [FE] App shell responsif (sidebar desktop, bottom nav mobile), navigasi sadar peran, error boundary & 404
