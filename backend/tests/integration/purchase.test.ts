@@ -368,6 +368,79 @@ describe("Purchase Routes & Service Integration (T-021)", () => {
       expect(res.body.ok).toBe(false);
       expect(res.body.error.code).toBe("NOT_FOUND");
     });
+
+    it("rolls back and returns 500 INTERNAL if atomic database transaction fails", async () => {
+      vi.mocked(auth.api.getSession).mockResolvedValueOnce(ownerSession);
+      vi.mocked(ingredientRepository.findById).mockResolvedValueOnce(
+        mockKopi as unknown as Awaited<ReturnType<typeof ingredientRepository.findById>>
+      );
+
+      vi.mocked(purchaseRepository.createAtomic).mockRejectedValueOnce(
+        new Error("Database deadlock during batch insertion")
+      );
+
+      const res = await request(app)
+        .post("/api/purchases")
+        .set("Origin", "http://localhost:5173")
+        .send({
+          items: [
+            {
+              ingredientId: "ing-kopi",
+              purchaseQty: 1,
+              purchaseUnit: "kg",
+              purchaseUnitPrice: 100000,
+            },
+          ],
+        });
+
+      expect(res.status).toBe(500);
+      expect(res.body.ok).toBe(false);
+      expect(res.body.error.code).toBe("INTERNAL_ERROR");
+      // Must not leak internal database error message to client (Rule 17)
+      expect(res.body.error.message).not.toContain("deadlock");
+    });
+
+    it("pre-validates all rows and avoids calling createAtomic if subsequent item is invalid", async () => {
+      vi.mocked(auth.api.getSession).mockResolvedValueOnce(ownerSession);
+      vi.mocked(ingredientRepository.findById).mockImplementation(
+        async (_businessId: string, id: string) => {
+          if (id === "ing-kopi")
+            return mockKopi as unknown as Awaited<ReturnType<typeof ingredientRepository.findById>>;
+          if (id === "ing-susu")
+            return mockSusu as unknown as Awaited<ReturnType<typeof ingredientRepository.findById>>;
+          return null;
+        }
+      );
+
+      // Susu is perishable but expiryDate is omitted in the second item
+      const res = await request(app)
+        .post("/api/purchases")
+        .set("Origin", "http://localhost:5173")
+        .send({
+          items: [
+            {
+              ingredientId: "ing-kopi",
+              purchaseQty: 1,
+              purchaseUnit: "kg",
+              purchaseUnitPrice: 100000,
+            },
+            {
+              ingredientId: "ing-susu",
+              purchaseQty: 2,
+              purchaseUnit: "liter",
+              purchaseUnitPrice: 20000,
+              // missing expiryDate!
+            },
+          ],
+        });
+
+      expect(res.status).toBe(400);
+      expect(res.body.ok).toBe(false);
+      expect(res.body.error.code).toBe("VALIDATION_ERROR");
+      expect(res.body.error.message).toContain("Baris 2");
+      // Ensure transaction repository method was NEVER called
+      expect(purchaseRepository.createAtomic).not.toHaveBeenCalled();
+    });
   });
 
   describe("GET /api/purchases", () => {
