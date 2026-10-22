@@ -21,6 +21,7 @@
     "better-auth": "^1.7.12",
     "dotenv": "^16.4.7",
     "express": "^5.0.1",
+    "express-rate-limit": "^8.7.1",
     "helmet": "^8.0.0",
     "pg": "^8.13.1",
     "pino": "^9.6.0",
