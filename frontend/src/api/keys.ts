@@ -5,7 +5,10 @@ export const queryKeys = {
   },
   ingredients: {
     all: ["ingredients"] as const,
-    list: () => [...queryKeys.ingredients.all, "list"] as const,
+    list: (filter?: Record<string, unknown>) =>
+      filter
+        ? ([...queryKeys.ingredients.all, "list", filter] as const)
+        : ([...queryKeys.ingredients.all, "list"] as const),
     detail: (id: string) => [...queryKeys.ingredients.all, "detail", id] as const,
   },
   menus: {

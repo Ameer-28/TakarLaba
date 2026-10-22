@@ -46,7 +46,11 @@ export function generateIdempotencyKey(): string {
 export async function apiClient<T>(endpoint: string, options: RequestOptions = {}): Promise<T> {
   const { idempotencyKey, params, headers = {}, ...rest } = options;
 
-  let url = endpoint.startsWith("/") ? endpoint : `/api/${endpoint}`;
+  let url = endpoint.startsWith("/api")
+    ? endpoint
+    : endpoint.startsWith("/")
+      ? `/api${endpoint}`
+      : `/api/${endpoint}`;
 
   if (params) {
     const searchParams = new URLSearchParams();
