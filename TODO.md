@@ -36,7 +36,7 @@ Aturan: hanya satu tugas `[/]` per agent pada satu waktu.
 - [x] **T-015** (P0) [BE/FE] Core libs: backend `money.ts` (Decimal), `date.ts` (`todayWIB`), `errors.ts`; frontend `formatRupiah`/`format.ts` + unit test — AC: pembulatan HALF_UP teruji
 - [x] **T-016** (P0) [BE] Seed v0: bisnis demo + user OWNER/CASHIER (`backend/src/seed`) — dep: T-011
 - [ ] **T-017** (P0) [OPS] **Uji cookie sesi lewat proxy** di Chrome, Firefox, Edge, **Safari (macOS & iOS)**: login, refresh, logout — dep: T-008, T-013 — AC: lulus semua; bila gagal → buka ADR Plan B (domain kustom/bearer) sebelum lanjut
-- [ ] **T-018** (P0) [BE] Test tenant isolation & RBAC kerangka (supertest atas `createApp()`) — dep: T-012
+- [x] **T-018** (P0) [BE] Test tenant isolation & RBAC kerangka (supertest atas `createApp()`) — dep: T-012
 
 ### Fase 2 — Bahan & stok (22–25 Okt)
 

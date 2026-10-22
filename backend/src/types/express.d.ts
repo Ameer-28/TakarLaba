@@ -1,7 +1,9 @@
+export type Role = "OWNER" | "CASHIER";
+
 export interface TenantContext {
   userId: string;
   businessId: string;
-  role: "OWNER" | "CASHIER" | string;
+  role: Role | string;
   email: string;
   name: string;
 }
