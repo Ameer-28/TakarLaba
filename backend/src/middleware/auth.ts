@@ -57,13 +57,15 @@ export async function requireAuth(req: Request, _res: Response, next: NextFuncti
  * Ensures the authenticated user's role is included in allowedRoles.
  * Rejects with 403 FORBIDDEN if unauthorized.
  */
-export function requireRole(...allowedRoles: string[]) {
+export function requireRole(...allowedRoles: (string | string[])[]) {
+  const flattened = allowedRoles.flat();
+
   return (req: Request, _res: Response, next: NextFunction): void => {
     if (!req.ctx) {
       throw new UnauthenticatedError("Autentikasi diperlukan sebelum pemeriksaan peran.");
     }
 
-    if (!allowedRoles.includes(req.ctx.role)) {
+    if (!flattened.includes(req.ctx.role)) {
       throw new ForbiddenError(
         `Peran Anda (${req.ctx.role}) tidak memiliki izin untuk melakukan tindakan ini.`
       );
