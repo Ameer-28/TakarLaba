@@ -34,7 +34,7 @@ Aturan: hanya satu tugas `[/]` per agent pada satu waktu.
 - [x] **T-013** (P0) [FE] Halaman login + `auth-client` + `ProtectedRoute`/`RoleRoute` + logout + error state; tombol Demo Owner/Kasir (placeholder) — dep: T-010
 - [x] **T-014** (P0) [FE] App shell responsif (sidebar desktop, bottom nav mobile), navigasi sadar peran, error boundary & 404
 - [x] **T-015** (P0) [BE/FE] Core libs: backend `money.ts` (Decimal), `date.ts` (`todayWIB`), `errors.ts`; frontend `formatRupiah`/`format.ts` + unit test — AC: pembulatan HALF_UP teruji
-- [ ] **T-016** (P0) [BE] Seed v0: bisnis demo + user OWNER/CASHIER (`backend/src/seed`) — dep: T-011
+- [x] **T-016** (P0) [BE] Seed v0: bisnis demo + user OWNER/CASHIER (`backend/src/seed`) — dep: T-011
 - [ ] **T-017** (P0) [OPS] **Uji cookie sesi lewat proxy** di Chrome, Firefox, Edge, **Safari (macOS & iOS)**: login, refresh, logout — dep: T-008, T-013 — AC: lulus semua; bila gagal → buka ADR Plan B (domain kustom/bearer) sebelum lanjut
 - [ ] **T-018** (P0) [BE] Test tenant isolation & RBAC kerangka (supertest atas `createApp()`) — dep: T-012
 
