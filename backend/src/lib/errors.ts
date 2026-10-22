@@ -48,7 +48,26 @@ export class ConflictError extends AppError {
 }
 
 export class InsufficientStockError extends AppError {
-  constructor(message = "Stok bahan tidak mencukupi") {
+  readonly ingredientId?: string;
+  readonly ingredientName?: string;
+  readonly needed?: string;
+  readonly available?: string;
+
+  constructor(
+    message = "Stok bahan tidak mencukupi",
+    details?: {
+      ingredientId?: string;
+      ingredientName?: string;
+      needed?: string;
+      available?: string;
+    }
+  ) {
     super(message, "INSUFFICIENT_STOCK", 409);
+    if (details) {
+      this.ingredientId = details.ingredientId;
+      this.ingredientName = details.ingredientName;
+      this.needed = details.needed;
+      this.available = details.available;
+    }
   }
 }
