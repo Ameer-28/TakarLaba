@@ -19,6 +19,7 @@ import {
   RefreshCw,
   Info,
   Receipt,
+  Layers,
 } from "lucide-react";
 import {
   useIngredients,
@@ -34,6 +35,7 @@ import { ApiError } from "@/api/client";
 import { formatNumber } from "@/lib/format";
 import { PurchaseModal } from "@/components/features/purchase-modal";
 import { PurchaseHistory } from "@/components/features/purchase-history";
+import { InventorySummary } from "@/components/features/inventory-summary";
 
 // --- Form Schemas (Zod 4) ---
 const ingredientFormSchema = z.object({
@@ -91,7 +93,7 @@ const CATEGORY_MAP: Record<IngredientCategory, { label: string; badgeClass: stri
 
 export function IngredientsPage() {
   // Navigation tabs state
-  const [mainTab, setMainTab] = useState<"ingredients" | "purchases">("ingredients");
+  const [mainTab, setMainTab] = useState<"stock" | "ingredients" | "purchases">("stock");
   const [isPurchaseModalOpen, setIsPurchaseModalOpen] = useState(false);
 
   // Filters state
@@ -369,10 +371,21 @@ export function IngredientsPage() {
       </div>
 
       {/* Subtab Navigation */}
-      <div className="flex items-center gap-2 border-b border-slate-200 pb-px">
+      <div className="flex items-center gap-2 border-b border-slate-200 pb-px overflow-x-auto scrollbar-none">
+        <button
+          onClick={() => setMainTab("stock")}
+          className={`inline-flex items-center gap-2 px-4 py-2.5 text-xs font-bold border-b-2 transition-all whitespace-nowrap ${
+            mainTab === "stock"
+              ? "border-emerald-600 text-emerald-700 bg-emerald-50/50 rounded-t-xl"
+              : "border-transparent text-slate-500 hover:text-slate-800 hover:border-slate-300"
+          }`}
+        >
+          <Layers className="w-4 h-4" />
+          <span>Ringkasan Stok & FEFO</span>
+        </button>
         <button
           onClick={() => setMainTab("ingredients")}
-          className={`inline-flex items-center gap-2 px-4 py-2.5 text-xs font-bold border-b-2 transition-all ${
+          className={`inline-flex items-center gap-2 px-4 py-2.5 text-xs font-bold border-b-2 transition-all whitespace-nowrap ${
             mainTab === "ingredients"
               ? "border-emerald-600 text-emerald-700 bg-emerald-50/50 rounded-t-xl"
               : "border-transparent text-slate-500 hover:text-slate-800 hover:border-slate-300"
@@ -383,7 +396,7 @@ export function IngredientsPage() {
         </button>
         <button
           onClick={() => setMainTab("purchases")}
-          className={`inline-flex items-center gap-2 px-4 py-2.5 text-xs font-bold border-b-2 transition-all ${
+          className={`inline-flex items-center gap-2 px-4 py-2.5 text-xs font-bold border-b-2 transition-all whitespace-nowrap ${
             mainTab === "purchases"
               ? "border-emerald-600 text-emerald-700 bg-emerald-50/50 rounded-t-xl"
               : "border-transparent text-slate-500 hover:text-slate-800 hover:border-slate-300"
@@ -394,7 +407,12 @@ export function IngredientsPage() {
         </button>
       </div>
 
-      {mainTab === "purchases" ? (
+      {mainTab === "stock" ? (
+        <InventorySummary
+          onOpenPurchase={() => setIsPurchaseModalOpen(true)}
+          onOpenCreateIngredient={() => setIsCreateOpen(true)}
+        />
+      ) : mainTab === "purchases" ? (
         <PurchaseHistory onOpenCreate={() => setIsPurchaseModalOpen(true)} />
       ) : (
         <>

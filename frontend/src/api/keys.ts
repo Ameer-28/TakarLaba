@@ -32,4 +32,12 @@ export const queryKeys = {
         : ([...queryKeys.purchases.all, "list"] as const),
     detail: (id: string) => [...queryKeys.purchases.all, "detail", id] as const,
   },
+  inventory: {
+    all: ["inventory"] as const,
+    summary: (warnDays?: number) => [...queryKeys.inventory.all, "summary", warnDays] as const,
+    batches: (filter?: Record<string, unknown>) =>
+      filter
+        ? ([...queryKeys.inventory.all, "batches", filter] as const)
+        : ([...queryKeys.inventory.all, "batches"] as const),
+  },
 };

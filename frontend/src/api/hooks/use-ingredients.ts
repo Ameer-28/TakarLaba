@@ -97,6 +97,7 @@ export function useCreateIngredient() {
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.ingredients.all });
+      queryClient.invalidateQueries({ queryKey: queryKeys.inventory.all });
     },
   });
 }
@@ -112,6 +113,7 @@ export function useUpdateIngredient() {
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.ingredients.all });
+      queryClient.invalidateQueries({ queryKey: queryKeys.inventory.all });
     },
   });
 }
@@ -126,6 +128,7 @@ export function useDeleteIngredient() {
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.ingredients.all });
+      queryClient.invalidateQueries({ queryKey: queryKeys.inventory.all });
     },
   });
 }
@@ -141,6 +144,7 @@ export function useAddPurchaseUnit() {
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.ingredients.all });
+      queryClient.invalidateQueries({ queryKey: queryKeys.inventory.all });
     },
   });
 }
@@ -155,6 +159,7 @@ export function useDeletePurchaseUnit() {
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.ingredients.all });
+      queryClient.invalidateQueries({ queryKey: queryKeys.inventory.all });
     },
   });
 }

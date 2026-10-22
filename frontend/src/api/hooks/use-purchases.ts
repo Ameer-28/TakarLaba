@@ -92,6 +92,7 @@ export function useCreatePurchase() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.purchases.all });
       queryClient.invalidateQueries({ queryKey: queryKeys.ingredients.all });
+      queryClient.invalidateQueries({ queryKey: queryKeys.inventory.all });
     },
   });
 }
