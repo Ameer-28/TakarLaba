@@ -42,9 +42,9 @@ Aturan: hanya satu tugas `[/]` per agent pada satu waktu.
 
 - [x] **T-020** (P0) [BE+FE] CRUD bahan (`domain/units.ts`, repo, service, route, validasi) + konversi satuan + yield + soft delete; halaman bahan — AC: FR-ING-01
 - [x] **T-021** (P0) [BE+FE] Pembelian multi-baris → Purchase + StockBatch + StockMovement (atomik) + form pembelian — dep: T-020 — AC: FR-PUR-01
-- [ ] **T-022** (P0) [BE+FE] Ringkasan stok + detail batch + badge Aman/Segera/Kedaluwarsa + stok rendah (DTO kasir tanpa biaya) — dep: T-021 — AC: FR-ING-02
-- [ ] **T-023** (P0) [BE] Unit test konversi satuan/yield/costPerBase; integration: rollback pembelian gagal
-- [ ] **T-024** (P0) [DOC] `docs/api.md` untuk endpoint bahan/pembelian/stok
+- [x] **T-022** (P0) [BE+FE] Ringkasan stok + detail batch + badge Aman/Segera/Kedaluwarsa + stok rendah (DTO kasir tanpa biaya) — dep: T-021 — AC: FR-ING-02
+- [x] **T-023** (P0) [BE] Unit test konversi satuan/yield/costPerBase; integration: rollback pembelian gagal
+- [x] **T-024** (P0) [DOC] `docs/api.md` untuk endpoint bahan/pembelian/stok
 
 ### Fase 3 — Menu, resep, costing (26–28 Okt)
 
