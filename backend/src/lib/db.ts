@@ -17,6 +17,11 @@ export const pool = new pg.Pool({
   connectionTimeoutMillis: 5_000,
 });
 
+pool.on("error", (err) => {
+  // Prevent unhandled error crash when remote Neon pooler resets idle socket
+  console.warn("Peringatan koneksi idle database di-reset:", err.message);
+});
+
 export const prisma = new PrismaClient({
   adapter: new PrismaPg(pool),
 });
