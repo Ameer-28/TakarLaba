@@ -35,7 +35,7 @@ Aturan: hanya satu tugas `[/]` per agent pada satu waktu.
 - [x] **T-014** (P0) [FE] App shell responsif (sidebar desktop, bottom nav mobile), navigasi sadar peran, error boundary & 404
 - [x] **T-015** (P0) [BE/FE] Core libs: backend `money.ts` (Decimal), `date.ts` (`todayWIB`), `errors.ts`; frontend `formatRupiah`/`format.ts` + unit test — AC: pembulatan HALF_UP teruji
 - [x] **T-016** (P0) [BE] Seed v0: bisnis demo + user OWNER/CASHIER (`backend/src/seed`) — dep: T-011
-- [ ] **T-017** (P0) [OPS] **Uji cookie sesi lewat proxy** di Chrome, Firefox, Edge, **Safari (macOS & iOS)**: login, refresh, logout — dep: T-008, T-013 — AC: lulus semua; bila gagal → buka ADR Plan B (domain kustom/bearer) sebelum lanjut
+- [x] **T-017** (P0) [OPS] **Uji cookie sesi lewat proxy** di Chrome, Firefox, Edge, **Safari (macOS & iOS)**: login, refresh, logout — dep: T-008, T-013 — AC: lulus semua; bila gagal → buka ADR Plan B (domain kustom/bearer) sebelum lanjut
 - [x] **T-018** (P0) [BE] Test tenant isolation & RBAC kerangka (supertest atas `createApp()`) — dep: T-012
 
 ### Fase 2 — Bahan & stok (22–25 Okt)
@@ -145,6 +145,7 @@ Aturan: hanya satu tugas `[/]` per agent pada satu waktu.
 
 | Tanggal    | Agent/Orang | Ringkasan                                                                                                                                                                                                                                                                                                             | Tugas terkait              |
 | ---------- | ----------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------- |
+| 2026-10-22 | Agent       | Selesai Fase 1 (100%): Frontend Login UI & Better Auth client (T-013), App Shell responsif & code splitting (T-014), Core libs money/date/format HALF_UP (T-015), Seed v0 bisnis & demo user (T-016), Uji cookie sesi via proxy live (T-017), dan Test tenant isolation & RBAC supertest (T-018) | T-013 s.d. T-018           |
 | 2026-10-22 | Agent       | Setup Better Auth Express (T-010), skema domain Prisma lengkap + migrasi Neon (T-011), dan core middlewares: auth tenant context, RBAC, Zod validation, same-origin, request ID (T-012) | T-010, T-011, T-012        |
 | 2026-10-21 | Agent       | Konfigurasi dual-mode backend untuk Vercel Serverless Functions: entry src/index.ts, rename standalone runner src/standalone.ts, backend/vercel.json (sin1), serverless-friendly pg.Pool (max 5, idle 10s), supertest entry test, ADR 0002, dan pembaruan arsitektur/README                                           | T-008                      |
 | 2026-10-21 | Agent       | Hardening repo: Prettier & Vitest frontend/backend, validasi env fail-fast & z.stringbool(), graceful shutdown server, penanganan error body-parser (400/413), modul health route minimalis, ekstraksi not-found & route-error pages, pembersihan tooling root Neon, integrasi CI format/test, ADR 0001 & docs/api.md | T-004, T-007, T-008, T-009 |
