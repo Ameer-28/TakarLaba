@@ -1,7 +1,9 @@
 import express from "express";
 import helmet from "helmet";
 import { pinoHttp } from "pino-http";
+import { toNodeHandler } from "better-auth/node";
 import { logger } from "./lib/logger.js";
+import { auth } from "./lib/auth.js";
 import { apiRouter } from "./routes/index.js";
 import { errorHandler, notFoundHandler } from "./middleware/error-handler.js";
 
@@ -37,7 +39,7 @@ export function createApp() {
 
   // NOTE: Handler Better Auth WAJIB dipasang sebelum express.json() (lihat AGENTS.md §2 & §4).
   // Better Auth consumes the raw request stream; mounting express.json() earlier causes auth requests to hang or fail.
-  // app.all("/api/auth/*splat", toNodeHandler(auth));
+  app.all(["/api/auth", "/api/auth/*splat"], toNodeHandler(auth));
 
   // Body parsing limited to 100kb
   app.use(express.json({ limit: "100kb" }));
