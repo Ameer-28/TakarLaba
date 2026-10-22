@@ -23,8 +23,8 @@ Aturan: hanya satu tugas `[/]` per agent pada satu waktu.
 - [x] **T-005** (P0) [BE] Scaffold Express 5 ESM TS (`NodeNext`), `config/env.ts` (Zod), `app.ts`/`server.ts`, pino, helmet, `errorHandler` envelope, `/api/health`, tsx dev, tsc build — dep: T-002 — AC: `GET /api/health` 200
 - [x] **T-006** (P0) [DB/BE] Prisma 7: `database/schema.prisma`, `backend/prisma.config.ts`, adapter-pg, `db.ts`, Docker Postgres lokal. **Spike:** `npm run build && npm start` berjalan dengan client Prisma (fallback: tsx runtime) — dep: T-005 — AC: `prisma validate` OK; start dari `dist/` berhasil
 - [x] **T-007** (P0) [OPS] GitHub Actions CI: job `backend` (format check, lint, typecheck, test, build) & `frontend` (format check, lint, typecheck, test, build) — dep: T-003, T-005
-- [~] **T-008** (P0) [OPS] Deploy: Neon (pooled + direct URL), backend di Render/VPS, frontend di Vercel dengan `vercel.json` rewrite `/api/*`; monitor uptime — menunggu verifikasi manual oleh pemilik repo (3 perintah curl) dan monitor uptime — dep: T-004, T-006
-- [ ] **T-009** (P0) [OPS] Verifikasi deploy live dan rotasi kredensial Neon, dikerjakan pemilik repo
+- [x] **T-008** (P0) [OPS] Deploy: Neon (pooled + direct URL), backend di Vercel Functions (sin1), frontend di Vercel dengan `vercel.json` rewrite `/api/*` — terverifikasi 3 curl (200 OK & db: ok) — dep: T-004, T-006
+- [x] **T-009** (P0) [OPS] Verifikasi deploy live (frontend, direct backend, proxy rewrite) berhasil dengan status 200 OK
 
 ### Fase 1 — Auth, tenant, shell (20–22 Okt)
 

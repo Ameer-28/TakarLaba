@@ -14,8 +14,11 @@ dist-ssr/
 build/
 *.tsbuildinfo
 
-# Neon
+# Neon & agent skills
 .neon
+.agents/
+skills-lock.json
+
 # Vercel
 .vercel
 .vercel/
