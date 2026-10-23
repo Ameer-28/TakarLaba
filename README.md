@@ -21,23 +21,23 @@ TakarLaba adalah aplikasi web modern berbasis multi-tenant yang membantu pengusa
 - **Frontend (`frontend/`):**
   - **Framework & Runtime:** React 19 · Vite 6
   - **Routing:** React Router 8 (Data Router)
-  - **Server State:** TanStack Query v5
+  - **Server State & Data Fetching:** TanStack Query v5
+  - **Autentikasi:** Better Auth client (`better-auth/react`) first-party session
+  - **Formulir & Validasi:** React Hook Form + `@hookform/resolvers` Zod 4
   - **Styling & UI:** Tailwind CSS v4 (`@tailwindcss/vite`) · shadcn/ui tokens · `tw-animate-css` · Lucide React · Sonner
   - **Testing & Tooling:** Vitest · Prettier · ESLint 9 · TypeScript strict
 - **Backend (`backend/`):**
   - **Framework & Runtime:** Node.js 22 LTS · Express 5 (ESM NodeNext)
-  - **Validasi:** Zod 4 (`z.stringbool()`, `z.url()`)
-  - **Database ORM:** Prisma 7 (`@prisma/adapter-pg` + `pg`)
-  - **Logging & Keamanan:** Pino 9 · pino-http · Helmet 8
+  - **Autentikasi & Multi-tenant:** Better Auth (`@better-auth/node`) dengan tenant scoping (`businessId`, `role`)
+  - **Matematika Uang & Kuantitas:** decimal.js (presisi desimal mutlak tanpa floating-point)
+  - **Validasi:** Zod 4 (`z.stringbool()`, `z.url()`, skema per endpoint)
+  - **Database ORM & Driver:** Prisma 7 (`@prisma/adapter-pg` + `pg`)
+  - **Logging & Keamanan:** Pino 9 · pino-http · Helmet 8 · express-rate-limit
   - **Testing & Tooling:** Vitest · Supertest · Prettier · ESLint 9 · TypeScript strict
 
 ### Dependensi Direncanakan (Roadmap Fitur)
 
-- **Autentikasi & Multi-tenant:** Better Auth (sesi first-party via proxy)
-- **Keamanan Lanjutan:** express-rate-limit
-- **Perhitungan Desimal Finansial:** decimal.js
-- **Formulir Frontend:** React Hook Form + resolver Zod 4
-- **Visualisasi & Diagram:** Recharts
+- **Visualisasi & Diagram:** Recharts (untuk Menu Engineering & grafik penjualan)
 
 ---
 
@@ -148,12 +148,16 @@ takarlaba/
 ├── backend/              # Authoritative REST API (Express 5 + Prisma 7)
 │   ├── src/
 │   │   ├── config/       # load-env.ts dan env.ts (validasi Zod 4)
-│   │   ├── lib/          # db, logger, envelope, errors
-│   │   ├── middleware/   # error-handler, auth
-│   │   ├── routes/       # health.routes.ts, dsb.
-│   │   ├── index.ts      # Serverless entry Vercel Function (export default app)
-│   │   └── standalone.ts # Standalone server runner lokal & graceful shutdown
-│   ├── tests/            # Pengujian unit & integrasi Vitest + Supertest
+│   │   ├── create-app.ts # createApp() Express factory murni
+│   │   ├── index.ts      # Serverless entry Vercel Function (export default createApp())
+│   │   ├── standalone.ts # Standalone server runner lokal & graceful shutdown
+│   │   ├── lib/          # db, logger, envelope, errors, auth, money, date
+│   │   ├── middleware/   # error-handler, auth, rate-limit, same-origin, validate
+│   │   ├── routes/       # health, ingredient, purchase, inventory
+│   │   ├── services/     # logika bisnis & orkestrasi transaksi
+│   │   ├── repositories/ # isolasi Prisma client terscope tenant
+│   │   └── seed/         # seeding data demo aman (isDemo: true)
+│   ├── tests/            # unit/, integration/ (real DB), http/ (Supertest)
 │   ├── vercel.json       # Konfigurasi region sin1 Vercel Function
 │   └── package.json
 ├── database/             # Skema Prisma, migrasi, dan konfigurasi Docker Compose
