@@ -13,9 +13,9 @@ vi.mock("../../src/lib/db.js", () => ({
 
 import { checkPrismaConnection } from "../../src/lib/db.js";
 import app from "../../src/index.js";
-import appFromAppModule from "../../src/app.js";
+import { createApp } from "../../src/create-app.js";
 
-describe("Serverless entry default export (backend/src/index.ts and backend/src/app.ts)", () => {
+describe("Serverless entry default export (backend/src/index.ts)", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
@@ -37,10 +37,13 @@ describe("Serverless entry default export (backend/src/index.ts and backend/src/
     });
   });
 
-  it("exports an Express application instance as default from app.ts for Vercel discovery", async () => {
-    expect(typeof appFromAppModule).toBe("function");
+  it("exports a factory function createApp from create-app.ts without instantiating at module load", async () => {
+    expect(typeof createApp).toBe("function");
 
-    const res = await request(appFromAppModule).get("/api/health");
+    const appInstance = createApp();
+    expect(typeof appInstance).toBe("function");
+
+    const res = await request(appInstance).get("/api/health");
     expect([200, 503]).toContain(res.status);
   });
 });

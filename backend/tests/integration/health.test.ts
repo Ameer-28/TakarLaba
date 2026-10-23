@@ -9,7 +9,7 @@ vi.mock("../../src/lib/db.js", () => ({
 }));
 
 import { checkPrismaConnection } from "../../src/lib/db.js";
-import { createApp } from "../../src/app.js";
+import { createApp } from "../../src/create-app.js";
 
 describe("GET /api/health", () => {
   const app = createApp();

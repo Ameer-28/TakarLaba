@@ -22,7 +22,7 @@ vi.mock("../../src/lib/db.js", () => ({
   },
 }));
 
-import { createApp } from "../../src/app.js";
+import { createApp } from "../../src/create-app.js";
 
 describe("Better Auth Integration (/api/auth)", () => {
   const app = createApp();

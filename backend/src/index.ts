@@ -1,5 +1,3 @@
-import "express";
-import { app } from "./app.js";
+import { createApp } from "./create-app.js";
 
-export { app };
-export default app;
+export default createApp();
