@@ -22,12 +22,14 @@ Vercel mendukung deployment zero-config untuk framework backend Express melalui 
 Kami memutuskan untuk mengadopsi arsitektur **Dual-Mode Backend**:
 
 1. **Mode Vercel Serverless Function (Produksi Vercel):**
-   - Entry point di `backend/src/index.ts` mengekspor instance Express secara default (`export default createApp()`).
+   - Factory Express diisolasi murni di `backend/src/create-app.ts` (`export function createApp()`), tanpa instansiasi objek `app` saat module load untuk mencegah efek samping.
+   - Entry point di `backend/src/index.ts` adalah satu-satunya entrypoint Vercel yang mengekspor instance Express secara default (`export default createApp()`), mencegah peringatan "Multiple entrypoints found".
    - Tanpa pemanggilan `app.listen()` atau listener sinyal proses (`process.on`).
-   - Vercel mendeteksi `backend/src/index.ts` secara otomatis sebagai serverless handler.
+   - Builder Vercel Serverless Function mengompilasi TypeScript dengan opsi resolusi modul yang berbeda dari `tsc` lokal; oleh karena itu semua dependensi middleware CJS/ESM wajib menggunakan impor bernama (`import { rateLimit } from "express-rate-limit"`) dan impor standar tanpa cast tipe (`import helmet from "helmet"`).
+   - Seluruh argumen handler middleware express wajib dideklarasikan dengan tipe eksplisit (`req: Request, res: Response, next: NextFunction`) untuk mencegah kegagalan akibat implicit `any`.
    - Konfigurasi region di `backend/vercel.json` disetel ke `["sin1"]` (Singapura), berdekatan dengan database Neon (`ap-southeast-1`).
 2. **Mode Standalone Long-Lived Process (Lokal & VPS Fallback):**
-   - Runner di `backend/src/standalone.ts` mengimpor `createApp()`, memanggil `app.listen(PORT)`, dan menangani _graceful shutdown_ (`SIGINT`/`SIGTERM`) untuk koneksi HTTP, Prisma, dan PostgreSQL pool.
+   - Runner di `backend/src/standalone.ts` mengimpor `createApp` dari `./create-app.js`, memanggil `app.listen(PORT)`, dan menangani _graceful shutdown_ (`SIGINT`/`SIGTERM`) untuk koneksi HTTP, Prisma, dan PostgreSQL pool.
    - Script `npm run dev` (`tsx watch src/standalone.ts`) dan `npm start` (`node dist/standalone.js`).
 3. **Koneksi Database Ramah Serverless:**
    - Menggunakan `@prisma/adapter-pg` dengan `pg.Pool` terkonfigurasi: `max: 5`, `idleTimeoutMillis: 10_000`, dan `connectionTimeoutMillis: 5_000`.

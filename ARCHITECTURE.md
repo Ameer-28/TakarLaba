@@ -63,8 +63,9 @@ takarlaba/
 ├── backend/
 │   ├── package.json  tsconfig.json  eslint.config.js  vitest.config.ts  prisma.config.ts  .env.example
 │   ├── src/
-│   │   ├── server.ts                 # listen
-│   │   ├── app.ts                    # createApp() — dipakai server & supertest
+│   │   ├── index.ts                  # single Vercel entrypoint (export default createApp())
+│   │   ├── create-app.ts             # createApp() factory murni tanpa instansiasi modul
+│   │   ├── standalone.ts             # entrypoint proses server lokal & VPS (listen + graceful shutdown)
 │   │   ├── config/env.ts             # env divalidasi Zod, gagal cepat bila kurang
 │   │   ├── lib/                      # auth.ts (Better Auth), db.ts, logger.ts, errors.ts, envelope.ts, money.ts, date.ts
 │   │   ├── middleware/               # require-auth, require-role, validate, same-origin, rate-limit, request-id, error-handler, not-found
@@ -341,7 +342,7 @@ Dokumentasi rinci (skema request/response, error code per endpoint, contoh `curl
 Aturan `/api` harus **di atas** fallback SPA. URL backend ditulis langsung (bukan secret); mengubahnya = commit baru.
 
 - **Backend (Vercel Functions - Project ke-2 atau Render/VPS):**
-  - **Opsi Utama (Vercel Serverless Function - Hobby Plan):** Project Vercel terpisah dengan Root Directory = `backend`; entry point `src/index.ts` mengekspor default instance Express (`createApp()`); konfigurasi `backend/vercel.json` menyetel region `["sin1"]` (Singapura); koneksi database `pg.Pool` disetel ramah serverless (`max: 5`, `idleTimeoutMillis: 10_000`, `connectionTimeoutMillis: 5_000`). Variabel lingkungan disetel di dashboard project Vercel backend (`DATABASE_URL`, `DIRECT_URL`, `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL`, `FRONTEND_URL`, dsb.).
+  - **Opsi Utama (Vercel Serverless Function - Hobby Plan):** Project Vercel terpisah dengan Root Directory = `backend`; entry point `src/index.ts` mengekspor default instance Express (`createApp()`); konfigurasi `backend/vercel.json` menyetel region `["sin1"]` (Singapura); koneksi database `pg.Pool` disetel ramah serverless (`max: 5`, `idleTimeoutMillis: 10_000`, `connectionTimeoutMillis: 5_000`). Variabel lingkungan disetel di dashboard project Vercel backend (`DATABASE_URL`, `DIRECT_URL`, `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL`, `FRONTEND_URL`, dsb.). Catatan kompilasi: Builder Serverless Function Vercel mengompilasi TypeScript dengan opsi berbeda dari `tsc` lokal, sehingga impor pustaka wajib berbentuk bernama (`import { rateLimit } from "express-rate-limit"`), tanpa cast tipe (`import helmet from "helmet"`), serta parameter middleware diketik eksplisit.
   - **Opsi Cadangan (Render Starter atau VPS):** Root Directory DIKOSONGKAN (karena `backend/prisma.config.ts` merujuk `../database`); build `cd backend && npm ci --include=dev && npx prisma generate && npm run build`; start `cd backend && npm start` (menjalankan `dist/standalone.js`); health check `/api/health`; Build Filters: `backend/**` dan `database/**`. Dapat digunakan jika akun Render berbayar atau VPS mandiri diaktifkan.
 - **Database (Neon):** pooled URL untuk runtime, direct URL untuk migrasi. Free tier dapat suspend saat idle — dicakup oleh health ping.
 - **Migrasi:** `prisma migrate deploy` dijalankan **manual dengan izin** (bukan otomatis saat build).
