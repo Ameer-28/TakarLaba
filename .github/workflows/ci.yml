@@ -63,6 +63,9 @@ jobs:
       - name: Test
         run: cd backend && npm run test
 
+      - name: Test (Integration)
+        run: cd backend && npm run test:integration
+
       - name: Build
         run: cd backend && npm run build
 
