@@ -20,6 +20,15 @@ export class InventoryRepository {
           where: {
             remainingQtyBase: { gt: 0 },
           },
+          include: {
+            purchase: {
+              select: {
+                id: true,
+                purchasedAt: true,
+                createdAt: true,
+              },
+            },
+          },
           orderBy: [
             // FEFO: non-null expiry dates first, ascending
             { expiryDate: { sort: "asc", nulls: "last" } },

@@ -63,13 +63,35 @@ export class InventoryService {
       let nearestExpiry: Date | null = null;
       let hasExpiringSoon = false;
       let latestBatchCost: Decimal | null = null;
+      let latestPurchasedAt: Date | null = null;
+      let latestCreatedAt: Date | null = null;
 
       const activeBatches = ing.stockBatches;
 
       for (const batch of activeBatches) {
         const remaining = new Decimal(batch.remainingQtyBase.toString());
         const cost = new Decimal(batch.costPerBase.toString());
-        latestBatchCost = cost; // Ordered by expiryDate/receivedAt
+
+        // BR-03: Replacement cost per ingredient is taken from the batch with the latest purchasedAt
+        // (tie-breaker latest createdAt), NOT from FEFO iteration order.
+        const batchWithPurchase = batch as typeof batch & {
+          purchase?: { purchasedAt: Date; createdAt: Date } | null;
+        };
+        const purchasedAt =
+          batchWithPurchase.purchase?.purchasedAt ?? batch.receivedAt ?? batch.createdAt;
+        const createdAt = batchWithPurchase.purchase?.createdAt ?? batch.createdAt;
+
+        const isNewer =
+          !latestPurchasedAt ||
+          purchasedAt.getTime() > latestPurchasedAt.getTime() ||
+          (purchasedAt.getTime() === latestPurchasedAt.getTime() &&
+            (!latestCreatedAt || createdAt.getTime() > latestCreatedAt.getTime()));
+
+        if (isNewer) {
+          latestBatchCost = cost;
+          latestPurchasedAt = purchasedAt;
+          latestCreatedAt = createdAt;
+        }
 
         if (isExpired(batch.expiryDate)) {
           expiredStock = expiredStock.plus(remaining);
