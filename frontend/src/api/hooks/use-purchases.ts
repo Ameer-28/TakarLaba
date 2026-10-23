@@ -8,12 +8,12 @@ export interface PurchaseStockBatch {
   purchaseId: string | null;
   receivedAt: string;
   expiryDate: string | null;
-  purchaseQty: string | number;
+  purchaseQty: string;
   purchaseUnit: string;
-  purchaseUnitPrice: string | number;
-  initialQtyBase: string | number;
-  remainingQtyBase: string | number;
-  costPerBase: string | number;
+  purchaseUnitPrice: string;
+  initialQtyBase: string;
+  remainingQtyBase: string;
+  costPerBase: string;
   ingredient: {
     id: string;
     name: string;
@@ -28,7 +28,7 @@ export interface PurchaseRecord {
   supplierName: string | null;
   purchasedAt: string;
   note: string | null;
-  totalAmount: string | number;
+  totalAmount: string;
   createdById: string;
   createdAt: string;
   batches: PurchaseStockBatch[];
@@ -49,9 +49,9 @@ export interface PurchaseFilter {
 
 export interface PurchaseItemPayload {
   ingredientId: string;
-  purchaseQty: number;
+  purchaseQty: string | number;
   purchaseUnit: string;
-  purchaseUnitPrice: number;
+  purchaseUnitPrice: string | number;
   expiryDate?: string | null;
 }
 
