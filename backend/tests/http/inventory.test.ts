@@ -236,5 +236,36 @@ describe("Inventory Routes & Service Integration (T-022)", () => {
       expect(batch.costPerBase).toBeUndefined();
       expect(batch.purchaseUnitPrice).toBeUndefined();
     });
+
+    it("rejects invalid query parameters with 400 VALIDATION_ERROR (C2)", async () => {
+      vi.mocked(auth.api.getSession).mockResolvedValue(ownerSession);
+
+      // 1. warnDays=abc on summary
+      const resSummaryAbc = await request(app)
+        .get("/api/inventory/summary?warnDays=abc")
+        .set("Origin", "http://localhost:5173");
+
+      expect(resSummaryAbc.status).toBe(400);
+      expect(resSummaryAbc.body.ok).toBe(false);
+      expect(resSummaryAbc.body.error.code).toBe("VALIDATION_ERROR");
+
+      // 2. warnDays=50 (exceeds max 30)
+      const resSummaryOutRange = await request(app)
+        .get("/api/inventory/summary?warnDays=50")
+        .set("Origin", "http://localhost:5173");
+
+      expect(resSummaryOutRange.status).toBe(400);
+      expect(resSummaryOutRange.body.ok).toBe(false);
+      expect(resSummaryOutRange.body.error.code).toBe("VALIDATION_ERROR");
+
+      // 3. hasRemainingOnly=invalid on batches
+      const resBatchesInvalid = await request(app)
+        .get("/api/inventory/batches?hasRemainingOnly=invalid")
+        .set("Origin", "http://localhost:5173");
+
+      expect(resBatchesInvalid.status).toBe(400);
+      expect(resBatchesInvalid.body.ok).toBe(false);
+      expect(resBatchesInvalid.body.error.code).toBe("VALIDATION_ERROR");
+    });
   });
 });

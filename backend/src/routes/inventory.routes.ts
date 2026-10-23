@@ -1,6 +1,13 @@
 import { Router } from "express";
 import { inventoryService } from "../services/inventory.service.js";
 import { requireAuth, requireRole } from "../middleware/auth.js";
+import { validate } from "../middleware/validate.js";
+import {
+  stockSummaryQuerySchema,
+  inventoryBatchesQuerySchema,
+  type StockSummaryQuery,
+  type InventoryBatchesQuery,
+} from "../validation/inventory.schema.js";
 import type { Role } from "../types/express.js";
 
 export const inventoryRouter = Router();
@@ -10,10 +17,12 @@ inventoryRouter.get(
   "/inventory/summary",
   requireAuth,
   requireRole(["OWNER", "CASHIER"]),
+  validate(stockSummaryQuerySchema, "query"),
   async (req, res, next) => {
     try {
       const ctx = req.ctx!;
-      const warnDays = req.query.warnDays ? Number(req.query.warnDays) : 3;
+      const query = req.valid?.query as StockSummaryQuery;
+      const warnDays = query?.warnDays ?? 3;
 
       const summary = await inventoryService.getStockSummary(
         ctx.businessId,
@@ -33,13 +42,14 @@ inventoryRouter.get(
   "/inventory/batches",
   requireAuth,
   requireRole(["OWNER", "CASHIER"]),
+  validate(inventoryBatchesQuerySchema, "query"),
   async (req, res, next) => {
     try {
       const ctx = req.ctx!;
-      const ingredientId =
-        typeof req.query.ingredientId === "string" ? req.query.ingredientId : undefined;
-      const hasRemainingOnly = req.query.hasRemainingOnly !== "false";
-      const warnDays = req.query.warnDays ? Number(req.query.warnDays) : 3;
+      const query = req.valid?.query as InventoryBatchesQuery;
+      const ingredientId = query?.ingredientId;
+      const hasRemainingOnly = query?.hasRemainingOnly ?? true;
+      const warnDays = query?.warnDays ?? 3;
 
       const batches = await inventoryService.getBatches(
         ctx.businessId,
