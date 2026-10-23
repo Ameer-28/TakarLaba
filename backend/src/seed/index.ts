@@ -4,23 +4,38 @@ import { logger } from "../lib/logger.js";
 
 export const DEMO_BUSINESS_ID = "demo-business-001";
 
-export const DEMO_USERS = [
-  {
-    email: "owner@takarlaba.demo",
-    password: "password123",
-    name: "Demo Pemilik",
-    role: "OWNER" as const,
-  },
-  {
-    email: "kasir@takarlaba.demo",
-    password: "password123",
-    name: "Demo Kasir",
-    role: "CASHIER" as const,
-  },
-];
+export function getDemoPassword(): string {
+  const password = process.env.DEMO_PASSWORD;
+  if (!password || password.trim() === "") {
+    throw new Error("DEMO_PASSWORD environment variable is required to run seed");
+  }
+  return password;
+}
+
+export function getDemoUsers(password: string) {
+  return [
+    {
+      email: "owner@takarlaba.demo",
+      password,
+      name: "Demo Pemilik",
+      role: "OWNER" as const,
+    },
+    {
+      email: "kasir@takarlaba.demo",
+      password,
+      name: "Demo Kasir",
+      role: "CASHIER" as const,
+    },
+  ];
+}
+
+export const DEMO_USERS = getDemoUsers("placeholder-password");
 
 export async function seedV0() {
   logger.info("Menjalankan Seed v0 TakarLaba...");
+
+  const demoPassword = getDemoPassword();
+  const demoUsers = getDemoUsers(demoPassword);
 
   // 1. Upsert Demo Business (strictly scoped to isDemo=true, Rule 20)
   const business = await prisma.business.upsert({
@@ -48,10 +63,14 @@ export async function seedV0() {
     },
   });
 
+  if (!business.isDemo) {
+    throw new Error("Security violation: Refusing to seed non-demo business");
+  }
+
   logger.info({ businessId: business.id }, "Bisnis demo berhasil disiapkan");
 
   // 2. Upsert Demo Users via Better Auth API
-  for (const demoUser of DEMO_USERS) {
+  for (const demoUser of demoUsers) {
     const existingUser = await prisma.user.findUnique({
       where: { email: demoUser.email },
     });
