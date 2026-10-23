@@ -2,6 +2,7 @@ import pg from "pg";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "../generated/prisma/client.js";
 import { env } from "../config/env.js";
+import { logger } from "./logger.js";
 
 /**
  * Serverless-friendly PostgreSQL connection pool.
@@ -19,7 +20,7 @@ export const pool = new pg.Pool({
 
 pool.on("error", (err) => {
   // Prevent unhandled error crash when remote Neon pooler resets idle socket
-  console.warn("Peringatan koneksi idle database di-reset:", err.message);
+  logger.warn({ err: err.message }, "Peringatan koneksi idle database di-reset");
 });
 
 export const prisma = new PrismaClient({
