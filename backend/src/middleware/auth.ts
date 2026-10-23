@@ -74,3 +74,14 @@ export function requireRole(...allowedRoles: (string | string[])[]) {
     next();
   };
 }
+
+/**
+ * Asserts and extracts tenant context from the request.
+ * Throws UnauthenticatedError if req.ctx is not populated.
+ */
+export function requireCtx(req: Request): TenantContext {
+  if (!req.ctx) {
+    throw new UnauthenticatedError("Autentikasi diperlukan. Sesi tidak valid atau telah berakhir.");
+  }
+  return req.ctx;
+}

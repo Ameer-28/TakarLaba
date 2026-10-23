@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { inventoryService } from "../services/inventory.service.js";
-import { requireAuth, requireRole } from "../middleware/auth.js";
+import { requireAuth, requireRole, requireCtx } from "../middleware/auth.js";
 import { validate } from "../middleware/validate.js";
 import {
   stockSummaryQuerySchema,
@@ -18,22 +18,18 @@ inventoryRouter.get(
   requireAuth,
   requireRole(["OWNER", "CASHIER"]),
   validate(stockSummaryQuerySchema, "query"),
-  async (req, res, next) => {
-    try {
-      const ctx = req.ctx!;
-      const query = req.valid?.query as StockSummaryQuery;
-      const warnDays = query?.warnDays ?? 3;
+  async (req, res) => {
+    const ctx = requireCtx(req);
+    const query = req.valid?.query as StockSummaryQuery;
+    const warnDays = query?.warnDays ?? 3;
 
-      const summary = await inventoryService.getStockSummary(
-        ctx.businessId,
-        ctx.role as Role,
-        warnDays
-      );
+    const summary = await inventoryService.getStockSummary(
+      ctx.businessId,
+      ctx.role as Role,
+      warnDays
+    );
 
-      res.json({ ok: true, data: summary });
-    } catch (err) {
-      next(err);
-    }
+    res.json({ ok: true, data: summary });
   }
 );
 
@@ -43,27 +39,23 @@ inventoryRouter.get(
   requireAuth,
   requireRole(["OWNER", "CASHIER"]),
   validate(inventoryBatchesQuerySchema, "query"),
-  async (req, res, next) => {
-    try {
-      const ctx = req.ctx!;
-      const query = req.valid?.query as InventoryBatchesQuery;
-      const ingredientId = query?.ingredientId;
-      const hasRemainingOnly = query?.hasRemainingOnly ?? true;
-      const warnDays = query?.warnDays ?? 3;
+  async (req, res) => {
+    const ctx = requireCtx(req);
+    const query = req.valid?.query as InventoryBatchesQuery;
+    const ingredientId = query?.ingredientId;
+    const hasRemainingOnly = query?.hasRemainingOnly ?? true;
+    const warnDays = query?.warnDays ?? 3;
 
-      const batches = await inventoryService.getBatches(
-        ctx.businessId,
-        ctx.role as Role,
-        {
-          ingredientId,
-          hasRemainingOnly,
-        },
-        warnDays
-      );
+    const batches = await inventoryService.getBatches(
+      ctx.businessId,
+      ctx.role as Role,
+      {
+        ingredientId,
+        hasRemainingOnly,
+      },
+      warnDays
+    );
 
-      res.json({ ok: true, data: batches });
-    } catch (err) {
-      next(err);
-    }
+    res.json({ ok: true, data: batches });
   }
 );

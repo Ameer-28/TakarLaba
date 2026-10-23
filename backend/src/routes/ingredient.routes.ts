@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { ingredientService } from "../services/ingredient.service.js";
-import { requireAuth, requireRole } from "../middleware/auth.js";
+import { requireAuth, requireRole, requireCtx } from "../middleware/auth.js";
 import { validate } from "../middleware/validate.js";
 import {
   createIngredientSchema,
@@ -20,32 +20,28 @@ ingredientRouter.get(
   "/ingredients",
   requireAuth,
   requireRole(["OWNER", "CASHIER"]),
-  async (req, res, next) => {
-    try {
-      const ctx = req.ctx!;
-      const search = typeof req.query.search === "string" ? req.query.search : undefined;
-      const category = typeof req.query.category === "string" ? req.query.category : undefined;
-      const isActiveParam = req.query.isActive;
+  async (req, res) => {
+    const ctx = requireCtx(req);
+    const search = typeof req.query.search === "string" ? req.query.search : undefined;
+    const category = typeof req.query.category === "string" ? req.query.category : undefined;
+    const isActiveParam = req.query.isActive;
 
-      let isActive: boolean | undefined;
-      if (isActiveParam === "true") isActive = true;
-      if (isActiveParam === "false") isActive = false;
+    let isActive: boolean | undefined;
+    if (isActiveParam === "true") isActive = true;
+    if (isActiveParam === "false") isActive = false;
 
-      let parsedCategory: IngredientCategory | undefined;
-      if (category) {
-        parsedCategory = ingredientCategoryEnum.parse(category);
-      }
-
-      const ingredients = await ingredientService.listIngredients(ctx.businessId, {
-        search,
-        category: parsedCategory,
-        isActive,
-      });
-
-      res.json({ ok: true, data: ingredients });
-    } catch (err) {
-      next(err);
+    let parsedCategory: IngredientCategory | undefined;
+    if (category) {
+      parsedCategory = ingredientCategoryEnum.parse(category);
     }
+
+    const ingredients = await ingredientService.listIngredients(ctx.businessId, {
+      search,
+      category: parsedCategory,
+      isActive,
+    });
+
+    res.json({ ok: true, data: ingredients });
   }
 );
 
@@ -54,15 +50,11 @@ ingredientRouter.get(
   "/ingredients/:id",
   requireAuth,
   requireRole(["OWNER", "CASHIER"]),
-  async (req, res, next) => {
-    try {
-      const ctx = req.ctx!;
-      const id = req.params.id as string;
-      const ingredient = await ingredientService.getIngredientById(ctx.businessId, id);
-      res.json({ ok: true, data: ingredient });
-    } catch (err) {
-      next(err);
-    }
+  async (req, res) => {
+    const ctx = requireCtx(req);
+    const id = req.params.id as string;
+    const ingredient = await ingredientService.getIngredientById(ctx.businessId, id);
+    res.json({ ok: true, data: ingredient });
   }
 );
 
@@ -72,15 +64,11 @@ ingredientRouter.post(
   requireAuth,
   requireRole(["OWNER"]),
   validate(createIngredientSchema),
-  async (req, res, next) => {
-    try {
-      const ctx = req.ctx!;
-      const input = req.valid as CreateIngredientInput;
-      const created = await ingredientService.createIngredient(ctx.businessId, input);
-      res.status(201).json({ ok: true, data: created });
-    } catch (err) {
-      next(err);
-    }
+  async (req, res) => {
+    const ctx = requireCtx(req);
+    const input = req.valid as CreateIngredientInput;
+    const created = await ingredientService.createIngredient(ctx.businessId, input);
+    res.status(201).json({ ok: true, data: created });
   }
 );
 
@@ -90,16 +78,12 @@ ingredientRouter.patch(
   requireAuth,
   requireRole(["OWNER"]),
   validate(updateIngredientSchema),
-  async (req, res, next) => {
-    try {
-      const ctx = req.ctx!;
-      const id = req.params.id as string;
-      const input = req.valid as UpdateIngredientInput;
-      const updated = await ingredientService.updateIngredient(ctx.businessId, id, input);
-      res.json({ ok: true, data: updated });
-    } catch (err) {
-      next(err);
-    }
+  async (req, res) => {
+    const ctx = requireCtx(req);
+    const id = req.params.id as string;
+    const input = req.valid as UpdateIngredientInput;
+    const updated = await ingredientService.updateIngredient(ctx.businessId, id, input);
+    res.json({ ok: true, data: updated });
   }
 );
 
@@ -108,15 +92,11 @@ ingredientRouter.delete(
   "/ingredients/:id",
   requireAuth,
   requireRole(["OWNER"]),
-  async (req, res, next) => {
-    try {
-      const ctx = req.ctx!;
-      const id = req.params.id as string;
-      const deactivated = await ingredientService.toggleActive(ctx.businessId, id, false);
-      res.json({ ok: true, data: deactivated });
-    } catch (err) {
-      next(err);
-    }
+  async (req, res) => {
+    const ctx = requireCtx(req);
+    const id = req.params.id as string;
+    const deactivated = await ingredientService.toggleActive(ctx.businessId, id, false);
+    res.json({ ok: true, data: deactivated });
   }
 );
 
@@ -126,16 +106,12 @@ ingredientRouter.post(
   requireAuth,
   requireRole(["OWNER"]),
   validate(purchaseUnitInputSchema),
-  async (req, res, next) => {
-    try {
-      const ctx = req.ctx!;
-      const id = req.params.id as string;
-      const input = req.valid as PurchaseUnitInput;
-      const unit = await ingredientService.addPurchaseUnit(ctx.businessId, id, input);
-      res.status(201).json({ ok: true, data: unit });
-    } catch (err) {
-      next(err);
-    }
+  async (req, res) => {
+    const ctx = requireCtx(req);
+    const id = req.params.id as string;
+    const input = req.valid as PurchaseUnitInput;
+    const unit = await ingredientService.addPurchaseUnit(ctx.businessId, id, input);
+    res.status(201).json({ ok: true, data: unit });
   }
 );
 
@@ -144,15 +120,11 @@ ingredientRouter.delete(
   "/ingredients/:id/units/:unitId",
   requireAuth,
   requireRole(["OWNER"]),
-  async (req, res, next) => {
-    try {
-      const ctx = req.ctx!;
-      const id = req.params.id as string;
-      const unitId = req.params.unitId as string;
-      await ingredientService.deletePurchaseUnit(ctx.businessId, id, unitId);
-      res.json({ ok: true, data: { success: true } });
-    } catch (err) {
-      next(err);
-    }
+  async (req, res) => {
+    const ctx = requireCtx(req);
+    const id = req.params.id as string;
+    const unitId = req.params.unitId as string;
+    await ingredientService.deletePurchaseUnit(ctx.businessId, id, unitId);
+    res.json({ ok: true, data: { success: true } });
   }
 );
