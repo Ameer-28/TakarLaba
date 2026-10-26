@@ -116,8 +116,8 @@ describeDb("Real DB: Tenant Isolation Across Entities", () => {
     expect(purchaseBFromBizA).toBeNull();
 
     const listPurchasesA = await purchaseRepo.findMany(bizA.id);
-    expect(listPurchasesA.purchases.some((p) => p.id === purchaseB.id)).toBe(false);
-    expect(listPurchasesA.purchases.some((p) => p.id === purchaseA.id)).toBe(true);
+    expect(listPurchasesA.items.some((p) => p.id === purchaseB.id)).toBe(false);
+    expect(listPurchasesA.items.some((p) => p.id === purchaseA.id)).toBe(true);
 
     // --- Batch & Summary Isolation Checks ---
     const batchesBizA = await inventoryRepo.findBatches(bizA.id);

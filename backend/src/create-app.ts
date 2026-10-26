@@ -1,5 +1,5 @@
 import express from "express";
-import helmet from "helmet";
+import * as helmet from "helmet";
 import { pinoHttp } from "pino-http";
 import { toNodeHandler } from "better-auth/node";
 import { logger } from "./lib/logger.js";
@@ -14,7 +14,7 @@ export function createApp() {
   const app = express();
 
   // 1. Security headers via Helmet
-  app.use(helmet());
+  app.use(helmet.default());
 
   // 2. Trust proxy for reverse proxies (Render, Vercel, Cloudflare).
   // NOTE: Nilai "trust proxy" perlu diverifikasi untuk dua hop di produksi (Vercel rewrite -> host backend).
