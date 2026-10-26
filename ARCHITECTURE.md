@@ -63,7 +63,7 @@ takarlaba/
 ├── backend/
 │   ├── package.json  tsconfig.json  eslint.config.js  vitest.config.ts  prisma.config.ts  .env.example
 │   ├── src/
-│   │   ├── index.ts                  # single Vercel entrypoint (export default createApp())
+│   │   ├── index.ts                  # single Vercel entrypoint (import express explicitly + export default app)
 │   │   ├── create-app.ts             # createApp() factory murni tanpa instansiasi modul
 │   │   ├── standalone.ts             # entrypoint proses server lokal & VPS (listen + graceful shutdown)
 │   │   ├── config/env.ts             # env divalidasi Zod, gagal cepat bila kurang

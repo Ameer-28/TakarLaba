@@ -23,7 +23,7 @@ Kami memutuskan untuk mengadopsi arsitektur **Dual-Mode Backend**:
 
 1. **Mode Vercel Serverless Function (Produksi Vercel):**
    - Factory Express diisolasi murni di `backend/src/create-app.ts` (`export function createApp()`), tanpa instansiasi objek `app` saat module load untuk mencegah efek samping.
-   - Entry point di `backend/src/index.ts` adalah satu-satunya entrypoint Vercel yang mengekspor instance Express secara default (`export default createApp()`), mencegah peringatan "Multiple entrypoints found".
+   - Entry point di `backend/src/index.ts` adalah satu-satunya entrypoint Vercel yang mengimpor `express` secara eksplisit dan mengekspor instance Express secara default (`export default app`), mencegah peringatan "Multiple entrypoints found" serta memenuhi validasi scanner framework Express Vercel ("No entrypoint found which imports express").
    - Tanpa pemanggilan `app.listen()` atau listener sinyal proses (`process.on`).
    - Builder Vercel Serverless Function mengompilasi TypeScript dengan opsi resolusi modul yang berbeda dari `tsc` lokal; oleh karena itu semua dependensi middleware CJS/ESM wajib menggunakan impor bernama (`import { rateLimit } from "express-rate-limit"`) dan impor standar tanpa cast tipe (`import helmet from "helmet"`).
    - Seluruh argumen handler middleware express wajib dideklarasikan dengan tipe eksplisit (`req: Request, res: Response, next: NextFunction`) untuk mencegah kegagalan akibat implicit `any`.
