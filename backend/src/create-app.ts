@@ -1,5 +1,19 @@
 import express from "express";
-import * as helmet from "helmet";
+import {
+  contentSecurityPolicy,
+  crossOriginOpenerPolicy,
+  crossOriginResourcePolicy,
+  originAgentCluster,
+  referrerPolicy,
+  strictTransportSecurity,
+  xContentTypeOptions,
+  xDnsPrefetchControl,
+  xDownloadOptions,
+  xFrameOptions,
+  xPermittedCrossDomainPolicies,
+  xPoweredBy,
+  xXssProtection,
+} from "helmet";
 import { pinoHttp } from "pino-http";
 import { toNodeHandler } from "better-auth/node";
 import { logger } from "./lib/logger.js";
@@ -13,8 +27,20 @@ import { errorHandler, notFoundHandler } from "./middleware/error-handler.js";
 export function createApp() {
   const app = express();
 
-  // 1. Security headers via Helmet
-  app.use(helmet.default());
+  // 1. Security headers via Helmet (named imports for universal CJS/ESM Vercel Serverless interop)
+  app.use(contentSecurityPolicy());
+  app.use(crossOriginOpenerPolicy());
+  app.use(crossOriginResourcePolicy());
+  app.use(originAgentCluster());
+  app.use(referrerPolicy());
+  app.use(strictTransportSecurity());
+  app.use(xContentTypeOptions());
+  app.use(xDnsPrefetchControl());
+  app.use(xDownloadOptions());
+  app.use(xFrameOptions());
+  app.use(xPermittedCrossDomainPolicies());
+  app.use(xPoweredBy());
+  app.use(xXssProtection());
 
   // 2. Trust proxy for reverse proxies (Render, Vercel, Cloudflare).
   // NOTE: Nilai "trust proxy" perlu diverifikasi untuk dua hop di produksi (Vercel rewrite -> host backend).
