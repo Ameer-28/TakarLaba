@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 
 vi.mock("../../src/lib/db.js", () => ({
   prisma: {
@@ -34,8 +34,19 @@ import { auth } from "../../src/lib/auth.js";
 import { seedV0, DEMO_BUSINESS_ID, DEMO_USERS } from "../../src/seed/index.js";
 
 describe("Seed v0 Logic and User Association", () => {
+  const originalEnv = process.env.DEMO_PASSWORD;
+
   beforeEach(() => {
     vi.clearAllMocks();
+    process.env.DEMO_PASSWORD = "test-demo-password";
+  });
+
+  afterEach(() => {
+    if (originalEnv !== undefined) {
+      process.env.DEMO_PASSWORD = originalEnv;
+    } else {
+      delete process.env.DEMO_PASSWORD;
+    }
   });
 
   it("upserts demo business with isDemo=true and required business parameters", async () => {

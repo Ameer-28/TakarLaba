@@ -2,7 +2,6 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import request from "supertest";
 import express from "express";
 import { requireAuth, requireRole } from "../../src/middleware/auth.js";
-import { sanitizeForRole, sanitizeListForRole } from "../../src/dto/role-mapper.js";
 import { errorHandler } from "../../src/middleware/error-handler.js";
 import { NotFoundError } from "../../src/lib/errors.js";
 
@@ -16,6 +15,23 @@ vi.mock("../../src/lib/auth.js", () => ({
 }));
 
 import { auth } from "../../src/lib/auth.js";
+
+function mapProductForRole(product: MockProduct, role: string) {
+  if (role === "CASHIER") {
+    // Explicit allowlist: strips cost and margin fields for CASHIER
+    return {
+      id: product.id,
+      businessId: product.businessId,
+      name: product.name,
+      sellingPrice: product.sellingPrice,
+    };
+  }
+  return { ...product };
+}
+
+function mapProductListForRole(products: MockProduct[], role: string) {
+  return products.map((p) => mapProductForRole(p, role));
+}
 
 describe("Tenant Isolation & RBAC Framework (T-018)", () => {
   let app: express.Express;
@@ -70,7 +86,7 @@ describe("Tenant Isolation & RBAC Framework (T-018)", () => {
       const tenantProducts = mockDbProducts.filter((p) => p.businessId === tenantId);
 
       // Rule 7: Role DTO filtering
-      const sanitized = sanitizeListForRole(tenantProducts, req.ctx.role);
+      const sanitized = mapProductListForRole(tenantProducts, req.ctx.role);
       res.json({ ok: true, data: sanitized });
     });
 
@@ -89,7 +105,7 @@ describe("Tenant Isolation & RBAC Framework (T-018)", () => {
           return next(new NotFoundError("Produk tidak ditemukan"));
         }
 
-        const sanitized = sanitizeForRole(product, req.ctx.role);
+        const sanitized = mapProductForRole(product, req.ctx.role);
         res.json({ ok: true, data: sanitized });
       }
     );

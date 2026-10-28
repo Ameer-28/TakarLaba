@@ -9,15 +9,15 @@ export interface IngredientStockSummary {
   name: string;
   category: string;
   baseUnit: string;
-  minStockBase: string | number;
-  validStockBase: string | number;
-  expiredStockBase: string | number;
+  minStockBase: string;
+  validStockBase: string;
+  expiredStockBase: string;
   nearestExpiryDate: string | null;
   status: StockStatus;
   isLowStock: boolean;
   activeBatchCount: number;
-  averageCostPerBase?: string | number | null;
-  latestCostPerBase?: string | number | null;
+  averageCostPerBase?: string | null;
+  latestCostPerBase?: string | null;
 }
 
 export interface StockBatchItem {
@@ -28,12 +28,12 @@ export interface StockBatchItem {
   category: string;
   receivedAt: string;
   expiryDate: string | null;
-  purchaseQty: string | number;
+  purchaseQty: string;
   purchaseUnit: string;
-  purchaseUnitPrice?: string | number;
-  initialQtyBase: string | number;
-  remainingQtyBase: string | number;
-  costPerBase?: string | number;
+  purchaseUnitPrice?: string;
+  initialQtyBase: string;
+  remainingQtyBase: string;
+  costPerBase?: string;
   status: StockStatus;
   supplierName?: string | null;
   purchaseId?: string | null;

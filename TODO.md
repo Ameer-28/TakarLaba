@@ -1,7 +1,7 @@
 # TODO.md — Pelacak Progres & Memori Proyek
 
 > AI **wajib** memperbarui file ini setiap selesai/mulai/terblokir pada satu tugas (lihat `WORKFLOW.md` §5).
-> Terakhir diperbarui: 2026-10-21 · Stack: React 19 + Vite / Express 5 / Prisma 7 · Status: Hardening & Persiapan Auth
+> Terakhir diperbarui: 2026-10-23 · Stack: React 19 + Vite / Express 5 / Prisma 7 · Status: Persediaan & Stok FEFO Selesai, Siap Menu & Resep
 
 ## Status Legend
 

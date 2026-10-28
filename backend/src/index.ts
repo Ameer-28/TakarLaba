@@ -1,5 +1,9 @@
-import "express";
-import { app } from "./app.js";
+import express from "express";
+import { createApp } from "./create-app.js";
 
-export { app };
+// Explicit express reference to satisfy Vercel serverless builder detection and prevent import elision
+void express;
+
+const app: express.Express = createApp();
+
 export default app;

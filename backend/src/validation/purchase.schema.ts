@@ -1,18 +1,21 @@
 import { z } from "zod";
+import { decimalString } from "./decimal.js";
 
 export const purchaseItemInputSchema = z.object({
   ingredientId: z.string().min(1, { error: "Bahan baku wajib dipilih" }),
-  purchaseQty: z
-    .number({ error: "Jumlah beli harus berupa angka" })
-    .positive({ error: "Jumlah beli harus lebih besar dari 0" })
-    .max(1_000_000, { error: "Jumlah beli maksimal 1.000.000" }),
+  purchaseQty: decimalString({
+    positive: true,
+    max: 1_000_000,
+    error: "Jumlah beli harus berupa angka positif maksimal 1.000.000",
+  }),
   purchaseUnit: z
     .string()
     .min(1, { error: "Satuan beli tidak boleh kosong" })
     .max(30, { error: "Satuan beli maksimal 30 karakter" }),
-  purchaseUnitPrice: z
-    .number({ error: "Harga satuan harus berupa angka" })
-    .positive({ error: "Harga satuan harus lebih besar dari 0" }),
+  purchaseUnitPrice: decimalString({
+    positive: true,
+    error: "Harga satuan harus berupa angka positif",
+  }),
   expiryDate: z.string().optional().nullable(),
 });
 

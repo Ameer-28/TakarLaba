@@ -252,16 +252,16 @@ Mencatat nota pembelian multi-baris secara atomik. Otomatis membuat entitas `Pur
     "items": [
       {
         "ingredientId": "ing_kopi_123",
-        "purchaseQty": 2,
+        "purchaseQty": "2",
         "purchaseUnit": "kg",
-        "purchaseUnitPrice": 120000,
+        "purchaseUnitPrice": "120000.00",
         "expiryDate": null
       },
       {
         "ingredientId": "ing_susu_456",
-        "purchaseQty": 10,
+        "purchaseQty": "10",
         "purchaseUnit": "liter",
-        "purchaseUnitPrice": 18000,
+        "purchaseUnitPrice": "18000.00",
         "expiryDate": "2026-11-05"
       }
     ]
@@ -351,7 +351,7 @@ Mengambil ringkasan persediaan untuk seluruh bahan baku, mengagregasikan stok va
 - **Metode:** `GET`
 - **Autentikasi:** Wajib sesi aktif (`OWNER` atau `CASHIER`)
 - **Query Params:**
-  - `warnDays` (opsional, default: 3): Ambang hari sebelum kedaluwarsa untuk memicu status `SEGERA`.
+  - `warnDays` (opsional, integer 0..30, default: 3): Ambang hari sebelum kedaluwarsa untuk memicu status `SEGERA`. Nilai non-integer atau di luar 0..30 menghasilkan 400 `VALIDATION_ERROR`.
 - **Aturan Otorisasi Peran (Rule 7):**
   - Jika pemanggil adalah `CASHIER`, field biaya (`averageCostPerBase`, `latestCostPerBase`) dihapus dari respons JSON untuk mencegah kebocoran margin rahasia dapur.
 - **Logika Status Bahan:**
@@ -396,7 +396,9 @@ Mengambil daftar batch stok aktif (`remainingQtyBase > 0`), diurutkan secara ket
 - **Metode:** `GET`
 - **Autentikasi:** Wajib sesi aktif (`OWNER` atau `CASHIER`)
 - **Query Params:**
+  - `warnDays` (opsional, integer 0..30, default: 3): Ambang hari sebelum kedaluwarsa untuk status `SEGERA`.
   - `ingredientId` (opsional): filter batch untuk bahan tertentu
+  - `hasRemainingOnly` (opsional, boolean string, default: true): hanya ambil batch yang memiliki sisa stok (`remainingQtyBase > 0`).
 - **Aturan Otorisasi Peran (Rule 7):**
   - Jika pemanggil adalah `CASHIER`, field `costPerBase` dan `purchaseUnitPrice` dihapus dari respons.
 - **Response 200 OK (OWNER):**
