@@ -429,6 +429,125 @@ Mengambil daftar batch stok aktif (`remainingQtyBase > 0`), diurutkan secara ket
 
 ---
 
+### 3.5 Pengaturan Usaha & Biaya Overhead (`/api/settings` & `/api/overheads`)
+
+#### GET `/api/settings`
+Mengambil konfigurasi target margin, rounding step, expected monthly portions, dan overhead per porsi usaha.
+
+- **Metode:** `GET`
+- **Autentikasi:** Wajib sesi aktif role `OWNER` (role `CASHIER` menerima `403 FORBIDDEN`).
+- **Response 200 OK:**
+  ```json
+  {
+    "ok": true,
+    "data": {
+      "id": "set_123",
+      "businessId": "biz_123",
+      "targetMarginPercent": "60.00",
+      "targetMarginMinPercent": "55.00",
+      "roundingStep": 500,
+      "overheadPerPortion": "1200.00",
+      "expectedMonthlyPortions": 1000,
+      "warnDays": 3,
+      "createdAt": "2026-10-22T08:00:00.000Z",
+      "updatedAt": "2026-10-22T08:00:00.000Z"
+    }
+  }
+  ```
+
+#### PATCH `/api/settings`
+Memperbarui konfigurasi parameter target margin atau estimasi porsi bulanan.
+
+- **Metode:** `PATCH`
+- **Autentikasi:** Wajib sesi aktif role `OWNER`.
+- **Request Body:**
+  ```json
+  {
+    "targetMarginPercent": "65.00",
+    "targetMarginMinPercent": "60.00",
+    "roundingStep": 500,
+    "expectedMonthlyPortions": 1200,
+    "warnDays": 5
+  }
+  ```
+- **Response 200 OK:** Mengembalikan data settings terbaru.
+
+#### GET `/api/overheads`
+Mengambil daftar beban overhead bulanan beserta ringkasan kalkulasi beban per porsi (`BR-04`).
+
+- **Metode:** `GET`
+- **Autentikasi:** Wajib sesi aktif role `OWNER`.
+- **Query Params:**
+  - `isActive` (opsional, boolean string): memfilter hanya beban aktif atau nonaktif.
+- **Response 200 OK:**
+  ```json
+  {
+    "ok": true,
+    "data": {
+      "items": [
+        {
+          "id": "ovh_123",
+          "businessId": "biz_123",
+          "name": "Sewa Tempat",
+          "type": "RENT",
+          "monthlyCost": "1500000.00",
+          "isActive": true,
+          "notes": "Ruko bulanan",
+          "createdAt": "2026-10-22T08:00:00.000Z",
+          "updatedAt": "2026-10-22T08:00:00.000Z"
+        }
+      ],
+      "summary": {
+        "totalActiveMonthlyCost": "1500000.00",
+        "expectedMonthlyPortions": 1000,
+        "overheadPerPortion": "1500.00"
+      }
+    }
+  }
+  ```
+
+#### POST `/api/overheads`
+Mendaftarkan beban overhead bulanan baru.
+
+- **Metode:** `POST`
+- **Autentikasi:** Wajib sesi aktif role `OWNER`.
+- **Request Body:**
+  ```json
+  {
+    "name": "Listrik & Air",
+    "type": "ELECTRICITY_WATER",
+    "monthlyCost": "350000",
+    "isActive": true,
+    "notes": "Token bulanan rata-rata"
+  }
+  ```
+- **Response 201 Created:** Mengembalikan record overhead yang dibuat.
+
+#### PATCH `/api/overheads/:id`
+Memperbarui rincian beban overhead bulanan.
+
+- **Metode:** `PATCH`
+- **Autentikasi:** Wajib sesi aktif role `OWNER`.
+- **Request Body:** Parsial dari field `POST /api/overheads`.
+- **Response 200 OK:** Mengembalikan record overhead terupdate.
+
+#### DELETE `/api/overheads/:id`
+Menghapus beban overhead bulanan.
+
+- **Metode:** `DELETE`
+- **Autentikasi:** Wajib sesi aktif role `OWNER`.
+- **Response 200 OK:**
+  ```json
+  {
+    "ok": true,
+    "data": {
+      "id": "ovh_123"
+    }
+  }
+  ```
+
+---
+
 ## 4. Kontrak Direncanakan (Roadmap Fitur)
 
 ### POST `/api/sales` (Checkout POS)

@@ -40,4 +40,15 @@ export const queryKeys = {
         ? ([...queryKeys.inventory.all, "batches", filter] as const)
         : ([...queryKeys.inventory.all, "batches"] as const),
   },
+  settings: {
+    all: ["settings"] as const,
+    detail: () => [...queryKeys.settings.all, "detail"] as const,
+  },
+  overheads: {
+    all: ["overheads"] as const,
+    list: (filter?: Record<string, unknown>) =>
+      filter
+        ? ([...queryKeys.overheads.all, "list", filter] as const)
+        : ([...queryKeys.overheads.all, "list"] as const),
+  },
 };
