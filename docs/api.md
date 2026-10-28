@@ -548,6 +548,145 @@ Menghapus beban overhead bulanan.
 
 ---
 
+### 3.6 Master Menu (`/api/menus`)
+
+#### GET `/api/menus`
+Mengambil daftar menu milik tenant bisnis beserta status resep dan indikasi jumlah takaran.
+
+- **Metode:** `GET`
+- **Autentikasi:** Wajib sesi aktif role `OWNER` (role `CASHIER` menerima `403 FORBIDDEN`; kasir menggunakan endpoint `/api/pos/menus`).
+- **Query Params:**
+  - `category` (opsional): filter kategori menu (mis. `"Makanan"`, `"Minuman"`)
+  - `search` (opsional): kata kunci pencarian nama menu (case-insensitive)
+  - `isActive` (opsional, boolean string): `"true"` atau `"false"`
+- **Response 200 OK:**
+  ```json
+  {
+    "ok": true,
+    "data": [
+      {
+        "id": "menu_clx123",
+        "businessId": "biz_123",
+        "name": "Kopi Susu Gula Aren",
+        "nameKey": "kopi susu gula aren",
+        "category": "Minuman",
+        "sellingPrice": "18000.00",
+        "targetMargin": "60.00",
+        "isActive": true,
+        "hasRecipe": true,
+        "recipeItemsCount": 3,
+        "saleItemsCount": 12,
+        "createdAt": "2026-10-22T08:00:00.000Z",
+        "updatedAt": "2026-10-22T08:00:00.000Z"
+      }
+    ]
+  }
+  ```
+
+#### GET `/api/menus/:id`
+Mengambil detail menu lengkap beserta daftar takaran resep dan riwayat perubahan harga jual.
+
+- **Metode:** `GET`
+- **Autentikasi:** Wajib sesi aktif role `OWNER`.
+- **Response 200 OK:**
+  ```json
+  {
+    "ok": true,
+    "data": {
+      "id": "menu_clx123",
+      "businessId": "biz_123",
+      "name": "Kopi Susu Gula Aren",
+      "nameKey": "kopi susu gula aren",
+      "category": "Minuman",
+      "sellingPrice": "18000.00",
+      "targetMargin": "60.00",
+      "isActive": true,
+      "hasRecipe": true,
+      "recipeItemsCount": 3,
+      "saleItemsCount": 12,
+      "recipeItems": [
+        {
+          "id": "rcp_1",
+          "menuId": "menu_clx123",
+          "ingredientId": "ing_kopi_123",
+          "ingredientName": "Biji Kopi House Blend",
+          "baseUnit": "G",
+          "category": "MAIN",
+          "yieldPercent": "100.00",
+          "isIngredientActive": true,
+          "qtyUsableBase": "18.000",
+          "createdAt": "2026-10-22T08:00:00.000Z"
+        }
+      ],
+      "priceHistories": [
+        {
+          "id": "mph_1",
+          "oldPrice": "15000.00",
+          "newPrice": "18000.00",
+          "reason": "MANUAL",
+          "alertId": null,
+          "changedById": "usr_owner_1",
+          "changedByName": "Owner Budi",
+          "changedAt": "2026-10-22T09:00:00.000Z"
+        }
+      ],
+      "createdAt": "2026-10-22T08:00:00.000Z",
+      "updatedAt": "2026-10-22T09:00:00.000Z"
+    }
+  }
+  ```
+
+#### POST `/api/menus`
+Mendaftarkan menu baru dalam katalog usaha.
+
+- **Metode:** `POST`
+- **Autentikasi:** Wajib sesi aktif role `OWNER`.
+- **Request Body:**
+  ```json
+  {
+    "name": "Roti Panggang Cokelat",
+    "category": "Makanan",
+    "sellingPrice": 15000,
+    "targetMargin": 50,
+    "isActive": true
+  }
+  ```
+- **Validasi (`FR-MENU-01`):**
+  - `name`: 2-100 karakter, unik per tenant bisnis (case-insensitive & spasi dinormalisasi).
+  - `sellingPrice`: > 0 dan <= 100.000.000.
+  - `targetMargin`: opsional (0-95%), jika kosong mengikuti target margin default usaha.
+- **Response 201 Created:** Mengembalikan record menu baru.
+
+#### PATCH `/api/menus/:id`
+Memperbarui informasi menu atau mengubah harga jual.
+
+- **Metode:** `PATCH`
+- **Autentikasi:** Wajib sesi aktif role `OWNER`.
+- **Request Body:** Parsial dari field `POST /api/menus`.
+- **Aturan Bisnis:**
+  - Jika harga jual (`sellingPrice`) berubah dari harga sebelumnya, sistem secara atomik mencatat riwayat ke tabel `MenuPriceHistory` dengan `reason = "MANUAL"` dan mencatat user ID yang melakukan perubahan.
+- **Response 200 OK:** Mengembalikan record menu terupdate.
+
+#### DELETE `/api/menus/:id`
+Menghapus menu dari katalog usaha.
+
+- **Metode:** `DELETE`
+- **Autentikasi:** Wajib sesi aktif role `OWNER`.
+- **Aturan Integritas Data:**
+  - Jika menu belum pernah memiliki riwayat transaksi penjualan (`saleItemsCount === 0`), menu dihapus secara permanen.
+  - Jika menu sudah pernah terjual (`saleItemsCount > 0`), penghapusan ditolak dengan `409 CONFLICT` untuk menjaga integritas data historis; pengguna diarahkan untuk menonaktifkan status menu.
+- **Response 200 OK:**
+  ```json
+  {
+    "ok": true,
+    "data": {
+      "id": "menu_clx123"
+    }
+  }
+  ```
+
+---
+
 ## 4. Kontrak Direncanakan (Roadmap Fitur)
 
 ### POST `/api/sales` (Checkout POS)

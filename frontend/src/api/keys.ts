@@ -13,7 +13,10 @@ export const queryKeys = {
   },
   menus: {
     all: ["menus"] as const,
-    list: () => [...queryKeys.menus.all, "list"] as const,
+    list: (filter?: Record<string, unknown>) =>
+      filter
+        ? ([...queryKeys.menus.all, "list", filter] as const)
+        : ([...queryKeys.menus.all, "list"] as const),
     detail: (id: string) => [...queryKeys.menus.all, "detail", id] as const,
   },
   sales: {
