@@ -685,6 +685,100 @@ Menghapus menu dari katalog usaha.
   }
   ```
 
+#### POST `/api/menus/preview-cost`
+Melakukan kalkulasi live costing dan margin dari draf resep secara instan (tanpa menyimpan ke basis data). Mendukung debouncing 300 ms di frontend (ADR-3).
+
+- **Metode:** `POST`
+- **Autentikasi:** Wajib sesi aktif role `OWNER`.
+- **Request Body:**
+  ```json
+  {
+    "menuId": "menu_clx123",
+    "sellingPrice": 18000,
+    "targetMargin": 50,
+    "items": [
+      {
+        "ingredientId": "ing_kopi_123",
+        "qtyUsable": 18,
+        "unitName": "G"
+      },
+      {
+        "ingredientId": "ing_susu_456",
+        "qtyUsable": 150,
+        "unitName": "ml"
+      }
+    ]
+  }
+  ```
+- **Response 200 OK:**
+  ```json
+  {
+    "ok": true,
+    "data": {
+      "hppBahan": "5940.00",
+      "overheadPerPortion": "1200.00",
+      "hppPenuh": "7140.00",
+      "sellingPrice": "18000.00",
+      "marginKontribusi": "10860.00",
+      "marginPercent": "60.33",
+      "marginBahanPercent": "67.00",
+      "marginStatus": "AMAN",
+      "isCostComplete": true,
+      "items": [
+        {
+          "ingredientId": "ing_kopi_123",
+          "ingredientName": "Biji Kopi House Blend",
+          "baseUnit": "G",
+          "inputUnit": "G",
+          "toBaseFactor": "1.0000",
+          "qtyUsable": "18.000",
+          "yieldPercent": "100.00",
+          "costPerBase": "180.000000",
+          "costPerUsable": "180.000000",
+          "subtotal": "3240.00",
+          "hasCost": true
+        }
+      ]
+    }
+  }
+  ```
+
+#### PUT `/api/menus/:id/recipe`
+Menyimpan takaran resep untuk menu tertentu.
+
+- **Metode:** `PUT`
+- **Autentikasi:** Wajib sesi aktif role `OWNER`.
+- **Request Body:**
+  ```json
+  {
+    "items": [
+      {
+        "ingredientId": "ing_kopi_123",
+        "qtyUsable": 18,
+        "unitName": "G"
+      },
+      {
+        "ingredientId": "ing_susu_456",
+        "qtyUsable": 150,
+        "unitName": "ML"
+      }
+    ]
+  }
+  ```
+- **Validasi (`FR-REC-01`):**
+  - Minimal 1 bahan, maksimal 30 bahan.
+  - Takaran `qtyUsable > 0`.
+  - Tidak boleh ada bahan baku duplikat dalam satu menu.
+  - Bahan nonaktif ditolak dengan `400 VALIDATION_ERROR`.
+- **Response 200 OK:** Mengembalikan detail menu terupdate dengan `recipeItems`.
+
+#### GET `/api/menus/:id/cost`
+Mengambil kalkulasi HPP dan status margin berdasarkan takaran resep yang tersimpan saat ini.
+
+- **Metode:** `GET`
+- **Autentikasi:** Wajib sesi aktif role `OWNER`.
+- **Response 200 OK:** Mengembalikan payload yang sama dengan struktur response `POST /api/menus/preview-cost`.
+
 ---
 
 ## 4. Kontrak Direncanakan (Roadmap Fitur)

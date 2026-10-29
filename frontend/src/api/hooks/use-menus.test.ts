@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { apiClient } from "../client.js";
 
-describe("Menu API client integration", () => {
+describe("Menu & Recipe Costing API client integration (T-031 / T-033)", () => {
   const originalFetch = globalThis.fetch;
 
   beforeEach(() => {
@@ -136,5 +136,94 @@ describe("Menu API client integration", () => {
     });
 
     expect(result).toEqual({ id: "menu-1" });
+  });
+
+  it("sends POST /api/menus/preview-cost to calculate live HPP", async () => {
+    const payload = {
+      sellingPrice: 18000,
+      targetMargin: 50,
+      items: [
+        { ingredientId: "ing-1", qtyUsable: 18 },
+        { ingredientId: "ing-2", qtyUsable: 150 },
+      ],
+    };
+
+    const mockPreview = {
+      hppBahan: "7740.00",
+      overheadPerPortion: "1200.00",
+      hppPenuh: "8940.00",
+      sellingPrice: "18000.00",
+      marginKontribusi: "9060.00",
+      marginPercent: "50.33",
+      marginBahanPercent: "57.00",
+      marginStatus: "AMAN",
+      isCostComplete: true,
+      items: [],
+    };
+
+    globalThis.fetch = vi.fn().mockResolvedValueOnce({
+      status: 200,
+      text: vi.fn().mockResolvedValueOnce(JSON.stringify({ ok: true, data: mockPreview })),
+    } as unknown as Response);
+
+    const result = await apiClient("/menus/preview-cost", {
+      method: "POST",
+      body: JSON.stringify(payload),
+    });
+
+    expect(result).toEqual(mockPreview);
+    expect(globalThis.fetch).toHaveBeenCalledWith(
+      "/api/menus/preview-cost",
+      expect.objectContaining({
+        method: "POST",
+        body: JSON.stringify(payload),
+      })
+    );
+  });
+
+  it("sends PUT /api/menus/:id/recipe to save recipe items", async () => {
+    const payload = {
+      items: [
+        { ingredientId: "ing-1", qtyUsable: 18 },
+        { ingredientId: "ing-2", qtyUsable: 150 },
+      ],
+    };
+
+    const mockDetail = {
+      id: "menu-1",
+      businessId: "biz-1",
+      name: "Es Kopi Susu",
+      nameKey: "es kopi susu",
+      category: "Minuman",
+      sellingPrice: "18000.00",
+      targetMargin: "50.00",
+      isActive: true,
+      hasRecipe: true,
+      recipeItemsCount: 2,
+      saleItemsCount: 0,
+      recipeItems: [],
+      priceHistories: [],
+      createdAt: "2026-01-01T00:00:00.000Z",
+      updatedAt: "2026-01-01T00:00:00.000Z",
+    };
+
+    globalThis.fetch = vi.fn().mockResolvedValueOnce({
+      status: 200,
+      text: vi.fn().mockResolvedValueOnce(JSON.stringify({ ok: true, data: mockDetail })),
+    } as unknown as Response);
+
+    const result = await apiClient("/menus/menu-1/recipe", {
+      method: "PUT",
+      body: JSON.stringify(payload),
+    });
+
+    expect(result).toEqual(mockDetail);
+    expect(globalThis.fetch).toHaveBeenCalledWith(
+      "/api/menus/menu-1/recipe",
+      expect.objectContaining({
+        method: "PUT",
+        body: JSON.stringify(payload),
+      })
+    );
   });
 });

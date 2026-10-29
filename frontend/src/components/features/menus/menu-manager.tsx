@@ -22,6 +22,7 @@ import { useSettings } from "../../../api/hooks/use-settings.js";
 import { formatRupiah } from "../../../lib/format.js";
 import { MenuModal } from "./menu-modal.js";
 import { MenuDeleteModal } from "./menu-delete-modal.js";
+import { RecipeEditorModal } from "./recipe-editor-modal.js";
 
 export function MenuManager() {
   const [search, setSearch] = useState("");
@@ -32,6 +33,14 @@ export function MenuManager() {
   const [editingMenu, setEditingMenu] = useState<MenuItem | null>(null);
 
   const [deleteModalState, setDeleteModalState] = useState<{
+    isOpen: boolean;
+    menu: MenuItem | null;
+  }>({
+    isOpen: false,
+    menu: null,
+  });
+
+  const [recipeModalState, setRecipeModalState] = useState<{
     isOpen: boolean;
     menu: MenuItem | null;
   }>({
@@ -136,6 +145,13 @@ export function MenuManager() {
 
   const handleOpenDelete = (menu: MenuItem) => {
     setDeleteModalState({
+      isOpen: true,
+      menu,
+    });
+  };
+
+  const handleOpenRecipe = (menu: MenuItem) => {
+    setRecipeModalState({
       isOpen: true,
       menu,
     });
@@ -387,17 +403,24 @@ export function MenuManager() {
 
                     {/* Status Resep */}
                     <td className="py-3.5 px-4">
-                      {menu.hasRecipe ? (
-                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-bold text-emerald-700 bg-emerald-50 border border-emerald-200/60 rounded-lg">
-                          <BookOpen className="w-3.5 h-3.5" />
-                          {menu.recipeItemsCount} Bahan
-                        </span>
-                      ) : (
-                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-bold text-amber-700 bg-amber-50 border border-amber-200/60 rounded-lg">
-                          <AlertCircle className="w-3.5 h-3.5" />
-                          Belum Ada Resep
-                        </span>
-                      )}
+                      <button
+                        type="button"
+                        onClick={() => handleOpenRecipe(menu)}
+                        className="group/badge cursor-pointer text-left"
+                        title="Klik untuk melihat atau mengatur resep"
+                      >
+                        {menu.hasRecipe ? (
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-bold text-emerald-700 bg-emerald-50 border border-emerald-200/60 rounded-lg group-hover/badge:bg-emerald-100 transition-colors">
+                            <BookOpen className="w-3.5 h-3.5" />
+                            {menu.recipeItemsCount} Bahan
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-bold text-amber-700 bg-amber-50 border border-amber-200/60 rounded-lg group-hover/badge:bg-amber-100 transition-colors">
+                            <AlertCircle className="w-3.5 h-3.5" />
+                            Belum Ada Resep
+                          </span>
+                        )}
+                      </button>
                     </td>
 
                     {/* Status Aktif Switch */}
@@ -424,6 +447,14 @@ export function MenuManager() {
                     {/* Actions */}
                     <td className="py-3.5 px-4 text-right">
                       <div className="flex items-center justify-end gap-1">
+                        <button
+                          type="button"
+                          onClick={() => handleOpenRecipe(menu)}
+                          className="p-1.5 text-slate-400 hover:text-sky-700 hover:bg-sky-50 rounded-lg transition-colors cursor-pointer"
+                          title="Atur takaran resep & costing"
+                        >
+                          <BookOpen className="w-4 h-4" />
+                        </button>
                         <button
                           type="button"
                           onClick={() => handleOpenEdit(menu)}
@@ -481,6 +512,14 @@ export function MenuManager() {
         isDeleting={deleteMutation.isPending}
         hasSales={(deleteModalState.menu?.saleItemsCount ?? 0) > 0}
       />
+
+      {recipeModalState.menu && (
+        <RecipeEditorModal
+          isOpen={recipeModalState.isOpen}
+          onClose={() => setRecipeModalState({ isOpen: false, menu: null })}
+          menu={recipeModalState.menu}
+        />
+      )}
     </div>
   );
 }

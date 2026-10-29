@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import request from "supertest";
+import { Decimal } from "decimal.js";
 import { createApp } from "../../src/create-app.js";
 
 vi.mock("../../src/lib/auth.js", () => ({
@@ -19,14 +20,41 @@ vi.mock("../../src/repositories/menu.repo.js", () => ({
     update: vi.fn(),
     delete: vi.fn(),
     countSales: vi.fn(),
+    saveRecipe: vi.fn(),
+    getLatestCostPerBaseMap: vi.fn(),
   },
   MenuRepository: vi.fn(),
 }));
 
+vi.mock("../../src/repositories/ingredient.repo.js", () => ({
+  ingredientRepository: {
+    findMany: vi.fn(),
+    findById: vi.fn(),
+  },
+  IngredientRepository: vi.fn(),
+}));
+
+vi.mock("../../src/repositories/settings.repo.js", () => ({
+  settingsRepository: {
+    findById: vi.fn(),
+  },
+  SettingsRepository: vi.fn(),
+}));
+
+vi.mock("../../src/repositories/overhead.repo.js", () => ({
+  overheadRepository: {
+    sumActiveMonthlyOverhead: vi.fn(),
+  },
+  OverheadRepository: vi.fn(),
+}));
+
 import { auth } from "../../src/lib/auth.js";
 import { menuRepository } from "../../src/repositories/menu.repo.js";
+import { ingredientRepository } from "../../src/repositories/ingredient.repo.js";
+import { settingsRepository } from "../../src/repositories/settings.repo.js";
+import { overheadRepository } from "../../src/repositories/overhead.repo.js";
 
-describe("Menu CRUD Routes (T-031)", () => {
+describe("Menu CRUD & Recipe Costing Routes (T-031 / T-033)", () => {
   const app = createApp();
   const mockBusinessId = "biz-demo-123";
 
@@ -309,5 +337,266 @@ describe("Menu CRUD Routes (T-031)", () => {
     expect(res.status).toBe(404);
     expect(res.body.ok).toBe(false);
     expect(res.body.error.code).toBe("NOT_FOUND");
+  });
+
+  describe("Recipe Costing & Preview (T-033)", () => {
+    beforeEach(() => {
+      // Setup business settings & overhead:
+      // Rp1.560.000 overhead / 1300 portions = Rp1.200
+      vi.mocked(settingsRepository.findById).mockResolvedValue({
+        id: "settings-1",
+        name: "Kafe Demo",
+        isDemo: true,
+        targetMarginDefault: new Decimal("50.00"),
+        priceRoundingStep: 500,
+        expectedMonthlyPortions: 1300,
+        expiryWarnDays: 3,
+        wastePromoMinMargin: new Decimal("30.00"),
+        timezone: "Asia/Jakarta",
+        createdAt: new Date(),
+      });
+
+      vi.mocked(overheadRepository.sumActiveMonthlyOverhead).mockResolvedValue(
+        new Decimal("1560000.00")
+      );
+    });
+
+    it("POST /api/menus/preview-cost calculates live HPP and margin for draft recipe", async () => {
+      vi.mocked(auth.api.getSession).mockResolvedValue(ownerSession);
+
+      // Ingredients in the recipe
+      vi.mocked(ingredientRepository.findMany).mockResolvedValue([
+        {
+          id: "ing-kopi",
+          businessId: mockBusinessId,
+          name: "Biji Kopi",
+          nameKey: "biji kopi",
+          category: "MAIN",
+          baseUnit: "G",
+          yieldPercent: new Decimal(100),
+          isPerishable: false,
+          minStockBase: new Decimal(0),
+          isActive: true,
+          units: [],
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+        {
+          id: "ing-susu",
+          businessId: mockBusinessId,
+          name: "Susu UHT",
+          nameKey: "susu uht",
+          category: "MAIN",
+          baseUnit: "ML",
+          yieldPercent: new Decimal(100),
+          isPerishable: true,
+          minStockBase: new Decimal(0),
+          isActive: true,
+          units: [
+            {
+              id: "u-liter",
+              ingredientId: "ing-susu",
+              name: "liter",
+              toBaseFactor: new Decimal(1000),
+            },
+          ],
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+      ]);
+
+      // Latest costs (Kopi = Rp180/g, Susu = Rp18/ml)
+      const costMap = new Map<string, Decimal>();
+      costMap.set("ing-kopi", new Decimal("180.000000"));
+      costMap.set("ing-susu", new Decimal("18.000000"));
+      vi.mocked(menuRepository.getLatestCostPerBaseMap).mockResolvedValue(costMap);
+
+      const res = await request(app)
+        .post("/api/menus/preview-cost")
+        .send({
+          sellingPrice: 18000,
+          targetMargin: 50,
+          items: [
+            { ingredientId: "ing-kopi", qtyUsable: 18 }, // 18 * 180 = 3240
+            { ingredientId: "ing-susu", qtyUsable: 150, unitName: "ML" }, // 150 * 18 = 2700
+          ],
+        });
+
+      expect(res.status).toBe(200);
+      expect(res.body.ok).toBe(true);
+      // HPP Bahan = 3240 + 2700 = 5940.00
+      expect(res.body.data.hppBahan).toBe("5940.00");
+      // Overhead = 1200.00
+      expect(res.body.data.overheadPerPortion).toBe("1200.00");
+      // HPP Penuh = 5940 + 1200 = 7140.00
+      expect(res.body.data.hppPenuh).toBe("7140.00");
+      expect(res.body.data.marginStatus).toBe("AMAN");
+      expect(res.body.data.isCostComplete).toBe(true);
+    });
+
+    it("POST /api/menus/preview-cost rejects duplicate ingredients in draft", async () => {
+      vi.mocked(auth.api.getSession).mockResolvedValue(ownerSession);
+
+      const res = await request(app)
+        .post("/api/menus/preview-cost")
+        .send({
+          items: [
+            { ingredientId: "ing-kopi", qtyUsable: 18 },
+            { ingredientId: "ing-kopi", qtyUsable: 10 },
+          ],
+        });
+
+      expect(res.status).toBe(400);
+      expect(res.body.ok).toBe(false);
+      expect(res.body.error.code).toBe("VALIDATION_ERROR");
+    });
+
+    it("POST /api/menus/preview-cost flags INCOMPLETE when an ingredient has no purchase history", async () => {
+      vi.mocked(auth.api.getSession).mockResolvedValue(ownerSession);
+
+      vi.mocked(ingredientRepository.findMany).mockResolvedValue([
+        {
+          id: "ing-sirup-baru",
+          businessId: mockBusinessId,
+          name: "Sirup Pandan",
+          nameKey: "sirup pandan",
+          category: "SUPPORT",
+          baseUnit: "ML",
+          yieldPercent: new Decimal(100),
+          isPerishable: false,
+          minStockBase: new Decimal(0),
+          isActive: true,
+          units: [],
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+      ]);
+
+      // No purchase history found
+      vi.mocked(menuRepository.getLatestCostPerBaseMap).mockResolvedValue(new Map());
+
+      const res = await request(app)
+        .post("/api/menus/preview-cost")
+        .send({
+          sellingPrice: 20000,
+          items: [{ ingredientId: "ing-sirup-baru", qtyUsable: 20 }],
+        });
+
+      expect(res.status).toBe(200);
+      expect(res.body.ok).toBe(true);
+      expect(res.body.data.isCostComplete).toBe(false);
+      expect(res.body.data.marginStatus).toBe("INCOMPLETE");
+      expect(res.body.data.hppBahan).toBeNull();
+    });
+
+    it("PUT /api/menus/:id/recipe saves recipe items for menu", async () => {
+      vi.mocked(auth.api.getSession).mockResolvedValue(ownerSession);
+
+      vi.mocked(menuRepository.findById).mockResolvedValue({
+        id: "menu-1",
+        businessId: mockBusinessId,
+        name: "Es Kopi Susu",
+        nameKey: "es kopi susu",
+        category: "Minuman",
+        sellingPrice: "18000.00",
+        targetMargin: "50.00",
+        isActive: true,
+        hasRecipe: true,
+        recipeItemsCount: 1,
+        saleItemsCount: 0,
+        recipeItems: [],
+        priceHistories: [],
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
+
+      vi.mocked(ingredientRepository.findMany).mockResolvedValue([
+        {
+          id: "ing-kopi",
+          businessId: mockBusinessId,
+          name: "Biji Kopi",
+          nameKey: "biji kopi",
+          category: "MAIN",
+          baseUnit: "G",
+          yieldPercent: new Decimal(100),
+          isPerishable: false,
+          minStockBase: new Decimal(0),
+          isActive: true,
+          units: [],
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+      ]);
+
+      vi.mocked(menuRepository.saveRecipe).mockResolvedValue(undefined as never);
+
+      const res = await request(app)
+        .put("/api/menus/menu-1/recipe")
+        .send({
+          items: [{ ingredientId: "ing-kopi", qtyUsable: 18 }],
+        });
+
+      expect(res.status).toBe(200);
+      expect(res.body.ok).toBe(true);
+      expect(menuRepository.saveRecipe).toHaveBeenCalledWith(
+        mockBusinessId,
+        "menu-1",
+        expect.arrayContaining([
+          expect.objectContaining({
+            ingredientId: "ing-kopi",
+          }),
+        ])
+      );
+    });
+
+    it("PUT /api/menus/:id/recipe rejects inactive ingredients", async () => {
+      vi.mocked(auth.api.getSession).mockResolvedValue(ownerSession);
+
+      vi.mocked(menuRepository.findById).mockResolvedValue({
+        id: "menu-1",
+        businessId: mockBusinessId,
+        name: "Es Kopi Susu",
+        nameKey: "es kopi susu",
+        category: "Minuman",
+        sellingPrice: "18000.00",
+        targetMargin: "50.00",
+        isActive: true,
+        hasRecipe: false,
+        recipeItemsCount: 0,
+        saleItemsCount: 0,
+        recipeItems: [],
+        priceHistories: [],
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
+
+      vi.mocked(ingredientRepository.findMany).mockResolvedValue([
+        {
+          id: "ing-kopi-lama",
+          businessId: mockBusinessId,
+          name: "Kopi Nonaktif",
+          nameKey: "kopi nonaktif",
+          category: "MAIN",
+          baseUnit: "G",
+          yieldPercent: new Decimal(100),
+          isPerishable: false,
+          minStockBase: new Decimal(0),
+          isActive: false, // inactive!
+          units: [],
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+      ]);
+
+      const res = await request(app)
+        .put("/api/menus/menu-1/recipe")
+        .send({
+          items: [{ ingredientId: "ing-kopi-lama", qtyUsable: 18 }],
+        });
+
+      expect(res.status).toBe(400);
+      expect(res.body.ok).toBe(false);
+      expect(res.body.error.message).toContain("nonaktif");
+    });
   });
 });

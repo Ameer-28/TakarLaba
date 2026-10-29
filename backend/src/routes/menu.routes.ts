@@ -8,10 +8,30 @@ import {
   type CreateMenuInput,
   type UpdateMenuInput,
 } from "../validation/menu.schema.js";
+import {
+  previewCostSchema,
+  saveRecipeSchema,
+  type PreviewCostInput,
+  type SaveRecipeInput,
+} from "../validation/recipe.schema.js";
 
 export const menuRouter = Router();
 
-// 1. GET /api/menus - List menus for tenant (OWNER only)
+// 1. POST /api/menus/preview-cost - Live costing preview from draft recipe (OWNER only)
+menuRouter.post(
+  "/menus/preview-cost",
+  requireAuth,
+  requireRole(["OWNER"]),
+  validate(previewCostSchema),
+  async (req, res) => {
+    const ctx = requireCtx(req);
+    const input = req.valid as PreviewCostInput;
+    const result = await menuService.previewCost(ctx.businessId, input);
+    res.json({ ok: true, data: result });
+  }
+);
+
+// 2. GET /api/menus - List menus for tenant (OWNER only)
 menuRouter.get("/menus", requireAuth, requireRole(["OWNER"]), async (req, res) => {
   const ctx = requireCtx(req);
   const search = typeof req.query.search === "string" ? req.query.search : undefined;
@@ -31,14 +51,6 @@ menuRouter.get("/menus", requireAuth, requireRole(["OWNER"]), async (req, res) =
   res.json({ ok: true, data: menus });
 });
 
-// 2. GET /api/menus/:id - Detail menu (OWNER only)
-menuRouter.get("/menus/:id", requireAuth, requireRole(["OWNER"]), async (req, res) => {
-  const ctx = requireCtx(req);
-  const id = req.params.id as string;
-  const menu = await menuService.getMenuById(ctx.businessId, id);
-  res.json({ ok: true, data: menu });
-});
-
 // 3. POST /api/menus - Create new menu (OWNER only)
 menuRouter.post(
   "/menus",
@@ -53,7 +65,38 @@ menuRouter.post(
   }
 );
 
-// 4. PATCH /api/menus/:id - Update menu (OWNER only)
+// 4. GET /api/menus/:id - Detail menu (OWNER only)
+menuRouter.get("/menus/:id", requireAuth, requireRole(["OWNER"]), async (req, res) => {
+  const ctx = requireCtx(req);
+  const id = req.params.id as string;
+  const menu = await menuService.getMenuById(ctx.businessId, id);
+  res.json({ ok: true, data: menu });
+});
+
+// 5. GET /api/menus/:id/cost - Costing analysis of menu's saved recipe (OWNER only)
+menuRouter.get("/menus/:id/cost", requireAuth, requireRole(["OWNER"]), async (req, res) => {
+  const ctx = requireCtx(req);
+  const id = req.params.id as string;
+  const cost = await menuService.getMenuCost(ctx.businessId, id);
+  res.json({ ok: true, data: cost });
+});
+
+// 6. PUT /api/menus/:id/recipe - Save recipe for menu (OWNER only)
+menuRouter.put(
+  "/menus/:id/recipe",
+  requireAuth,
+  requireRole(["OWNER"]),
+  validate(saveRecipeSchema),
+  async (req, res) => {
+    const ctx = requireCtx(req);
+    const id = req.params.id as string;
+    const input = req.valid as SaveRecipeInput;
+    const updated = await menuService.saveRecipe(ctx.businessId, id, input);
+    res.json({ ok: true, data: updated });
+  }
+);
+
+// 7. PATCH /api/menus/:id - Update menu (OWNER only)
 menuRouter.patch(
   "/menus/:id",
   requireAuth,
@@ -68,7 +111,7 @@ menuRouter.patch(
   }
 );
 
-// 5. DELETE /api/menus/:id - Delete menu (OWNER only)
+// 8. DELETE /api/menus/:id - Delete menu (OWNER only)
 menuRouter.delete("/menus/:id", requireAuth, requireRole(["OWNER"]), async (req, res) => {
   const ctx = requireCtx(req);
   const id = req.params.id as string;

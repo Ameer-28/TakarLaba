@@ -69,6 +69,52 @@ export interface UpdateMenuPayload {
   isActive?: boolean;
 }
 
+export interface RecipeItemInput {
+  ingredientId: string;
+  qtyUsable: number | string;
+  unitName?: string;
+}
+
+export interface SaveRecipePayload {
+  items: RecipeItemInput[];
+}
+
+export interface PreviewCostItem {
+  ingredientId: string;
+  ingredientName: string;
+  baseUnit: string;
+  inputUnit: string;
+  toBaseFactor: string;
+  qtyUsable: string;
+  yieldPercent: string;
+  costPerBase: string | null;
+  costPerUsable: string | null;
+  subtotal: string | null;
+  hasCost: boolean;
+}
+
+export type MarginStatus = "AMAN" | "WASPADA" | "BAHAYA" | "INCOMPLETE";
+
+export interface PreviewCostResponse {
+  hppBahan: string | null;
+  overheadPerPortion: string;
+  hppPenuh: string | null;
+  sellingPrice: string;
+  marginKontribusi: string | null;
+  marginPercent: string | null;
+  marginBahanPercent: string | null;
+  marginStatus: MarginStatus;
+  isCostComplete: boolean;
+  items: PreviewCostItem[];
+}
+
+export interface PreviewCostPayload {
+  menuId?: string;
+  sellingPrice?: number | string;
+  targetMargin?: number | string | null;
+  items: RecipeItemInput[];
+}
+
 export function useMenus(filter?: MenuFilter) {
   return useQuery({
     queryKey: queryKeys.menus.list(filter as Record<string, unknown> | undefined),
@@ -88,6 +134,14 @@ export function useMenuDetail(id: string) {
     queryKey: queryKeys.menus.detail(id),
     queryFn: () => apiClient<MenuDetail>(`/menus/${id}`),
     enabled: Boolean(id),
+  });
+}
+
+export function useMenuCost(menuId: string) {
+  return useQuery({
+    queryKey: [...queryKeys.menus.detail(menuId), "cost"],
+    queryFn: () => apiClient<PreviewCostResponse>(`/menus/${menuId}/cost`),
+    enabled: Boolean(menuId),
   });
 }
 
@@ -133,5 +187,34 @@ export function useDeleteMenu() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.menus.all });
     },
+  });
+}
+
+export function useSaveRecipe() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ menuId, payload }: { menuId: string; payload: SaveRecipePayload }) =>
+      apiClient<MenuDetail>(`/menus/${menuId}/recipe`, {
+        method: "PUT",
+        body: JSON.stringify(payload),
+      }),
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.menus.all });
+      queryClient.invalidateQueries({ queryKey: queryKeys.menus.detail(variables.menuId) });
+      queryClient.invalidateQueries({
+        queryKey: [...queryKeys.menus.detail(variables.menuId), "cost"],
+      });
+    },
+  });
+}
+
+export function usePreviewRecipeCost() {
+  return useMutation({
+    mutationFn: (payload: PreviewCostPayload) =>
+      apiClient<PreviewCostResponse>("/menus/preview-cost", {
+        method: "POST",
+        body: JSON.stringify(payload),
+      }),
   });
 }
