@@ -56,8 +56,8 @@ Aturan: hanya satu tugas `[/]` per agent pada satu waktu.
 
 ### Fase 4 — POS + FEFO (29 Okt–1 Nov)
 
-- [/] **T-040** (P0) [BE] `domain/fefo.ts` `allocateFefo` + unit test (batch campur, kedaluwarsa, null expiry, kurang stok)
-- [ ] **T-041** (P0) [BE] `POST /api/sales` (lock `FOR UPDATE`, `Idempotency-Key`, snapshot biaya) — dep: T-040, T-032
+- [x] **T-040** (P0) [BE] `domain/fefo.ts` `allocateFefo` + unit test (batch campur, kedaluwarsa, null expiry, kurang stok)
+- [/] **T-041** (P0) [BE] `POST /api/sales` (lock `FOR UPDATE`, `Idempotency-Key`, snapshot biaya) — dep: T-040, T-032
 - [ ] **T-042** (P0) [FE] UI POS (grid, keranjang reducer, pembayaran, struk dialog + print CSS, loading/toast, `Idempotency-Key` per percobaan) — dep: T-041 — AC: FR-POS-01
 - [ ] **T-043** (P0) [BE] Integration + HTTP test: urutan FEFO, rollback stok kurang, `Promise.all` 2 checkout, idempotensi — AC: FR-POS-02
 - [ ] **T-044** (P0) [BE+FE] Riwayat penjualan (daftar + detail alokasi batch)
@@ -145,6 +145,7 @@ Aturan: hanya satu tugas `[/]` per agent pada satu waktu.
 
 | Tanggal    | Agent/Orang | Ringkasan                                                                                                                                                                                                                                                                                                             | Tugas terkait              |
 | ---------- | ----------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------- |
+| 2026-10-29 | Agent       | Selesai T-040: Engine murni FEFO allocateFefo (BR-07, BR-02, BR-04) dengan proteksi kedaluwarsa WIB, batch campur, null expiry FIFO fallback, atomik all-or-nothing saat stok kurang, mutasi in-memory untuk checkout berurutan, dan 15 unit tests 100% lulus                                                    | T-040                      |
 | 2026-10-29 | Agent       | Selesai T-034 (Fase 3 lengkap): Daftar katalog menu dengan live margin badge (Aman/Waspada/Bahaya), label "Harga bahan belum lengkap", perbandingan HPP Bahan vs HPP Penuh, filter margin, dan tampilan responsif mobile-first                                                                                          | T-034                      |
 | 2026-10-29 | Agent       | Selesai T-033: API preview-cost, simpan resep PUT, kalkulasi HPP GET, dan Editor Resep dengan live costing preview debounced 300ms                                                                                                                                                                                  | T-033                      |
 | 2026-10-29 | Agent       | Selesai T-032: Domain costing murni (HPP Bahan/Penuh, Aktual/Pengganti, margin status BR-09, unit test 100% lulus fixture A 7.740/8.940)                                                                                                                                                                           | T-032                      |
