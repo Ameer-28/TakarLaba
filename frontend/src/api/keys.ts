@@ -22,6 +22,7 @@ export const queryKeys = {
   sales: {
     all: ["sales"] as const,
     list: () => [...queryKeys.sales.all, "list"] as const,
+    detail: (id: string) => [...queryKeys.sales.all, "detail", id] as const,
   },
   alerts: {
     all: ["alerts"] as const,

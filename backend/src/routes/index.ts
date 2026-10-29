@@ -6,6 +6,7 @@ import { inventoryRouter } from "./inventory.routes.js";
 import { settingsRouter } from "./settings.routes.js";
 import { overheadRouter } from "./overhead.routes.js";
 import { menuRouter } from "./menu.routes.js";
+import { saleRouter } from "./sale.routes.js";
 
 export const apiRouter = Router();
 
@@ -16,3 +17,4 @@ apiRouter.use(inventoryRouter);
 apiRouter.use(settingsRouter);
 apiRouter.use(overheadRouter);
 apiRouter.use(menuRouter);
+apiRouter.use(saleRouter);

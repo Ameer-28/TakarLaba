@@ -797,41 +797,103 @@ Mengambil kalkulasi HPP dan status margin berdasarkan takaran resep yang tersimp
 
 ---
 
-## 4. Kontrak Direncanakan (Roadmap Fitur)
+### 3.7 Transaksi POS & Penjualan (`/api/sales`)
 
-### POST `/api/sales` (Checkout POS)
-Memproses transaksi kasir atomik dengan pemotongan stok batch FEFO, verifikasi margin, dan snapshot biaya.
+#### POST `/api/sales`
+Memproses transaksi checkout kasir atomik dengan pemotongan stok batch FEFO, penguncian baris `SELECT ... FOR UPDATE`, snapshot biaya HPP Aktual & alokasi overhead, serta audit `StockMovement(SALE)`.
 
 - **Metode:** `POST`
-- **Autentikasi:** Wajib sesi aktif (`OWNER` atau `CASHIER`)
+- **Autentikasi:** Wajib sesi aktif (`OWNER` atau `CASHIER`).
 - **Header Khusus:**
-  - `Idempotency-Key: <uuid>` (wajib): Mencegah double deduction stok bila terjadi network retry.
+  - `Idempotency-Key: <string>` (wajib, maks. 128 karakter): Menjamin idempotensi transaksi; request berulang dengan key yang sama akan mengembalikan data penjualan yang sudah tercatat tanpa memotong stok ulang.
 - **Request Body:**
   ```json
   {
+    "paymentMethod": "CASH",
     "items": [
       {
-        "menuId": "menu_clx1234567890",
-        "quantity": 2
+        "menuId": "menu_clx123",
+        "qty": 2
       }
-    ],
-    "paymentMethod": "CASH",
-    "amountPaid": "50000"
+    ]
   }
   ```
-- **Response 201 Created:**
+  - `paymentMethod`: `"CASH"`, `"QRIS"`, atau `"TRANSFER"`.
+  - `items`: 1 s.d. 50 baris item. Item dengan `menuId` duplikat otomatis digabungkan (*merged*) oleh sistem. `qty` integer 1 s.d. 999.
+- **Response 201 Created (OWNER):**
   ```json
   {
     "ok": true,
     "data": {
-      "saleId": "sale_clx0987654321",
-      "totalAmount": "36000",
-      "change": "14000",
-      "createdAt": "2026-10-21T13:00:00.000Z"
+      "id": "sale_clx789",
+      "invoiceNo": "INV-20261029-A1B2C3",
+      "idempotencyKey": "idem-key-123",
+      "soldAt": "2026-10-29T10:00:00.000Z",
+      "cashierId": "user_owner1",
+      "paymentMethod": "CASH",
+      "totalAmount": "36000.00",
+      "totalIngredientCost": "15480.00",
+      "totalOverhead": "2400.00",
+      "status": "COMPLETED",
+      "items": [
+        {
+          "id": "item_clx1",
+          "menuId": "menu_clx123",
+          "menuNameSnapshot": "Es Kopi Susu Aren",
+          "qty": 2,
+          "unitPrice": "18000.00",
+          "ingredientCostActual": "15480.00",
+          "overheadAllocated": "2400.00"
+        }
+      ]
     }
   }
   ```
-- **Aturan Bisnis (BR):**
-  - Pemotongan stok batch FEFO (`BR-FEFO-01`): Batch dengan kedaluwarsa terdekat dipotong lebih dulu menggunakan lock `SELECT ... FOR UPDATE`.
-  - Jika stok kurang: Rollback transaksi atomik dan kembalikan `409 INSUFFICIENT_STOCK`.
-  - DTO untuk `CASHIER` tidak boleh memuat field HPP atau margin keuntungan.
+- **Response 201 Created (CASHIER):**
+  Field biaya (`totalIngredientCost`, `totalOverhead`, `ingredientCostActual`, `overheadAllocated`) **dihilangkan** sesuai Rule 7 & PRD FR-AUTH-03:
+  ```json
+  {
+    "ok": true,
+    "data": {
+      "id": "sale_clx789",
+      "invoiceNo": "INV-20261029-A1B2C3",
+      "idempotencyKey": "idem-key-123",
+      "soldAt": "2026-10-29T10:00:00.000Z",
+      "cashierId": "user_cashier1",
+      "paymentMethod": "CASH",
+      "totalAmount": "36000.00",
+      "status": "COMPLETED",
+      "items": [
+        {
+          "id": "item_clx1",
+          "menuId": "menu_clx123",
+          "menuNameSnapshot": "Es Kopi Susu Aren",
+          "qty": 2,
+          "unitPrice": "18000.00"
+        }
+      ]
+    }
+  }
+  ```
+- **Error Response Khusus:**
+  - `409 Conflict` (`INSUFFICIENT_STOCK`): Jika stok bahan baku batch FEFO tidak mencukupi untuk memenuhi pesanan.
+    ```json
+    {
+      "ok": false,
+      "error": {
+        "code": "INSUFFICIENT_STOCK",
+        "message": "Stok bahan \"Biji Kopi\" tidak mencukupi untuk pesanan"
+      }
+    }
+    ```
+
+#### GET `/api/sales/:id`
+Mengambil detail satu transaksi penjualan berdasarkan ID.
+
+- **Metode:** `GET`
+- **Autentikasi:** Wajib sesi aktif (`OWNER` atau `CASHIER`).
+- **Response 200 OK:** Struktur sama dengan response `POST /api/sales` (tersanitasi sesuai role pemanggil).
+
+---
+
+## 4. Kontrak Direncanakan (Roadmap Fitur)
