@@ -59,8 +59,8 @@ Aturan: hanya satu tugas `[/]` per agent pada satu waktu.
 - [x] **T-040** (P0) [BE] `domain/fefo.ts` `allocateFefo` + unit test (batch campur, kedaluwarsa, null expiry, kurang stok)
 - [x] **T-041** (P0) [BE] `POST /api/sales` (lock `FOR UPDATE`, `Idempotency-Key`, snapshot biaya) — dep: T-040, T-032
 - [x] **T-042** (P0) [FE] UI POS (grid, keranjang reducer, pembayaran, struk dialog + print CSS, loading/toast, `Idempotency-Key` per percobaan) — dep: T-041 — AC: FR-POS-01
-- [/] **T-043** (P0) [BE] Integration + HTTP test: urutan FEFO, rollback stok kurang, `Promise.all` 2 checkout, idempotensi — AC: FR-POS-02
-- [ ] **T-044** (P0) [BE+FE] Riwayat penjualan (daftar + detail alokasi batch)
+- [x] **T-043** (P0) [BE] Integration + HTTP test: urutan FEFO, rollback stok kurang, `Promise.all` 2 checkout, idempotensi — AC: FR-POS-02
+- [/] **T-044** (P0) [BE+FE] Riwayat penjualan (daftar + detail alokasi batch)
 
 ### Fase 5 — Price Shock + dashboard v1 (2–3 Nov)
 
@@ -145,6 +145,7 @@ Aturan: hanya satu tugas `[/]` per agent pada satu waktu.
 
 | Tanggal    | Agent/Orang | Ringkasan                                                                                                                                                                                                                                                                                                             | Tugas terkait              |
 | ---------- | ----------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------- |
+| 2026-10-29 | Agent       | Selesai T-043: Integration & HTTP tests untuk atomic POS checkout dan FEFO locking (urutan konsumsi batch kedaluwarsa lebih awal, atomic rollback saat stok kurang, Promise.all 2 concurrent checkout dengan row locking, dan idempotensi transaksi)                                                                | T-043                      |
 | 2026-10-29 | Agent       | Selesai T-042: UI POS Kasir (grid menu cari & filter, keranjang belanja useReducer dengan stepper kuantitas, modal pembayaran tunai/QRIS/transfer, kalkulator kembalian, struk cetak print CSS thermal, dan Idempotency-Key per percobaan)                                                                        | T-042                      |
 | 2026-10-29 | Agent       | Selesai T-041: API checkout kasir POST /api/sales atomik dengan SELECT ... FOR UPDATE, pemotongan FEFO per bahan, snapshot biaya HPP Aktual & overhead, header Idempotency-Key, sanitasi DTO kasir (Rule 7), dan HTTP tests                                                                                      | T-041                      |
 | 2026-10-29 | Agent       | Selesai T-040: Engine murni FEFO allocateFefo (BR-07, BR-02, BR-04) dengan proteksi kedaluwarsa WIB, batch campur, null expiry FIFO fallback, atomik all-or-nothing saat stok kurang, mutasi in-memory untuk checkout berurutan, dan 15 unit tests 100% lulus                                                    | T-040                      |
