@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { apiClient } from "../client.js";
+import type { MenuItem } from "./use-menus.js";
 
 describe("Menu & Recipe Costing API client integration (T-031 / T-033)", () => {
   const originalFetch = globalThis.fetch;
@@ -225,5 +226,78 @@ describe("Menu & Recipe Costing API client integration (T-031 / T-033)", () => {
         body: JSON.stringify(payload),
       })
     );
+  });
+
+  it("handles menus with costSummary and marginStatus (BR-09, FR-COST-01)", async () => {
+    const mockMenusWithCost = [
+      {
+        id: "menu-hero",
+        businessId: "biz-1",
+        name: "Es Kopi Susu Aren",
+        nameKey: "es kopi susu aren",
+        category: "Minuman",
+        sellingPrice: "18000.00",
+        targetMargin: "50.00",
+        isActive: true,
+        hasRecipe: true,
+        recipeItemsCount: 3,
+        saleItemsCount: 12,
+        costSummary: {
+          hppBahan: "7740.00",
+          overheadPerPortion: "1200.00",
+          hppPenuh: "8940.00",
+          sellingPrice: "18000.00",
+          marginKontribusi: "9060.00",
+          marginPercent: "50.33",
+          marginBahanPercent: "57.00",
+          marginStatus: "AMAN" as const,
+          isCostComplete: true,
+          missingCostIngredients: [],
+        },
+        createdAt: "2026-01-01T00:00:00.000Z",
+        updatedAt: "2026-01-01T00:00:00.000Z",
+      },
+      {
+        id: "menu-incomplete",
+        businessId: "biz-1",
+        name: "Matcha Latte",
+        nameKey: "matcha latte",
+        category: "Minuman",
+        sellingPrice: "22000.00",
+        targetMargin: "50.00",
+        isActive: true,
+        hasRecipe: true,
+        recipeItemsCount: 2,
+        saleItemsCount: 0,
+        costSummary: {
+          hppBahan: null,
+          overheadPerPortion: "1200.00",
+          hppPenuh: null,
+          sellingPrice: "22000.00",
+          marginKontribusi: null,
+          marginPercent: null,
+          marginBahanPercent: null,
+          marginStatus: "INCOMPLETE" as const,
+          isCostComplete: false,
+          missingCostIngredients: ["Bubuk Matcha"],
+        },
+        createdAt: "2026-01-01T00:00:00.000Z",
+        updatedAt: "2026-01-01T00:00:00.000Z",
+      },
+    ];
+
+    globalThis.fetch = vi.fn().mockResolvedValueOnce({
+      status: 200,
+      text: vi.fn().mockResolvedValueOnce(JSON.stringify({ ok: true, data: mockMenusWithCost })),
+    } as unknown as Response);
+
+    const result = await apiClient<MenuItem[]>("/menus");
+
+    expect(result).toEqual(mockMenusWithCost);
+    expect(result[0]!.costSummary?.marginStatus).toBe("AMAN");
+    expect(result[0]!.costSummary?.hppPenuh).toBe("8940.00");
+    expect(result[1]!.costSummary?.isCostComplete).toBe(false);
+    expect(result[1]!.costSummary?.marginStatus).toBe("INCOMPLETE");
+    expect(result[1]!.costSummary?.missingCostIngredients).toContain("Bubuk Matcha");
   });
 });

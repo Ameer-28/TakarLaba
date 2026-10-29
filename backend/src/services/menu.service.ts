@@ -18,7 +18,73 @@ export class MenuService {
   ) {}
 
   async listMenus(businessId: string, filter?: MenuFilter) {
-    return this.repo.findMany(businessId, filter);
+    const menus = await this.repo.findMany(businessId, filter);
+
+    // Extract all unique ingredientIds from menus that have recipe items
+    const allIngredientIds = Array.from(
+      new Set(menus.flatMap((m) => m.recipeItems?.map((r) => r.ingredientId) ?? []))
+    );
+
+    let costMap = new Map<string, Decimal>();
+    let overheadPerPortion = new Decimal(0);
+    let defaultTargetMargin = new Decimal(50);
+
+    if (allIngredientIds.length > 0) {
+      const [loadedCostMap, loadedOverhead, loadedTarget] = await Promise.all([
+        this.repo.getLatestCostPerBaseMap(businessId, allIngredientIds),
+        this.getOverheadPerPortion(businessId),
+        this.getDefaultTargetMargin(businessId),
+      ]);
+      costMap = loadedCostMap;
+      overheadPerPortion = loadedOverhead;
+      defaultTargetMargin = loadedTarget;
+    }
+
+    return menus.map((m) => {
+      if (!m.hasRecipe || !m.recipeItems || m.recipeItems.length === 0) {
+        return {
+          ...m,
+          costSummary: null,
+        };
+      }
+
+      const targetMargin = m.targetMargin ? new Decimal(m.targetMargin) : defaultTargetMargin;
+      const recipeCostInputs = m.recipeItems.map((r) => ({
+        ingredientId: r.ingredientId,
+        qtyUsable: new Decimal(r.qtyUsableBase),
+        costPerBase: costMap.get(r.ingredientId) ?? null,
+        yieldPercent: r.ingredient.yieldPercent,
+      }));
+
+      const costing = calculateMenuCosting({
+        recipeItems: recipeCostInputs,
+        overheadPerPortion,
+        sellingPrice: new Decimal(m.sellingPrice),
+        targetMarginPercent: targetMargin,
+      });
+
+      const missingCostIngredients = m.recipeItems
+        .filter((r) => !costMap.has(r.ingredientId))
+        .map((r) => r.ingredient.name);
+
+      return {
+        ...m,
+        costSummary: {
+          hppBahan: costing.hppBahan ? costing.hppBahan.toFixed(2) : null,
+          overheadPerPortion: costing.overheadPerPortion.toFixed(2),
+          hppPenuh: costing.hppPenuh ? costing.hppPenuh.toFixed(2) : null,
+          sellingPrice: costing.sellingPrice.toFixed(2),
+          marginKontribusi: costing.marginKontribusi ? costing.marginKontribusi.toFixed(2) : null,
+          marginPercent: costing.marginPercent ? costing.marginPercent.toFixed(2) : null,
+          marginBahanPercent: costing.marginBahanPercent
+            ? costing.marginBahanPercent.toFixed(2)
+            : null,
+          marginStatus: costing.marginStatus,
+          isCostComplete: costing.isCostComplete,
+          missingCostIngredients,
+        },
+      };
+    });
   }
 
   async getMenuById(businessId: string, id: string) {

@@ -551,7 +551,7 @@ Menghapus beban overhead bulanan.
 ### 3.6 Master Menu (`/api/menus`)
 
 #### GET `/api/menus`
-Mengambil daftar menu milik tenant bisnis beserta status resep dan indikasi jumlah takaran.
+Mengambil daftar menu milik tenant bisnis beserta kalkulasi live margin costing (`costSummary`) sesuai BR-02 s.d. BR-04 & BR-09.
 
 - **Metode:** `GET`
 - **Autentikasi:** Wajib sesi aktif role `OWNER` (role `CASHIER` menerima `403 FORBIDDEN`; kasir menggunakan endpoint `/api/pos/menus`).
@@ -571,17 +571,33 @@ Mengambil daftar menu milik tenant bisnis beserta status resep dan indikasi juml
         "nameKey": "kopi susu gula aren",
         "category": "Minuman",
         "sellingPrice": "18000.00",
-        "targetMargin": "60.00",
+        "targetMargin": "50.00",
         "isActive": true,
         "hasRecipe": true,
         "recipeItemsCount": 3,
         "saleItemsCount": 12,
+        "costSummary": {
+          "hppBahan": "7740.00",
+          "overheadPerPortion": "1200.00",
+          "hppPenuh": "8940.00",
+          "sellingPrice": "18000.00",
+          "marginKontribusi": "9060.00",
+          "marginPercent": "50.33",
+          "marginBahanPercent": "57.00",
+          "marginStatus": "AMAN",
+          "isCostComplete": true,
+          "missingCostIngredients": []
+        },
         "createdAt": "2026-10-22T08:00:00.000Z",
         "updatedAt": "2026-10-22T08:00:00.000Z"
       }
     ]
   }
   ```
+- **Catatan `costSummary`:**
+  - Bernilai `null` jika menu belum memiliki takaran resep (`hasRecipe: false`).
+  - Bila ada bahan dalam resep yang belum pernah dibeli, `isCostComplete` bernilai `false`, `marginStatus` bernilai `"INCOMPLETE"`, dan `missingCostIngredients` memuat daftar nama bahan yang belum memiliki nota pembelian.
+  - Nilai `marginStatus`: `"AMAN"` (margin $\ge$ target), `"WASPADA"` (target - 5 pp $\le$ margin < target), `"BAHAYA"` (margin < target - 5 pp), atau `"INCOMPLETE"`.
 
 #### GET `/api/menus/:id`
 Mengambil detail menu lengkap beserta daftar takaran resep dan riwayat perubahan harga jual.

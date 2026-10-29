@@ -33,8 +33,36 @@ export interface MenuFilter {
   isActive?: boolean;
 }
 
+export interface MenuListItem {
+  id: string;
+  businessId: string;
+  name: string;
+  nameKey: string;
+  category: string | null;
+  sellingPrice: string;
+  targetMargin: string | null;
+  isActive: boolean;
+  hasRecipe: boolean;
+  recipeItemsCount: number;
+  saleItemsCount: number;
+  recipeItems?: {
+    id: string;
+    ingredientId: string;
+    qtyUsableBase: string;
+    ingredient: {
+      id: string;
+      name: string;
+      baseUnit: string;
+      yieldPercent: string;
+      isActive: boolean;
+    };
+  }[];
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 export class MenuRepository {
-  async findMany(businessId: string, filter?: MenuFilter) {
+  async findMany(businessId: string, filter?: MenuFilter): Promise<MenuListItem[]> {
     const whereClause: {
       businessId: string;
       category?: string;
@@ -75,6 +103,19 @@ export class MenuRepository {
             saleItems: true,
           },
         },
+        recipeItems: {
+          include: {
+            ingredient: {
+              select: {
+                id: true,
+                name: true,
+                baseUnit: true,
+                yieldPercent: true,
+                isActive: true,
+              },
+            },
+          },
+        },
       },
     });
 
@@ -90,6 +131,20 @@ export class MenuRepository {
       hasRecipe: m._count.recipeItems > 0,
       recipeItemsCount: m._count.recipeItems,
       saleItemsCount: m._count.saleItems,
+      recipeItems: m.recipeItems
+        ? m.recipeItems.map((r) => ({
+            id: r.id,
+            ingredientId: r.ingredientId,
+            qtyUsableBase: new Decimal(r.qtyUsableBase.toString()).toFixed(3),
+            ingredient: {
+              id: r.ingredient.id,
+              name: r.ingredient.name,
+              baseUnit: r.ingredient.baseUnit,
+              yieldPercent: new Decimal(r.ingredient.yieldPercent.toString()).toFixed(2),
+              isActive: r.ingredient.isActive,
+            },
+          }))
+        : [],
       createdAt: m.createdAt,
       updatedAt: m.updatedAt,
     }));

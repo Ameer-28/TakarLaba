@@ -52,11 +52,11 @@ Aturan: hanya satu tugas `[/]` per agent pada satu waktu.
 - [x] **T-031** (P0) [BE+FE] CRUD menu — AC: FR-MENU-01
 - [x] **T-032** (P0) [BE] `domain/costing.ts` (HPP Bahan/Penuh, Aktual/Pengganti) + test fixture A — AC: 7.740 / 8.940 persis
 - [x] **T-033** (P0) [BE+FE] `POST /api/menus/preview-cost` + editor resep dengan live preview (debounce 300 ms) — dep: T-032 — AC: FR-REC-01
-- [/] **T-034** (P0) [FE] Daftar menu + badge margin (Aman/Waspada/Bahaya) + label "harga bahan belum lengkap" — AC: FR-COST-01
+- [x] **T-034** (P0) [FE] Daftar menu + badge margin (Aman/Waspada/Bahaya) + label "harga bahan belum lengkap" — AC: FR-COST-01
 
 ### Fase 4 — POS + FEFO (29 Okt–1 Nov)
 
-- [ ] **T-040** (P0) [BE] `domain/fefo.ts` `allocateFefo` + unit test (batch campur, kedaluwarsa, null expiry, kurang stok)
+- [/] **T-040** (P0) [BE] `domain/fefo.ts` `allocateFefo` + unit test (batch campur, kedaluwarsa, null expiry, kurang stok)
 - [ ] **T-041** (P0) [BE] `POST /api/sales` (lock `FOR UPDATE`, `Idempotency-Key`, snapshot biaya) — dep: T-040, T-032
 - [ ] **T-042** (P0) [FE] UI POS (grid, keranjang reducer, pembayaran, struk dialog + print CSS, loading/toast, `Idempotency-Key` per percobaan) — dep: T-041 — AC: FR-POS-01
 - [ ] **T-043** (P0) [BE] Integration + HTTP test: urutan FEFO, rollback stok kurang, `Promise.all` 2 checkout, idempotensi — AC: FR-POS-02
@@ -145,6 +145,7 @@ Aturan: hanya satu tugas `[/]` per agent pada satu waktu.
 
 | Tanggal    | Agent/Orang | Ringkasan                                                                                                                                                                                                                                                                                                             | Tugas terkait              |
 | ---------- | ----------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------- |
+| 2026-10-29 | Agent       | Selesai T-034 (Fase 3 lengkap): Daftar katalog menu dengan live margin badge (Aman/Waspada/Bahaya), label "Harga bahan belum lengkap", perbandingan HPP Bahan vs HPP Penuh, filter margin, dan tampilan responsif mobile-first                                                                                          | T-034                      |
 | 2026-10-29 | Agent       | Selesai T-033: API preview-cost, simpan resep PUT, kalkulasi HPP GET, dan Editor Resep dengan live costing preview debounced 300ms                                                                                                                                                                                  | T-033                      |
 | 2026-10-29 | Agent       | Selesai T-032: Domain costing murni (HPP Bahan/Penuh, Aktual/Pengganti, margin status BR-09, unit test 100% lulus fixture A 7.740/8.940)                                                                                                                                                                           | T-032                      |
 | 2026-10-28 | Agent       | Selesai T-031: CRUD menu & pelacakan riwayat harga jual (API, validasi, repo, service, HTTP tests, UI manager, hooks TanStack Query, docs/api.md)                                                                                                                                                                    | T-031                      |

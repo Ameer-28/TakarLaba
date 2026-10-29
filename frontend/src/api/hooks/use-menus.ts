@@ -26,6 +26,21 @@ export interface PriceHistoryDetail {
   changedAt: string;
 }
 
+export type MarginStatus = "AMAN" | "WASPADA" | "BAHAYA" | "INCOMPLETE";
+
+export interface MenuCostSummary {
+  hppBahan: string | null;
+  overheadPerPortion: string;
+  hppPenuh: string | null;
+  sellingPrice: string;
+  marginKontribusi: string | null;
+  marginPercent: string | null;
+  marginBahanPercent: string | null;
+  marginStatus: MarginStatus;
+  isCostComplete: boolean;
+  missingCostIngredients: string[];
+}
+
 export interface MenuItem {
   id: string;
   businessId: string;
@@ -38,6 +53,7 @@ export interface MenuItem {
   hasRecipe: boolean;
   recipeItemsCount: number;
   saleItemsCount: number;
+  costSummary?: MenuCostSummary | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -92,8 +108,6 @@ export interface PreviewCostItem {
   subtotal: string | null;
   hasCost: boolean;
 }
-
-export type MarginStatus = "AMAN" | "WASPADA" | "BAHAYA" | "INCOMPLETE";
 
 export interface PreviewCostResponse {
   hppBahan: string | null;

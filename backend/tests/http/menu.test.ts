@@ -598,5 +598,161 @@ describe("Menu CRUD & Recipe Costing Routes (T-031 / T-033)", () => {
       expect(res.body.ok).toBe(false);
       expect(res.body.error.message).toContain("nonaktif");
     });
+
+    it("GET /api/menus enriches items with costSummary and marginStatus (BR-09, FR-COST-01)", async () => {
+      vi.mocked(auth.api.getSession).mockResolvedValue(ownerSession);
+
+      vi.mocked(overheadRepository.sumActiveMonthlyOverhead).mockResolvedValue(
+        new Decimal("3600000")
+      );
+      vi.mocked(settingsRepository.findById).mockResolvedValue({
+        id: mockBusinessId,
+        name: "Demo Cafe",
+        isDemo: true,
+        targetMarginDefault: new Decimal("50.00"),
+        roundingStep: 500,
+        expectedMonthlyPortions: 3000,
+        demoResetAt: null,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
+
+      const mockCostMap = new Map<string, Decimal>([
+        ["ing-1", new Decimal("160")], // 18g * 160 = 2880
+      ]);
+      vi.mocked(menuRepository.getLatestCostPerBaseMap).mockResolvedValue(mockCostMap);
+
+      vi.mocked(menuRepository.findMany).mockResolvedValue([
+        {
+          id: "menu-1",
+          businessId: mockBusinessId,
+          name: "Espresso",
+          nameKey: "espresso",
+          category: "Minuman",
+          sellingPrice: "15000.00",
+          targetMargin: "50.00",
+          isActive: true,
+          hasRecipe: true,
+          recipeItemsCount: 1,
+          saleItemsCount: 10,
+          recipeItems: [
+            {
+              id: "rec-1",
+              ingredientId: "ing-1",
+              qtyUsableBase: "18.000",
+              ingredient: {
+                id: "ing-1",
+                name: "Biji Kopi",
+                baseUnit: "G",
+                yieldPercent: "100.00",
+                isActive: true,
+              },
+            },
+          ],
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+        {
+          id: "menu-2",
+          businessId: mockBusinessId,
+          name: "Air Mineral",
+          nameKey: "air mineral",
+          category: "Minuman",
+          sellingPrice: "5000.00",
+          targetMargin: "50.00",
+          isActive: true,
+          hasRecipe: false,
+          recipeItemsCount: 0,
+          saleItemsCount: 0,
+          recipeItems: [],
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+      ]);
+
+      const res = await request(app).get("/api/menus");
+
+      expect(res.status).toBe(200);
+      expect(res.body.ok).toBe(true);
+      expect(res.body.data).toHaveLength(2);
+
+      const menu1 = res.body.data[0];
+      expect(menu1.name).toBe("Espresso");
+      expect(menu1.costSummary).not.toBeNull();
+      expect(menu1.costSummary.hppBahan).toBe("2880.00");
+      expect(menu1.costSummary.overheadPerPortion).toBe("1200.00");
+      expect(menu1.costSummary.hppPenuh).toBe("4080.00");
+      expect(menu1.costSummary.marginStatus).toBe("AMAN");
+      expect(menu1.costSummary.isCostComplete).toBe(true);
+
+      const menu2 = res.body.data[1];
+      expect(menu2.name).toBe("Air Mineral");
+      expect(menu2.costSummary).toBeNull();
+    });
+
+    it("GET /api/menus flags incomplete cost when ingredient has no purchase records", async () => {
+      vi.mocked(auth.api.getSession).mockResolvedValue(ownerSession);
+
+      vi.mocked(overheadRepository.sumActiveMonthlyOverhead).mockResolvedValue(
+        new Decimal("3600000")
+      );
+      vi.mocked(settingsRepository.findById).mockResolvedValue({
+        id: mockBusinessId,
+        name: "Demo Cafe",
+        isDemo: true,
+        targetMarginDefault: new Decimal("50.00"),
+        roundingStep: 500,
+        expectedMonthlyPortions: 3000,
+        demoResetAt: null,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
+
+      // Empty cost map -> ingredient has never been purchased
+      vi.mocked(menuRepository.getLatestCostPerBaseMap).mockResolvedValue(new Map());
+
+      vi.mocked(menuRepository.findMany).mockResolvedValue([
+        {
+          id: "menu-new",
+          businessId: mockBusinessId,
+          name: "Menu Eksperimental",
+          nameKey: "menu eksperimental",
+          category: "Minuman",
+          sellingPrice: "25000.00",
+          targetMargin: "50.00",
+          isActive: true,
+          hasRecipe: true,
+          recipeItemsCount: 1,
+          saleItemsCount: 0,
+          recipeItems: [
+            {
+              id: "rec-new-1",
+              ingredientId: "ing-unknown",
+              qtyUsableBase: "50.000",
+              ingredient: {
+                id: "ing-unknown",
+                name: "Sirup Langka",
+                baseUnit: "ML",
+                yieldPercent: "100.00",
+                isActive: true,
+              },
+            },
+          ],
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+      ]);
+
+      const res = await request(app).get("/api/menus");
+
+      expect(res.status).toBe(200);
+      expect(res.body.ok).toBe(true);
+
+      const menu = res.body.data[0];
+      expect(menu.costSummary).not.toBeNull();
+      expect(menu.costSummary.isCostComplete).toBe(false);
+      expect(menu.costSummary.marginStatus).toBe("INCOMPLETE");
+      expect(menu.costSummary.missingCostIngredients).toEqual(["Sirup Langka"]);
+    });
   });
 });
