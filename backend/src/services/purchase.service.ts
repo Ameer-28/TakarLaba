@@ -5,6 +5,8 @@ import {
   type PurchaseFilter,
 } from "../repositories/purchase.repo.js";
 import { ingredientRepository } from "../repositories/ingredient.repo.js";
+import { menuRepository } from "../repositories/menu.repo.js";
+import { alertService } from "./alert.service.js";
 import { toBaseQuantity, computeCostPerBase } from "../domain/units.js";
 import { todayWIB, todayWIBString } from "../lib/date.js";
 import { ValidationError, NotFoundError } from "../lib/errors.js";
@@ -13,7 +15,9 @@ import type { CreatePurchaseInput } from "../validation/purchase.schema.js";
 export class PurchaseService {
   constructor(
     private readonly repo = purchaseRepository,
-    private readonly ingredientRepo = ingredientRepository
+    private readonly ingredientRepo = ingredientRepository,
+    private readonly menuRepo = menuRepository,
+    private readonly alerts = alertService
   ) {}
 
   /**
@@ -140,8 +144,11 @@ export class PurchaseService {
       });
     }
 
-    // 4. Atomic execution
-    return this.repo.createAtomic({
+    // 4. Snapshot latest replacement costs before purchase to detect price shock triggers (BR-05)
+    const previousCostMap = await this.menuRepo.getLatestCostPerBaseMap(businessId, ingredientIds);
+
+    // 5. Atomic execution
+    const purchase = await this.repo.createAtomic({
       businessId,
       createdById,
       supplierName: input.supplierName,
@@ -150,6 +157,19 @@ export class PurchaseService {
       totalAmount,
       batches: preparedBatches,
     });
+
+    // 6. Evaluate Price Shock Impact (BR-05, BR-06, FR-PSI-01)
+    const priceShockAlerts = await this.alerts.evaluatePurchaseAlerts(
+      businessId,
+      purchase.id,
+      preparedBatches,
+      previousCostMap
+    );
+
+    return {
+      ...purchase,
+      priceShockAlerts,
+    };
   }
 
   async listPurchases(businessId: string, filter?: PurchaseFilter) {

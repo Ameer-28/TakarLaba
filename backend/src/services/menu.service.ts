@@ -4,6 +4,7 @@ import { settingsRepository, SettingsRepository } from "../repositories/settings
 import { overheadRepository, OverheadRepository } from "../repositories/overhead.repo.js";
 import { normalizeNameKey, toBaseQuantity } from "../domain/units.js";
 import { calculateMenuCosting, type RecipeItemCostInput } from "../domain/costing.js";
+import { alertService, AlertService } from "./alert.service.js";
 import { ConflictError, NotFoundError, ValidationError } from "../lib/errors.js";
 import { Decimal } from "decimal.js";
 import type { CreateMenuInput, UpdateMenuInput } from "../validation/menu.schema.js";
@@ -14,7 +15,8 @@ export class MenuService {
     private repo: MenuRepository = menuRepository,
     private ingredientRepo: IngredientRepository = ingredientRepository,
     private settingsRepo: SettingsRepository = settingsRepository,
-    private overheadRepo: OverheadRepository = overheadRepository
+    private overheadRepo: OverheadRepository = overheadRepository,
+    private alerts: AlertService = alertService
   ) {}
 
   async listMenus(businessId: string, filter?: MenuFilter) {
@@ -158,7 +160,7 @@ export class MenuService {
       }
     }
 
-    return this.repo.update(
+    const updated = await this.repo.update(
       businessId,
       id,
       {
@@ -176,6 +178,16 @@ export class MenuService {
       },
       priceHistory
     );
+
+    if (
+      input.sellingPrice !== undefined ||
+      input.targetMargin !== undefined ||
+      input.isActive !== undefined
+    ) {
+      await this.alerts.reevaluateAlertsForMenu(businessId, id);
+    }
+
+    return updated;
   }
 
   async deleteMenu(businessId: string, id: string) {
@@ -437,6 +449,7 @@ export class MenuService {
     }
 
     await this.repo.saveRecipe(businessId, menuId, itemsToSave);
+    await this.alerts.reevaluateAlertsForMenu(businessId, menuId);
 
     // Return updated menu detail
     return this.getMenuById(businessId, menuId);

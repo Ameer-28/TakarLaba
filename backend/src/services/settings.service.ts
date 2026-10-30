@@ -1,11 +1,17 @@
 import { Decimal } from "decimal.js";
 import { settingsRepository } from "../repositories/settings.repo.js";
+import { alertService } from "./alert.service.js";
 import { NotFoundError } from "../lib/errors.js";
 import type { UpdateSettingsInput } from "../validation/settings.schema.js";
 
 export class SettingsService {
+  constructor(
+    private readonly repo = settingsRepository,
+    private readonly alerts = alertService
+  ) {}
+
   async getSettings(businessId: string) {
-    const business = await settingsRepository.findById(businessId);
+    const business = await this.repo.findById(businessId);
     if (!business) {
       throw new NotFoundError("Data usaha tidak ditemukan");
     }
@@ -25,7 +31,7 @@ export class SettingsService {
   }
 
   async updateSettings(businessId: string, input: UpdateSettingsInput) {
-    const existing = await settingsRepository.findById(businessId);
+    const existing = await this.repo.findById(businessId);
     if (!existing) {
       throw new NotFoundError("Data usaha tidak ditemukan");
     }
@@ -58,7 +64,16 @@ export class SettingsService {
     }
     if (input.timezone !== undefined) updateData.timezone = input.timezone;
 
-    const updated = await settingsRepository.update(businessId, updateData);
+    const updated = await this.repo.update(businessId, updateData);
+
+    // Reevaluate alerts if margin target, expected portions (overhead per portion), or rounding step changed
+    if (
+      input.targetMarginDefault !== undefined ||
+      input.expectedMonthlyPortions !== undefined ||
+      input.priceRoundingStep !== undefined
+    ) {
+      await this.alerts.reevaluateAllAlertsForBusiness(businessId);
+    }
 
     return {
       id: updated.id,

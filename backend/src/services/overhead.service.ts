@@ -1,10 +1,16 @@
 import { Decimal } from "decimal.js";
 import { overheadRepository } from "../repositories/overhead.repo.js";
 import { settingsRepository } from "../repositories/settings.repo.js";
+import { alertService } from "./alert.service.js";
 import { NotFoundError } from "../lib/errors.js";
 import type { CreateOverheadInput, UpdateOverheadInput } from "../validation/overhead.schema.js";
 
 export class OverheadService {
+  constructor(
+    private readonly repo = overheadRepository,
+    private readonly settingsRepo = settingsRepository,
+    private readonly alerts = alertService
+  ) {}
   async getOverheads(businessId: string, filter?: { isActive?: boolean }) {
     const [overheads, business] = await Promise.all([
       overheadRepository.findMany(businessId, filter),
@@ -47,12 +53,14 @@ export class OverheadService {
   }
 
   async createOverhead(businessId: string, input: CreateOverheadInput) {
-    const created = await overheadRepository.create(businessId, {
+    const created = await this.repo.create(businessId, {
       name: input.name,
       type: input.type,
       monthlyAmount: new Decimal(input.monthlyAmount),
       isActive: input.isActive,
     });
+
+    await this.alerts.reevaluateAllAlertsForBusiness(businessId);
 
     return {
       id: created.id,
@@ -67,7 +75,7 @@ export class OverheadService {
   }
 
   async updateOverhead(businessId: string, id: string, input: UpdateOverheadInput) {
-    const existing = await overheadRepository.findById(businessId, id);
+    const existing = await this.repo.findById(businessId, id);
     if (!existing) {
       throw new NotFoundError("Beban overhead tidak ditemukan");
     }
@@ -86,7 +94,9 @@ export class OverheadService {
     }
     if (input.isActive !== undefined) updatePayload.isActive = input.isActive;
 
-    const updated = await overheadRepository.update(businessId, id, updatePayload);
+    const updated = await this.repo.update(businessId, id, updatePayload);
+
+    await this.alerts.reevaluateAllAlertsForBusiness(businessId);
 
     return {
       id: updated.id,
@@ -101,12 +111,13 @@ export class OverheadService {
   }
 
   async deleteOverhead(businessId: string, id: string) {
-    const existing = await overheadRepository.findById(businessId, id);
+    const existing = await this.repo.findById(businessId, id);
     if (!existing) {
       throw new NotFoundError("Beban overhead tidak ditemukan");
     }
 
-    await overheadRepository.delete(businessId, id);
+    await this.repo.delete(businessId, id);
+    await this.alerts.reevaluateAllAlertsForBusiness(businessId);
     return { success: true };
   }
 }

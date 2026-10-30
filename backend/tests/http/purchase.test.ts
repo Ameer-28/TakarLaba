@@ -35,6 +35,22 @@ vi.mock("../../src/repositories/ingredient.repo.js", () => ({
   IngredientRepository: vi.fn(),
 }));
 
+vi.mock("../../src/services/alert.service.js", () => ({
+  alertService: {
+    evaluatePurchaseAlerts: vi.fn().mockResolvedValue([]),
+    reevaluateAllAlertsForBusiness: vi.fn(),
+    reevaluateAlertsForMenu: vi.fn(),
+  },
+  AlertService: vi.fn(),
+}));
+
+vi.mock("../../src/repositories/menu.repo.js", () => ({
+  menuRepository: {
+    getLatestCostPerBaseMap: vi.fn().mockResolvedValue(new Map()),
+  },
+  MenuRepository: vi.fn(),
+}));
+
 import { auth } from "../../src/lib/auth.js";
 import { purchaseRepository } from "../../src/repositories/purchase.repo.js";
 import { ingredientRepository } from "../../src/repositories/ingredient.repo.js";

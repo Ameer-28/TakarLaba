@@ -25,6 +25,7 @@ export interface PriceHistoryRecordData {
   newPrice: Decimal | string | number;
   reason: PriceChangeReason;
   changedById: string;
+  alertId?: string | null;
 }
 
 export interface MenuFilter {
@@ -344,6 +345,7 @@ export class MenuRepository {
             newPrice: new Decimal(priceHistory.newPrice).toFixed(2),
             reason: priceHistory.reason,
             changedById: priceHistory.changedById,
+            alertId: priceHistory.alertId ?? null,
           },
         });
       }
@@ -462,6 +464,66 @@ export class MenuRepository {
     }
 
     return map;
+  }
+
+  /**
+   * Find all active menus that contain a specific ingredient in their recipe.
+   */
+  async findActiveMenusUsingIngredient(businessId: string, ingredientId: string) {
+    const menus = await prisma.menu.findMany({
+      where: {
+        businessId,
+        isActive: true,
+        recipeItems: {
+          some: {
+            ingredientId,
+          },
+        },
+      },
+      include: {
+        recipeItems: {
+          include: {
+            ingredient: {
+              include: {
+                units: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    return menus.map((m) => ({
+      id: m.id,
+      businessId: m.businessId,
+      name: m.name,
+      sellingPrice: m.sellingPrice,
+      targetMargin: m.targetMargin,
+      isActive: m.isActive,
+      recipeItems: m.recipeItems.map((r) => ({
+        id: r.id,
+        ingredientId: r.ingredientId,
+        qtyUsableBase: r.qtyUsableBase,
+        ingredient: {
+          id: r.ingredient.id,
+          name: r.ingredient.name,
+          baseUnit: r.ingredient.baseUnit,
+          yieldPercent: r.ingredient.yieldPercent,
+          units: r.ingredient.units,
+        },
+      })),
+    }));
+  }
+
+  /**
+   * Find IDs of all active menus within tenant.
+   */
+  async findAllActiveMenuIds(businessId: string): Promise<string[]> {
+    const menus = await prisma.menu.findMany({
+      where: { businessId, isActive: true },
+      select: { id: true },
+    });
+    return menus.map((m) => m.id);
   }
 }
 

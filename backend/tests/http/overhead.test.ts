@@ -31,6 +31,15 @@ vi.mock("../../src/repositories/settings.repo.js", () => ({
   SettingsRepository: vi.fn(),
 }));
 
+vi.mock("../../src/services/alert.service.js", () => ({
+  alertService: {
+    reevaluateAllAlertsForBusiness: vi.fn(),
+    reevaluateAlertsForMenu: vi.fn(),
+    evaluatePurchaseAlerts: vi.fn(),
+  },
+  AlertService: vi.fn(),
+}));
+
 import { auth } from "../../src/lib/auth.js";
 import { overheadRepository } from "../../src/repositories/overhead.repo.js";
 import { settingsRepository } from "../../src/repositories/settings.repo.js";

@@ -1004,4 +1004,168 @@ Mengambil detail satu transaksi penjualan berdasarkan ID, termasuk alokasi batch
 
 ---
 
+### 3.8 Peringatan Margin & Price Shock Impact (`/api/alerts`)
+
+#### GET `/api/alerts`
+Mengambil daftar peringatan margin (Pusat Peringatan) dengan paginasi dan filter status.
+
+- **Metode:** `GET`
+- **Autentikasi:** Wajib sesi aktif role `OWNER` (role `CASHIER` menerima `403 FORBIDDEN`).
+- **Query Params:**
+  - `status?: "OPEN" | "ACKNOWLEDGED" | "RESOLVED"`
+  - `menuId?: string`
+  - `page?: number` (default: 1)
+  - `limit?: number` (default: 20, maks. 100)
+- **Response 200 OK:**
+  ```json
+  {
+    "ok": true,
+    "data": [
+      {
+        "id": "alert_clx1",
+        "businessId": "biz_123",
+        "menuId": "menu_clx1",
+        "menu": {
+          "id": "menu_clx1",
+          "name": "Es Kopi Susu Aren",
+          "sellingPrice": "18000.00",
+          "targetMargin": "50.00"
+        },
+        "status": "OPEN",
+        "resolution": null,
+        "note": null,
+        "createdAt": "2026-10-30T01:00:00.000Z",
+        "resolvedAt": null,
+        "resolvedBy": null,
+        "triggerIngredient": {
+          "id": "ing_susu",
+          "name": "Susu UHT",
+          "baseUnit": "ML"
+        },
+        "triggerPurchase": {
+          "id": "pur_123",
+          "supplierName": "Distributor Susu Segar",
+          "purchasedAt": "2026-10-30T00:55:00.000Z"
+        },
+        "ingredientCostBefore": "7740.00",
+        "ingredientCostAfter": "8640.00",
+        "fullCostBefore": "8940.00",
+        "fullCostAfter": "9840.00",
+        "marginBeforePct": "50.33",
+        "marginAfterPct": "45.33",
+        "targetPct": "50.00",
+        "sellingPriceAtTrigger": "18000.00",
+        "recommendedPrice": "20000.00"
+      }
+    ],
+    "meta": {
+      "page": 1,
+      "limit": 20,
+      "total": 1,
+      "totalPages": 1
+    }
+  }
+  ```
+
+#### GET `/api/alerts/:id`
+Mengambil detail lengkap satu peringatan margin, termasuk rincian resep menu, Opsi A (naikkan harga), dan Opsi B (efisiensi porsi).
+
+- **Metode:** `GET`
+- **Autentikasi:** Wajib sesi aktif role `OWNER`.
+- **Response 200 OK:**
+  ```json
+  {
+    "ok": true,
+    "data": {
+      "id": "alert_clx1",
+      "businessId": "biz_123",
+      "menuId": "menu_clx1",
+      "menuName": "Es Kopi Susu Aren",
+      "menuSellingPrice": "18000.00",
+      "status": "OPEN",
+      "resolution": null,
+      "note": null,
+      "createdAt": "2026-10-30T01:00:00.000Z",
+      "resolvedAt": null,
+      "resolvedBy": null,
+      "triggerPurchase": {
+        "id": "pur_123",
+        "supplierName": "Distributor Susu Segar",
+        "purchasedAt": "2026-10-30T00:55:00.000Z"
+      },
+      "triggerIngredient": {
+        "id": "ing_susu",
+        "name": "Susu UHT",
+        "baseUnit": "ML"
+      },
+      "costs": {
+        "ingredientCostBefore": "7740.00",
+        "ingredientCostAfter": "8640.00",
+        "fullCostBefore": "8940.00",
+        "fullCostAfter": "9840.00",
+        "marginBeforePct": "50.33",
+        "marginAfterPct": "45.33",
+        "targetPct": "50.00",
+        "sellingPriceAtTrigger": "18000.00"
+      },
+      "optionA": {
+        "recommendedPrice": "20000.00",
+        "projectedMarginPercent": "50.80",
+        "projectedMarginKontribusi": "10160.00",
+        "priceIncrease": "2000.00"
+      },
+      "optionB": {
+        "maxAllowableCost": "9000.00",
+        "costSavingNeeded": "840.00",
+        "currentTakaran": "150.000",
+        "reducedAmount": "35.000",
+        "newTakaran": "115.000",
+        "unit": "ML",
+        "reductionPercent": "23.33",
+        "isFeasible": true,
+        "projectedHppPenuh": "9000.00",
+        "projectedMarginPercent": "50.00"
+      },
+      "recipe": [
+        {
+          "id": "rec_1",
+          "ingredientId": "ing_susu",
+          "ingredientName": "Susu UHT",
+          "amount": "150.000",
+          "unit": "ML"
+        }
+      ]
+    }
+  }
+  ```
+
+#### POST `/api/alerts/:id/apply-price`
+Menerapkan rekomendasi harga Opsi A pada menu, mencatat `MenuPriceHistory` (alasan `PRICE_SHOCK_ALERT`), dan menyelesaikan peringatan sebagai `PRICE_RAISED`.
+
+- **Metode:** `POST`
+- **Autentikasi:** Wajib sesi aktif role `OWNER`.
+- **Response 200 OK:** Mengembalikan objek alert yang telah di-resolve dengan `resolution: "PRICE_RAISED"`.
+
+#### POST `/api/alerts/:id/dismiss`
+Mengabaikan peringatan dengan catatan opsional (keputusan pemilik usaha untuk mempertahankan harga).
+
+- **Metode:** `POST`
+- **Autentikasi:** Wajib sesi aktif role `OWNER`.
+- **Request Body:**
+  ```json
+  {
+    "note": "Menunggu promo akhir pekan selesai"
+  }
+  ```
+- **Response 200 OK:** Mengembalikan objek alert dengan `resolution: "DISMISSED"`.
+
+#### POST `/api/alerts/:id/acknowledge`
+Menandai peringatan telah ditinjau pemilik usaha (mengubah status dari `OPEN` ke `ACKNOWLEDGED`).
+
+- **Metode:** `POST`
+- **Autentikasi:** Wajib sesi aktif role `OWNER`.
+- **Response 200 OK:** Mengembalikan objek alert dengan `status: "ACKNOWLEDGED"`.
+
+---
+
 ## 4. Kontrak Direncanakan (Roadmap Fitur)
