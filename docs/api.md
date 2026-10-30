@@ -887,12 +887,120 @@ Memproses transaksi checkout kasir atomik dengan pemotongan stok batch FEFO, pen
     }
     ```
 
-#### GET `/api/sales/:id`
-Mengambil detail satu transaksi penjualan berdasarkan ID.
+#### GET `/api/sales`
+Mengambil daftar riwayat transaksi penjualan dengan filter tanggal, metode pembayaran, kasir, status, serta paginasi.
 
 - **Metode:** `GET`
 - **Autentikasi:** Wajib sesi aktif (`OWNER` atau `CASHIER`).
-- **Response 200 OK:** Struktur sama dengan response `POST /api/sales` (tersanitasi sesuai role pemanggil).
+- **Query Parameters:**
+  - `startDate?: string` (format YYYY-MM-DD atau ISO)
+  - `endDate?: string` (format YYYY-MM-DD atau ISO)
+  - `paymentMethod?: "CASH" | "QRIS" | "TRANSFER"`
+  - `status?: "COMPLETED" | "VOIDED"`
+  - `cashierId?: string`
+  - `page?: number` (default: 1)
+  - `limit?: number` (default: 20, maks. 100)
+- **Response 200 OK (OWNER):**
+  ```json
+  {
+    "ok": true,
+    "data": {
+      "items": [
+        {
+          "id": "sale_clx789",
+          "invoiceNo": "INV-20261029-A1B2C3",
+          "idempotencyKey": "idem-key-123",
+          "soldAt": "2026-10-29T10:00:00.000Z",
+          "cashierId": "user_owner1",
+          "cashier": { "id": "user_owner1", "name": "Budi Owner", "role": "OWNER" },
+          "paymentMethod": "CASH",
+          "totalAmount": "36000.00",
+          "totalIngredientCost": "15480.00",
+          "totalOverhead": "2400.00",
+          "grossMargin": "18120.00",
+          "marginPercentage": "50.33",
+          "status": "COMPLETED",
+          "items": [
+            {
+              "id": "item_clx1",
+              "menuId": "menu_clx123",
+              "menuNameSnapshot": "Es Kopi Susu Aren",
+              "qty": 2,
+              "unitPrice": "18000.00",
+              "subtotalPrice": "36000.00",
+              "ingredientCostActual": "15480.00",
+              "overheadAllocated": "2400.00",
+              "grossMargin": "18120.00",
+              "marginPercentage": "50.33"
+            }
+          ]
+        }
+      ],
+      "total": 1,
+      "page": 1,
+      "limit": 20,
+      "totalPages": 1
+    }
+  }
+  ```
+- **Response 200 OK (CASHIER):**
+  Field biaya dan margin (`totalIngredientCost`, `totalOverhead`, `grossMargin`, `marginPercentage`, `ingredientCostActual`, `overheadAllocated`) **dihilangkan** sesuai Rule 7.
+
+#### GET `/api/sales/:id`
+Mengambil detail satu transaksi penjualan berdasarkan ID, termasuk alokasi batch bahan baku FEFO (`batchAllocations`).
+
+- **Metode:** `GET`
+- **Autentikasi:** Wajib sesi aktif (`OWNER` atau `CASHIER`).
+- **Response 200 OK (OWNER):**
+  ```json
+  {
+    "ok": true,
+    "data": {
+      "id": "sale_clx789",
+      "invoiceNo": "INV-20261029-A1B2C3",
+      "idempotencyKey": "idem-key-123",
+      "soldAt": "2026-10-29T10:00:00.000Z",
+      "cashierId": "user_owner1",
+      "cashier": { "id": "user_owner1", "name": "Budi", "role": "OWNER" },
+      "paymentMethod": "CASH",
+      "totalAmount": "36000.00",
+      "totalIngredientCost": "15480.00",
+      "totalOverhead": "2400.00",
+      "grossMargin": "18120.00",
+      "marginPercentage": "50.33",
+      "status": "COMPLETED",
+      "items": [
+        {
+          "id": "item_clx1",
+          "menuId": "menu_clx123",
+          "menuNameSnapshot": "Es Kopi Susu Aren",
+          "qty": 2,
+          "unitPrice": "18000.00",
+          "subtotalPrice": "36000.00",
+          "ingredientCostActual": "15480.00",
+          "overheadAllocated": "2400.00",
+          "grossMargin": "18120.00",
+          "marginPercentage": "50.33",
+          "batchAllocations": [
+            {
+              "movementId": "mov_1",
+              "ingredientId": "ing_kopi",
+              "ingredientName": "Biji Kopi",
+              "baseUnit": "GRAM",
+              "batchId": "batch_1",
+              "batchExpiryDate": "2026-11-15T00:00:00.000Z",
+              "qtyDeducted": "36.000",
+              "costPerBase": "200.000000",
+              "subtotalCost": "7200.00"
+            }
+          ]
+        }
+      ]
+    }
+  }
+  ```
+- **Response 200 OK (CASHIER):**
+  Field biaya (`totalIngredientCost`, `totalOverhead`, `grossMargin`, `marginPercentage`, `ingredientCostActual`, `overheadAllocated`, serta `costPerBase` dan `subtotalCost` pada `batchAllocations`) **dihilangkan**. Kasir hanya melihat informasi operasional (`ingredientName`, `baseUnit`, `batchExpiryDate`, `qtyDeducted`).
 
 ---
 

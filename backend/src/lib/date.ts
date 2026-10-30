@@ -31,6 +31,24 @@ export function endOfTodayWIB(now: Date = new Date()): Date {
 }
 
 /**
+ * Returns a Date object representing the start of a given date (or today) in Asia/Jakarta (00:00:00.000 WIB).
+ */
+export function startOfDayWIB(input: Date | string = new Date()): Date {
+  const dateObj = parseDateInput(input);
+  const dateStr = todayWIBString(dateObj);
+  return new Date(`${dateStr}T00:00:00.000+07:00`);
+}
+
+/**
+ * Returns a Date object representing the end of a given date (or today) in Asia/Jakarta (23:59:59.999 WIB).
+ */
+export function endOfDayWIB(input: Date | string = new Date()): Date {
+  const dateObj = parseDateInput(input);
+  const dateStr = todayWIBString(dateObj);
+  return new Date(`${dateStr}T23:59:59.999+07:00`);
+}
+
+/**
  * Convert any Date or string to Date object.
  */
 function parseDateInput(input: Date | string): Date {

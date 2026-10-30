@@ -7,8 +7,30 @@ import { settingsRepository, SettingsRepository } from "../repositories/settings
 import { overheadRepository, OverheadRepository } from "../repositories/overhead.repo.js";
 import { NotFoundError, ValidationError } from "../lib/errors.js";
 import { Decimal } from "decimal.js";
-import type { CreateSaleInput } from "../validation/sale.schema.js";
-import type { Sale, SaleItem } from "../generated/prisma/client.js";
+import { startOfDayWIB, endOfDayWIB } from "../lib/date.js";
+import type { CreateSaleInput, QuerySaleInput } from "../validation/sale.schema.js";
+
+export interface BatchAllocationOwnerDto {
+  movementId: string;
+  ingredientId: string;
+  ingredientName: string;
+  baseUnit: string;
+  batchId: string | null;
+  batchExpiryDate: Date | null;
+  qtyDeducted: string;
+  costPerBase: string;
+  subtotalCost: string;
+}
+
+export interface BatchAllocationCashierDto {
+  movementId: string;
+  ingredientId: string;
+  ingredientName: string;
+  baseUnit: string;
+  batchId: string | null;
+  batchExpiryDate: Date | null;
+  qtyDeducted: string;
+}
 
 export interface SaleItemOwnerDto {
   id: string;
@@ -16,8 +38,12 @@ export interface SaleItemOwnerDto {
   menuNameSnapshot: string;
   qty: number;
   unitPrice: string;
+  subtotalPrice: string;
   ingredientCostActual: string;
   overheadAllocated: string;
+  grossMargin: string;
+  marginPercentage: string;
+  batchAllocations?: BatchAllocationOwnerDto[];
 }
 
 export interface SaleItemCashierDto {
@@ -26,6 +52,14 @@ export interface SaleItemCashierDto {
   menuNameSnapshot: string;
   qty: number;
   unitPrice: string;
+  subtotalPrice: string;
+  batchAllocations?: BatchAllocationCashierDto[];
+}
+
+export interface SaleCashierInfo {
+  id: string;
+  name: string;
+  role: string | null;
 }
 
 export interface SaleOwnerResponseDto {
@@ -34,10 +68,13 @@ export interface SaleOwnerResponseDto {
   idempotencyKey: string;
   soldAt: Date;
   cashierId: string;
+  cashier?: SaleCashierInfo;
   paymentMethod: string;
   totalAmount: string;
   totalIngredientCost: string;
   totalOverhead: string;
+  grossMargin: string;
+  marginPercentage: string;
   status: string;
   items: SaleItemOwnerDto[];
 }
@@ -48,6 +85,7 @@ export interface SaleCashierResponseDto {
   idempotencyKey: string;
   soldAt: Date;
   cashierId: string;
+  cashier?: SaleCashierInfo;
   paymentMethod: string;
   totalAmount: string;
   status: string;
@@ -55,6 +93,60 @@ export interface SaleCashierResponseDto {
 }
 
 export type SaleResponseDto = SaleOwnerResponseDto | SaleCashierResponseDto;
+
+export interface SaleListResponseDto {
+  items: SaleResponseDto[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
+export interface MovementWithDetails {
+  id: string;
+  ingredientId: string;
+  batchId: string | null;
+  qtyBaseDelta: Decimal | string | number;
+  costPerBase: Decimal | string | number;
+  refType: string | null;
+  refId: string | null;
+  ingredient?: {
+    id: string;
+    name: string;
+    baseUnit: string;
+  } | null;
+  batch?: {
+    id: string;
+    expiryDate: Date | null;
+    purchaseUnit: string;
+    purchaseUnitPrice: Decimal | string | number;
+    costPerBase: Decimal | string | number;
+  } | null;
+}
+
+export interface SaleEntityWithItems {
+  id: string;
+  invoiceNo: string;
+  idempotencyKey: string;
+  soldAt: Date;
+  cashierId: string;
+  cashier?: SaleCashierInfo | null;
+  paymentMethod: string;
+  totalAmount: Decimal | string | number;
+  totalIngredientCost: Decimal | string | number;
+  totalOverhead: Decimal | string | number;
+  status: string;
+  items: Array<{
+    id: string;
+    menuId: string;
+    menuNameSnapshot: string;
+    qty: number;
+    unitPrice: Decimal | string | number;
+    ingredientCostActual?: Decimal | string | number;
+    overheadAllocated?: Decimal | string | number;
+  }>;
+  movements?: MovementWithDetails[];
+}
 
 export class SaleService {
   constructor(
@@ -88,25 +180,21 @@ export class SaleService {
     idempotencyKey: string,
     input: CreateSaleInput
   ): Promise<SaleResponseDto> {
-    if (!idempotencyKey || idempotencyKey.trim().length === 0) {
-      throw new ValidationError("Header Idempotency-Key wajib disertakan");
+    if (!input.items || input.items.length === 0) {
+      throw new ValidationError("Pesanan harus memiliki minimal 1 item");
     }
 
-    if (idempotencyKey.length > 128) {
-      throw new ValidationError("Idempotency-Key maksimal 128 karakter");
-    }
-
-    // Merge duplicate menuId entries by summing quantities
-    const mergedMap = new Map<string, number>();
-    for (const it of input.items) {
-      const current = mergedMap.get(it.menuId) ?? 0;
-      mergedMap.set(it.menuId, current + it.qty);
+    // Merge duplicate menuIds by summing quantities
+    const itemMap = new Map<string, number>();
+    for (const item of input.items) {
+      const current = itemMap.get(item.menuId) || 0;
+      itemMap.set(item.menuId, current + item.qty);
     }
 
     const mergedItems: SaleItemInputRow[] = [];
-    for (const [menuId, qty] of mergedMap.entries()) {
+    for (const [menuId, qty] of itemMap.entries()) {
       if (qty > 999) {
-        throw new ValidationError(`Kuantitas total untuk menu melebihi batas maksimal (999 porsi)`);
+        throw new ValidationError("Kuantitas total untuk setiap menu tidak boleh melebihi 999");
       }
       mergedItems.push({ menuId, qty });
     }
@@ -122,7 +210,51 @@ export class SaleService {
       overheadPerPortion,
     });
 
-    return this.mapToDto(sale, role);
+    const detailedSale = await this.repo.findById(businessId, sale.id);
+    return this.mapToDto(detailedSale ?? sale, role);
+  }
+
+  /**
+   * List sales with date, cashier, payment method, and status filters.
+   */
+  async listSales(
+    businessId: string,
+    role: "OWNER" | "CASHIER",
+    query: QuerySaleInput
+  ): Promise<SaleListResponseDto> {
+    const skip = (query.page - 1) * query.limit;
+    const take = query.limit;
+
+    let startDate: Date | undefined;
+    if (query.startDate) {
+      startDate = startOfDayWIB(query.startDate);
+    }
+
+    let endDate: Date | undefined;
+    if (query.endDate) {
+      endDate = endOfDayWIB(query.endDate);
+    }
+
+    const { sales, total } = await this.repo.findMany(businessId, {
+      startDate,
+      endDate,
+      status: query.status,
+      paymentMethod: query.paymentMethod,
+      cashierId: query.cashierId,
+      skip,
+      take,
+    });
+
+    const items = sales.map((s) => this.mapToDto(s, role));
+    const totalPages = Math.ceil(total / query.limit);
+
+    return {
+      items,
+      total,
+      page: query.page,
+      limit: query.limit,
+      totalPages: totalPages === 0 ? 1 : totalPages,
+    };
   }
 
   /**
@@ -143,10 +275,26 @@ export class SaleService {
 
   /**
    * Strict allowlist DTO mapper enforcing Rule 7 and PRD FR-AUTH-03:
-   * Strips all cost fields (ingredientCostActual, overheadAllocated, totalIngredientCost, totalOverhead)
-   * from responses returned to CASHIER role.
+   * Strips all cost fields (ingredientCostActual, overheadAllocated, totalIngredientCost, totalOverhead,
+   * grossMargin, marginPercentage, batch costPerBase, batch subtotalCost) from responses returned to CASHIER role.
    */
-  mapToDto(sale: Sale & { items: SaleItem[] }, role: "OWNER" | "CASHIER"): SaleResponseDto {
+  mapToDto(sale: SaleEntityWithItems, role: "OWNER" | "CASHIER"): SaleResponseDto {
+    const totalRevenue = new Decimal(sale.totalAmount.toString());
+
+    // Group movements by saleItem id (refId) if movements are present
+    const movementsByItemId = new Map<string, MovementWithDetails[]>();
+    if (sale.movements && Array.isArray(sale.movements)) {
+      for (const mov of sale.movements) {
+        if (mov.refId) {
+          const list = movementsByItemId.get(mov.refId) || [];
+          list.push(mov);
+          movementsByItemId.set(mov.refId, list);
+        }
+      }
+    }
+
+    const hasMovements = sale.movements !== undefined;
+
     if (role === "CASHIER") {
       return {
         id: sale.id,
@@ -154,40 +302,119 @@ export class SaleService {
         idempotencyKey: sale.idempotencyKey,
         soldAt: sale.soldAt,
         cashierId: sale.cashierId,
+        cashier: sale.cashier
+          ? { id: sale.cashier.id, name: sale.cashier.name, role: sale.cashier.role }
+          : undefined,
         paymentMethod: sale.paymentMethod,
-        totalAmount: new Decimal(sale.totalAmount.toString()).toFixed(2),
+        totalAmount: totalRevenue.toFixed(2),
         status: sale.status,
-        items: sale.items.map((item) => ({
-          id: item.id,
-          menuId: item.menuId,
-          menuNameSnapshot: item.menuNameSnapshot,
-          qty: item.qty,
-          unitPrice: new Decimal(item.unitPrice.toString()).toFixed(2),
-        })),
+        items: sale.items.map((item) => {
+          const itemUnitPrice = new Decimal(item.unitPrice.toString());
+          const itemSubtotal = itemUnitPrice.mul(item.qty);
+
+          const itemMovements = movementsByItemId.get(item.id) || [];
+          const cashierAllocations: BatchAllocationCashierDto[] = itemMovements.map((mov) => ({
+            movementId: mov.id,
+            ingredientId: mov.ingredientId,
+            ingredientName: mov.ingredient?.name ?? "Bahan",
+            baseUnit: mov.ingredient?.baseUnit ?? "",
+            batchId: mov.batchId,
+            batchExpiryDate: mov.batch?.expiryDate ?? null,
+            qtyDeducted: new Decimal(mov.qtyBaseDelta.toString()).abs().toFixed(3),
+          }));
+
+          const itemDto: SaleItemCashierDto = {
+            id: item.id,
+            menuId: item.menuId,
+            menuNameSnapshot: item.menuNameSnapshot,
+            qty: item.qty,
+            unitPrice: itemUnitPrice.toFixed(2),
+            subtotalPrice: itemSubtotal.toFixed(2),
+          };
+
+          if (hasMovements) {
+            itemDto.batchAllocations = cashierAllocations;
+          }
+
+          return itemDto;
+        }),
       };
     }
 
-    // Role is OWNER: Expose cost & margin snapshot
+    // Role is OWNER: Expose cost, margins, and full batch allocation costing
+    const totalIngredientCost = new Decimal(sale.totalIngredientCost.toString());
+    const totalOverhead = new Decimal(sale.totalOverhead.toString());
+    const totalCost = totalIngredientCost.plus(totalOverhead);
+    const grossMargin = totalRevenue.minus(totalCost);
+    const marginPercentage = totalRevenue.isZero()
+      ? "0.00"
+      : grossMargin.div(totalRevenue).mul(100).toFixed(2);
+
     return {
       id: sale.id,
       invoiceNo: sale.invoiceNo,
       idempotencyKey: sale.idempotencyKey,
       soldAt: sale.soldAt,
       cashierId: sale.cashierId,
+      cashier: sale.cashier
+        ? { id: sale.cashier.id, name: sale.cashier.name, role: sale.cashier.role }
+        : undefined,
       paymentMethod: sale.paymentMethod,
-      totalAmount: new Decimal(sale.totalAmount.toString()).toFixed(2),
-      totalIngredientCost: new Decimal(sale.totalIngredientCost.toString()).toFixed(2),
-      totalOverhead: new Decimal(sale.totalOverhead.toString()).toFixed(2),
+      totalAmount: totalRevenue.toFixed(2),
+      totalIngredientCost: totalIngredientCost.toFixed(2),
+      totalOverhead: totalOverhead.toFixed(2),
+      grossMargin: grossMargin.toFixed(2),
+      marginPercentage,
       status: sale.status,
-      items: sale.items.map((item) => ({
-        id: item.id,
-        menuId: item.menuId,
-        menuNameSnapshot: item.menuNameSnapshot,
-        qty: item.qty,
-        unitPrice: new Decimal(item.unitPrice.toString()).toFixed(2),
-        ingredientCostActual: new Decimal(item.ingredientCostActual.toString()).toFixed(2),
-        overheadAllocated: new Decimal(item.overheadAllocated.toString()).toFixed(2),
-      })),
+      items: sale.items.map((item) => {
+        const itemUnitPrice = new Decimal(item.unitPrice.toString());
+        const itemSubtotal = itemUnitPrice.mul(item.qty);
+        const itemIngredientCost = new Decimal(item.ingredientCostActual?.toString() ?? "0");
+        const itemOverhead = new Decimal(item.overheadAllocated?.toString() ?? "0");
+        const itemTotalCost = itemIngredientCost.plus(itemOverhead);
+        const itemGrossMargin = itemSubtotal.minus(itemTotalCost);
+        const itemMarginPct = itemSubtotal.isZero()
+          ? "0.00"
+          : itemGrossMargin.div(itemSubtotal).mul(100).toFixed(2);
+
+        const itemMovements = movementsByItemId.get(item.id) || [];
+        const ownerAllocations: BatchAllocationOwnerDto[] = itemMovements.map((mov) => {
+          const qtyDeducted = new Decimal(mov.qtyBaseDelta.toString()).abs();
+          const costPerBase = new Decimal(mov.costPerBase.toString());
+          const subtotalCost = qtyDeducted.mul(costPerBase);
+
+          return {
+            movementId: mov.id,
+            ingredientId: mov.ingredientId,
+            ingredientName: mov.ingredient?.name ?? "Bahan",
+            baseUnit: mov.ingredient?.baseUnit ?? "",
+            batchId: mov.batchId,
+            batchExpiryDate: mov.batch?.expiryDate ?? null,
+            qtyDeducted: qtyDeducted.toFixed(3),
+            costPerBase: costPerBase.toFixed(6),
+            subtotalCost: subtotalCost.toFixed(2),
+          };
+        });
+
+        const itemDto: SaleItemOwnerDto = {
+          id: item.id,
+          menuId: item.menuId,
+          menuNameSnapshot: item.menuNameSnapshot,
+          qty: item.qty,
+          unitPrice: itemUnitPrice.toFixed(2),
+          subtotalPrice: itemSubtotal.toFixed(2),
+          ingredientCostActual: itemIngredientCost.toFixed(2),
+          overheadAllocated: itemOverhead.toFixed(2),
+          grossMargin: itemGrossMargin.toFixed(2),
+          marginPercentage: itemMarginPct,
+        };
+
+        if (hasMovements) {
+          itemDto.batchAllocations = ownerAllocations;
+        }
+
+        return itemDto;
+      }),
     };
   }
 }

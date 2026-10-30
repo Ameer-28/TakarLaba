@@ -11,6 +11,16 @@ export interface SaleItemInputRow {
   qty: number;
 }
 
+export interface SaleFilter {
+  startDate?: Date;
+  endDate?: Date;
+  status?: "COMPLETED" | "VOIDED";
+  paymentMethod?: PaymentMethod;
+  cashierId?: string;
+  skip?: number;
+  take?: number;
+}
+
 export interface CheckoutSaleParams {
   businessId: string;
   cashierId: string;
@@ -58,10 +68,10 @@ export class SaleRepository {
   }
 
   /**
-   * Find a sale by its ID for a specific business.
+   * Find a sale by its ID for a specific business, including cashier info and stock movements.
    */
   async findById(businessId: string, id: string) {
-    return prisma.sale.findFirst({
+    const sale = await prisma.sale.findFirst({
       where: {
         id,
         businessId,
@@ -77,6 +87,97 @@ export class SaleRepository {
         },
       },
     });
+
+    if (!sale) return null;
+
+    const itemIds = sale.items.map((i) => i.id);
+    const movements =
+      itemIds.length > 0
+        ? await prisma.stockMovement.findMany({
+            where: {
+              businessId,
+              refType: "SALE_ITEM",
+              refId: { in: itemIds },
+            },
+            include: {
+              ingredient: {
+                select: {
+                  id: true,
+                  name: true,
+                  baseUnit: true,
+                },
+              },
+              batch: {
+                select: {
+                  id: true,
+                  expiryDate: true,
+                  purchaseUnit: true,
+                  purchaseUnitPrice: true,
+                  costPerBase: true,
+                },
+              },
+            },
+            orderBy: { createdAt: "asc" },
+          })
+        : [];
+
+    return {
+      ...sale,
+      movements,
+    };
+  }
+
+  /**
+   * List sales for a business with optional date, payment method, cashier, and status filters.
+   */
+  async findMany(businessId: string, filter?: SaleFilter) {
+    const where: {
+      businessId: string;
+      soldAt?: { gte?: Date; lte?: Date };
+      status?: "COMPLETED" | "VOIDED";
+      paymentMethod?: PaymentMethod;
+      cashierId?: string;
+    } = { businessId };
+
+    if (filter?.startDate || filter?.endDate) {
+      where.soldAt = {};
+      if (filter.startDate) where.soldAt.gte = filter.startDate;
+      if (filter.endDate) where.soldAt.lte = filter.endDate;
+    }
+
+    if (filter?.status) {
+      where.status = filter.status;
+    }
+
+    if (filter?.paymentMethod) {
+      where.paymentMethod = filter.paymentMethod;
+    }
+
+    if (filter?.cashierId) {
+      where.cashierId = filter.cashierId;
+    }
+
+    const [sales, total] = await Promise.all([
+      prisma.sale.findMany({
+        where,
+        skip: filter?.skip,
+        take: filter?.take,
+        orderBy: { soldAt: "desc" },
+        include: {
+          cashier: {
+            select: {
+              id: true,
+              name: true,
+              role: true,
+            },
+          },
+          items: true,
+        },
+      }),
+      prisma.sale.count({ where }),
+    ]);
+
+    return { sales, total };
   }
 
   /**

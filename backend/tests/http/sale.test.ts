@@ -17,6 +17,7 @@ vi.mock("../../src/repositories/sale.repo.js", () => ({
     checkoutAtomic: vi.fn(),
     findByIdempotencyKey: vi.fn(),
     findById: vi.fn(),
+    findMany: vi.fn(),
   },
   SaleRepository: vi.fn(),
   generateInvoiceNo: vi.fn(() => "INV-20261029-A1B2C3"),
@@ -305,6 +306,115 @@ describe("POS Sales Routes (T-041 — FR-POS-01, FR-POS-02)", () => {
     });
   });
 
+  describe("GET /api/sales", () => {
+    const mockSaleList = [
+      {
+        id: "sale-list-1",
+        businessId: mockBusinessId,
+        invoiceNo: "INV-20261029-L1",
+        idempotencyKey: "key-list-1",
+        soldAt: new Date("2026-10-29T10:00:00.000Z"),
+        cashierId: mockCashierId,
+        cashier: {
+          id: mockCashierId,
+          name: "Cashier Demo",
+          role: "CASHIER",
+        },
+        paymentMethod: "CASH" as const,
+        totalAmount: new Decimal("36000.00"),
+        totalIngredientCost: new Decimal("15480.00"),
+        totalOverhead: new Decimal("2000.00"),
+        status: "COMPLETED" as const,
+        voidedAt: null,
+        voidReason: null,
+        voidedById: null,
+        createdAt: new Date("2026-10-29T10:00:00.000Z"),
+        items: [
+          {
+            id: "item-l1",
+            saleId: "sale-list-1",
+            menuId: "menu-kopi",
+            menuNameSnapshot: "Es Kopi Susu",
+            qty: 2,
+            unitPrice: new Decimal("18000.00"),
+            ingredientCostActual: new Decimal("15480.00"),
+            overheadAllocated: new Decimal("2000.00"),
+          },
+        ],
+      },
+    ];
+
+    it("returns paginated sales for OWNER with cost breakdown and margin", async () => {
+      vi.mocked(auth.api.getSession).mockResolvedValue(ownerSession);
+      vi.mocked(saleRepository.findMany).mockResolvedValue({
+        sales: mockSaleList,
+        total: 1,
+      });
+
+      const res = await request(app).get("/api/sales?page=1&limit=10");
+
+      expect(res.status).toBe(200);
+      expect(res.body.ok).toBe(true);
+      expect(res.body.data.total).toBe(1);
+      expect(res.body.data.page).toBe(1);
+      expect(res.body.data.limit).toBe(10);
+      expect(res.body.data.totalPages).toBe(1);
+
+      const item = res.body.data.items[0];
+      expect(item.id).toBe("sale-list-1");
+      expect(item.totalAmount).toBe("36000.00");
+      expect(item.totalIngredientCost).toBe("15480.00");
+      expect(item.totalOverhead).toBe("2000.00");
+      expect(item.grossMargin).toBe("18520.00");
+      expect(item.marginPercentage).toBe("51.44");
+      expect(item.cashier.name).toBe("Cashier Demo");
+    });
+
+    it("returns paginated sales for CASHIER stripping cost breakdown and margins", async () => {
+      vi.mocked(auth.api.getSession).mockResolvedValue(cashierSession);
+      vi.mocked(saleRepository.findMany).mockResolvedValue({
+        sales: mockSaleList,
+        total: 1,
+      });
+
+      const res = await request(app).get("/api/sales?page=1&limit=10");
+
+      expect(res.status).toBe(200);
+      expect(res.body.ok).toBe(true);
+
+      const item = res.body.data.items[0];
+      expect(item.id).toBe("sale-list-1");
+      expect(item.totalAmount).toBe("36000.00");
+      expect(item.totalIngredientCost).toBeUndefined();
+      expect(item.totalOverhead).toBeUndefined();
+      expect(item.grossMargin).toBeUndefined();
+      expect(item.marginPercentage).toBeUndefined();
+      expect(item.items[0].ingredientCostActual).toBeUndefined();
+      expect(item.items[0].overheadAllocated).toBeUndefined();
+    });
+
+    it("passes filter query parameters to repository", async () => {
+      vi.mocked(auth.api.getSession).mockResolvedValue(ownerSession);
+      vi.mocked(saleRepository.findMany).mockResolvedValue({
+        sales: [],
+        total: 0,
+      });
+
+      const res = await request(app).get(
+        "/api/sales?startDate=2026-10-01&endDate=2026-10-31&paymentMethod=CASH&status=COMPLETED"
+      );
+
+      expect(res.status).toBe(200);
+      expect(saleRepository.findMany).toHaveBeenCalledWith(
+        mockBusinessId,
+        expect.objectContaining({
+          status: "COMPLETED",
+          paymentMethod: "CASH",
+        })
+      );
+    });
+  });
+
   describe("GET /api/sales/:id", () => {
     const mockSaleDetail = {
       id: "sale-detail-1",
@@ -334,9 +444,34 @@ describe("POS Sales Routes (T-041 — FR-POS-01, FR-POS-02)", () => {
           overheadAllocated: new Decimal("3600.00"),
         },
       ],
+      movements: [
+        {
+          id: "mov-1",
+          businessId: mockBusinessId,
+          ingredientId: "ing-kopi",
+          batchId: "batch-kopi-1",
+          type: "SALE" as const,
+          qtyBaseDelta: new Decimal("-36.000"),
+          costPerBase: new Decimal("200.000000"),
+          refType: "SALE_ITEM",
+          refId: "item-det-1",
+          ingredient: {
+            id: "ing-kopi",
+            name: "Biji Kopi",
+            baseUnit: "GRAM",
+          },
+          batch: {
+            id: "batch-kopi-1",
+            expiryDate: new Date("2026-11-15T00:00:00.000Z"),
+            purchaseUnit: "kg",
+            purchaseUnitPrice: new Decimal("200000.00"),
+            costPerBase: new Decimal("200.000000"),
+          },
+        },
+      ],
     };
 
-    it("returns sale detail for OWNER including cost breakdown", async () => {
+    it("returns sale detail for OWNER including cost breakdown and batch allocations", async () => {
       vi.mocked(auth.api.getSession).mockResolvedValue(ownerSession);
       vi.mocked(saleRepository.findById).mockResolvedValue(mockSaleDetail);
 
@@ -347,10 +482,20 @@ describe("POS Sales Routes (T-041 — FR-POS-01, FR-POS-02)", () => {
       expect(res.body.data.id).toBe("sale-detail-1");
       expect(res.body.data.totalIngredientCost).toBe("20000.00");
       expect(res.body.data.totalOverhead).toBe("3600.00");
+      expect(res.body.data.grossMargin).toBe("26400.00");
       expect(res.body.data.items[0].ingredientCostActual).toBe("20000.00");
+
+      // Verify batch allocation costing for OWNER
+      const allocs = res.body.data.items[0].batchAllocations;
+      expect(allocs).toBeDefined();
+      expect(allocs.length).toBe(1);
+      expect(allocs[0].ingredientName).toBe("Biji Kopi");
+      expect(allocs[0].qtyDeducted).toBe("36.000");
+      expect(allocs[0].costPerBase).toBe("200.000000");
+      expect(allocs[0].subtotalCost).toBe("7200.00");
     });
 
-    it("returns sale detail for CASHIER stripping cost breakdown", async () => {
+    it("returns sale detail for CASHIER stripping cost breakdown and batch allocation costs", async () => {
       vi.mocked(auth.api.getSession).mockResolvedValue(cashierSession);
       vi.mocked(saleRepository.findById).mockResolvedValue(mockSaleDetail);
 
@@ -361,7 +506,17 @@ describe("POS Sales Routes (T-041 — FR-POS-01, FR-POS-02)", () => {
       expect(res.body.data.id).toBe("sale-detail-1");
       expect(res.body.data.totalIngredientCost).toBeUndefined();
       expect(res.body.data.totalOverhead).toBeUndefined();
+      expect(res.body.data.grossMargin).toBeUndefined();
       expect(res.body.data.items[0].ingredientCostActual).toBeUndefined();
+
+      // Verify batch allocation for CASHIER has operational details, but no cost fields
+      const allocs = res.body.data.items[0].batchAllocations;
+      expect(allocs).toBeDefined();
+      expect(allocs.length).toBe(1);
+      expect(allocs[0].ingredientName).toBe("Biji Kopi");
+      expect(allocs[0].qtyDeducted).toBe("36.000");
+      expect(allocs[0].costPerBase).toBeUndefined();
+      expect(allocs[0].subtotalCost).toBeUndefined();
     });
 
     it("returns 404 when sale is not found", async () => {

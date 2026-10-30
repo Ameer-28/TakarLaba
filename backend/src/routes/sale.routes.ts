@@ -2,7 +2,12 @@ import { Router } from "express";
 import { saleService } from "../services/sale.service.js";
 import { requireAuth, requireRole, requireCtx } from "../middleware/auth.js";
 import { validate } from "../middleware/validate.js";
-import { createSaleSchema, type CreateSaleInput } from "../validation/sale.schema.js";
+import {
+  createSaleSchema,
+  querySaleSchema,
+  type CreateSaleInput,
+  type QuerySaleInput,
+} from "../validation/sale.schema.js";
 import { ValidationError } from "../lib/errors.js";
 
 export const saleRouter = Router();
@@ -43,7 +48,30 @@ saleRouter.post(
 );
 
 /**
- * 2. GET /api/sales/:id - Retrieve details of a sale transaction
+ * 2. GET /api/sales - List sales transactions with filters and pagination
+ * Allowed for both OWNER and CASHIER roles.
+ */
+saleRouter.get(
+  "/sales",
+  requireAuth,
+  requireRole(["OWNER", "CASHIER"]),
+  validate(querySaleSchema, "query"),
+  async (req, res) => {
+    const ctx = requireCtx(req);
+    const query = (req.valid?.query ?? {}) as QuerySaleInput;
+
+    const result = await saleService.listSales(
+      ctx.businessId,
+      ctx.role as "OWNER" | "CASHIER",
+      query
+    );
+
+    res.json({ ok: true, data: result });
+  }
+);
+
+/**
+ * 3. GET /api/sales/:id - Retrieve details of a sale transaction with batch allocations
  * Allowed for both OWNER and CASHIER roles.
  */
 saleRouter.get("/sales/:id", requireAuth, requireRole(["OWNER", "CASHIER"]), async (req, res) => {

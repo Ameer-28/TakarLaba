@@ -102,4 +102,35 @@ describe("Sales API client integration (T-041)", () => {
       })
     );
   });
+
+  it("sends GET /api/sales with filter query parameters", async () => {
+    const mockList = {
+      items: [],
+      total: 0,
+      page: 1,
+      limit: 20,
+      totalPages: 1,
+    };
+
+    globalThis.fetch = vi.fn().mockResolvedValueOnce({
+      status: 200,
+      text: vi.fn().mockResolvedValueOnce(JSON.stringify({ ok: true, data: mockList })),
+    } as unknown as Response);
+
+    const searchParams = new URLSearchParams({
+      startDate: "2026-10-01",
+      endDate: "2026-10-29",
+      paymentMethod: "CASH",
+    });
+
+    const result = await apiClient(`/sales?${searchParams.toString()}`);
+    expect(result).toEqual(mockList);
+
+    expect(globalThis.fetch).toHaveBeenCalledWith(
+      "/api/sales?startDate=2026-10-01&endDate=2026-10-29&paymentMethod=CASH",
+      expect.objectContaining({
+        credentials: "same-origin",
+      })
+    );
+  });
 });

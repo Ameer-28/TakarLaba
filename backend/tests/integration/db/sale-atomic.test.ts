@@ -119,14 +119,18 @@ describeDb("Real DB: Atomic POS Checkout & FEFO Stock Locking", () => {
 
     // Verify stock movements
     const movements = await prisma.stockMovement.findMany({
-      where: { businessId: business.id, referenceId: sale.id },
+      where: {
+        businessId: business.id,
+        refType: "SALE_ITEM",
+        refId: { in: sale.items.map((i) => i.id) },
+      },
       orderBy: { createdAt: "asc" },
     });
     expect(movements.length).toBe(2);
     expect(movements[0]?.batchId).toBe(batchEarlier.id);
-    expect(new Decimal(movements[0]?.qtyBase.toString() ?? "0").toNumber()).toBe(-100);
+    expect(new Decimal(movements[0]?.qtyBaseDelta.toString() ?? "0").toNumber()).toBe(-100);
     expect(movements[1]?.batchId).toBe(batchLater.id);
-    expect(new Decimal(movements[1]?.qtyBase.toString() ?? "0").toNumber()).toBe(-50);
+    expect(new Decimal(movements[1]?.qtyBaseDelta.toString() ?? "0").toNumber()).toBe(-50);
 
     // 5. Test idempotency: repeating the same idempotency key returns same sale, no new movements
     const repeatedSale = await saleRepo.checkoutAtomic({
@@ -140,7 +144,11 @@ describeDb("Real DB: Atomic POS Checkout & FEFO Stock Locking", () => {
 
     expect(repeatedSale.id).toBe(sale.id);
     const movementCount = await prisma.stockMovement.count({
-      where: { businessId: business.id, referenceId: sale.id },
+      where: {
+        businessId: business.id,
+        refType: "SALE_ITEM",
+        refId: { in: sale.items.map((i) => i.id) },
+      },
     });
     expect(movementCount).toBe(2);
   });
