@@ -64,8 +64,8 @@ Aturan: hanya satu tugas `[/]` per agent pada satu waktu.
 
 ### Fase 5 — Price Shock + dashboard v1 (2–3 Nov)
 
-- [ ] **T-050** (P0) [BE] `domain/pricing.ts` (Opsi A/B, pembulatan step) + test — AC: 20.000 dan 115 ml
-- [ ] **T-051** (P0) [BE] Evaluasi alert saat pembelian + `reevaluateAlertsForMenu` (resep/harga/overhead/target) + auto-resolve — dep: T-050, T-021
+- [x] **T-050** (P0) [BE] `domain/pricing.ts` (Opsi A/B, pembulatan step) + test — AC: 20.000 dan 115 ml
+- [/] **T-051** (P0) [BE] Evaluasi alert saat pembelian + `reevaluateAlertsForMenu` (resep/harga/overhead/target) + auto-resolve — dep: T-050, T-021
 - [ ] **T-052** (P0) [BE+FE] Modal dampak pasca-pembelian + Pusat Peringatan + aksi terapkan harga/abaikan — AC: FR-PSI-01
 - [ ] **T-053** (P0) [BE+FE] Dashboard v1 (omzet, transaksi, laba estimasi, alert, kedaluwarsa, stok rendah) — AC: FR-DASH-01
 
@@ -145,6 +145,7 @@ Aturan: hanya satu tugas `[/]` per agent pada satu waktu.
 
 | Tanggal    | Agent/Orang | Ringkasan                                                                                                                                                                                                                                                                                                             | Tugas terkait              |
 | ---------- | ----------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------- |
+| 2026-10-30 | Agent       | Selesai T-050: Domain murni pricing & price shock (BR-05, BR-06) dengan evaluasi pemicu alert, pembulatan step ceil(val/step)*step, Opsi A (naikkan harga) dan Opsi B (tahan harga & efisiensi porsi dengan batas kelayakan 50%), lulus 100% pada Fixture A: Rp20.000 dan 115 ml                                | T-050                      |
 | 2026-10-30 | Agent       | Selesai T-044 (Fase 4 lengkap): Halaman riwayat penjualan dengan KPI summary cards, filter tanggal/pembayaran/pencarian, modal rincian transaksi interaktif beserta detail alokasi batch bahan baku FEFO, cetak ulang struk thermal, dan proteksi kerahasiaan kasir (Rule 7)                                        | T-044                      |
 | 2026-10-29 | Agent       | Selesai T-043: Integration & HTTP tests untuk atomic POS checkout dan FEFO locking (urutan konsumsi batch kedaluwarsa lebih awal, atomic rollback saat stok kurang, Promise.all 2 concurrent checkout dengan row locking, dan idempotensi transaksi)                                                                | T-043                      |
 | 2026-10-29 | Agent       | Selesai T-042: UI POS Kasir (grid menu cari & filter, keranjang belanja useReducer dengan stepper kuantitas, modal pembayaran tunai/QRIS/transfer, kalkulator kembalian, struk cetak print CSS thermal, dan Idempotency-Key per percobaan)                                                                        | T-042                      |
