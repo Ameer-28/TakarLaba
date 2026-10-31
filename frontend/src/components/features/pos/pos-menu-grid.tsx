@@ -1,17 +1,17 @@
 import { useMemo } from "react";
 import { Search, Plus, UtensilsCrossed, AlertCircle, ShoppingBag } from "lucide-react";
-import type { MenuItem } from "../../../api/hooks/use-menus.js";
+import type { PosMenuItem } from "../../../api/hooks/use-pos-menus.js";
 import { formatRupiah } from "../../../lib/format.js";
 import type { CartItem } from "./types.js";
 
 interface PosMenuGridProps {
-  menus: MenuItem[];
+  menus: PosMenuItem[];
   cartItems: CartItem[];
   search: string;
   onSearchChange: (val: string) => void;
   selectedCategory: string;
   onSelectCategory: (val: string) => void;
-  onAddToCart: (menu: MenuItem) => void;
+  onAddToCart: (menu: PosMenuItem) => void;
   isPending: boolean;
   isError: boolean;
   onRefetch: () => void;
@@ -151,7 +151,7 @@ export function PosMenuGrid({
         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3">
           {filteredMenus.map((menu) => {
             const inCartQty = cartQtyMap.get(menu.id) ?? 0;
-            const isSellable = menu.isActive && menu.hasRecipe;
+            const isSellable = menu.hasRecipe && menu.capacity > 0;
 
             return (
               <div
@@ -185,7 +185,7 @@ export function PosMenuGrid({
                     {menu.name}
                   </h4>
 
-                  <div className="mt-0.5">
+                  <div className="mt-0.5 flex items-center justify-between">
                     {menu.category ? (
                       <span className="inline-block px-2 py-0.5 text-[11px] font-semibold bg-slate-100 text-slate-600 rounded-md">
                         {menu.category}
@@ -193,7 +193,25 @@ export function PosMenuGrid({
                     ) : (
                       <span className="text-[11px] text-slate-400">Tanpa kategori</span>
                     )}
+
+                    {menu.capacity === 0 ? (
+                      <span className="text-[11px] font-bold text-rose-700">Habis</span>
+                    ) : menu.capacity <= 10 ? (
+                      <span className="text-[11px] font-bold text-amber-700 tabular-nums">
+                        Sisa {menu.capacity}
+                      </span>
+                    ) : (
+                      <span className="text-[11px] text-slate-500 tabular-nums">
+                        Sisa {menu.capacity}
+                      </span>
+                    )}
                   </div>
+
+                  {menu.bottleneckIngredientName && menu.capacity <= 10 && (
+                    <p className="mt-1 text-[10px] text-slate-400 truncate">
+                      Dibatasi: {menu.bottleneckIngredientName}
+                    </p>
+                  )}
                 </div>
 
                 {/* Footer: Price & Add Button / Disabled reason */}
@@ -215,8 +233,8 @@ export function PosMenuGrid({
                       <span>Tambah</span>
                     </button>
                   ) : (
-                    <span className="text-[11px] font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded-md border border-amber-200/60">
-                      {!menu.isActive ? "Nonaktif" : "Perlu Resep"}
+                    <span className="text-[11px] font-bold text-rose-700 bg-rose-50 px-2 py-0.5 rounded-md border border-rose-200/60">
+                      Habis
                     </span>
                   )}
                 </div>

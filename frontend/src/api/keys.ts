@@ -66,4 +66,8 @@ export const queryKeys = {
     all: ["dashboard"] as const,
     summary: () => [...queryKeys.dashboard.all, "summary"] as const,
   },
+  pos: {
+    all: ["pos"] as const,
+    menus: () => [...queryKeys.pos.all, "menus"] as const,
+  },
 };

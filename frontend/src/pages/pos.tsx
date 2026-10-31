@@ -1,7 +1,7 @@
 import { useState, useReducer } from "react";
 import { Store, ShoppingCart, ArrowRight, X } from "lucide-react";
 import { toast } from "sonner";
-import { useMenus, type MenuItem } from "../api/hooks/use-menus.js";
+import { usePosMenus, type PosMenuItem } from "../api/hooks/use-pos-menus.js";
 import type { SaleDetail } from "../api/hooks/use-sales.js";
 import {
   cartReducer,
@@ -29,14 +29,14 @@ export function PosPage() {
   // Mobile bottom drawer toggle
   const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false);
 
-  const { data: menus = [], isPending, isError, refetch } = useMenus();
+  const { data: menus = [], isPending, isError, refetch } = usePosMenus();
 
   const totalQty = getCartTotalQty(cartState.items);
   const totalAmount = getCartTotalAmount(cartState.items);
 
-  const handleAddToCart = (menu: MenuItem) => {
-    if (!menu.isActive) {
-      toast.error(`Menu "${menu.name}" sedang nonaktif`);
+  const handleAddToCart = (menu: PosMenuItem) => {
+    if (menu.capacity <= 0) {
+      toast.error(`Menu "${menu.name}" sedang habis stok`);
       return;
     }
     if (!menu.hasRecipe) {
