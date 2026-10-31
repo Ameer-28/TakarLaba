@@ -797,7 +797,30 @@ Mengambil kalkulasi HPP dan status margin berdasarkan takaran resep yang tersimp
 
 ---
 
-### 3.7 Transaksi POS & Penjualan (`/api/sales`)
+### 3.7 Kasir POS & Transaksi Penjualan (`/api/pos`, `/api/sales`)
+
+#### GET `/api/pos/menus`
+Mengambil daftar menu aktif yang siap dijual di layar POS kasir lengkap dengan estimasi kapasitas porsi yang dihitung otomatis berdasarkan sisa stok bahan baku FEFO (`BR-08`). Menggunakan DTO allowlist tanpa membocorkan field biaya, HPP, atau margin ke kasir (Aturan 7). Hanya mengembalikan menu yang aktif dan memiliki susunan resep lengkap.
+
+- **Metode:** `GET`
+- **Autentikasi:** Wajib sesi aktif role `OWNER` atau `CASHIER`.
+- **Response 200 OK:**
+  ```json
+  {
+    "ok": true,
+    "data": [
+      {
+        "id": "menu_clx123",
+        "name": "Es Kopi Susu Aren",
+        "category": "Coffee",
+        "sellingPrice": "18000.00",
+        "hasRecipe": true,
+        "capacity": 10,
+        "bottleneckIngredientName": "Susu UHT"
+      }
+    ]
+  }
+  ```
 
 #### POST `/api/sales`
 Memproses transaksi checkout kasir atomik dengan pemotongan stok batch FEFO, penguncian baris `SELECT ... FOR UPDATE`, snapshot biaya HPP Aktual & alokasi overhead, serta audit `StockMovement(SALE)`.

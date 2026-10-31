@@ -4,6 +4,8 @@ import { settingsRepository, SettingsRepository } from "../repositories/settings
 import { overheadRepository, OverheadRepository } from "../repositories/overhead.repo.js";
 import { normalizeNameKey, toBaseQuantity } from "../domain/units.js";
 import { calculateMenuCosting, type RecipeItemCostInput } from "../domain/costing.js";
+import { calculateMenuCapacity } from "../domain/capacity.js";
+import { isExpired } from "../lib/date.js";
 import { alertService, AlertService } from "./alert.service.js";
 import { ConflictError, NotFoundError, ValidationError } from "../lib/errors.js";
 import { Decimal } from "decimal.js";
@@ -475,6 +477,66 @@ export class MenuService {
       })),
     });
   }
+
+  /**
+   * Retrieves sellable active menus with portion capacity for POS screen (BR-08, FR-CAP-01).
+   * Enforces DTO allowlist: id, name, category, sellingPrice, hasRecipe, capacity, bottleneckIngredientName.
+   * Strips all cost/HPP/margin fields (Cashier Confidentiality Rule 7).
+   * Computes capacity via single aggregated query (no N+1).
+   */
+  async getPosMenus(businessId: string): Promise<PosMenuItemDto[]> {
+    const [menus, stockBatches] = await Promise.all([
+      this.repo.findPosMenus(businessId),
+      this.repo.getValidStockBatches(businessId),
+    ]);
+
+    // Aggregate valid non-expired stock per ingredient
+    const availableStockMap = new Map<string, Decimal>();
+    for (const batch of stockBatches) {
+      if (!isExpired(batch.expiryDate)) {
+        const remaining = new Decimal(batch.remainingQtyBase.toString());
+        const current = availableStockMap.get(batch.ingredientId) ?? new Decimal(0);
+        availableStockMap.set(batch.ingredientId, current.plus(remaining));
+      }
+    }
+
+    return menus.map((menu) => {
+      const capResult = calculateMenuCapacity(
+        {
+          menuId: menu.id,
+          menuName: menu.name,
+          recipeItems: menu.recipeItems.map((r) => ({
+            ingredientId: r.ingredientId,
+            ingredientName: r.ingredient.name,
+            baseUnit: r.ingredient.baseUnit,
+            qtyUsable: r.qtyUsableBase.toString(),
+            yieldPercent: r.ingredient.yieldPercent.toString(),
+          })),
+        },
+        availableStockMap
+      );
+
+      return {
+        id: menu.id,
+        name: menu.name,
+        category: menu.category,
+        sellingPrice: new Decimal(menu.sellingPrice.toString()).toFixed(2),
+        hasRecipe: true,
+        capacity: capResult.capacity,
+        bottleneckIngredientName: capResult.bottleneck?.ingredientName ?? null,
+      };
+    });
+  }
+}
+
+export interface PosMenuItemDto {
+  id: string;
+  name: string;
+  category: string | null;
+  sellingPrice: string;
+  hasRecipe: boolean;
+  capacity: number;
+  bottleneckIngredientName: string | null;
 }
 
 export const menuService = new MenuService();

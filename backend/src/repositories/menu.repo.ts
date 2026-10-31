@@ -525,6 +525,60 @@ export class MenuRepository {
     });
     return menus.map((m) => m.id);
   }
+
+  /**
+   * Find all active menus with complete recipes for POS screen.
+   * Only includes active menus that have at least one recipe item.
+   */
+  async findPosMenus(businessId: string) {
+    return prisma.menu.findMany({
+      where: {
+        businessId,
+        isActive: true,
+        recipeItems: {
+          some: {},
+        },
+      },
+      select: {
+        id: true,
+        name: true,
+        category: true,
+        sellingPrice: true,
+        recipeItems: {
+          select: {
+            ingredientId: true,
+            qtyUsableBase: true,
+            ingredient: {
+              select: {
+                id: true,
+                name: true,
+                baseUnit: true,
+                yieldPercent: true,
+              },
+            },
+          },
+        },
+      },
+      orderBy: [{ name: "asc" }],
+    });
+  }
+
+  /**
+   * Retrieve active stock batches to compute available valid stock in memory.
+   */
+  async getValidStockBatches(businessId: string) {
+    return prisma.stockBatch.findMany({
+      where: {
+        businessId,
+        remainingQtyBase: { gt: 0 },
+      },
+      select: {
+        ingredientId: true,
+        remainingQtyBase: true,
+        expiryDate: true,
+      },
+    });
+  }
 }
 
 export const menuRepository = new MenuRepository();
