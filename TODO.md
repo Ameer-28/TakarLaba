@@ -1,7 +1,7 @@
 # TODO.md — Pelacak Progres & Memori Proyek
 
 > AI **wajib** memperbarui file ini setiap selesai/mulai/terblokir pada satu tugas (lihat `WORKFLOW.md` §5).
-> Terakhir diperbarui: 2026-10-23 · Stack: React 19 + Vite / Express 5 / Prisma 7 · Status: Persediaan & Stok FEFO Selesai, Siap Menu & Resep
+> Terakhir diperbarui: 2026-10-31 · Stack: React 19 + Vite / Express 5 / Prisma 7 · Status: Audit & Refaktor Menus/Sales/Alerts/POS Selesai 100%
 
 ## Status Legend
 
@@ -61,6 +61,10 @@ Aturan: hanya satu tugas `[/]` per agent pada satu waktu.
 - [x] **T-042** (P0) [FE] UI POS (grid, keranjang reducer, pembayaran, struk dialog + print CSS, loading/toast, `Idempotency-Key` per percobaan) — dep: T-041 — AC: FR-POS-01
 - [x] **T-043** (P0) [BE] Integration + HTTP test: urutan FEFO, rollback stok kurang, `Promise.all` 2 checkout, idempotensi — AC: FR-POS-02
 - [x] **T-044** (P0) [BE+FE] Riwayat penjualan (daftar + detail alokasi batch)
+- [x] **T-045** (P0) [BE+FE] POS Kasir endpoint allowlist `GET /api/pos/menus` (OWNER/CASHIER) tanpa field biaya + hook `usePosMenus` di frontend POS + tests RBAC/DTO allowlist — AC: Rule 7
+- [x] **T-046** (P0) [BE] Integration test database nyata PostgreSQL (`sale-atomic.test.ts` & `demo-scenario.test.ts` PRD Lampiran A) dengan factory helpers, FEFO multi-batch, concurrency `Promise.all`, idempotensi, dan RBAC kasir
+- [x] **T-047** (P1) [BE] Refactor backend services & domain (DRY `decimalInput` validation helper, dekomposisi checkout atomic ke `domain/checkout.ts`, unifikasi evaluasi margin & snapshot alert, optimasi N+1 kueri harga beli, pemecahan `dashboard.service.ts`, `menu.service.ts`, dan `sale.service.ts` agar <= 350 baris dan fungsi <= 60 baris)
+- [x] **T-048** (P1) [FE] Refactor frontend UI & modularisasi komponen (unifikasi formatter uang/tanggal di `lib/format.ts`, shared components `StatusBadge`, `MoneyText`, `Field`, serta dekomposisi `menu-manager.tsx`, `recipe-editor-modal.tsx`, `pages/sales.tsx`, `sale-detail-modal.tsx`, dan `pos-checkout-modal.tsx` menjadi <= 200 baris dengan unit tests)
 
 ### Fase 5 — Price Shock + dashboard v1 (2–3 Nov)
 
@@ -145,6 +149,7 @@ Aturan: hanya satu tugas `[/]` per agent pada satu waktu.
 
 | Tanggal    | Agent/Orang | Ringkasan                                                                                                                                                                                                                                                                                                             | Tugas terkait              |
 | ---------- | ----------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------- |
+| 2026-10-31 | Agent       | Audit perbaikan bug POS kasir (GET /api/pos/menus), test integrasi DB nyata Postgres (sale-atomic & demo scenario Lampiran A), refactor backend (sale atomic, alert evaluator, menu cost, dashboard, DRY decimal input), refactor frontend (unifikasi formatters, shared UI, dekomposisi 5 komponen besar <= 200 baris), 100% tests hijau | T-045, T-046, T-047, T-048 |
 | 2026-10-31 | Agent       | Selesai T-052: Modal dampak pasca-pembelian (Price Shock Impact Modal) + Halaman Pusat Peringatan (KPI cards, tab filter, card alert, detail modal resep & Opsi B, dialog abaikan dengan catatan, aksi terapkan harga instan) | T-052                      |
 | 2026-10-30 | Agent       | Selesai T-051: Evaluasi alert margin pasca-pembelian dan re-evaluasi menu/overhead/target margin dengan auto-resolve, repository & service alert, endpoint GET/POST /api/alerts, serta 28 test files lulus 100% | T-051                      |
 | 2026-10-30 | Agent       | Selesai T-050: Domain murni pricing & price shock (BR-05, BR-06) dengan evaluasi pemicu alert, pembulatan step ceil(val/step)*step, Opsi A (naikkan harga) dan Opsi B (tahan harga & efisiensi porsi dengan batas kelayakan 50%), lulus 100% pada Fixture A: Rp20.000 dan 115 ml                                | T-050                      |
