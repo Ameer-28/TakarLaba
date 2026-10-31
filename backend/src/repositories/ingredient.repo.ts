@@ -8,9 +8,9 @@ export interface CreateIngredientData {
   nameKey: string;
   category: IngredientCategory;
   baseUnit: BaseUnit;
-  yieldPercent: number | Decimal;
+  yieldPercent: number | Decimal | string;
   isPerishable: boolean;
-  minStockBase: number | Decimal;
+  minStockBase: number | Decimal | string;
   purchaseUnits?: PurchaseUnitInput[];
 }
 
@@ -19,9 +19,9 @@ export interface UpdateIngredientData {
   nameKey?: string;
   category?: IngredientCategory;
   baseUnit?: BaseUnit;
-  yieldPercent?: number | Decimal;
+  yieldPercent?: number | Decimal | string;
   isPerishable?: boolean;
-  minStockBase?: number | Decimal;
+  minStockBase?: number | Decimal | string;
   isActive?: boolean;
 }
 
@@ -210,7 +210,7 @@ export class IngredientRepository {
     return batchCount > 0 || recipeCount > 0;
   }
 
-  async addUnit(ingredientId: string, name: string, toBaseFactor: number | Decimal) {
+  async addUnit(ingredientId: string, name: string, toBaseFactor: number | Decimal | string) {
     return prisma.ingredientUnit.create({
       data: {
         ingredientId,

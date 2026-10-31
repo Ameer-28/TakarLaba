@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { decimalInput } from "./decimal.js";
 
 export const updateSettingsSchema = z.object({
   name: z
@@ -7,16 +8,11 @@ export const updateSettingsSchema = z.object({
     .min(2, { error: "Nama usaha minimal 2 karakter" })
     .max(100, { error: "Nama usaha maksimal 100 karakter" })
     .optional(),
-  targetMarginDefault: z
-    .union([z.number(), z.string()])
-    .refine(
-      (val) => {
-        const num = typeof val === "number" ? val : parseFloat(val);
-        return !isNaN(num) && num >= 0 && num <= 95;
-      },
-      { error: "Target margin default harus bernilai antara 0% dan 95%" }
-    )
-    .optional(),
+  targetMarginDefault: decimalInput({
+    min: 0,
+    max: 95,
+    error: "Target margin default harus bernilai antara 0% dan 95%",
+  }).optional(),
   priceRoundingStep: z
     .number({ error: "Step pembulatan harga harus berupa angka bulat positif" })
     .int({ error: "Step pembulatan harga harus berupa bilangan bulat" })
@@ -36,16 +32,11 @@ export const updateSettingsSchema = z.object({
     .min(1, { error: "Peringatan kedaluwarsa minimal 1 hari" })
     .max(60, { error: "Peringatan kedaluwarsa maksimal 60 hari" })
     .optional(),
-  wastePromoMinMargin: z
-    .union([z.number(), z.string()])
-    .refine(
-      (val) => {
-        const num = typeof val === "number" ? val : parseFloat(val);
-        return !isNaN(num) && num >= 0 && num <= 95;
-      },
-      { error: "Batas margin promo waste harus antara 0% dan 95%" }
-    )
-    .optional(),
+  wastePromoMinMargin: decimalInput({
+    min: 0,
+    max: 95,
+    error: "Batas margin promo waste harus antara 0% dan 95%",
+  }).optional(),
   timezone: z
     .string()
     .trim()

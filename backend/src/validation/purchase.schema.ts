@@ -1,9 +1,9 @@
 import { z } from "zod";
-import { decimalString } from "./decimal.js";
+import { decimalInput } from "./decimal.js";
 
 export const purchaseItemInputSchema = z.object({
   ingredientId: z.string().min(1, { error: "Bahan baku wajib dipilih" }),
-  purchaseQty: decimalString({
+  purchaseQty: decimalInput({
     positive: true,
     max: 1_000_000,
     error: "Jumlah beli harus berupa angka positif maksimal 1.000.000",
@@ -12,7 +12,7 @@ export const purchaseItemInputSchema = z.object({
     .string()
     .min(1, { error: "Satuan beli tidak boleh kosong" })
     .max(30, { error: "Satuan beli maksimal 30 karakter" }),
-  purchaseUnitPrice: decimalString({
+  purchaseUnitPrice: decimalInput({
     positive: true,
     error: "Harga satuan harus berupa angka positif",
   }),

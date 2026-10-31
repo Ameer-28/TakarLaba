@@ -1,18 +1,15 @@
 import { z } from "zod";
+import { decimalInput } from "./decimal.js";
 
 export const recipeItemInputSchema = z.object({
   ingredientId: z
     .string({ error: "Bahan baku wajib dipilih" })
     .min(1, { error: "Bahan baku wajib dipilih" }),
-  qtyUsable: z
-    .union([z.number(), z.string()], { error: "Jumlah takaran bahan wajib diisi" })
-    .refine(
-      (val) => {
-        const num = typeof val === "number" ? val : parseFloat(val);
-        return !isNaN(num) && num > 0 && num <= 1_000_000;
-      },
-      { error: "Jumlah takaran bahan harus lebih besar dari 0 dan maksimal 1.000.000" }
-    ),
+  qtyUsable: decimalInput({
+    positive: true,
+    max: 1_000_000,
+    error: "Jumlah takaran bahan harus lebih besar dari 0 dan maksimal 1.000.000",
+  }),
   unitName: z
     .string()
     .trim()
@@ -40,29 +37,20 @@ export const saveRecipeSchema = z.object({
 
 export const previewCostSchema = z.object({
   menuId: z.string().optional(),
-  sellingPrice: z
-    .union([z.number(), z.string()])
-    .refine(
-      (val) => {
-        if (val === undefined || val === null || val === "") return true;
-        const num = typeof val === "number" ? val : parseFloat(val);
-        return !isNaN(num) && num > 0 && num <= 100_000_000;
-      },
-      { error: "Harga jual harus lebih besar dari 0 dan maksimal 100.000.000" }
-    )
-    .optional(),
-  targetMargin: z
-    .union([z.number(), z.string()])
+  sellingPrice: decimalInput({
+    positive: true,
+    max: 100_000_000,
+    allowEmpty: true,
+    error: "Harga jual harus lebih besar dari 0 dan maksimal 100.000.000",
+  }).optional(),
+  targetMargin: decimalInput({
+    min: 0,
+    max: 95,
+    allowEmpty: true,
+    error: "Target margin harus antara 0% dan 95%",
+  })
     .nullable()
-    .optional()
-    .refine(
-      (val) => {
-        if (val === null || val === undefined || val === "") return true;
-        const num = typeof val === "number" ? val : parseFloat(val);
-        return !isNaN(num) && num >= 0 && num <= 95;
-      },
-      { error: "Target margin harus antara 0% dan 95%" }
-    ),
+    .optional(),
   items: z
     .array(recipeItemInputSchema)
     .max(30, { error: "Resep maksimal 30 bahan baku" })

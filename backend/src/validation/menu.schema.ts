@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { decimalInput } from "./decimal.js";
 
 export const createMenuSchema = z.object({
   name: z
@@ -12,25 +13,19 @@ export const createMenuSchema = z.object({
     .max(50, { error: "Kategori maksimal 50 karakter" })
     .nullable()
     .optional(),
-  sellingPrice: z.union([z.number(), z.string()], { error: "Harga jual wajib diisi" }).refine(
-    (val) => {
-      const num = typeof val === "number" ? val : parseFloat(val);
-      return !isNaN(num) && num > 0 && num <= 100_000_000;
-    },
-    { error: "Harga jual harus lebih besar dari 0 dan maksimal 100.000.000" }
-  ),
-  targetMargin: z
-    .union([z.number(), z.string()])
+  sellingPrice: decimalInput({
+    positive: true,
+    max: 100_000_000,
+    error: "Harga jual harus lebih besar dari 0 dan maksimal 100.000.000",
+  }),
+  targetMargin: decimalInput({
+    min: 0,
+    max: 95,
+    allowEmpty: true,
+    error: "Target margin harus antara 0% dan 95%",
+  })
     .nullable()
-    .optional()
-    .refine(
-      (val) => {
-        if (val === null || val === undefined || val === "") return true;
-        const num = typeof val === "number" ? val : parseFloat(val);
-        return !isNaN(num) && num >= 0 && num <= 95;
-      },
-      { error: "Target margin harus antara 0% dan 95%" }
-    ),
+    .optional(),
   isActive: z.boolean().default(true),
 });
 
@@ -47,28 +42,19 @@ export const updateMenuSchema = z.object({
     .max(50, { error: "Kategori maksimal 50 karakter" })
     .nullable()
     .optional(),
-  sellingPrice: z
-    .union([z.number(), z.string()])
-    .refine(
-      (val) => {
-        const num = typeof val === "number" ? val : parseFloat(val);
-        return !isNaN(num) && num > 0 && num <= 100_000_000;
-      },
-      { error: "Harga jual harus lebih besar dari 0 dan maksimal 100.000.000" }
-    )
-    .optional(),
-  targetMargin: z
-    .union([z.number(), z.string()])
+  sellingPrice: decimalInput({
+    positive: true,
+    max: 100_000_000,
+    error: "Harga jual harus lebih besar dari 0 dan maksimal 100.000.000",
+  }).optional(),
+  targetMargin: decimalInput({
+    min: 0,
+    max: 95,
+    allowEmpty: true,
+    error: "Target margin harus antara 0% dan 95%",
+  })
     .nullable()
-    .optional()
-    .refine(
-      (val) => {
-        if (val === null || val === undefined || val === "") return true;
-        const num = typeof val === "number" ? val : parseFloat(val);
-        return !isNaN(num) && num >= 0 && num <= 95;
-      },
-      { error: "Target margin harus antara 0% dan 95%" }
-    ),
+    .optional(),
   isActive: z.boolean().optional(),
 });
 
