@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiClient } from "../client.js";
 import { queryKeys } from "../keys.js";
+import type { ImpactedMenuAlert } from "./use-alerts.js";
 
 export interface PurchaseStockBatch {
   id: string;
@@ -37,6 +38,7 @@ export interface PurchaseRecord {
     name: string;
     email: string;
   };
+  priceShockAlerts?: ImpactedMenuAlert[];
 }
 
 export interface PurchaseFilter {
@@ -93,6 +95,7 @@ export function useCreatePurchase() {
       queryClient.invalidateQueries({ queryKey: queryKeys.purchases.all });
       queryClient.invalidateQueries({ queryKey: queryKeys.ingredients.all });
       queryClient.invalidateQueries({ queryKey: queryKeys.inventory.all });
+      queryClient.invalidateQueries({ queryKey: queryKeys.alerts.all });
     },
   });
 }

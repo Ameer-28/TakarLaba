@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { InventoryService } from "../../src/services/inventory.service.js";
+import { saleService } from "../../src/services/sale.service.js";
 import { Decimal } from "decimal.js";
 import type { InventoryRepository } from "../../src/repositories/inventory.repo.js";
 
@@ -151,6 +152,114 @@ describe("Rule 7: CASHIER DTO Stripping via Strict Allowlist", () => {
 
       expect(batch.costPerBase).toBe("18.000000");
       expect(batch.purchaseUnitPrice).toBe("18000.00");
+    });
+  });
+
+  describe("saleService.mapToDto with batch allocations", () => {
+    const rawSale = {
+      id: "sale-confidential-1",
+      invoiceNo: "INV-20261029-CONF01",
+      idempotencyKey: "idem-conf-1",
+      soldAt: new Date("2026-10-29T10:00:00.000Z"),
+      cashierId: "cashier-1",
+      cashier: {
+        id: "cashier-1",
+        name: "Kasir Test",
+        role: "CASHIER",
+      },
+      paymentMethod: "CASH",
+      totalAmount: new Decimal("20000.00"),
+      totalIngredientCost: new Decimal("8000.00"),
+      totalOverhead: new Decimal("2000.00"),
+      status: "COMPLETED",
+      items: [
+        {
+          id: "item-1",
+          saleId: "sale-confidential-1",
+          menuId: "menu-1",
+          menuNameSnapshot: "Kopi Gula Aren",
+          qty: 1,
+          unitPrice: new Decimal("20000.00"),
+          ingredientCostActual: new Decimal("8000.00"),
+          overheadAllocated: new Decimal("2000.00"),
+        },
+      ],
+      movements: [
+        {
+          id: "mov-1",
+          ingredientId: "ing-1",
+          batchId: "batch-1",
+          qtyBaseDelta: new Decimal("-15.000"),
+          costPerBase: new Decimal("250.000000"),
+          refType: "SALE_ITEM",
+          refId: "item-1",
+          ingredient: {
+            id: "ing-1",
+            name: "Biji Kopi",
+            baseUnit: "GRAM",
+          },
+          batch: {
+            id: "batch-1",
+            expiryDate: new Date("2026-11-01T00:00:00.000Z"),
+            purchaseUnit: "kg",
+            purchaseUnitPrice: new Decimal("250000.00"),
+            costPerBase: new Decimal("250.000000"),
+          },
+        },
+      ],
+    };
+
+    it("strips cost fields, margins, and batch unit costs for CASHIER role", () => {
+      const dto = saleService.mapToDto(rawSale, "CASHIER");
+
+      // Sale level
+      expect(dto.id).toBe("sale-confidential-1");
+      expect(dto.totalAmount).toBe("20000.00");
+      expect((dto as Record<string, unknown>).totalIngredientCost).toBeUndefined();
+      expect((dto as Record<string, unknown>).totalOverhead).toBeUndefined();
+      expect((dto as Record<string, unknown>).grossMargin).toBeUndefined();
+      expect((dto as Record<string, unknown>).marginPercentage).toBeUndefined();
+
+      // Item level
+      expect(dto.items.length).toBe(1);
+      const item = dto.items[0]!;
+      expect(item.subtotalPrice).toBe("20000.00");
+      expect((item as Record<string, unknown>).ingredientCostActual).toBeUndefined();
+      expect((item as Record<string, unknown>).overheadAllocated).toBeUndefined();
+      expect((item as Record<string, unknown>).grossMargin).toBeUndefined();
+
+      // Batch allocation level
+      expect(item.batchAllocations).toBeDefined();
+      expect(item.batchAllocations!.length).toBe(1);
+      const alloc = item.batchAllocations![0]!;
+      expect(alloc.ingredientName).toBe("Biji Kopi");
+      expect(alloc.qtyDeducted).toBe("15.000");
+      expect((alloc as Record<string, unknown>).costPerBase).toBeUndefined();
+      expect((alloc as Record<string, unknown>).subtotalCost).toBeUndefined();
+    });
+
+    it("includes cost fields, margins, and batch unit costs for OWNER role", () => {
+      const dto = saleService.mapToDto(rawSale, "OWNER");
+
+      // Sale level
+      expect(dto.id).toBe("sale-confidential-1");
+      expect(dto.totalAmount).toBe("20000.00");
+      expect(dto.totalIngredientCost).toBe("8000.00");
+      expect(dto.totalOverhead).toBe("2000.00");
+      expect(dto.grossMargin).toBe("10000.00");
+      expect(dto.marginPercentage).toBe("50.00");
+
+      // Item level
+      const item = dto.items[0]!;
+      expect(item.ingredientCostActual).toBe("8000.00");
+      expect(item.overheadAllocated).toBe("2000.00");
+      expect(item.grossMargin).toBe("10000.00");
+      expect(item.marginPercentage).toBe("50.00");
+
+      // Batch allocation level
+      const alloc = item.batchAllocations![0]!;
+      expect(alloc.costPerBase).toBe("250.000000");
+      expect(alloc.subtotalCost).toBe("3750.00");
     });
   });
 });

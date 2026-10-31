@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { decimalInput } from "./decimal.js";
 
 export const baseUnitEnum = z.enum(["G", "ML", "PCS"], {
   error: "Satuan dasar harus salah satu dari: G, ML, PCS",
@@ -14,9 +15,10 @@ export const purchaseUnitInputSchema = z.object({
     .trim()
     .min(1, { error: "Nama satuan pembelian tidak boleh kosong" })
     .max(50, { error: "Nama satuan maksimal 50 karakter" }),
-  toBaseFactor: z
-    .number({ error: "Faktor konversi wajib berupa angka" })
-    .positive({ error: "Faktor konversi harus lebih besar dari 0" }),
+  toBaseFactor: decimalInput({
+    positive: true,
+    error: "Faktor konversi harus lebih besar dari 0",
+  }),
 });
 
 export const createIngredientSchema = z.object({
@@ -27,16 +29,16 @@ export const createIngredientSchema = z.object({
     .max(100, { error: "Nama bahan maksimal 100 karakter" }),
   category: ingredientCategoryEnum,
   baseUnit: baseUnitEnum,
-  yieldPercent: z
-    .number({ error: "Yield persen wajib berupa angka" })
-    .min(1, { error: "Yield minimal 1%" })
-    .max(100, { error: "Yield maksimal 100%" })
-    .default(100),
+  yieldPercent: decimalInput({
+    min: 1,
+    max: 100,
+    error: "Yield minimal 1% dan maksimal 100%",
+  }).default(100),
   isPerishable: z.boolean().default(false),
-  minStockBase: z
-    .number({ error: "Batas minimum stok wajib berupa angka" })
-    .min(0, { error: "Batas minimum stok tidak boleh negatif" })
-    .default(0),
+  minStockBase: decimalInput({
+    min: 0,
+    error: "Batas minimum stok tidak boleh negatif",
+  }).default(0),
   purchaseUnits: z.array(purchaseUnitInputSchema).optional(),
 });
 
@@ -49,16 +51,16 @@ export const updateIngredientSchema = z.object({
     .optional(),
   category: ingredientCategoryEnum.optional(),
   baseUnit: baseUnitEnum.optional(),
-  yieldPercent: z
-    .number({ error: "Yield persen wajib berupa angka" })
-    .min(1, { error: "Yield minimal 1%" })
-    .max(100, { error: "Yield maksimal 100%" })
-    .optional(),
+  yieldPercent: decimalInput({
+    min: 1,
+    max: 100,
+    error: "Yield minimal 1% dan maksimal 100%",
+  }).optional(),
   isPerishable: z.boolean().optional(),
-  minStockBase: z
-    .number({ error: "Batas minimum stok wajib berupa angka" })
-    .min(0, { error: "Batas minimum stok tidak boleh negatif" })
-    .optional(),
+  minStockBase: decimalInput({
+    min: 0,
+    error: "Batas minimum stok tidak boleh negatif",
+  }).optional(),
   isActive: z.boolean().optional(),
 });
 

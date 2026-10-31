@@ -1,5 +1,12 @@
 import { describe, it, expect } from "vitest";
-import { formatRupiah, formatNumber, formatPercent, formatQuantity, formatDate } from "./format";
+import {
+  formatRupiah,
+  formatNumber,
+  formatPercent,
+  formatQuantity,
+  formatDate,
+  formatTime,
+} from "./format";
 
 describe("Frontend Format Utilities", () => {
   describe("formatRupiah", () => {
@@ -54,9 +61,29 @@ describe("Frontend Format Utilities", () => {
       expect(formatted).toContain("2026");
     });
 
+    it("formats with long month and time", () => {
+      const d = new Date("2026-10-22T08:30:00Z");
+      const formatted = formatDate(d, { includeTime: true, monthFormat: "long" });
+      expect(formatted).toContain("Oktober");
+      expect(formatted).toContain("2026");
+    });
+
     it("returns '-' for null or invalid dates", () => {
       expect(formatDate(null)).toBe("-");
       expect(formatDate("invalid-date")).toBe("-");
+    });
+  });
+
+  describe("formatTime", () => {
+    it("formats time from date object", () => {
+      const d = new Date("2026-10-22T08:30:00Z");
+      const formatted = formatTime(d);
+      expect(formatted).toMatch(/\d{2}[.:]\d{2}/);
+    });
+
+    it("returns '-' for null or invalid inputs", () => {
+      expect(formatTime(null)).toBe("-");
+      expect(formatTime("invalid-date")).toBe("-");
     });
   });
 });

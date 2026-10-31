@@ -91,3 +91,24 @@
 body {
   font-feature-settings: "cv02", "cv03", "cv04", "cv11";
 }
+
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  #receipt-print-area,
+  #receipt-print-area * {
+    visibility: visible;
+  }
+  #receipt-print-area {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    max-width: 320px;
+    margin: 0;
+    padding: 8px;
+    box-shadow: none;
+    border: none;
+  }
+}

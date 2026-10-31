@@ -1,7 +1,7 @@
 # TODO.md — Pelacak Progres & Memori Proyek
 
 > AI **wajib** memperbarui file ini setiap selesai/mulai/terblokir pada satu tugas (lihat `WORKFLOW.md` §5).
-> Terakhir diperbarui: 2026-10-23 · Stack: React 19 + Vite / Express 5 / Prisma 7 · Status: Persediaan & Stok FEFO Selesai, Siap Menu & Resep
+> Terakhir diperbarui: 2026-10-31 · Stack: React 19 + Vite / Express 5 / Prisma 7 · Status: Audit & Refaktor Menus/Sales/Alerts/POS Selesai 100%
 
 ## Status Legend
 
@@ -48,26 +48,30 @@ Aturan: hanya satu tugas `[/]` per agent pada satu waktu.
 
 ### Fase 3 — Menu, resep, costing (26–28 Okt)
 
-- [ ] **T-030** (P0) [BE+FE] Overhead + pengaturan bisnis (target margin, step, expectedMonthlyPortions) — AC: FR-OVH-01
-- [ ] **T-031** (P0) [BE+FE] CRUD menu — AC: FR-MENU-01
-- [ ] **T-032** (P0) [BE] `domain/costing.ts` (HPP Bahan/Penuh, Aktual/Pengganti) + test fixture A — AC: 7.740 / 8.940 persis
-- [ ] **T-033** (P0) [BE+FE] `POST /api/menus/preview-cost` + editor resep dengan live preview (debounce 300 ms) — dep: T-032 — AC: FR-REC-01
-- [ ] **T-034** (P0) [FE] Daftar menu + badge margin (Aman/Waspada/Bahaya) + label "harga bahan belum lengkap" — AC: FR-COST-01
+- [x] **T-030** (P0) [BE+FE] Overhead + pengaturan bisnis (target margin, step, expectedMonthlyPortions) — AC: FR-OVH-01
+- [x] **T-031** (P0) [BE+FE] CRUD menu — AC: FR-MENU-01
+- [x] **T-032** (P0) [BE] `domain/costing.ts` (HPP Bahan/Penuh, Aktual/Pengganti) + test fixture A — AC: 7.740 / 8.940 persis
+- [x] **T-033** (P0) [BE+FE] `POST /api/menus/preview-cost` + editor resep dengan live preview (debounce 300 ms) — dep: T-032 — AC: FR-REC-01
+- [x] **T-034** (P0) [FE] Daftar menu + badge margin (Aman/Waspada/Bahaya) + label "harga bahan belum lengkap" — AC: FR-COST-01
 
 ### Fase 4 — POS + FEFO (29 Okt–1 Nov)
 
-- [ ] **T-040** (P0) [BE] `domain/fefo.ts` `allocateFefo` + unit test (batch campur, kedaluwarsa, null expiry, kurang stok)
-- [ ] **T-041** (P0) [BE] `POST /api/sales` (lock `FOR UPDATE`, `Idempotency-Key`, snapshot biaya) — dep: T-040, T-032
-- [ ] **T-042** (P0) [FE] UI POS (grid, keranjang reducer, pembayaran, struk dialog + print CSS, loading/toast, `Idempotency-Key` per percobaan) — dep: T-041 — AC: FR-POS-01
-- [ ] **T-043** (P0) [BE] Integration + HTTP test: urutan FEFO, rollback stok kurang, `Promise.all` 2 checkout, idempotensi — AC: FR-POS-02
-- [ ] **T-044** (P0) [BE+FE] Riwayat penjualan (daftar + detail alokasi batch)
+- [x] **T-040** (P0) [BE] `domain/fefo.ts` `allocateFefo` + unit test (batch campur, kedaluwarsa, null expiry, kurang stok)
+- [x] **T-041** (P0) [BE] `POST /api/sales` (lock `FOR UPDATE`, `Idempotency-Key`, snapshot biaya) — dep: T-040, T-032
+- [x] **T-042** (P0) [FE] UI POS (grid, keranjang reducer, pembayaran, struk dialog + print CSS, loading/toast, `Idempotency-Key` per percobaan) — dep: T-041 — AC: FR-POS-01
+- [x] **T-043** (P0) [BE] Integration + HTTP test: urutan FEFO, rollback stok kurang, `Promise.all` 2 checkout, idempotensi — AC: FR-POS-02
+- [x] **T-044** (P0) [BE+FE] Riwayat penjualan (daftar + detail alokasi batch)
+- [x] **T-045** (P0) [BE+FE] POS Kasir endpoint allowlist `GET /api/pos/menus` (OWNER/CASHIER) tanpa field biaya + hook `usePosMenus` di frontend POS + tests RBAC/DTO allowlist — AC: Rule 7
+- [x] **T-046** (P0) [BE] Integration test database nyata PostgreSQL (`sale-atomic.test.ts` & `demo-scenario.test.ts` PRD Lampiran A) dengan factory helpers, FEFO multi-batch, concurrency `Promise.all`, idempotensi, dan RBAC kasir
+- [x] **T-047** (P1) [BE] Refactor backend services & domain (DRY `decimalInput` validation helper, dekomposisi checkout atomic ke `domain/checkout.ts`, unifikasi evaluasi margin & snapshot alert, optimasi N+1 kueri harga beli, pemecahan `dashboard.service.ts`, `menu.service.ts`, dan `sale.service.ts` agar <= 350 baris dan fungsi <= 60 baris)
+- [x] **T-048** (P1) [FE] Refactor frontend UI & modularisasi komponen (unifikasi formatter uang/tanggal di `lib/format.ts`, shared components `StatusBadge`, `MoneyText`, `Field`, serta dekomposisi `menu-manager.tsx`, `recipe-editor-modal.tsx`, `pages/sales.tsx`, `sale-detail-modal.tsx`, dan `pos-checkout-modal.tsx` menjadi <= 200 baris dengan unit tests)
 
 ### Fase 5 — Price Shock + dashboard v1 (2–3 Nov)
 
-- [ ] **T-050** (P0) [BE] `domain/pricing.ts` (Opsi A/B, pembulatan step) + test — AC: 20.000 dan 115 ml
-- [ ] **T-051** (P0) [BE] Evaluasi alert saat pembelian + `reevaluateAlertsForMenu` (resep/harga/overhead/target) + auto-resolve — dep: T-050, T-021
-- [ ] **T-052** (P0) [BE+FE] Modal dampak pasca-pembelian + Pusat Peringatan + aksi terapkan harga/abaikan — AC: FR-PSI-01
-- [ ] **T-053** (P0) [BE+FE] Dashboard v1 (omzet, transaksi, laba estimasi, alert, kedaluwarsa, stok rendah) — AC: FR-DASH-01
+- [x] **T-050** (P0) [BE] `domain/pricing.ts` (Opsi A/B, pembulatan step) + test — AC: 20.000 dan 115 ml
+- [x] **T-051** (P0) [BE] Evaluasi alert saat pembelian + `reevaluateAlertsForMenu` (resep/harga/overhead/target) + auto-resolve — dep: T-050, T-021
+- [x] **T-052** (P0) [BE+FE] Modal dampak pasca-pembelian + Pusat Peringatan + aksi terapkan harga/abaikan — AC: FR-PSI-01
+- [x] **T-053** (P0) [BE+FE] Dashboard v1 (omzet, transaksi, laba estimasi, alert, kedaluwarsa, stok rendah) — AC: FR-DASH-01
 
 ### Demo & submission (paralel, mulai 26 Okt)
 
@@ -145,6 +149,20 @@ Aturan: hanya satu tugas `[/]` per agent pada satu waktu.
 
 | Tanggal    | Agent/Orang | Ringkasan                                                                                                                                                                                                                                                                                                             | Tugas terkait              |
 | ---------- | ----------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------- |
+| 2026-10-31 | Agent       | Audit perbaikan bug POS kasir (GET /api/pos/menus), test integrasi DB nyata Postgres (sale-atomic & demo scenario Lampiran A), refactor backend (sale atomic, alert evaluator, menu cost, dashboard, DRY decimal input), refactor frontend (unifikasi formatters, shared UI, dekomposisi 5 komponen besar <= 200 baris), 100% tests hijau | T-045, T-046, T-047, T-048 |
+| 2026-10-31 | Agent       | Selesai T-052: Modal dampak pasca-pembelian (Price Shock Impact Modal) + Halaman Pusat Peringatan (KPI cards, tab filter, card alert, detail modal resep & Opsi B, dialog abaikan dengan catatan, aksi terapkan harga instan) | T-052                      |
+| 2026-10-30 | Agent       | Selesai T-051: Evaluasi alert margin pasca-pembelian dan re-evaluasi menu/overhead/target margin dengan auto-resolve, repository & service alert, endpoint GET/POST /api/alerts, serta 28 test files lulus 100% | T-051                      |
+| 2026-10-30 | Agent       | Selesai T-050: Domain murni pricing & price shock (BR-05, BR-06) dengan evaluasi pemicu alert, pembulatan step ceil(val/step)*step, Opsi A (naikkan harga) dan Opsi B (tahan harga & efisiensi porsi dengan batas kelayakan 50%), lulus 100% pada Fixture A: Rp20.000 dan 115 ml                                | T-050                      |
+| 2026-10-30 | Agent       | Selesai T-044 (Fase 4 lengkap): Halaman riwayat penjualan dengan KPI summary cards, filter tanggal/pembayaran/pencarian, modal rincian transaksi interaktif beserta detail alokasi batch bahan baku FEFO, cetak ulang struk thermal, dan proteksi kerahasiaan kasir (Rule 7)                                        | T-044                      |
+| 2026-10-29 | Agent       | Selesai T-043: Integration & HTTP tests untuk atomic POS checkout dan FEFO locking (urutan konsumsi batch kedaluwarsa lebih awal, atomic rollback saat stok kurang, Promise.all 2 concurrent checkout dengan row locking, dan idempotensi transaksi)                                                                | T-043                      |
+| 2026-10-29 | Agent       | Selesai T-042: UI POS Kasir (grid menu cari & filter, keranjang belanja useReducer dengan stepper kuantitas, modal pembayaran tunai/QRIS/transfer, kalkulator kembalian, struk cetak print CSS thermal, dan Idempotency-Key per percobaan)                                                                        | T-042                      |
+| 2026-10-29 | Agent       | Selesai T-041: API checkout kasir POST /api/sales atomik dengan SELECT ... FOR UPDATE, pemotongan FEFO per bahan, snapshot biaya HPP Aktual & overhead, header Idempotency-Key, sanitasi DTO kasir (Rule 7), dan HTTP tests                                                                                      | T-041                      |
+| 2026-10-29 | Agent       | Selesai T-040: Engine murni FEFO allocateFefo (BR-07, BR-02, BR-04) dengan proteksi kedaluwarsa WIB, batch campur, null expiry FIFO fallback, atomik all-or-nothing saat stok kurang, mutasi in-memory untuk checkout berurutan, dan 15 unit tests 100% lulus                                                    | T-040                      |
+| 2026-10-29 | Agent       | Selesai T-034 (Fase 3 lengkap): Daftar katalog menu dengan live margin badge (Aman/Waspada/Bahaya), label "Harga bahan belum lengkap", perbandingan HPP Bahan vs HPP Penuh, filter margin, dan tampilan responsif mobile-first                                                                                          | T-034                      |
+| 2026-10-29 | Agent       | Selesai T-033: API preview-cost, simpan resep PUT, kalkulasi HPP GET, dan Editor Resep dengan live costing preview debounced 300ms                                                                                                                                                                                  | T-033                      |
+| 2026-10-29 | Agent       | Selesai T-032: Domain costing murni (HPP Bahan/Penuh, Aktual/Pengganti, margin status BR-09, unit test 100% lulus fixture A 7.740/8.940)                                                                                                                                                                           | T-032                      |
+| 2026-10-28 | Agent       | Selesai T-031: CRUD menu & pelacakan riwayat harga jual (API, validasi, repo, service, HTTP tests, UI manager, hooks TanStack Query, docs/api.md)                                                                                                                                                                    | T-031                      |
+| 2026-10-28 | Agent       | Selesai T-030: Pengaturan usaha & beban overhead bulanan (API, validasi, repo, service, HTTP tests, UI manager, hooks TanStack Query, docs/api.md)                                                                                                                                                                   | T-030                      |
 | 2026-10-22 | Agent       | Selesai Fase 1 (100%): Frontend Login UI & Better Auth client (T-013), App Shell responsif & code splitting (T-014), Core libs money/date/format HALF_UP (T-015), Seed v0 bisnis & demo user (T-016), Uji cookie sesi via proxy live (T-017), dan Test tenant isolation & RBAC supertest (T-018) | T-013 s.d. T-018           |
 | 2026-10-22 | Agent       | Setup Better Auth Express (T-010), skema domain Prisma lengkap + migrasi Neon (T-011), dan core middlewares: auth tenant context, RBAC, Zod validation, same-origin, request ID (T-012) | T-010, T-011, T-012        |
 | 2026-10-21 | Agent       | Konfigurasi dual-mode backend untuk Vercel Serverless Functions: entry src/index.ts, rename standalone runner src/standalone.ts, backend/vercel.json (sin1), serverless-friendly pg.Pool (max 5, idle 10s), supertest entry test, ADR 0002, dan pembaruan arsitektur/README                                           | T-008                      |

@@ -13,16 +13,27 @@ export const queryKeys = {
   },
   menus: {
     all: ["menus"] as const,
-    list: () => [...queryKeys.menus.all, "list"] as const,
+    list: (filter?: Record<string, unknown>) =>
+      filter
+        ? ([...queryKeys.menus.all, "list", filter] as const)
+        : ([...queryKeys.menus.all, "list"] as const),
     detail: (id: string) => [...queryKeys.menus.all, "detail", id] as const,
   },
   sales: {
     all: ["sales"] as const,
-    list: () => [...queryKeys.sales.all, "list"] as const,
+    list: (filter?: Record<string, unknown>) =>
+      filter
+        ? ([...queryKeys.sales.all, "list", filter] as const)
+        : ([...queryKeys.sales.all, "list"] as const),
+    detail: (id: string) => [...queryKeys.sales.all, "detail", id] as const,
   },
   alerts: {
     all: ["alerts"] as const,
-    list: () => [...queryKeys.alerts.all, "list"] as const,
+    list: (filter?: Record<string, unknown>) =>
+      filter
+        ? ([...queryKeys.alerts.all, "list", filter] as const)
+        : ([...queryKeys.alerts.all, "list"] as const),
+    detail: (id: string) => [...queryKeys.alerts.all, "detail", id] as const,
   },
   purchases: {
     all: ["purchases"] as const,
@@ -39,5 +50,24 @@ export const queryKeys = {
       filter
         ? ([...queryKeys.inventory.all, "batches", filter] as const)
         : ([...queryKeys.inventory.all, "batches"] as const),
+  },
+  settings: {
+    all: ["settings"] as const,
+    detail: () => [...queryKeys.settings.all, "detail"] as const,
+  },
+  overheads: {
+    all: ["overheads"] as const,
+    list: (filter?: Record<string, unknown>) =>
+      filter
+        ? ([...queryKeys.overheads.all, "list", filter] as const)
+        : ([...queryKeys.overheads.all, "list"] as const),
+  },
+  dashboard: {
+    all: ["dashboard"] as const,
+    summary: () => [...queryKeys.dashboard.all, "summary"] as const,
+  },
+  pos: {
+    all: ["pos"] as const,
+    menus: () => [...queryKeys.pos.all, "menus"] as const,
   },
 };

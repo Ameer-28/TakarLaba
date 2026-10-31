@@ -429,41 +429,840 @@ Mengambil daftar batch stok aktif (`remainingQtyBase > 0`), diurutkan secara ket
 
 ---
 
-## 4. Kontrak Direncanakan (Roadmap Fitur)
+### 3.5 Pengaturan Usaha & Biaya Overhead (`/api/settings` & `/api/overheads`)
 
-### POST `/api/sales` (Checkout POS)
-Memproses transaksi kasir atomik dengan pemotongan stok batch FEFO, verifikasi margin, dan snapshot biaya.
+#### GET `/api/settings`
+Mengambil konfigurasi target margin, rounding step, expected monthly portions, dan overhead per porsi usaha.
+
+- **Metode:** `GET`
+- **Autentikasi:** Wajib sesi aktif role `OWNER` (role `CASHIER` menerima `403 FORBIDDEN`).
+- **Response 200 OK:**
+  ```json
+  {
+    "ok": true,
+    "data": {
+      "id": "set_123",
+      "businessId": "biz_123",
+      "targetMarginPercent": "60.00",
+      "targetMarginMinPercent": "55.00",
+      "roundingStep": 500,
+      "overheadPerPortion": "1200.00",
+      "expectedMonthlyPortions": 1000,
+      "warnDays": 3,
+      "createdAt": "2026-10-22T08:00:00.000Z",
+      "updatedAt": "2026-10-22T08:00:00.000Z"
+    }
+  }
+  ```
+
+#### PATCH `/api/settings`
+Memperbarui konfigurasi parameter target margin atau estimasi porsi bulanan.
+
+- **Metode:** `PATCH`
+- **Autentikasi:** Wajib sesi aktif role `OWNER`.
+- **Request Body:**
+  ```json
+  {
+    "targetMarginPercent": "65.00",
+    "targetMarginMinPercent": "60.00",
+    "roundingStep": 500,
+    "expectedMonthlyPortions": 1200,
+    "warnDays": 5
+  }
+  ```
+- **Response 200 OK:** Mengembalikan data settings terbaru.
+
+#### GET `/api/overheads`
+Mengambil daftar beban overhead bulanan beserta ringkasan kalkulasi beban per porsi (`BR-04`).
+
+- **Metode:** `GET`
+- **Autentikasi:** Wajib sesi aktif role `OWNER`.
+- **Query Params:**
+  - `isActive` (opsional, boolean string): memfilter hanya beban aktif atau nonaktif.
+- **Response 200 OK:**
+  ```json
+  {
+    "ok": true,
+    "data": {
+      "items": [
+        {
+          "id": "ovh_123",
+          "businessId": "biz_123",
+          "name": "Sewa Tempat",
+          "type": "RENT",
+          "monthlyCost": "1500000.00",
+          "isActive": true,
+          "notes": "Ruko bulanan",
+          "createdAt": "2026-10-22T08:00:00.000Z",
+          "updatedAt": "2026-10-22T08:00:00.000Z"
+        }
+      ],
+      "summary": {
+        "totalActiveMonthlyCost": "1500000.00",
+        "expectedMonthlyPortions": 1000,
+        "overheadPerPortion": "1500.00"
+      }
+    }
+  }
+  ```
+
+#### POST `/api/overheads`
+Mendaftarkan beban overhead bulanan baru.
 
 - **Metode:** `POST`
-- **Autentikasi:** Wajib sesi aktif (`OWNER` atau `CASHIER`)
-- **Header Khusus:**
-  - `Idempotency-Key: <uuid>` (wajib): Mencegah double deduction stok bila terjadi network retry.
+- **Autentikasi:** Wajib sesi aktif role `OWNER`.
+- **Request Body:**
+  ```json
+  {
+    "name": "Listrik & Air",
+    "type": "ELECTRICITY_WATER",
+    "monthlyCost": "350000",
+    "isActive": true,
+    "notes": "Token bulanan rata-rata"
+  }
+  ```
+- **Response 201 Created:** Mengembalikan record overhead yang dibuat.
+
+#### PATCH `/api/overheads/:id`
+Memperbarui rincian beban overhead bulanan.
+
+- **Metode:** `PATCH`
+- **Autentikasi:** Wajib sesi aktif role `OWNER`.
+- **Request Body:** Parsial dari field `POST /api/overheads`.
+- **Response 200 OK:** Mengembalikan record overhead terupdate.
+
+#### DELETE `/api/overheads/:id`
+Menghapus beban overhead bulanan.
+
+- **Metode:** `DELETE`
+- **Autentikasi:** Wajib sesi aktif role `OWNER`.
+- **Response 200 OK:**
+  ```json
+  {
+    "ok": true,
+    "data": {
+      "id": "ovh_123"
+    }
+  }
+  ```
+
+---
+
+### 3.6 Master Menu (`/api/menus`)
+
+#### GET `/api/menus`
+Mengambil daftar menu milik tenant bisnis beserta kalkulasi live margin costing (`costSummary`) sesuai BR-02 s.d. BR-04 & BR-09.
+
+- **Metode:** `GET`
+- **Autentikasi:** Wajib sesi aktif role `OWNER` (role `CASHIER` menerima `403 FORBIDDEN`; kasir menggunakan endpoint `/api/pos/menus`).
+- **Query Params:**
+  - `category` (opsional): filter kategori menu (mis. `"Makanan"`, `"Minuman"`)
+  - `search` (opsional): kata kunci pencarian nama menu (case-insensitive)
+  - `isActive` (opsional, boolean string): `"true"` atau `"false"`
+- **Response 200 OK:**
+  ```json
+  {
+    "ok": true,
+    "data": [
+      {
+        "id": "menu_clx123",
+        "businessId": "biz_123",
+        "name": "Kopi Susu Gula Aren",
+        "nameKey": "kopi susu gula aren",
+        "category": "Minuman",
+        "sellingPrice": "18000.00",
+        "targetMargin": "50.00",
+        "isActive": true,
+        "hasRecipe": true,
+        "recipeItemsCount": 3,
+        "saleItemsCount": 12,
+        "costSummary": {
+          "hppBahan": "7740.00",
+          "overheadPerPortion": "1200.00",
+          "hppPenuh": "8940.00",
+          "sellingPrice": "18000.00",
+          "marginKontribusi": "9060.00",
+          "marginPercent": "50.33",
+          "marginBahanPercent": "57.00",
+          "marginStatus": "AMAN",
+          "isCostComplete": true,
+          "missingCostIngredients": []
+        },
+        "createdAt": "2026-10-22T08:00:00.000Z",
+        "updatedAt": "2026-10-22T08:00:00.000Z"
+      }
+    ]
+  }
+  ```
+- **Catatan `costSummary`:**
+  - Bernilai `null` jika menu belum memiliki takaran resep (`hasRecipe: false`).
+  - Bila ada bahan dalam resep yang belum pernah dibeli, `isCostComplete` bernilai `false`, `marginStatus` bernilai `"INCOMPLETE"`, dan `missingCostIngredients` memuat daftar nama bahan yang belum memiliki nota pembelian.
+  - Nilai `marginStatus`: `"AMAN"` (margin $\ge$ target), `"WASPADA"` (target - 5 pp $\le$ margin < target), `"BAHAYA"` (margin < target - 5 pp), atau `"INCOMPLETE"`.
+
+#### GET `/api/menus/:id`
+Mengambil detail menu lengkap beserta daftar takaran resep dan riwayat perubahan harga jual.
+
+- **Metode:** `GET`
+- **Autentikasi:** Wajib sesi aktif role `OWNER`.
+- **Response 200 OK:**
+  ```json
+  {
+    "ok": true,
+    "data": {
+      "id": "menu_clx123",
+      "businessId": "biz_123",
+      "name": "Kopi Susu Gula Aren",
+      "nameKey": "kopi susu gula aren",
+      "category": "Minuman",
+      "sellingPrice": "18000.00",
+      "targetMargin": "60.00",
+      "isActive": true,
+      "hasRecipe": true,
+      "recipeItemsCount": 3,
+      "saleItemsCount": 12,
+      "recipeItems": [
+        {
+          "id": "rcp_1",
+          "menuId": "menu_clx123",
+          "ingredientId": "ing_kopi_123",
+          "ingredientName": "Biji Kopi House Blend",
+          "baseUnit": "G",
+          "category": "MAIN",
+          "yieldPercent": "100.00",
+          "isIngredientActive": true,
+          "qtyUsableBase": "18.000",
+          "createdAt": "2026-10-22T08:00:00.000Z"
+        }
+      ],
+      "priceHistories": [
+        {
+          "id": "mph_1",
+          "oldPrice": "15000.00",
+          "newPrice": "18000.00",
+          "reason": "MANUAL",
+          "alertId": null,
+          "changedById": "usr_owner_1",
+          "changedByName": "Owner Budi",
+          "changedAt": "2026-10-22T09:00:00.000Z"
+        }
+      ],
+      "createdAt": "2026-10-22T08:00:00.000Z",
+      "updatedAt": "2026-10-22T09:00:00.000Z"
+    }
+  }
+  ```
+
+#### POST `/api/menus`
+Mendaftarkan menu baru dalam katalog usaha.
+
+- **Metode:** `POST`
+- **Autentikasi:** Wajib sesi aktif role `OWNER`.
+- **Request Body:**
+  ```json
+  {
+    "name": "Roti Panggang Cokelat",
+    "category": "Makanan",
+    "sellingPrice": 15000,
+    "targetMargin": 50,
+    "isActive": true
+  }
+  ```
+- **Validasi (`FR-MENU-01`):**
+  - `name`: 2-100 karakter, unik per tenant bisnis (case-insensitive & spasi dinormalisasi).
+  - `sellingPrice`: > 0 dan <= 100.000.000.
+  - `targetMargin`: opsional (0-95%), jika kosong mengikuti target margin default usaha.
+- **Response 201 Created:** Mengembalikan record menu baru.
+
+#### PATCH `/api/menus/:id`
+Memperbarui informasi menu atau mengubah harga jual.
+
+- **Metode:** `PATCH`
+- **Autentikasi:** Wajib sesi aktif role `OWNER`.
+- **Request Body:** Parsial dari field `POST /api/menus`.
+- **Aturan Bisnis:**
+  - Jika harga jual (`sellingPrice`) berubah dari harga sebelumnya, sistem secara atomik mencatat riwayat ke tabel `MenuPriceHistory` dengan `reason = "MANUAL"` dan mencatat user ID yang melakukan perubahan.
+- **Response 200 OK:** Mengembalikan record menu terupdate.
+
+#### DELETE `/api/menus/:id`
+Menghapus menu dari katalog usaha.
+
+- **Metode:** `DELETE`
+- **Autentikasi:** Wajib sesi aktif role `OWNER`.
+- **Aturan Integritas Data:**
+  - Jika menu belum pernah memiliki riwayat transaksi penjualan (`saleItemsCount === 0`), menu dihapus secara permanen.
+  - Jika menu sudah pernah terjual (`saleItemsCount > 0`), penghapusan ditolak dengan `409 CONFLICT` untuk menjaga integritas data historis; pengguna diarahkan untuk menonaktifkan status menu.
+- **Response 200 OK:**
+  ```json
+  {
+    "ok": true,
+    "data": {
+      "id": "menu_clx123"
+    }
+  }
+  ```
+
+#### POST `/api/menus/preview-cost`
+Melakukan kalkulasi live costing dan margin dari draf resep secara instan (tanpa menyimpan ke basis data). Mendukung debouncing 300 ms di frontend (ADR-3).
+
+- **Metode:** `POST`
+- **Autentikasi:** Wajib sesi aktif role `OWNER`.
+- **Request Body:**
+  ```json
+  {
+    "menuId": "menu_clx123",
+    "sellingPrice": 18000,
+    "targetMargin": 50,
+    "items": [
+      {
+        "ingredientId": "ing_kopi_123",
+        "qtyUsable": 18,
+        "unitName": "G"
+      },
+      {
+        "ingredientId": "ing_susu_456",
+        "qtyUsable": 150,
+        "unitName": "ml"
+      }
+    ]
+  }
+  ```
+- **Response 200 OK:**
+  ```json
+  {
+    "ok": true,
+    "data": {
+      "hppBahan": "5940.00",
+      "overheadPerPortion": "1200.00",
+      "hppPenuh": "7140.00",
+      "sellingPrice": "18000.00",
+      "marginKontribusi": "10860.00",
+      "marginPercent": "60.33",
+      "marginBahanPercent": "67.00",
+      "marginStatus": "AMAN",
+      "isCostComplete": true,
+      "items": [
+        {
+          "ingredientId": "ing_kopi_123",
+          "ingredientName": "Biji Kopi House Blend",
+          "baseUnit": "G",
+          "inputUnit": "G",
+          "toBaseFactor": "1.0000",
+          "qtyUsable": "18.000",
+          "yieldPercent": "100.00",
+          "costPerBase": "180.000000",
+          "costPerUsable": "180.000000",
+          "subtotal": "3240.00",
+          "hasCost": true
+        }
+      ]
+    }
+  }
+  ```
+
+#### PUT `/api/menus/:id/recipe`
+Menyimpan takaran resep untuk menu tertentu.
+
+- **Metode:** `PUT`
+- **Autentikasi:** Wajib sesi aktif role `OWNER`.
 - **Request Body:**
   ```json
   {
     "items": [
       {
-        "menuId": "menu_clx1234567890",
-        "quantity": 2
+        "ingredientId": "ing_kopi_123",
+        "qtyUsable": 18,
+        "unitName": "G"
+      },
+      {
+        "ingredientId": "ing_susu_456",
+        "qtyUsable": 150,
+        "unitName": "ML"
       }
-    ],
-    "paymentMethod": "CASH",
-    "amountPaid": "50000"
+    ]
   }
   ```
-- **Response 201 Created:**
+- **Validasi (`FR-REC-01`):**
+  - Minimal 1 bahan, maksimal 30 bahan.
+  - Takaran `qtyUsable > 0`.
+  - Tidak boleh ada bahan baku duplikat dalam satu menu.
+  - Bahan nonaktif ditolak dengan `400 VALIDATION_ERROR`.
+- **Response 200 OK:** Mengembalikan detail menu terupdate dengan `recipeItems`.
+
+#### GET `/api/menus/:id/cost`
+Mengambil kalkulasi HPP dan status margin berdasarkan takaran resep yang tersimpan saat ini.
+
+- **Metode:** `GET`
+- **Autentikasi:** Wajib sesi aktif role `OWNER`.
+- **Response 200 OK:** Mengembalikan payload yang sama dengan struktur response `POST /api/menus/preview-cost`.
+
+---
+
+### 3.7 Kasir POS & Transaksi Penjualan (`/api/pos`, `/api/sales`)
+
+#### GET `/api/pos/menus`
+Mengambil daftar menu aktif yang siap dijual di layar POS kasir lengkap dengan estimasi kapasitas porsi yang dihitung otomatis berdasarkan sisa stok bahan baku FEFO (`BR-08`). Menggunakan DTO allowlist tanpa membocorkan field biaya, HPP, atau margin ke kasir (Aturan 7). Hanya mengembalikan menu yang aktif dan memiliki susunan resep lengkap.
+
+- **Metode:** `GET`
+- **Autentikasi:** Wajib sesi aktif role `OWNER` atau `CASHIER`.
+- **Response 200 OK:**
+  ```json
+  {
+    "ok": true,
+    "data": [
+      {
+        "id": "menu_clx123",
+        "name": "Es Kopi Susu Aren",
+        "category": "Coffee",
+        "sellingPrice": "18000.00",
+        "hasRecipe": true,
+        "capacity": 10,
+        "bottleneckIngredientName": "Susu UHT"
+      }
+    ]
+  }
+  ```
+
+#### POST `/api/sales`
+Memproses transaksi checkout kasir atomik dengan pemotongan stok batch FEFO, penguncian baris `SELECT ... FOR UPDATE`, snapshot biaya HPP Aktual & alokasi overhead, serta audit `StockMovement(SALE)`.
+
+- **Metode:** `POST`
+- **Autentikasi:** Wajib sesi aktif (`OWNER` atau `CASHIER`).
+- **Header Khusus:**
+  - `Idempotency-Key: <string>` (wajib, maks. 128 karakter): Menjamin idempotensi transaksi; request berulang dengan key yang sama akan mengembalikan data penjualan yang sudah tercatat tanpa memotong stok ulang.
+- **Request Body:**
+  ```json
+  {
+    "paymentMethod": "CASH",
+    "items": [
+      {
+        "menuId": "menu_clx123",
+        "qty": 2
+      }
+    ]
+  }
+  ```
+  - `paymentMethod`: `"CASH"`, `"QRIS"`, atau `"TRANSFER"`.
+  - `items`: 1 s.d. 50 baris item. Item dengan `menuId` duplikat otomatis digabungkan (*merged*) oleh sistem. `qty` integer 1 s.d. 999.
+- **Response 201 Created (OWNER):**
   ```json
   {
     "ok": true,
     "data": {
-      "saleId": "sale_clx0987654321",
-      "totalAmount": "36000",
-      "change": "14000",
-      "createdAt": "2026-10-21T13:00:00.000Z"
+      "id": "sale_clx789",
+      "invoiceNo": "INV-20261029-A1B2C3",
+      "idempotencyKey": "idem-key-123",
+      "soldAt": "2026-10-29T10:00:00.000Z",
+      "cashierId": "user_owner1",
+      "paymentMethod": "CASH",
+      "totalAmount": "36000.00",
+      "totalIngredientCost": "15480.00",
+      "totalOverhead": "2400.00",
+      "status": "COMPLETED",
+      "items": [
+        {
+          "id": "item_clx1",
+          "menuId": "menu_clx123",
+          "menuNameSnapshot": "Es Kopi Susu Aren",
+          "qty": 2,
+          "unitPrice": "18000.00",
+          "ingredientCostActual": "15480.00",
+          "overheadAllocated": "2400.00"
+        }
+      ]
     }
   }
   ```
-- **Aturan Bisnis (BR):**
-  - Pemotongan stok batch FEFO (`BR-FEFO-01`): Batch dengan kedaluwarsa terdekat dipotong lebih dulu menggunakan lock `SELECT ... FOR UPDATE`.
-  - Jika stok kurang: Rollback transaksi atomik dan kembalikan `409 INSUFFICIENT_STOCK`.
-  - DTO untuk `CASHIER` tidak boleh memuat field HPP atau margin keuntungan.
+- **Response 201 Created (CASHIER):**
+  Field biaya (`totalIngredientCost`, `totalOverhead`, `ingredientCostActual`, `overheadAllocated`) **dihilangkan** sesuai Rule 7 & PRD FR-AUTH-03:
+  ```json
+  {
+    "ok": true,
+    "data": {
+      "id": "sale_clx789",
+      "invoiceNo": "INV-20261029-A1B2C3",
+      "idempotencyKey": "idem-key-123",
+      "soldAt": "2026-10-29T10:00:00.000Z",
+      "cashierId": "user_cashier1",
+      "paymentMethod": "CASH",
+      "totalAmount": "36000.00",
+      "status": "COMPLETED",
+      "items": [
+        {
+          "id": "item_clx1",
+          "menuId": "menu_clx123",
+          "menuNameSnapshot": "Es Kopi Susu Aren",
+          "qty": 2,
+          "unitPrice": "18000.00"
+        }
+      ]
+    }
+  }
+  ```
+- **Error Response Khusus:**
+  - `409 Conflict` (`INSUFFICIENT_STOCK`): Jika stok bahan baku batch FEFO tidak mencukupi untuk memenuhi pesanan.
+    ```json
+    {
+      "ok": false,
+      "error": {
+        "code": "INSUFFICIENT_STOCK",
+        "message": "Stok bahan \"Biji Kopi\" tidak mencukupi untuk pesanan"
+      }
+    }
+    ```
+
+#### GET `/api/sales`
+Mengambil daftar riwayat transaksi penjualan dengan filter tanggal, metode pembayaran, kasir, status, serta paginasi.
+
+- **Metode:** `GET`
+- **Autentikasi:** Wajib sesi aktif (`OWNER` atau `CASHIER`).
+- **Query Parameters:**
+  - `startDate?: string` (format YYYY-MM-DD atau ISO)
+  - `endDate?: string` (format YYYY-MM-DD atau ISO)
+  - `paymentMethod?: "CASH" | "QRIS" | "TRANSFER"`
+  - `status?: "COMPLETED" | "VOIDED"`
+  - `cashierId?: string`
+  - `page?: number` (default: 1)
+  - `limit?: number` (default: 20, maks. 100)
+- **Response 200 OK (OWNER):**
+  ```json
+  {
+    "ok": true,
+    "data": {
+      "items": [
+        {
+          "id": "sale_clx789",
+          "invoiceNo": "INV-20261029-A1B2C3",
+          "idempotencyKey": "idem-key-123",
+          "soldAt": "2026-10-29T10:00:00.000Z",
+          "cashierId": "user_owner1",
+          "cashier": { "id": "user_owner1", "name": "Budi Owner", "role": "OWNER" },
+          "paymentMethod": "CASH",
+          "totalAmount": "36000.00",
+          "totalIngredientCost": "15480.00",
+          "totalOverhead": "2400.00",
+          "grossMargin": "18120.00",
+          "marginPercentage": "50.33",
+          "status": "COMPLETED",
+          "items": [
+            {
+              "id": "item_clx1",
+              "menuId": "menu_clx123",
+              "menuNameSnapshot": "Es Kopi Susu Aren",
+              "qty": 2,
+              "unitPrice": "18000.00",
+              "subtotalPrice": "36000.00",
+              "ingredientCostActual": "15480.00",
+              "overheadAllocated": "2400.00",
+              "grossMargin": "18120.00",
+              "marginPercentage": "50.33"
+            }
+          ]
+        }
+      ],
+      "total": 1,
+      "page": 1,
+      "limit": 20,
+      "totalPages": 1
+    }
+  }
+  ```
+- **Response 200 OK (CASHIER):**
+  Field biaya dan margin (`totalIngredientCost`, `totalOverhead`, `grossMargin`, `marginPercentage`, `ingredientCostActual`, `overheadAllocated`) **dihilangkan** sesuai Rule 7.
+
+#### GET `/api/sales/:id`
+Mengambil detail satu transaksi penjualan berdasarkan ID, termasuk alokasi batch bahan baku FEFO (`batchAllocations`).
+
+- **Metode:** `GET`
+- **Autentikasi:** Wajib sesi aktif (`OWNER` atau `CASHIER`).
+- **Response 200 OK (OWNER):**
+  ```json
+  {
+    "ok": true,
+    "data": {
+      "id": "sale_clx789",
+      "invoiceNo": "INV-20261029-A1B2C3",
+      "idempotencyKey": "idem-key-123",
+      "soldAt": "2026-10-29T10:00:00.000Z",
+      "cashierId": "user_owner1",
+      "cashier": { "id": "user_owner1", "name": "Budi", "role": "OWNER" },
+      "paymentMethod": "CASH",
+      "totalAmount": "36000.00",
+      "totalIngredientCost": "15480.00",
+      "totalOverhead": "2400.00",
+      "grossMargin": "18120.00",
+      "marginPercentage": "50.33",
+      "status": "COMPLETED",
+      "items": [
+        {
+          "id": "item_clx1",
+          "menuId": "menu_clx123",
+          "menuNameSnapshot": "Es Kopi Susu Aren",
+          "qty": 2,
+          "unitPrice": "18000.00",
+          "subtotalPrice": "36000.00",
+          "ingredientCostActual": "15480.00",
+          "overheadAllocated": "2400.00",
+          "grossMargin": "18120.00",
+          "marginPercentage": "50.33",
+          "batchAllocations": [
+            {
+              "movementId": "mov_1",
+              "ingredientId": "ing_kopi",
+              "ingredientName": "Biji Kopi",
+              "baseUnit": "GRAM",
+              "batchId": "batch_1",
+              "batchExpiryDate": "2026-11-15T00:00:00.000Z",
+              "qtyDeducted": "36.000",
+              "costPerBase": "200.000000",
+              "subtotalCost": "7200.00"
+            }
+          ]
+        }
+      ]
+    }
+  }
+  ```
+- **Response 200 OK (CASHIER):**
+  Field biaya (`totalIngredientCost`, `totalOverhead`, `grossMargin`, `marginPercentage`, `ingredientCostActual`, `overheadAllocated`, serta `costPerBase` dan `subtotalCost` pada `batchAllocations`) **dihilangkan**. Kasir hanya melihat informasi operasional (`ingredientName`, `baseUnit`, `batchExpiryDate`, `qtyDeducted`).
+
+---
+
+### 3.8 Peringatan Margin & Price Shock Impact (`/api/alerts`)
+
+#### GET `/api/alerts`
+Mengambil daftar peringatan margin (Pusat Peringatan) dengan paginasi dan filter status.
+
+- **Metode:** `GET`
+- **Autentikasi:** Wajib sesi aktif role `OWNER` (role `CASHIER` menerima `403 FORBIDDEN`).
+- **Query Params:**
+  - `status?: "OPEN" | "ACKNOWLEDGED" | "RESOLVED"`
+  - `menuId?: string`
+  - `page?: number` (default: 1)
+  - `limit?: number` (default: 20, maks. 100)
+- **Response 200 OK:**
+  ```json
+  {
+    "ok": true,
+    "data": [
+      {
+        "id": "alert_clx1",
+        "businessId": "biz_123",
+        "menuId": "menu_clx1",
+        "menu": {
+          "id": "menu_clx1",
+          "name": "Es Kopi Susu Aren",
+          "sellingPrice": "18000.00",
+          "targetMargin": "50.00"
+        },
+        "status": "OPEN",
+        "resolution": null,
+        "note": null,
+        "createdAt": "2026-10-30T01:00:00.000Z",
+        "resolvedAt": null,
+        "resolvedBy": null,
+        "triggerIngredient": {
+          "id": "ing_susu",
+          "name": "Susu UHT",
+          "baseUnit": "ML"
+        },
+        "triggerPurchase": {
+          "id": "pur_123",
+          "supplierName": "Distributor Susu Segar",
+          "purchasedAt": "2026-10-30T00:55:00.000Z"
+        },
+        "ingredientCostBefore": "7740.00",
+        "ingredientCostAfter": "8640.00",
+        "fullCostBefore": "8940.00",
+        "fullCostAfter": "9840.00",
+        "marginBeforePct": "50.33",
+        "marginAfterPct": "45.33",
+        "targetPct": "50.00",
+        "sellingPriceAtTrigger": "18000.00",
+        "recommendedPrice": "20000.00"
+      }
+    ],
+    "meta": {
+      "page": 1,
+      "limit": 20,
+      "total": 1,
+      "totalPages": 1
+    }
+  }
+  ```
+
+#### GET `/api/alerts/:id`
+Mengambil detail lengkap satu peringatan margin, termasuk rincian resep menu, Opsi A (naikkan harga), dan Opsi B (efisiensi porsi).
+
+- **Metode:** `GET`
+- **Autentikasi:** Wajib sesi aktif role `OWNER`.
+- **Response 200 OK:**
+  ```json
+  {
+    "ok": true,
+    "data": {
+      "id": "alert_clx1",
+      "businessId": "biz_123",
+      "menuId": "menu_clx1",
+      "menuName": "Es Kopi Susu Aren",
+      "menuSellingPrice": "18000.00",
+      "status": "OPEN",
+      "resolution": null,
+      "note": null,
+      "createdAt": "2026-10-30T01:00:00.000Z",
+      "resolvedAt": null,
+      "resolvedBy": null,
+      "triggerPurchase": {
+        "id": "pur_123",
+        "supplierName": "Distributor Susu Segar",
+        "purchasedAt": "2026-10-30T00:55:00.000Z"
+      },
+      "triggerIngredient": {
+        "id": "ing_susu",
+        "name": "Susu UHT",
+        "baseUnit": "ML"
+      },
+      "costs": {
+        "ingredientCostBefore": "7740.00",
+        "ingredientCostAfter": "8640.00",
+        "fullCostBefore": "8940.00",
+        "fullCostAfter": "9840.00",
+        "marginBeforePct": "50.33",
+        "marginAfterPct": "45.33",
+        "targetPct": "50.00",
+        "sellingPriceAtTrigger": "18000.00"
+      },
+      "optionA": {
+        "recommendedPrice": "20000.00",
+        "projectedMarginPercent": "50.80",
+        "projectedMarginKontribusi": "10160.00",
+        "priceIncrease": "2000.00"
+      },
+      "optionB": {
+        "maxAllowableCost": "9000.00",
+        "costSavingNeeded": "840.00",
+        "currentTakaran": "150.000",
+        "reducedAmount": "35.000",
+        "newTakaran": "115.000",
+        "unit": "ML",
+        "reductionPercent": "23.33",
+        "isFeasible": true,
+        "projectedHppPenuh": "9000.00",
+        "projectedMarginPercent": "50.00"
+      },
+      "recipe": [
+        {
+          "id": "rec_1",
+          "ingredientId": "ing_susu",
+          "ingredientName": "Susu UHT",
+          "amount": "150.000",
+          "unit": "ML"
+        }
+      ]
+    }
+  }
+  ```
+
+#### POST `/api/alerts/:id/apply-price`
+Menerapkan rekomendasi harga Opsi A pada menu, mencatat `MenuPriceHistory` (alasan `PRICE_SHOCK_ALERT`), dan menyelesaikan peringatan sebagai `PRICE_RAISED`.
+
+- **Metode:** `POST`
+- **Autentikasi:** Wajib sesi aktif role `OWNER`.
+- **Response 200 OK:** Mengembalikan objek alert yang telah di-resolve dengan `resolution: "PRICE_RAISED"`.
+
+#### POST `/api/alerts/:id/dismiss`
+Mengabaikan peringatan dengan catatan opsional (keputusan pemilik usaha untuk mempertahankan harga).
+
+- **Metode:** `POST`
+- **Autentikasi:** Wajib sesi aktif role `OWNER`.
+- **Request Body:**
+  ```json
+  {
+    "note": "Menunggu promo akhir pekan selesai"
+  }
+  ```
+- **Response 200 OK:** Mengembalikan objek alert dengan `resolution: "DISMISSED"`.
+
+#### POST `/api/alerts/:id/acknowledge`
+Menandai peringatan telah ditinjau pemilik usaha (mengubah status dari `OPEN` ke `ACKNOWLEDGED`).
+
+- **Metode:** `POST`
+- **Autentikasi:** Wajib sesi aktif role `OWNER`.
+- **Response 200 OK:** Mengembalikan objek alert dengan `status: "ACKNOWLEDGED"`.
+
+### 3.10 Dashboard & Ringkasan Bisnis (T-053 — AC: FR-DASH-01)
+
+#### GET `/api/dashboard/summary`
+Mengambil metrik ringkasan harian (omzet hari ini WIB, transaksi, estimasi laba kotor setelah HPP aktual & alokasi overhead, nilai rupiah bahan kedaluwarsa ≤ N hari, jumlah stok rendah), 5 peringatan margin teratas, 5 menu dengan estimasi kapasitas porsi terendah beserta bahan pembatasnya (bottleneck), dan transaksi penjualan terkini.
+
+- **Metode:** `GET`
+- **Autentikasi:** Wajib sesi aktif role `OWNER` (role `CASHIER` ditolak dengan `403 FORBIDDEN` guna menjaga kerahasiaan biaya bisnis sesuai Aturan 7).
+- **Response 200 OK:**
+  ```json
+  {
+    "ok": true,
+    "data": {
+      "summary": {
+        "omzet": "150000.00",
+        "transactionCount": 8,
+        "estimatedProfit": "75000.00",
+        "averageMarginPercent": "50.0",
+        "openAlertCount": 1,
+        "expiringStockValue": "100000.00",
+        "lowStockCount": 1,
+        "targetMargin": "50.0",
+        "expiryWarnDays": 3
+      },
+      "topAlerts": [
+        {
+          "id": "alert-cuid",
+          "menuId": "menu-cuid",
+          "menuName": "Es Kopi Susu Aren",
+          "category": "Coffee",
+          "status": "OPEN",
+          "currentPrice": "18000.00",
+          "recommendedPrice": "20000.00",
+          "marginBeforePct": "50.3",
+          "marginAfterPct": "45.3",
+          "targetPct": "50.0",
+          "ingredientCostBefore": "7740.00",
+          "ingredientCostAfter": "8640.00",
+          "fullCostBefore": "8940.00",
+          "fullCostAfter": "9840.00",
+          "createdAt": "2026-10-31T08:00:00.000Z"
+        }
+      ],
+      "lowestCapacityMenus": [
+        {
+          "id": "menu-cuid",
+          "name": "Es Kopi Susu Aren",
+          "category": "Coffee",
+          "sellingPrice": "18000.00",
+          "capacity": 10,
+          "hasRecipe": true,
+          "bottleneckIngredient": {
+            "id": "ing-cuid",
+            "name": "Susu UHT",
+            "remainingStock": "1500.000",
+            "unit": "ml"
+          }
+        }
+      ],
+      "recentSales": [
+        {
+          "id": "sale-cuid",
+          "invoiceNo": "INV-20261031-0001",
+          "soldAt": "2026-10-31T10:00:00.000Z",
+          "totalAmount": "36000.00",
+          "paymentMethod": "QRIS",
+          "cashierName": "Kasir 1",
+          "itemCount": 2
+        }
+      ],
+      "isNewBusiness": false
+    }
+  }
+  ```
+
+---
+
+## 4. Kontrak Direncanakan (Roadmap Fitur)

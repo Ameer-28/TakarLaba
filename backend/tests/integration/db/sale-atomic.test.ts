@@ -1,0 +1,290 @@
+import {
+  describeDb,
+  createTestBusiness,
+  createTestUser,
+  cleanupBusinesses,
+  disconnectDb,
+  createTestIngredient,
+  createTestBatch,
+  createTestMenuWithRecipe,
+} from "./helpers/index.js";
+import { it, expect, afterEach, afterAll } from "vitest";
+import { SaleRepository } from "../../../src/repositories/sale.repo.js";
+import { prisma } from "../../../src/lib/db.js";
+import { Decimal } from "decimal.js";
+import { BaseUnit, IngredientCategory } from "../../../src/generated/prisma/enums.js";
+import { InsufficientStockError } from "../../../src/lib/errors.js";
+
+describeDb("Real DB: Atomic POS Checkout & FEFO Stock Locking", () => {
+  const saleRepo = new SaleRepository();
+  const businessIds: string[] = [];
+
+  afterEach(async () => {
+    await cleanupBusinesses(businessIds);
+    businessIds.length = 0;
+  });
+
+  afterAll(async () => {
+    await disconnectDb();
+  });
+
+  it("depletes batches in strict FEFO order, records movements, and handles idempotency", async () => {
+    const business = await createTestBusiness("sale-fefo");
+    businessIds.push(business.id);
+    const cashier = await createTestUser(business.id, "CASHIER");
+
+    // 1. Create ingredient using factory
+    const kopi = await createTestIngredient({
+      businessId: business.id,
+      name: "Biji Kopi House Blend",
+      category: IngredientCategory.MAIN,
+      baseUnit: BaseUnit.G,
+      yieldPercent: 100,
+    });
+
+    // 2. Create 2 batches: batch Earlier (expiring in 5 days), batch Later (expiring in 30 days)
+    const now = new Date();
+    const batchEarlier = await createTestBatch({
+      businessId: business.id,
+      ingredientId: kopi.id,
+      receivedAt: now,
+      expiryDate: new Date(now.getTime() + 5 * 86400000), // +5 days
+      purchaseQty: 100,
+      purchaseUnit: "g",
+      purchaseUnitPrice: "20000.00",
+      initialQtyBase: 100,
+      remainingQtyBase: 100, // 100g available
+      costPerBase: "200.000000",
+    });
+
+    const batchLater = await createTestBatch({
+      businessId: business.id,
+      ingredientId: kopi.id,
+      receivedAt: now,
+      expiryDate: new Date(now.getTime() + 30 * 86400000), // +30 days
+      purchaseQty: 200,
+      purchaseUnit: "g",
+      purchaseUnitPrice: "50000.00",
+      initialQtyBase: 200,
+      remainingQtyBase: 200, // 200g available
+      costPerBase: "250.000000",
+    });
+
+    // 3. Create Menu with Recipe (1 portion = 150g kopi)
+    const menu = await createTestMenuWithRecipe({
+      businessId: business.id,
+      name: "Americano Double Shot",
+      sellingPrice: "25000.00",
+      isActive: true,
+      recipeItems: [
+        {
+          ingredientId: kopi.id,
+          qtyUsableBase: 150,
+        },
+      ],
+    });
+
+    // 4. Checkout 1 portion -> requires 150g kopi
+    // Should take all 100g from batchEarlier, and 50g from batchLater
+    const sale = await saleRepo.checkoutAtomic({
+      businessId: business.id,
+      cashierId: cashier.id,
+      idempotencyKey: "idem-key-fefo-1",
+      paymentMethod: "CASH",
+      items: [{ menuId: menu.id, qty: 1 }],
+      overheadPerPortion: new Decimal("1000.00"),
+    });
+
+    expect(sale.id).toBeDefined();
+    expect(sale.invoiceNo).toMatch(/^INV-\d{8}-[A-Z0-9]{6}$/);
+
+    // Verify batch remaining quantities
+    const updatedEarlier = await prisma.stockBatch.findUniqueOrThrow({
+      where: { id: batchEarlier.id },
+    });
+    const updatedLater = await prisma.stockBatch.findUniqueOrThrow({
+      where: { id: batchLater.id },
+    });
+
+    expect(new Decimal(updatedEarlier.remainingQtyBase.toString()).toNumber()).toBe(0);
+    expect(new Decimal(updatedLater.remainingQtyBase.toString()).toNumber()).toBe(150);
+
+    // Verify stock movements
+    const movements = await prisma.stockMovement.findMany({
+      where: {
+        businessId: business.id,
+        refType: "SALE_ITEM",
+        refId: { in: sale.items.map((i) => i.id) },
+      },
+      orderBy: { createdAt: "asc" },
+    });
+    expect(movements.length).toBe(2);
+    expect(movements[0]?.batchId).toBe(batchEarlier.id);
+    expect(new Decimal(movements[0]?.qtyBaseDelta.toString() ?? "0").toNumber()).toBe(-100);
+    expect(movements[1]?.batchId).toBe(batchLater.id);
+    expect(new Decimal(movements[1]?.qtyBaseDelta.toString() ?? "0").toNumber()).toBe(-50);
+
+    // 5. Test idempotency: repeating the same idempotency key returns same sale, no new movements
+    const repeatedSale = await saleRepo.checkoutAtomic({
+      businessId: business.id,
+      cashierId: cashier.id,
+      idempotencyKey: "idem-key-fefo-1",
+      paymentMethod: "CASH",
+      items: [{ menuId: menu.id, qty: 1 }],
+      overheadPerPortion: new Decimal("1000.00"),
+    });
+
+    expect(repeatedSale.id).toBe(sale.id);
+    const movementCount = await prisma.stockMovement.count({
+      where: {
+        businessId: business.id,
+        refType: "SALE_ITEM",
+        refId: { in: sale.items.map((i) => i.id) },
+      },
+    });
+    expect(movementCount).toBe(2);
+  });
+
+  it("rolls back completely when stock is insufficient and leaves batches intact", async () => {
+    const business = await createTestBusiness("sale-shortage");
+    businessIds.push(business.id);
+    const cashier = await createTestUser(business.id, "CASHIER");
+
+    const susu = await createTestIngredient({
+      businessId: business.id,
+      name: "Susu Segar",
+      category: IngredientCategory.MAIN,
+      baseUnit: BaseUnit.ML,
+      yieldPercent: 100,
+    });
+
+    const now = new Date();
+    const batch = await createTestBatch({
+      businessId: business.id,
+      ingredientId: susu.id,
+      receivedAt: now,
+      expiryDate: new Date(now.getTime() + 10 * 86400000),
+      purchaseQty: 100,
+      purchaseUnit: "ml",
+      purchaseUnitPrice: "5000.00",
+      initialQtyBase: 100,
+      remainingQtyBase: 100, // Only 100ml available
+      costPerBase: "50.000000",
+    });
+
+    const menu = await createTestMenuWithRecipe({
+      businessId: business.id,
+      name: "Caffe Latte",
+      sellingPrice: "20000.00",
+      isActive: true,
+      recipeItems: [
+        {
+          ingredientId: susu.id,
+          qtyUsableBase: 200, // Needs 200ml per portion
+        },
+      ],
+    });
+
+    // Attempt to checkout 1 portion (needs 200ml, only 100ml available)
+    await expect(
+      saleRepo.checkoutAtomic({
+        businessId: business.id,
+        cashierId: cashier.id,
+        idempotencyKey: "idem-shortage",
+        paymentMethod: "CASH",
+        items: [{ menuId: menu.id, qty: 1 }],
+        overheadPerPortion: new Decimal("500.00"),
+      })
+    ).rejects.toThrow(InsufficientStockError);
+
+    // Verify stockBatch is untouched
+    const batchAfter = await prisma.stockBatch.findUniqueOrThrow({
+      where: { id: batch.id },
+    });
+    expect(new Decimal(batchAfter.remainingQtyBase.toString()).toNumber()).toBe(100);
+
+    // Verify no sales or movements created
+    const salesCount = await prisma.sale.count({ where: { businessId: business.id } });
+    expect(salesCount).toBe(0);
+  });
+
+  it("handles two concurrent checkouts safely: one succeeds, one fails with InsufficientStockError, stock never negative", async () => {
+    const business = await createTestBusiness("sale-race");
+    businessIds.push(business.id);
+    const cashier = await createTestUser(business.id, "CASHIER");
+
+    const matcha = await createTestIngredient({
+      businessId: business.id,
+      name: "Matcha Powder",
+      category: IngredientCategory.MAIN,
+      baseUnit: BaseUnit.G,
+      yieldPercent: 100,
+    });
+
+    const now = new Date();
+    const batch = await createTestBatch({
+      businessId: business.id,
+      ingredientId: matcha.id,
+      receivedAt: now,
+      expiryDate: new Date(now.getTime() + 15 * 86400000),
+      purchaseQty: 100,
+      purchaseUnit: "g",
+      purchaseUnitPrice: "10000.00",
+      initialQtyBase: 100,
+      remainingQtyBase: 100, // Exactly 100g available
+      costPerBase: "100.000000",
+    });
+
+    // Menu needs 70g per portion
+    const menu = await createTestMenuWithRecipe({
+      businessId: business.id,
+      name: "Pure Matcha",
+      sellingPrice: "30000.00",
+      isActive: true,
+      recipeItems: [
+        {
+          ingredientId: matcha.id,
+          qtyUsableBase: 70,
+        },
+      ],
+    });
+
+    // Execute two simultaneous checkouts requesting 70g each (total 140g > 100g available)
+    const results = await Promise.allSettled([
+      saleRepo.checkoutAtomic({
+        businessId: business.id,
+        cashierId: cashier.id,
+        idempotencyKey: "race-key-1",
+        paymentMethod: "CASH",
+        items: [{ menuId: menu.id, qty: 1 }],
+        overheadPerPortion: new Decimal("500.00"),
+      }),
+      saleRepo.checkoutAtomic({
+        businessId: business.id,
+        cashierId: cashier.id,
+        idempotencyKey: "race-key-2",
+        paymentMethod: "CASH",
+        items: [{ menuId: menu.id, qty: 1 }],
+        overheadPerPortion: new Decimal("500.00"),
+      }),
+    ]);
+
+    const fulfilled = results.filter((r) => r.status === "fulfilled");
+    const rejected = results.filter((r) => r.status === "rejected");
+
+    // Exactly one must succeed and one must be rejected with InsufficientStockError
+    expect(fulfilled.length).toBe(1);
+    expect(rejected.length).toBe(1);
+
+    const error = (rejected[0] as PromiseRejectedResult).reason;
+    expect(error).toBeInstanceOf(InsufficientStockError);
+
+    // Verify stock is exactly 30g (100 - 70), never negative
+    const batchAfter = await prisma.stockBatch.findUniqueOrThrow({
+      where: { id: batch.id },
+    });
+    const finalStock = new Decimal(batchAfter.remainingQtyBase.toString()).toNumber();
+    expect(finalStock).toBe(30);
+    expect(finalStock).toBeGreaterThanOrEqual(0);
+  });
+});

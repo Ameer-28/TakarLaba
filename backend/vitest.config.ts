@@ -6,6 +6,7 @@ export default defineConfig({
     include: ["tests/**/*.test.ts"],
     exclude: ["**/node_modules/**", "**/dist/**", "tests/integration/db/**"],
     passWithNoTests: true,
+    fileParallelism: false,
     env: {
       LOG_LEVEL: "silent",
       DATABASE_URL: "postgresql://dummy:dummy@localhost:5432/takarlaba_test",
