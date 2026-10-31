@@ -3,7 +3,6 @@ import { formatRupiah } from "../../../lib/format.js";
 
 interface CashPaymentFieldsProps {
   cashReceived: number;
-  cashReceivedInput: string;
   totalAmount: number;
   change: number;
   isCashInsufficient: boolean;
@@ -14,7 +13,6 @@ interface CashPaymentFieldsProps {
 
 export function CashPaymentFields({
   cashReceived,
-  cashReceivedInput: _cashReceivedInput,
   totalAmount,
   change,
   isCashInsufficient,

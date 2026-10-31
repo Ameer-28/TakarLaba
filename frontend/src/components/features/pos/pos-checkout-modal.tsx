@@ -129,7 +129,6 @@ export function PosCheckoutModal({ isOpen, onClose, cartItems, onSuccess }: PosC
           {paymentMethod === "CASH" ? (
             <CashPaymentFields
               cashReceived={cashReceived}
-              cashReceivedInput={cashReceivedInput}
               totalAmount={totalAmount}
               change={change}
               isCashInsufficient={isCashInsufficient}

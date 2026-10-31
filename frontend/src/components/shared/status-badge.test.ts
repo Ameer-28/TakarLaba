@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { resolveStatusConfig } from "./status-badge";
+import { resolveStatusConfig } from "./status-badge-config";
 
 describe("resolveStatusConfig", () => {
   it("resolves SEHAT to success variant", () => {

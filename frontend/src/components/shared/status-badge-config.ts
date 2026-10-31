@@ -1,0 +1,62 @@
+export type StatusVariant = "success" | "warning" | "danger" | "neutral" | "info";
+
+export const VARIANT_STYLES: Record<StatusVariant, { badge: string; icon: string }> = {
+  success: {
+    badge: "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-400 dark:border-emerald-800",
+    icon: "text-emerald-600 dark:text-emerald-400",
+  },
+  warning: {
+    badge: "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/40 dark:text-amber-400 dark:border-amber-800",
+    icon: "text-amber-600 dark:text-amber-400",
+  },
+  danger: {
+    badge: "bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-950/40 dark:text-rose-400 dark:border-rose-800",
+    icon: "text-rose-600 dark:text-rose-400",
+  },
+  neutral: {
+    badge: "bg-zinc-100 text-zinc-700 border-zinc-200 dark:bg-zinc-800 dark:text-zinc-300 dark:border-zinc-700",
+    icon: "text-zinc-500 dark:text-zinc-400",
+  },
+  info: {
+    badge: "bg-sky-50 text-sky-700 border-sky-200 dark:bg-sky-950/40 dark:text-sky-400 dark:border-sky-800",
+    icon: "text-sky-600 dark:text-sky-400",
+  },
+};
+
+export function resolveStatusConfig(status?: string | null, explicitVariant?: StatusVariant) {
+  if (explicitVariant) {
+    return { variant: explicitVariant, defaultLabel: status ?? "" };
+  }
+
+  const normalized = (status ?? "").toUpperCase().trim();
+  switch (normalized) {
+    case "SEHAT":
+      return { variant: "success" as const, defaultLabel: "Sehat" };
+    case "TIPIS":
+      return { variant: "warning" as const, defaultLabel: "Tipis" };
+    case "KRITIS":
+      return { variant: "danger" as const, defaultLabel: "Kritis" };
+    case "RUGI":
+      return { variant: "danger" as const, defaultLabel: "Rugi" };
+    case "INCOMPLETE":
+      return { variant: "neutral" as const, defaultLabel: "Belum Lengkap" };
+    case "COMPLETED":
+      return { variant: "success" as const, defaultLabel: "Selesai" };
+    case "REFUNDED":
+      return { variant: "danger" as const, defaultLabel: "Refund" };
+    case "ACTIVE":
+      return { variant: "success" as const, defaultLabel: "Aktif" };
+    case "INACTIVE":
+      return { variant: "neutral" as const, defaultLabel: "Nonaktif" };
+    case "AMAN":
+      return { variant: "success" as const, defaultLabel: "Aman" };
+    case "SEGERA":
+    case "WASPADA":
+      return { variant: "warning" as const, defaultLabel: "Segera" };
+    case "KEDALUWARSA":
+    case "BAHAYA":
+      return { variant: "danger" as const, defaultLabel: "Kedaluwarsa" };
+    default:
+      return { variant: "neutral" as const, defaultLabel: status || "-" };
+  }
+}
