@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { X, Banknote, QrCode, ArrowRightLeft, AlertCircle, Loader2, Check } from "lucide-react";
+import { X, AlertCircle, Loader2 } from "lucide-react";
 import type { CartItem } from "./types.js";
 import {
   useCheckoutSale,
@@ -9,6 +9,9 @@ import {
 import { formatRupiah } from "../../../lib/format.js";
 import { generateIdempotencyKey } from "../../../api/client.js";
 import { getCartTotalAmount } from "./cart-reducer.js";
+import { calculateQuickCashOptions } from "./pos-utils.js";
+import { PaymentMethodSelector } from "./payment-method-selector.js";
+import { CashPaymentFields } from "./cash-payment-fields.js";
 
 interface PosCheckoutModalProps {
   isOpen: boolean;
@@ -34,27 +37,10 @@ export function PosCheckoutModal({ isOpen, onClose, cartItems, onSuccess }: PosC
   const change = Math.max(0, cashReceived - totalAmount);
   const isCashInsufficient = paymentMethod === "CASH" && cashReceived < totalAmount;
 
-  // Quick cash recommendation buttons
-  const quickCashOptions = useMemo(() => {
-    const set = new Set<number>();
-    set.add(totalAmount); // Uang pas
-
-    const denominations = [10000, 20000, 50000, 100000];
-    for (const denom of denominations) {
-      if (denom >= totalAmount) {
-        set.add(denom);
-      } else {
-        const nextRound = Math.ceil(totalAmount / denom) * denom;
-        if (nextRound > totalAmount && nextRound <= 500000) {
-          set.add(nextRound);
-        }
-      }
-    }
-
-    return Array.from(set)
-      .sort((a, b) => a - b)
-      .slice(0, 4);
-  }, [totalAmount]);
+  const quickCashOptions = useMemo(
+    () => calculateQuickCashOptions(totalAmount),
+    [totalAmount]
+  );
 
   if (!isOpen) return null;
 
@@ -116,7 +102,6 @@ export function PosCheckoutModal({ isOpen, onClose, cartItems, onSuccess }: PosC
 
         {/* Content Body */}
         <div className="p-6 space-y-5 overflow-y-auto max-h-[80vh]">
-          {/* Error Banner */}
           {errorMessage && (
             <div className="p-3.5 bg-rose-50 border border-rose-200 rounded-2xl flex items-start gap-2.5 text-xs text-rose-800">
               <AlertCircle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
@@ -127,7 +112,6 @@ export function PosCheckoutModal({ isOpen, onClose, cartItems, onSuccess }: PosC
             </div>
           )}
 
-          {/* Total Tagihan Card */}
           <div className="bg-slate-50/80 p-4 rounded-2xl border border-slate-100 text-center">
             <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block">
               Total Tagihan
@@ -140,117 +124,19 @@ export function PosCheckoutModal({ isOpen, onClose, cartItems, onSuccess }: PosC
             </span>
           </div>
 
-          {/* Payment Method Selector */}
-          <div className="space-y-2">
-            <label className="text-xs font-bold text-slate-700 uppercase tracking-wider block">
-              Metode Pembayaran
-            </label>
-            <div className="grid grid-cols-3 gap-2">
-              <button
-                type="button"
-                onClick={() => setPaymentMethod("CASH")}
-                className={`flex flex-col items-center justify-center p-3 rounded-2xl border transition-all cursor-pointer ${
-                  paymentMethod === "CASH"
-                    ? "bg-emerald-50 border-emerald-500 text-emerald-800 font-bold shadow-xs"
-                    : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50"
-                }`}
-              >
-                <Banknote className="w-5 h-5 mb-1 text-emerald-600" />
-                <span className="text-xs">Tunai</span>
-              </button>
+          <PaymentMethodSelector value={paymentMethod} onChange={setPaymentMethod} />
 
-              <button
-                type="button"
-                onClick={() => setPaymentMethod("QRIS")}
-                className={`flex flex-col items-center justify-center p-3 rounded-2xl border transition-all cursor-pointer ${
-                  paymentMethod === "QRIS"
-                    ? "bg-emerald-50 border-emerald-500 text-emerald-800 font-bold shadow-xs"
-                    : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50"
-                }`}
-              >
-                <QrCode className="w-5 h-5 mb-1 text-sky-600" />
-                <span className="text-xs">QRIS</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setPaymentMethod("TRANSFER")}
-                className={`flex flex-col items-center justify-center p-3 rounded-2xl border transition-all cursor-pointer ${
-                  paymentMethod === "TRANSFER"
-                    ? "bg-emerald-50 border-emerald-500 text-emerald-800 font-bold shadow-xs"
-                    : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50"
-                }`}
-              >
-                <ArrowRightLeft className="w-5 h-5 mb-1 text-purple-600" />
-                <span className="text-xs">Transfer</span>
-              </button>
-            </div>
-          </div>
-
-          {/* Cash Payment Details */}
           {paymentMethod === "CASH" ? (
-            <div className="space-y-3 pt-1">
-              <div>
-                <label className="text-xs font-bold text-slate-700 uppercase tracking-wider block mb-1.5">
-                  Uang Diterima (Rp)
-                </label>
-                <div className="relative">
-                  <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-sm font-bold text-slate-400">
-                    Rp
-                  </span>
-                  <input
-                    type="text"
-                    inputMode="numeric"
-                    value={cashReceived ? cashReceived.toLocaleString("id-ID") : ""}
-                    onChange={(e) => setCashReceivedInput(e.target.value)}
-                    placeholder="0"
-                    className="w-full pl-10 pr-4 py-2.5 text-base font-black text-slate-900 bg-slate-50 border border-slate-200 rounded-xl focus:outline-hidden focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 tabular-nums transition-all"
-                  />
-                </div>
-              </div>
-
-              {/* Quick Cash Suggestions */}
-              <div className="flex flex-wrap items-center gap-1.5">
-                {quickCashOptions.map((amount) => (
-                  <button
-                    key={amount}
-                    type="button"
-                    onClick={() => setCashReceivedInput(amount.toString())}
-                    className={`px-2.5 py-1 text-xs rounded-lg font-bold transition-colors cursor-pointer border ${
-                      cashReceived === amount
-                        ? "bg-emerald-600 text-white border-emerald-600"
-                        : "bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100"
-                    }`}
-                  >
-                    {amount === totalAmount ? "Uang Pas" : formatRupiah(amount)}
-                  </button>
-                ))}
-              </div>
-
-              {/* Kembalian Box */}
-              <div
-                className={`p-3.5 rounded-2xl border flex items-center justify-between transition-colors ${
-                  isCashInsufficient
-                    ? "bg-amber-50/70 border-amber-200 text-amber-900"
-                    : "bg-emerald-50/80 border-emerald-200 text-emerald-900"
-                }`}
-              >
-                <div>
-                  <span className="text-xs font-bold uppercase tracking-wider block">
-                    {isCashInsufficient ? "Kurang Bayar" : "Kembalian"}
-                  </span>
-                  <span className="text-xl font-black tabular-nums">
-                    {formatRupiah(isCashInsufficient ? totalAmount - cashReceived : change)}
-                  </span>
-                </div>
-
-                {!isCashInsufficient && (
-                  <div className="w-8 h-8 rounded-full bg-emerald-600 text-white flex items-center justify-center shrink-0">
-                    <Check className="w-4 h-4" />
-                  </div>
-                )}
-              </div>
-            </div>
+            <CashPaymentFields
+              cashReceived={cashReceived}
+              cashReceivedInput={cashReceivedInput}
+              totalAmount={totalAmount}
+              change={change}
+              isCashInsufficient={isCashInsufficient}
+              quickCashOptions={quickCashOptions}
+              onChangeInput={setCashReceivedInput}
+              onSelectOption={(amount) => setCashReceivedInput(amount.toString())}
+            />
           ) : (
             <div className="p-4 bg-sky-50/60 border border-sky-100 rounded-2xl text-xs text-sky-900 space-y-1">
               <p className="font-bold">
