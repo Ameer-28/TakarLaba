@@ -75,16 +75,12 @@ export class DashboardService {
     const targetMarginDefault = new Decimal(business.targetMarginDefault.toString());
     const expiryWarnDays = business.expiryWarnDays;
 
-    // Time window for today in WIB (Asia/Jakarta)
     const startDate = startOfDayWIB();
     const endDate = endOfDayWIB();
-
-    // Threshold date for expiring batches: today + expiryWarnDays (inclusive)
     const thresholdDate = new Date(startDate);
     thresholdDate.setDate(thresholdDate.getDate() + expiryWarnDays);
     const thresholdEnd = endOfDayWIB(thresholdDate);
 
-    // Fetch data in parallel
     const [
       salesAgg,
       recentSalesRaw,
@@ -105,15 +101,44 @@ export class DashboardService {
       this.repo.getCounts(businessId),
     ]);
 
-    // 1. Sales metrics
+    const salesMetrics = this.computeSalesMetrics(salesAgg);
+    const expiringStockValue = this.computeExpiringStockValue(expiringBatches);
+    const { availableStockMap, lowStockCount } = this.computeStockLevels(ingredients);
+    const lowestCapacityMenus = this.computeLowestCapacityMenus(menus, availableStockMap);
+    const topAlerts = this.formatTopAlerts(topAlertsRaw);
+    const recentSales = this.formatRecentSales(recentSalesRaw);
+
+    const isNewBusiness =
+      counts.saleCount === 0 && counts.menuCount === 0 && counts.ingredientCount === 0;
+
+    return {
+      summary: {
+        omzet: salesMetrics.omzet.toFixed(2),
+        transactionCount: salesMetrics.transactionCount,
+        estimatedProfit: salesMetrics.estimatedProfit.toFixed(2),
+        averageMarginPercent: salesMetrics.averageMarginPercent.toFixed(1),
+        openAlertCount,
+        expiringStockValue: expiringStockValue.toFixed(2),
+        lowStockCount,
+        targetMargin: toPercent(targetMarginDefault).toFixed(1),
+        expiryWarnDays,
+      },
+      topAlerts,
+      lowestCapacityMenus,
+      recentSales,
+      isNewBusiness,
+    };
+  }
+
+  private computeSalesMetrics(
+    salesAgg: Awaited<ReturnType<DashboardRepository["getTodaySalesAggregate"]>>
+  ) {
     const omzet = toMoney(new Decimal(salesAgg._sum.totalAmount?.toString() ?? "0"));
     const totalIngredientCost = toMoney(
       new Decimal(salesAgg._sum.totalIngredientCost?.toString() ?? "0")
     );
     const totalOverhead = toMoney(new Decimal(salesAgg._sum.totalOverhead?.toString() ?? "0"));
     const transactionCount = salesAgg._count.id ?? 0;
-
-    // Estimated profit = omzet - ingredientCostActual - overheadAllocated (FR-DASH-01)
     const estimatedProfit = toMoney(omzet.minus(totalIngredientCost).minus(totalOverhead));
 
     let averageMarginPercent = new Decimal(0);
@@ -121,42 +146,51 @@ export class DashboardService {
       averageMarginPercent = toPercent(estimatedProfit.dividedBy(omzet).times(100));
     }
 
-    // 2. Expiring stock value
-    let totalExpiringValue = new Decimal(0);
-    for (const batch of expiringBatches) {
-      const remaining = new Decimal(batch.remainingQtyBase.toString());
-      const cost = new Decimal(batch.costPerBase.toString());
-      totalExpiringValue = totalExpiringValue.plus(remaining.times(cost));
-    }
-    const expiringStockValue = toMoney(totalExpiringValue);
+    return { omzet, transactionCount, estimatedProfit, averageMarginPercent };
+  }
 
-    // 3. Stock levels & valid stock map for capacity calculation
+  private computeExpiringStockValue(
+    batches: Awaited<ReturnType<DashboardRepository["getExpiringBatches"]>>
+  ): Decimal {
+    let total = new Decimal(0);
+    for (const b of batches) {
+      const remaining = new Decimal(b.remainingQtyBase.toString());
+      const cost = new Decimal(b.costPerBase.toString());
+      total = total.plus(remaining.times(cost));
+    }
+    return toMoney(total);
+  }
+
+  private computeStockLevels(
+    ingredients: Awaited<ReturnType<DashboardRepository["getActiveIngredientsWithBatches"]>>
+  ) {
     const availableStockMap = new Map<string, Decimal>();
     let lowStockCount = 0;
 
     for (const ing of ingredients) {
       let validStock = new Decimal(0);
-
-      for (const batch of ing.stockBatches) {
-        if (!isExpired(batch.expiryDate)) {
-          validStock = validStock.plus(new Decimal(batch.remainingQtyBase.toString()));
+      for (const b of ing.stockBatches) {
+        if (!isExpired(b.expiryDate)) {
+          validStock = validStock.plus(new Decimal(b.remainingQtyBase.toString()));
         }
       }
-
       availableStockMap.set(ing.id, validStock);
-
-      const minStock = new Decimal(ing.minStockBase.toString());
-      if (validStock.lessThanOrEqualTo(minStock)) {
+      if (validStock.lessThanOrEqualTo(new Decimal(ing.minStockBase.toString()))) {
         lowStockCount++;
       }
     }
 
-    // 4. Menu capacity calculation
+    return { availableStockMap, lowStockCount };
+  }
+
+  private computeLowestCapacityMenus(
+    menus: Awaited<ReturnType<DashboardRepository["getActiveMenusWithRecipes"]>>,
+    availableStockMap: Map<string, Decimal>
+  ): DashboardSummaryResponse["lowestCapacityMenus"] {
     const capacityList: DashboardSummaryResponse["lowestCapacityMenus"] = [];
 
     for (const menu of menus) {
-      const hasRecipe = menu.recipeItems.length > 0;
-      if (!hasRecipe) {
+      if (menu.recipeItems.length === 0) {
         capacityList.push({
           id: menu.id,
           name: menu.name,
@@ -202,17 +236,18 @@ export class DashboardService {
       });
     }
 
-    // Sort by capacity ASC, then name ASC, take top 5
     capacityList.sort((a, b) => {
-      if (a.capacity !== b.capacity) {
-        return a.capacity - b.capacity;
-      }
+      if (a.capacity !== b.capacity) return a.capacity - b.capacity;
       return a.name.localeCompare(b.name);
     });
-    const lowestCapacityMenus = capacityList.slice(0, 5);
 
-    // 5. Format top alerts
-    const topAlerts = topAlertsRaw.map((a) => ({
+    return capacityList.slice(0, 5);
+  }
+
+  private formatTopAlerts(
+    alerts: Awaited<ReturnType<DashboardRepository["getTopAlerts"]>>
+  ): DashboardSummaryResponse["topAlerts"] {
+    return alerts.map((a) => ({
       id: a.id,
       menuId: a.menuId,
       menuName: a.menu.name,
@@ -229,9 +264,12 @@ export class DashboardService {
       fullCostAfter: toMoney(new Decimal(a.fullCostAfter.toString())).toFixed(2),
       createdAt: a.createdAt.toISOString(),
     }));
+  }
 
-    // 6. Format recent sales
-    const recentSales = recentSalesRaw.map((s) => ({
+  private formatRecentSales(
+    sales: Awaited<ReturnType<DashboardRepository["getRecentSales"]>>
+  ): DashboardSummaryResponse["recentSales"] {
+    return sales.map((s) => ({
       id: s.id,
       invoiceNo: s.invoiceNo,
       soldAt: s.soldAt.toISOString(),
@@ -240,28 +278,6 @@ export class DashboardService {
       cashierName: s.cashier?.name ?? "Kasir",
       itemCount: s.items.reduce((sum, item) => sum + item.qty, 0),
     }));
-
-    // 7. Check if new business
-    const isNewBusiness =
-      counts.saleCount === 0 && counts.menuCount === 0 && counts.ingredientCount === 0;
-
-    return {
-      summary: {
-        omzet: omzet.toFixed(2),
-        transactionCount,
-        estimatedProfit: estimatedProfit.toFixed(2),
-        averageMarginPercent: averageMarginPercent.toFixed(1),
-        openAlertCount,
-        expiringStockValue: expiringStockValue.toFixed(2),
-        lowStockCount,
-        targetMargin: toPercent(targetMarginDefault).toFixed(1),
-        expiryWarnDays,
-      },
-      topAlerts,
-      lowestCapacityMenus,
-      recentSales,
-      isNewBusiness,
-    };
   }
 }
 
