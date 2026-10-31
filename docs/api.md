@@ -1166,6 +1166,80 @@ Menandai peringatan telah ditinjau pemilik usaha (mengubah status dari `OPEN` ke
 - **Autentikasi:** Wajib sesi aktif role `OWNER`.
 - **Response 200 OK:** Mengembalikan objek alert dengan `status: "ACKNOWLEDGED"`.
 
+### 3.10 Dashboard & Ringkasan Bisnis (T-053 — AC: FR-DASH-01)
+
+#### GET `/api/dashboard/summary`
+Mengambil metrik ringkasan harian (omzet hari ini WIB, transaksi, estimasi laba kotor setelah HPP aktual & alokasi overhead, nilai rupiah bahan kedaluwarsa ≤ N hari, jumlah stok rendah), 5 peringatan margin teratas, 5 menu dengan estimasi kapasitas porsi terendah beserta bahan pembatasnya (bottleneck), dan transaksi penjualan terkini.
+
+- **Metode:** `GET`
+- **Autentikasi:** Wajib sesi aktif role `OWNER` (role `CASHIER` ditolak dengan `403 FORBIDDEN` guna menjaga kerahasiaan biaya bisnis sesuai Aturan 7).
+- **Response 200 OK:**
+  ```json
+  {
+    "ok": true,
+    "data": {
+      "summary": {
+        "omzet": "150000.00",
+        "transactionCount": 8,
+        "estimatedProfit": "75000.00",
+        "averageMarginPercent": "50.0",
+        "openAlertCount": 1,
+        "expiringStockValue": "100000.00",
+        "lowStockCount": 1,
+        "targetMargin": "50.0",
+        "expiryWarnDays": 3
+      },
+      "topAlerts": [
+        {
+          "id": "alert-cuid",
+          "menuId": "menu-cuid",
+          "menuName": "Es Kopi Susu Aren",
+          "category": "Coffee",
+          "status": "OPEN",
+          "currentPrice": "18000.00",
+          "recommendedPrice": "20000.00",
+          "marginBeforePct": "50.3",
+          "marginAfterPct": "45.3",
+          "targetPct": "50.0",
+          "ingredientCostBefore": "7740.00",
+          "ingredientCostAfter": "8640.00",
+          "fullCostBefore": "8940.00",
+          "fullCostAfter": "9840.00",
+          "createdAt": "2026-10-31T08:00:00.000Z"
+        }
+      ],
+      "lowestCapacityMenus": [
+        {
+          "id": "menu-cuid",
+          "name": "Es Kopi Susu Aren",
+          "category": "Coffee",
+          "sellingPrice": "18000.00",
+          "capacity": 10,
+          "hasRecipe": true,
+          "bottleneckIngredient": {
+            "id": "ing-cuid",
+            "name": "Susu UHT",
+            "remainingStock": "1500.000",
+            "unit": "ml"
+          }
+        }
+      ],
+      "recentSales": [
+        {
+          "id": "sale-cuid",
+          "invoiceNo": "INV-20261031-0001",
+          "soldAt": "2026-10-31T10:00:00.000Z",
+          "totalAmount": "36000.00",
+          "paymentMethod": "QRIS",
+          "cashierName": "Kasir 1",
+          "itemCount": 2
+        }
+      ],
+      "isNewBusiness": false
+    }
+  }
+  ```
+
 ---
 
 ## 4. Kontrak Direncanakan (Roadmap Fitur)

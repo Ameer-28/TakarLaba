@@ -8,6 +8,7 @@ import { overheadRouter } from "./overhead.routes.js";
 import { menuRouter } from "./menu.routes.js";
 import { saleRouter } from "./sale.routes.js";
 import { alertRouter } from "./alert.routes.js";
+import { dashboardRouter } from "./dashboard.routes.js";
 
 export const apiRouter = Router();
 
@@ -20,3 +21,4 @@ apiRouter.use(overheadRouter);
 apiRouter.use(menuRouter);
 apiRouter.use(saleRouter);
 apiRouter.use(alertRouter);
+apiRouter.use(dashboardRouter);

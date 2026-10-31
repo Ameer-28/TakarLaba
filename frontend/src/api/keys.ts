@@ -62,4 +62,8 @@ export const queryKeys = {
         ? ([...queryKeys.overheads.all, "list", filter] as const)
         : ([...queryKeys.overheads.all, "list"] as const),
   },
+  dashboard: {
+    all: ["dashboard"] as const,
+    summary: () => [...queryKeys.dashboard.all, "summary"] as const,
+  },
 };
