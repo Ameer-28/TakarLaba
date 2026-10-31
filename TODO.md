@@ -66,7 +66,7 @@ Aturan: hanya satu tugas `[/]` per agent pada satu waktu.
 
 - [x] **T-050** (P0) [BE] `domain/pricing.ts` (Opsi A/B, pembulatan step) + test — AC: 20.000 dan 115 ml
 - [x] **T-051** (P0) [BE] Evaluasi alert saat pembelian + `reevaluateAlertsForMenu` (resep/harga/overhead/target) + auto-resolve — dep: T-050, T-021
-- [ ] **T-052** (P0) [BE+FE] Modal dampak pasca-pembelian + Pusat Peringatan + aksi terapkan harga/abaikan — AC: FR-PSI-01
+- [x] **T-052** (P0) [BE+FE] Modal dampak pasca-pembelian + Pusat Peringatan + aksi terapkan harga/abaikan — AC: FR-PSI-01
 - [ ] **T-053** (P0) [BE+FE] Dashboard v1 (omzet, transaksi, laba estimasi, alert, kedaluwarsa, stok rendah) — AC: FR-DASH-01
 
 ### Demo & submission (paralel, mulai 26 Okt)
@@ -145,6 +145,7 @@ Aturan: hanya satu tugas `[/]` per agent pada satu waktu.
 
 | Tanggal    | Agent/Orang | Ringkasan                                                                                                                                                                                                                                                                                                             | Tugas terkait              |
 | ---------- | ----------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------- |
+| 2026-10-31 | Agent       | Selesai T-052: Modal dampak pasca-pembelian (Price Shock Impact Modal) + Halaman Pusat Peringatan (KPI cards, tab filter, card alert, detail modal resep & Opsi B, dialog abaikan dengan catatan, aksi terapkan harga instan) | T-052                      |
 | 2026-10-30 | Agent       | Selesai T-051: Evaluasi alert margin pasca-pembelian dan re-evaluasi menu/overhead/target margin dengan auto-resolve, repository & service alert, endpoint GET/POST /api/alerts, serta 28 test files lulus 100% | T-051                      |
 | 2026-10-30 | Agent       | Selesai T-050: Domain murni pricing & price shock (BR-05, BR-06) dengan evaluasi pemicu alert, pembulatan step ceil(val/step)*step, Opsi A (naikkan harga) dan Opsi B (tahan harga & efisiensi porsi dengan batas kelayakan 50%), lulus 100% pada Fixture A: Rp20.000 dan 115 ml                                | T-050                      |
 | 2026-10-30 | Agent       | Selesai T-044 (Fase 4 lengkap): Halaman riwayat penjualan dengan KPI summary cards, filter tanggal/pembayaran/pencarian, modal rincian transaksi interaktif beserta detail alokasi batch bahan baku FEFO, cetak ulang struk thermal, dan proteksi kerahasiaan kasir (Rule 7)                                        | T-044                      |

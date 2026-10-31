@@ -29,7 +29,11 @@ export const queryKeys = {
   },
   alerts: {
     all: ["alerts"] as const,
-    list: () => [...queryKeys.alerts.all, "list"] as const,
+    list: (filter?: Record<string, unknown>) =>
+      filter
+        ? ([...queryKeys.alerts.all, "list", filter] as const)
+        : ([...queryKeys.alerts.all, "list"] as const),
+    detail: (id: string) => [...queryKeys.alerts.all, "detail", id] as const,
   },
   purchases: {
     all: ["purchases"] as const,

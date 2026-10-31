@@ -3,8 +3,11 @@ import { useForm, useFieldArray, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { Plus, Sparkles } from "lucide-react";
+import { useState } from "react";
 import { useCreatePurchase } from "@/api/hooks/use-purchases";
 import type { Ingredient } from "@/api/hooks/use-ingredients";
+import type { ImpactedMenuAlert } from "@/api/hooks/use-alerts";
+import { PriceShockImpactModal } from "./purchases/price-shock-impact-modal";
 import { ApiError } from "@/api/client";
 import { purchaseFormSchema, type PurchaseFormValues } from "./purchases/purchase-form-types";
 import { PurchaseLineItem } from "./purchases/purchase-line-item";
@@ -21,6 +24,8 @@ interface PurchaseModalProps {
 
 export function PurchaseModal({ isOpen, onClose, ingredients, onSuccess }: PurchaseModalProps) {
   const createMutation = useCreatePurchase();
+  const [shockAlerts, setShockAlerts] = useState<ImpactedMenuAlert[]>([]);
+  const [showShockModal, setShowShockModal] = useState(false);
   const todayStr = useMemo(() => new Date().toISOString().split("T")[0]!, []);
   const activeIngredients = useMemo(() => ingredients.filter((i) => i.isActive), [ingredients]);
   const defaultIngredient = activeIngredients[0];
@@ -119,7 +124,13 @@ export function PurchaseModal({ isOpen, onClose, ingredients, onSuccess }: Purch
       );
       reset();
       onSuccess?.();
-      onClose();
+
+      if (result.priceShockAlerts && result.priceShockAlerts.length > 0) {
+        setShockAlerts(result.priceShockAlerts);
+        setShowShockModal(true);
+      } else {
+        onClose();
+      }
     } catch (err) {
       toast.error(
         err instanceof ApiError ? err.message : "Gagal menyimpan nota belanja. Periksa isian form."
@@ -127,70 +138,83 @@ export function PurchaseModal({ isOpen, onClose, ingredients, onSuccess }: Purch
     }
   };
 
-  if (!isOpen) return null;
+  if (!isOpen && !showShockModal) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs animate-in fade-in duration-200">
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-y-auto">
-        <PurchaseModalHeader onClose={onClose} />
+    <>
+      {isOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs animate-in fade-in duration-200">
+          <div className="bg-white rounded-2xl border border-slate-200 shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-y-auto">
+            <PurchaseModalHeader onClose={onClose} />
 
-        <form onSubmit={handleSubmit(onSubmit)} className="p-6 space-y-6">
-          <PurchaseInvoiceFields register={register} errors={errors} todayStr={todayStr} />
+            <form onSubmit={handleSubmit(onSubmit)} className="p-6 space-y-6">
+              <PurchaseInvoiceFields register={register} errors={errors} todayStr={todayStr} />
 
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-emerald-600" />
-                <h4 className="text-xs font-bold text-slate-900 uppercase tracking-wider">
-                  Daftar Bahan yang Dibeli ({fields.length} Item)
-                </h4>
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Sparkles className="w-4 h-4 text-emerald-600" />
+                    <h4 className="text-xs font-bold text-slate-900 uppercase tracking-wider">
+                      Daftar Bahan yang Dibeli ({fields.length} Item)
+                    </h4>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      append({
+                        ingredientId: activeIngredients[0]?.id || "",
+                        purchaseUnit: activeIngredients[0]?.baseUnit || "G",
+                        purchaseQty: 1,
+                        purchaseUnitPrice: 10000,
+                        expiryDate: "",
+                      })
+                    }
+                    disabled={activeIngredients.length === 0}
+                    className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-emerald-50 text-emerald-700 hover:bg-emerald-100 text-xs font-semibold border border-emerald-200 transition-all disabled:opacity-50"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                    <span>Tambah Baris</span>
+                  </button>
+                </div>
+
+                <div className="space-y-3">
+                  {fields.map((field, index) => (
+                    <PurchaseLineItem
+                      key={field.id}
+                      index={index}
+                      fieldId={field.id}
+                      activeIngredients={activeIngredients}
+                      register={register}
+                      watchedItem={watchedItems?.[index]}
+                      todayStr={todayStr}
+                      canRemove={fields.length > 1}
+                      onRemove={() => remove(index)}
+                      onIngredientChange={(id) => handleIngredientChange(index, id)}
+                    />
+                  ))}
+                </div>
               </div>
-              <button
-                type="button"
-                onClick={() =>
-                  append({
-                    ingredientId: activeIngredients[0]?.id || "",
-                    purchaseUnit: activeIngredients[0]?.baseUnit || "G",
-                    purchaseQty: 1,
-                    purchaseUnitPrice: 10000,
-                    expiryDate: "",
-                  })
-                }
-                disabled={activeIngredients.length === 0}
-                className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-emerald-50 text-emerald-700 hover:bg-emerald-100 text-xs font-semibold border border-emerald-200 transition-all disabled:opacity-50"
-              >
-                <Plus className="w-3.5 h-3.5" />
-                <span>Tambah Baris</span>
-              </button>
-            </div>
 
-            <div className="space-y-3">
-              {fields.map((field, index) => (
-                <PurchaseLineItem
-                  key={field.id}
-                  index={index}
-                  fieldId={field.id}
-                  activeIngredients={activeIngredients}
-                  register={register}
-                  watchedItem={watchedItems?.[index]}
-                  todayStr={todayStr}
-                  canRemove={fields.length > 1}
-                  onRemove={() => remove(index)}
-                  onIngredientChange={(id) => handleIngredientChange(index, id)}
-                />
-              ))}
-            </div>
+              <PurchaseModalFooter
+                totalAmount={totalAmount}
+                onCancel={onClose}
+                isPending={createMutation.isPending}
+                canSubmit={activeIngredients.length > 0}
+              />
+            </form>
           </div>
+        </div>
+      )}
 
-          <PurchaseModalFooter
-            totalAmount={totalAmount}
-            onCancel={onClose}
-            isPending={createMutation.isPending}
-            canSubmit={activeIngredients.length > 0}
-          />
-        </form>
-      </div>
-    </div>
+      <PriceShockImpactModal
+        isOpen={showShockModal}
+        onClose={() => {
+          setShowShockModal(false);
+          onClose();
+        }}
+        alerts={shockAlerts}
+      />
+    </>
   );
 }
 
