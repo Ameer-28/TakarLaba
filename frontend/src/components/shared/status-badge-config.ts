@@ -2,23 +2,28 @@ export type StatusVariant = "success" | "warning" | "danger" | "neutral" | "info
 
 export const VARIANT_STYLES: Record<StatusVariant, { badge: string; icon: string }> = {
   success: {
-    badge: "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-400 dark:border-emerald-800",
+    badge:
+      "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-400 dark:border-emerald-800",
     icon: "text-emerald-600 dark:text-emerald-400",
   },
   warning: {
-    badge: "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/40 dark:text-amber-400 dark:border-amber-800",
+    badge:
+      "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/40 dark:text-amber-400 dark:border-amber-800",
     icon: "text-amber-600 dark:text-amber-400",
   },
   danger: {
-    badge: "bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-950/40 dark:text-rose-400 dark:border-rose-800",
+    badge:
+      "bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-950/40 dark:text-rose-400 dark:border-rose-800",
     icon: "text-rose-600 dark:text-rose-400",
   },
   neutral: {
-    badge: "bg-zinc-100 text-zinc-700 border-zinc-200 dark:bg-zinc-800 dark:text-zinc-300 dark:border-zinc-700",
+    badge:
+      "bg-zinc-100 text-zinc-700 border-zinc-200 dark:bg-zinc-800 dark:text-zinc-300 dark:border-zinc-700",
     icon: "text-zinc-500 dark:text-zinc-400",
   },
   info: {
-    badge: "bg-sky-50 text-sky-700 border-sky-200 dark:bg-sky-950/40 dark:text-sky-400 dark:border-sky-800",
+    badge:
+      "bg-sky-50 text-sky-700 border-sky-200 dark:bg-sky-950/40 dark:text-sky-400 dark:border-sky-800",
     icon: "text-sky-600 dark:text-sky-400",
   },
 };

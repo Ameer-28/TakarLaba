@@ -26,7 +26,9 @@ export function MenuKpiCards({ metrics }: MenuKpiCardsProps) {
           </div>
         </div>
         <p className="text-2xl font-black text-slate-900 mt-2 tabular-nums">{metrics.total}</p>
-        <span className="text-xs text-slate-500 mt-1 block">{metrics.active} menu aktif dijual</span>
+        <span className="text-xs text-slate-500 mt-1 block">
+          {metrics.active} menu aktif dijual
+        </span>
       </div>
 
       {/* Margin Aman */}

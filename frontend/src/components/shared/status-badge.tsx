@@ -7,11 +7,7 @@ import {
   RotateCcw,
   Info,
 } from "lucide-react";
-import {
-  type StatusVariant,
-  VARIANT_STYLES,
-  resolveStatusConfig,
-} from "./status-badge-config.js";
+import { type StatusVariant, VARIANT_STYLES, resolveStatusConfig } from "./status-badge-config.js";
 
 export interface StatusBadgeProps {
   status?: string | null;

@@ -37,10 +37,7 @@ export function PosCheckoutModal({ isOpen, onClose, cartItems, onSuccess }: PosC
   const change = Math.max(0, cashReceived - totalAmount);
   const isCashInsufficient = paymentMethod === "CASH" && cashReceived < totalAmount;
 
-  const quickCashOptions = useMemo(
-    () => calculateQuickCashOptions(totalAmount),
-    [totalAmount]
-  );
+  const quickCashOptions = useMemo(() => calculateQuickCashOptions(totalAmount), [totalAmount]);
 
   if (!isOpen) return null;
 

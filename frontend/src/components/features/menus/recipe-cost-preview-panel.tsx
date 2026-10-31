@@ -1,4 +1,11 @@
-import { Sparkles, Loader2, CheckCircle2, AlertTriangle, AlertCircle, HelpCircle } from "lucide-react";
+import {
+  Sparkles,
+  Loader2,
+  CheckCircle2,
+  AlertTriangle,
+  AlertCircle,
+  HelpCircle,
+} from "lucide-react";
 import type { PreviewCostResponse, MenuItem } from "../../../api/hooks/use-menus.js";
 import { formatRupiah, formatPercent } from "../../../lib/format.js";
 
@@ -85,7 +92,9 @@ export function RecipeCostPreviewPanel({
       <div className="p-3 bg-slate-800/80 rounded-xl space-y-2 border border-slate-700/60 text-xs">
         <div className="flex items-center justify-between">
           <span className="text-slate-400">Harga Jual Menu</span>
-          <span className="font-bold text-white tabular-nums">{formatRupiah(menu.sellingPrice)}</span>
+          <span className="font-bold text-white tabular-nums">
+            {formatRupiah(menu.sellingPrice)}
+          </span>
         </div>
         <div className="flex items-center justify-between">
           <span className="text-slate-400">Margin Kontribusi (Rp)</span>

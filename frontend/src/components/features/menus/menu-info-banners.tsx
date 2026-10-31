@@ -9,8 +9,9 @@ export function MenuInfoBanners() {
           <p className="font-bold">HPP Bahan vs HPP Penuh (BR-04)</p>
           <p className="text-emerald-900 leading-relaxed">
             <strong>HPP Bahan</strong> menghitung total biaya bahan baku berdasarkan nota pembelian
-            terbaru (replacement cost). <strong>HPP Penuh</strong> menambahkan alokasi beban overhead
-            per porsi agar laba bersih usaha Anda terlindungi dari biaya sewa, listrik, dan gaji.
+            terbaru (replacement cost). <strong>HPP Penuh</strong> menambahkan alokasi beban
+            overhead per porsi agar laba bersih usaha Anda terlindungi dari biaya sewa, listrik, dan
+            gaji.
           </p>
         </div>
       </div>
@@ -23,8 +24,8 @@ export function MenuInfoBanners() {
             Status <span className="font-semibold text-emerald-700">Aman</span> jika margin memenuhi
             target usaha. Status <span className="font-semibold text-amber-700">Waspada</span> jika
             turun dalam rentang 5 pp di bawah target. Status{" "}
-            <span className="font-semibold text-rose-700">Bahaya</span> jika turun lebih dari 5 pp di
-            bawah target.
+            <span className="font-semibold text-rose-700">Bahaya</span> jika turun lebih dari 5 pp
+            di bawah target.
           </p>
         </div>
       </div>
