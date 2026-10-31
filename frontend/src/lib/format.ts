@@ -85,7 +85,40 @@ export function formatQuantity(val: number | string | null | undefined, unit?: s
  * Format a date string or Date object into human-readable Indonesian date format.
  * Example: "22 Okt 2026" or "22 Oktober 2026, 14:30"
  */
-export function formatDate(date: string | Date | null | undefined, includeTime = false): string {
+export function formatDate(
+  date: string | Date | null | undefined,
+  options: { includeTime?: boolean; monthFormat?: "short" | "long" } | boolean = false
+): string {
+  if (!date) {
+    return "-";
+  }
+
+  const dateObj = typeof date === "string" ? new Date(date) : date;
+  if (Number.isNaN(dateObj.getTime())) {
+    return "-";
+  }
+
+  const includeTime = typeof options === "boolean" ? options : (options.includeTime ?? false);
+  const monthFormat = typeof options === "boolean" ? "short" : (options.monthFormat ?? "short");
+
+  return new Intl.DateTimeFormat("id-ID", {
+    timeZone: "Asia/Jakarta",
+    day: "numeric",
+    month: monthFormat,
+    year: "numeric",
+    ...(includeTime
+      ? {
+          hour: "2-digit",
+          minute: "2-digit",
+        }
+      : {}),
+  }).format(dateObj);
+}
+
+/**
+ * Format time only (e.g. "14:30").
+ */
+export function formatTime(date: string | Date | null | undefined): string {
   if (!date) {
     return "-";
   }
@@ -96,14 +129,8 @@ export function formatDate(date: string | Date | null | undefined, includeTime =
   }
 
   return new Intl.DateTimeFormat("id-ID", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-    ...(includeTime
-      ? {
-          hour: "2-digit",
-          minute: "2-digit",
-        }
-      : {}),
+    timeZone: "Asia/Jakarta",
+    hour: "2-digit",
+    minute: "2-digit",
   }).format(dateObj);
 }
