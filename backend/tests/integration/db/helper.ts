@@ -47,14 +47,89 @@ export async function createTestUser(businessId: string, role = "OWNER") {
 }
 
 /**
- * Cleans up created test businesses and all associated cascade records.
+ * Cleans up created test businesses and all associated records in proper FK dependency order.
  */
 export async function cleanupBusinesses(businessIds: string[]) {
   if (!hasTestDb || businessIds.length === 0) return;
-  await prisma.business.deleteMany({
-    where: {
-      id: { in: businessIds },
-    },
+
+  await prisma.$transaction(async (tx) => {
+    // 1. SaleItem (via saleId)
+    await tx.saleItem.deleteMany({
+      where: { sale: { businessId: { in: businessIds } } },
+    });
+
+    // 2. Sale
+    await tx.sale.deleteMany({
+      where: { businessId: { in: businessIds } },
+    });
+
+    // 3. StockMovement
+    await tx.stockMovement.deleteMany({
+      where: { businessId: { in: businessIds } },
+    });
+
+    // 4. MarginAlert
+    await tx.marginAlert.deleteMany({
+      where: { businessId: { in: businessIds } },
+    });
+
+    // 5. MenuPriceHistory (via menuId)
+    await tx.menuPriceHistory.deleteMany({
+      where: { menu: { businessId: { in: businessIds } } },
+    });
+
+    // 6. RecipeItem (via menuId)
+    await tx.recipeItem.deleteMany({
+      where: { menu: { businessId: { in: businessIds } } },
+    });
+
+    // 7. Menu
+    await tx.menu.deleteMany({
+      where: { businessId: { in: businessIds } },
+    });
+
+    // 8. OverheadCost
+    await tx.overheadCost.deleteMany({
+      where: { businessId: { in: businessIds } },
+    });
+
+    // 9. StockBatch
+    await tx.stockBatch.deleteMany({
+      where: { businessId: { in: businessIds } },
+    });
+
+    // 10. Purchase
+    await tx.purchase.deleteMany({
+      where: { businessId: { in: businessIds } },
+    });
+
+    // 11. IngredientUnit (via ingredientId)
+    await tx.ingredientUnit.deleteMany({
+      where: { ingredient: { businessId: { in: businessIds } } },
+    });
+
+    // 12. Ingredient
+    await tx.ingredient.deleteMany({
+      where: { businessId: { in: businessIds } },
+    });
+
+    // 13. Better Auth user tables (session, account, user)
+    await tx.session.deleteMany({
+      where: { user: { businessId: { in: businessIds } } },
+    });
+
+    await tx.account.deleteMany({
+      where: { user: { businessId: { in: businessIds } } },
+    });
+
+    await tx.user.deleteMany({
+      where: { businessId: { in: businessIds } },
+    });
+
+    // 14. Business
+    await tx.business.deleteMany({
+      where: { id: { in: businessIds } },
+    });
   });
 }
 
