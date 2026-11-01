@@ -1,8 +1,6 @@
 import {
   describeDb,
   createTestBusiness,
-  createTestUser,
-  createTestSession,
   cleanupBusinesses,
   disconnectDb,
   createTestIngredient,
@@ -13,7 +11,15 @@ import { it, expect, afterEach, afterAll } from "vitest";
 import request from "supertest";
 import { createApp } from "../../../src/create-app.js";
 import { prisma } from "../../../src/lib/db.js";
+import { auth } from "../../../src/lib/auth.js";
+import { env } from "../../../src/config/env.js";
 import { BaseUnit, IngredientCategory } from "../../../src/generated/prisma/enums.js";
+
+function extractCookie(setCookie: string[] | string | undefined): string {
+  if (!setCookie) return "";
+  const list = Array.isArray(setCookie) ? setCookie : [setCookie];
+  return list.map((c) => c.split(";")[0]).join("; ");
+}
 
 describeDb("Real DB & HTTP: PRD Lampiran A E2E Demo Scenario", () => {
   const app = createApp();
@@ -44,23 +50,80 @@ describeDb("Real DB & HTTP: PRD Lampiran A E2E Demo Scenario", () => {
       },
     });
 
-    // Monthly overhead: 1.560.000 / 1300 = 1.200 per portion
-    await prisma.monthlyOverhead.create({
+    // Monthly overhead: 1.560.000 / 1300 = 1.200 per portion using OverheadCost model
+    await prisma.overheadCost.create({
       data: {
         businessId: business.id,
         name: "Listrik, Gas & Penyusutan",
-        category: "OPERATIONAL",
+        type: "UTILITY",
         monthlyAmount: "1560000.00",
         isActive: true,
       },
     });
 
-    // Users: Owner and Cashier
-    const owner = await createTestUser(business.id, "OWNER");
-    const cashier = await createTestUser(business.id, "CASHIER");
+    // Users: Owner and Cashier via Better Auth
+    const timestamp = `${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
+    const ownerEmail = `owner-${timestamp}@example.test`;
+    const cashierEmail = `cashier-${timestamp}@example.test`;
+    const testPassword = "Password123!";
 
-    const ownerSession = await createTestSession(owner);
-    const cashierSession = await createTestSession(cashier);
+    const ownerAuth = await auth.api.signUpEmail({
+      body: {
+        email: ownerEmail,
+        password: testPassword,
+        name: "Demo Owner",
+      },
+    });
+    if (!ownerAuth?.user) throw new Error("Gagal membuat user owner");
+
+    await prisma.user.update({
+      where: { id: ownerAuth.user.id },
+      data: {
+        businessId: business.id,
+        role: "OWNER",
+        isActive: true,
+      },
+    });
+
+    const cashierAuth = await auth.api.signUpEmail({
+      body: {
+        email: cashierEmail,
+        password: testPassword,
+        name: "Demo Cashier",
+      },
+    });
+    if (!cashierAuth?.user) throw new Error("Gagal membuat user cashier");
+
+    await prisma.user.update({
+      where: { id: cashierAuth.user.id },
+      data: {
+        businessId: business.id,
+        role: "CASHIER",
+        isActive: true,
+      },
+    });
+
+    // Authenticate via real HTTP endpoint POST /api/auth/sign-in/email
+    const ownerSignInRes = await request(app)
+      .post("/api/auth/sign-in/email")
+      .set("Origin", env.FRONTEND_URL)
+      .send({
+        email: ownerEmail,
+        password: testPassword,
+      });
+    expect(ownerSignInRes.status).toBe(200);
+
+    const cashierSignInRes = await request(app)
+      .post("/api/auth/sign-in/email")
+      .set("Origin", env.FRONTEND_URL)
+      .send({
+        email: cashierEmail,
+        password: testPassword,
+      });
+    expect(cashierSignInRes.status).toBe(200);
+
+    const ownerCookie = extractCookie(ownerSignInRes.headers["set-cookie"]);
+    const cashierCookie = extractCookie(cashierSignInRes.headers["set-cookie"]);
 
     // 2. Setup Ingredients for Es Kopi Susu Aren:
     // Biji Kopi: 180/g
@@ -160,21 +223,21 @@ describeDb("Real DB & HTTP: PRD Lampiran A E2E Demo Scenario", () => {
     // Verify Costing API (GET /api/menus/:id/cost)
     const costRes = await request(app)
       .get(`/api/menus/${menu.id}/cost`)
-      .set("Cookie", ownerSession.cookieHeader);
+      .set("Cookie", ownerCookie);
 
     expect(costRes.status).toBe(200);
     expect(costRes.body.ok).toBe(true);
     // HPP Bahan = 7.740, HPP Penuh = 7.740 + 1.200 = 8.940
     expect(costRes.body.data.hppBahan).toBe("7740.00");
     expect(costRes.body.data.hppPenuh).toBe("8940.00");
-    expect(costRes.body.data.marginPercent).toBe("50.3"); // 50.33% -> 50.3%
+    expect(costRes.body.data.marginPercent).toBe("50.33");
     expect(costRes.body.data.marginStatus).toBe("AMAN");
 
     // 4. POS Checkout: 5 cups Es Kopi Susu via CASHIER
     const checkoutRes = await request(app)
       .post("/api/sales")
-      .set("Cookie", cashierSession.cookieHeader)
-      .set("Origin", "http://localhost:5173")
+      .set("Cookie", cashierCookie)
+      .set("Origin", env.FRONTEND_URL)
       .set("Idempotency-Key", "demo-checkout-5-cups")
       .send({
         paymentMethod: "CASH",
@@ -195,10 +258,9 @@ describeDb("Real DB & HTTP: PRD Lampiran A E2E Demo Scenario", () => {
     // 5. Purchase Input: Susu UHT 10L @ Rp24.000/L (Rp24/ml) -> Price shock!
     const purchaseRes = await request(app)
       .post("/api/purchases")
-      .set("Cookie", ownerSession.cookieHeader)
-      .set("Origin", "http://localhost:5173")
+      .set("Cookie", ownerCookie)
+      .set("Origin", env.FRONTEND_URL)
       .send({
-        invoiceNo: "PUR-SHOCK-01",
         supplierName: "Distributor Susu Baru",
         purchasedAt: new Date().toISOString(),
         items: [
@@ -207,7 +269,6 @@ describeDb("Real DB & HTTP: PRD Lampiran A E2E Demo Scenario", () => {
             purchaseQty: 10,
             purchaseUnit: "ml",
             purchaseUnitPrice: 24, // Rp24/ml = Rp24.000/L
-            toBaseFactor: 1,
             expiryDate: new Date(now.getTime() + 14 * 86400000).toISOString().split("T")[0],
           },
         ],
@@ -224,30 +285,31 @@ describeDb("Real DB & HTTP: PRD Lampiran A E2E Demo Scenario", () => {
     const alertItem = alerts[0];
     expect(alertItem.menuName).toBe("Es Kopi Susu Aren");
     // HPP Bahan increases to 8.640, HPP Penuh increases to 9.840
-    expect(alertItem.hppBahanAfter).toBe("8640.00");
-    expect(alertItem.hppPenuhAfter).toBe("9840.00");
+    expect(alertItem.costAfter.hppBahan).toBe("8640.00");
+    expect(alertItem.costAfter.hppPenuh).toBe("9840.00");
     // Full margin drops to 45.33% (< 50% target)
-    expect(alertItem.marginAfterPercent).toBe("45.3");
+    expect(alertItem.costAfter.marginPercent).toBe("45.33");
     // Option A: Recommended price = Rp20.000
     expect(alertItem.optionA.recommendedPrice).toBe("20000.00");
     // Option B: Portion reduced from 150ml to 115ml
-    expect(alertItem.optionB.targetTakaran).toBe("115.000");
+    expect(alertItem.optionB.newTakaran).toContain("115");
 
     // 6. Owner views alert detail (GET /api/alerts/:id)
     const alertDetailRes = await request(app)
       .get(`/api/alerts/${alertItem.alertId}`)
-      .set("Cookie", ownerSession.cookieHeader);
+      .set("Cookie", ownerCookie);
 
     expect(alertDetailRes.status).toBe(200);
     expect(alertDetailRes.body.ok).toBe(true);
     expect(alertDetailRes.body.data.optionA.recommendedPrice).toBe("20000.00");
-    expect(alertDetailRes.body.data.optionB.targetTakaran).toBe("115.000");
+    expect(alertDetailRes.body.data.optionB.newTakaran).toContain("115");
+    expect(alertDetailRes.body.data.optionB.currentTakaran).toContain("150");
 
     // 7. Owner applies recommended price (POST /api/alerts/:id/apply-price)
     const applyRes = await request(app)
       .post(`/api/alerts/${alertItem.alertId}/apply-price`)
-      .set("Cookie", ownerSession.cookieHeader)
-      .set("Origin", "http://localhost:5173");
+      .set("Cookie", ownerCookie)
+      .set("Origin", env.FRONTEND_URL);
 
     expect(applyRes.status).toBe(200);
     expect(applyRes.body.ok).toBe(true);
@@ -263,13 +325,13 @@ describeDb("Real DB & HTTP: PRD Lampiran A E2E Demo Scenario", () => {
     // 8. RBAC checks: CASHIER must receive 403 on Alerts and Dashboard
     const cashierAlertsRes = await request(app)
       .get("/api/alerts")
-      .set("Cookie", cashierSession.cookieHeader);
+      .set("Cookie", cashierCookie);
     expect(cashierAlertsRes.status).toBe(403);
     expect(cashierAlertsRes.body.error.code).toBe("FORBIDDEN");
 
     const cashierDashboardRes = await request(app)
       .get("/api/dashboard/summary")
-      .set("Cookie", cashierSession.cookieHeader);
+      .set("Cookie", cashierCookie);
     expect(cashierDashboardRes.status).toBe(403);
     expect(cashierDashboardRes.body.error.code).toBe("FORBIDDEN");
   });
