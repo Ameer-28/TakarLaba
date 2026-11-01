@@ -205,20 +205,7 @@ export class SaleRepository {
     return batchesMap;
   }
 
-  private async persistSaleTransaction(
-    tx: Tx,
-    params: {
-      businessId: string;
-      cashierId: string;
-      idempotencyKey: string;
-      paymentMethod: PaymentMethod;
-      batchesMap: Map<string, FefoBatch[]>;
-      allocationResult: SaleAllocationResult;
-    }
-  ) {
-    const { businessId, cashierId, idempotencyKey, paymentMethod, batchesMap, allocationResult } =
-      params;
-
+  private async updateBatchStock(tx: Tx, batchesMap: Map<string, FefoBatch[]>) {
     for (const [, batches] of batchesMap) {
       for (const batch of batches) {
         await tx.stockBatch.update({
@@ -229,9 +216,18 @@ export class SaleRepository {
         });
       }
     }
+  }
 
+  private async createSaleRecord(
+    tx: Tx,
+    businessId: string,
+    cashierId: string,
+    idempotencyKey: string,
+    paymentMethod: PaymentMethod,
+    allocationResult: SaleAllocationResult
+  ) {
     const invoiceNo = generateInvoiceNo();
-    const createdSale = await tx.sale.create({
+    return tx.sale.create({
       data: {
         businessId,
         invoiceNo,
@@ -257,7 +253,15 @@ export class SaleRepository {
         items: true,
       },
     });
+  }
 
+  private async recordStockMovements(
+    tx: Tx,
+    businessId: string,
+    cashierId: string,
+    createdSale: Awaited<ReturnType<typeof this.createSaleRecord>>,
+    allocationResult: SaleAllocationResult
+  ) {
     const movementsToInsert = allocationResult.preparedItems.flatMap((prep, idx) => {
       const saleItemId = createdSale.items[idx]!.id;
       return prep.allocations.map((itemAlloc) => ({
@@ -278,6 +282,34 @@ export class SaleRepository {
         data: movementsToInsert,
       });
     }
+  }
+
+  private async persistSaleTransaction(
+    tx: Tx,
+    params: {
+      businessId: string;
+      cashierId: string;
+      idempotencyKey: string;
+      paymentMethod: PaymentMethod;
+      batchesMap: Map<string, FefoBatch[]>;
+      allocationResult: SaleAllocationResult;
+    }
+  ) {
+    const { businessId, cashierId, idempotencyKey, paymentMethod, batchesMap, allocationResult } =
+      params;
+
+    await this.updateBatchStock(tx, batchesMap);
+
+    const createdSale = await this.createSaleRecord(
+      tx,
+      businessId,
+      cashierId,
+      idempotencyKey,
+      paymentMethod,
+      allocationResult
+    );
+
+    await this.recordStockMovements(tx, businessId, cashierId, createdSale, allocationResult);
 
     return createdSale;
   }

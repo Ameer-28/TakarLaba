@@ -3,6 +3,37 @@
  */
 
 /**
+ * Shared pre-configured Intl.NumberFormat instances to prevent garbage collection churn.
+ */
+const rupiahZeroFormatter = new Intl.NumberFormat("id-ID", {
+  style: "currency",
+  currency: "IDR",
+  minimumFractionDigits: 0,
+  maximumFractionDigits: 0,
+});
+
+const rupiahDecimalsFormatter = new Intl.NumberFormat("id-ID", {
+  style: "currency",
+  currency: "IDR",
+  minimumFractionDigits: 2,
+  maximumFractionDigits: 2,
+});
+
+const numberFormatterCache = new Map<number, Intl.NumberFormat>();
+
+function getNumberFormatter(maxDecimals: number): Intl.NumberFormat {
+  let formatter = numberFormatterCache.get(maxDecimals);
+  if (!formatter) {
+    formatter = new Intl.NumberFormat("id-ID", {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: maxDecimals,
+    });
+    numberFormatterCache.set(maxDecimals, formatter);
+  }
+  return formatter;
+}
+
+/**
  * Format an amount into standard Indonesian Rupiah (e.g. "Rp15.000").
  */
 export function formatRupiah(
@@ -18,14 +49,8 @@ export function formatRupiah(
     return "Rp0";
   }
 
-  return new Intl.NumberFormat("id-ID", {
-    style: "currency",
-    currency: "IDR",
-    minimumFractionDigits: showDecimals ? 2 : 0,
-    maximumFractionDigits: showDecimals ? 2 : 0,
-  })
-    .format(numeric)
-    .replace(/\s+/g, ""); // "Rp 15.000" -> "Rp15.000"
+  const formatter = showDecimals ? rupiahDecimalsFormatter : rupiahZeroFormatter;
+  return formatter.format(numeric).replace(/\s+/g, ""); // "Rp 15.000" -> "Rp15.000"
 }
 
 /**
@@ -44,10 +69,7 @@ export function formatNumber(
     return "0";
   }
 
-  return new Intl.NumberFormat("id-ID", {
-    minimumFractionDigits: 0,
-    maximumFractionDigits,
-  }).format(numeric);
+  return getNumberFormatter(maximumFractionDigits).format(numeric);
 }
 
 /**
@@ -63,10 +85,7 @@ export function formatPercent(val: number | string | null | undefined, fractionD
     return "0%";
   }
 
-  return `${new Intl.NumberFormat("id-ID", {
-    minimumFractionDigits: 0,
-    maximumFractionDigits: fractionDigits,
-  }).format(numeric)}%`;
+  return `${getNumberFormatter(fractionDigits).format(numeric)}%`;
 }
 
 /**
