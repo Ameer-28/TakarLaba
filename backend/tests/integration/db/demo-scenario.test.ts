@@ -221,9 +221,7 @@ describeDb("Real DB & HTTP: PRD Lampiran A E2E Demo Scenario", () => {
     });
 
     // Verify Costing API (GET /api/menus/:id/cost)
-    const costRes = await request(app)
-      .get(`/api/menus/${menu.id}/cost`)
-      .set("Cookie", ownerCookie);
+    const costRes = await request(app).get(`/api/menus/${menu.id}/cost`).set("Cookie", ownerCookie);
 
     expect(costRes.status).toBe(200);
     expect(costRes.body.ok).toBe(true);
@@ -323,9 +321,7 @@ describeDb("Real DB & HTTP: PRD Lampiran A E2E Demo Scenario", () => {
     expect(Number(updatedMenu.sellingPrice)).toBe(20000);
 
     // 8. RBAC checks: CASHIER must receive 403 on Alerts and Dashboard
-    const cashierAlertsRes = await request(app)
-      .get("/api/alerts")
-      .set("Cookie", cashierCookie);
+    const cashierAlertsRes = await request(app).get("/api/alerts").set("Cookie", cashierCookie);
     expect(cashierAlertsRes.status).toBe(403);
     expect(cashierAlertsRes.body.error.code).toBe("FORBIDDEN");
 
