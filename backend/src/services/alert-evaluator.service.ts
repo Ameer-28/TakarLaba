@@ -189,6 +189,44 @@ export class AlertEvaluator {
     return null;
   }
 
+  private calculateAlertSnapshots(params: {
+    costingAfter: ReturnType<typeof evaluateRecipeCosting>;
+    targetMargin: Decimal;
+    currentPrice: Decimal;
+    roundingStep: number;
+    triggerIng: MenuWithRecipe["recipeItems"][number]["ingredient"];
+    triggerItem: MenuWithRecipe["recipeItems"][number];
+    newCostPerBase: Decimal;
+  }) {
+    const optA = buildOptionASnapshot(
+      params.costingAfter.hppPenuh!,
+      params.targetMargin,
+      params.currentPrice,
+      params.roundingStep
+    );
+    const optB = buildOptionBSnapshot({
+      sellingPrice: params.currentPrice,
+      targetMargin: params.targetMargin,
+      hppPenuh: params.costingAfter.hppPenuh!,
+      triggerIngredient: params.triggerIng,
+      currentTakaran: params.triggerItem.qtyUsableBase,
+      costPerBase: params.newCostPerBase,
+    });
+    return { optA, optB };
+  }
+
+  private async saveAlertRecord(
+    businessId: string,
+    menuId: string,
+    activeAlertId: string | undefined,
+    payload: ReturnType<typeof buildAlertPayload>
+  ) {
+    if (activeAlertId) {
+      return this.repo.update(activeAlertId, payload);
+    }
+    return this.repo.create({ businessId, menuId, ...payload });
+  }
+
   private async persistDipAlert(params: {
     ctx: PurchaseEvalContext;
     menu: MenuWithRecipe;
@@ -213,19 +251,14 @@ export class AlertEvaluator {
     } = params;
 
     const triggerIng = triggerItem.ingredient;
-    const optA = buildOptionASnapshot(
-      costingAfter.hppPenuh!,
+    const { optA, optB } = this.calculateAlertSnapshots({
+      costingAfter,
       targetMargin,
       currentPrice,
-      ctx.roundingStep
-    );
-    const optB = buildOptionBSnapshot({
-      sellingPrice: currentPrice,
-      targetMargin,
-      hppPenuh: costingAfter.hppPenuh!,
-      triggerIngredient: triggerIng,
-      currentTakaran: triggerItem.qtyUsableBase,
-      costPerBase: newCostPerBase,
+      roundingStep: ctx.roundingStep,
+      triggerIng,
+      triggerItem,
+      newCostPerBase,
     });
 
     const hppBahanBefore = costingBefore.hppBahan ?? costingAfter.hppBahan!;
@@ -246,9 +279,12 @@ export class AlertEvaluator {
       recommendedPrice: optA.raw.recommendedPrice,
     });
 
-    const alertRecord = activeAlertId
-      ? await this.repo.update(activeAlertId, alertPayload)
-      : await this.repo.create({ businessId: ctx.businessId, menuId: menu.id, ...alertPayload });
+    const alertRecord = await this.saveAlertRecord(
+      ctx.businessId,
+      menu.id,
+      activeAlertId,
+      alertPayload
+    );
 
     return buildImpactedMenuAlertDto({
       alertId: alertRecord.id,
