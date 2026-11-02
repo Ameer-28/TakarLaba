@@ -71,3 +71,13 @@ export class InsufficientStockError extends AppError {
     }
   }
 }
+
+export class DemoCooldownError extends AppError {
+  constructor(remainingSeconds: number) {
+    super(
+      `Tunggu ${remainingSeconds} detik sebelum reset data demo kembali`,
+      "DEMO_COOLDOWN",
+      429
+    );
+  }
+}
