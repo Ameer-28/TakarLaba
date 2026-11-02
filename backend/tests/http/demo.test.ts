@@ -29,12 +29,25 @@ vi.mock("../../src/seed/seed-demo.js", () => ({
   getDemoPassword: vi.fn(() => "DemoPassword123!"),
 }));
 
+vi.mock("../../src/config/env.js", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("../../src/config/env.js")>();
+  return {
+    ...actual,
+    env: {
+      ...actual.env,
+      DEMO_MODE: true,
+      FRONTEND_URL: "http://localhost:5173",
+    },
+  };
+});
+
 import { prisma } from "../../src/lib/db.js";
 import { auth } from "../../src/lib/auth.js";
 import { seedDemo } from "../../src/seed/seed-demo.js";
 import { env } from "../../src/config/env.js";
 import { createApp } from "../../src/create-app.js";
 import { DEMO_BUSINESS_ID } from "../../src/seed/fixture-data.js";
+import { DemoService } from "../../src/services/demo.service.js";
 
 describe("Demo Endpoints (/api/demo)", () => {
   const app = createApp();
@@ -232,6 +245,24 @@ describe("Demo Endpoints (/api/demo)", () => {
         },
         asResponse: true,
       });
+    });
+  });
+
+  describe("When demo mode is disabled", () => {
+    it("returns enabled: false and 0 cooldown from service", async () => {
+      const disabledService = new DemoService(false);
+      const status = await disabledService.getStatus();
+      expect(status).toEqual({ enabled: false, cooldownSeconds: 0 });
+    });
+
+    it("throws ForbiddenError on resetDemo when demo mode is disabled", async () => {
+      const disabledService = new DemoService(false);
+      await expect(disabledService.resetDemo()).rejects.toThrow("Mode demo dinonaktifkan");
+    });
+
+    it("throws ForbiddenError on loginDemo when demo mode is disabled", async () => {
+      const disabledService = new DemoService(false);
+      await expect(disabledService.loginDemo("OWNER")).rejects.toThrow("Mode demo dinonaktifkan");
     });
   });
 });

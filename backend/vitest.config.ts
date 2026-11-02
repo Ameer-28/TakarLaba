@@ -13,6 +13,7 @@ export default defineConfig({
       BETTER_AUTH_SECRET: "12345678901234567890123456789012",
       BETTER_AUTH_URL: "http://localhost:4000",
       FRONTEND_URL: "http://localhost:5173",
+      DEMO_MODE: "true",
     },
   },
 });

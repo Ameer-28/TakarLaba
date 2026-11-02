@@ -6,11 +6,13 @@ import { DEMO_BUSINESS_ID } from "../seed/fixture-data.js";
 import { seedDemo, getDemoPassword } from "../seed/seed-demo.js";
 
 export class DemoService {
+  constructor(private readonly isDemoMode: boolean = env.DEMO_MODE) {}
+
   /**
    * Retrieves current demo availability status and remaining cooldown seconds.
    */
   async getStatus(): Promise<{ enabled: boolean; cooldownSeconds: number }> {
-    if (!env.DEMO_MODE) {
+    if (!this.isDemoMode) {
       return { enabled: false, cooldownSeconds: 0 };
     }
 
@@ -34,7 +36,7 @@ export class DemoService {
    * Enforces 60-second cooldown via business.demoResetAt.
    */
   async resetDemo(): Promise<{ message: string; resetAt: string }> {
-    if (!env.DEMO_MODE) {
+    if (!this.isDemoMode) {
       throw new ForbiddenError("Mode demo dinonaktifkan di lingkungan ini");
     }
 
@@ -83,7 +85,7 @@ export class DemoService {
     session: unknown;
     role: "OWNER" | "CASHIER";
   }> {
-    if (!env.DEMO_MODE) {
+    if (!this.isDemoMode) {
       throw new ForbiddenError("Mode demo dinonaktifkan di lingkungan ini");
     }
 
