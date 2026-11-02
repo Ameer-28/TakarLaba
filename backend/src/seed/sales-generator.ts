@@ -39,13 +39,15 @@ export interface GeneratedSale {
   items: GeneratedSaleItem[];
 }
 
-export function generate30DaySales(options: {
-  businessId?: string;
-  cashierId?: string;
-  referenceDate?: Date;
-  seed?: number;
-  overheadPerPortion?: number;
-} = {}): { sales: GeneratedSale[]; totalPortions: number; menuPortions: Record<string, number> } {
+export function generate30DaySales(
+  options: {
+    businessId?: string;
+    cashierId?: string;
+    referenceDate?: Date;
+    seed?: number;
+    overheadPerPortion?: number;
+  } = {}
+): { sales: GeneratedSale[]; totalPortions: number; menuPortions: Record<string, number> } {
   const businessId = options.businessId ?? DEMO_BUSINESS_ID;
   const cashierId = options.cashierId ?? "demo-cashier-id";
   const refDate = options.referenceDate ?? todayWIB();

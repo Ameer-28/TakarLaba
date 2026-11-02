@@ -90,9 +90,7 @@ describe("Demo Endpoints (/api/demo)", () => {
         demoResetAt: resetTime,
       } as unknown as import("@prisma/client").Business);
 
-      const res = await request(app)
-        .post("/api/demo/reset")
-        .set("Origin", env.FRONTEND_URL);
+      const res = await request(app).post("/api/demo/reset").set("Origin", env.FRONTEND_URL);
 
       expect(res.status).toBe(429);
       expect(res.body.ok).toBe(false);
@@ -115,9 +113,7 @@ describe("Demo Endpoints (/api/demo)", () => {
         demoResetAt: new Date(),
       } as unknown as import("@prisma/client").Business);
 
-      const res = await request(app)
-        .post("/api/demo/reset")
-        .set("Origin", env.FRONTEND_URL);
+      const res = await request(app).post("/api/demo/reset").set("Origin", env.FRONTEND_URL);
 
       expect(res.status).toBe(200);
       expect(res.body.ok).toBe(true);
@@ -160,7 +156,10 @@ describe("Demo Endpoints (/api/demo)", () => {
       const fakeResponse = {
         ok: true,
         headers: {
-          get: (key: string) => (key.toLowerCase() === "set-cookie" ? "better-auth.session_token=fake-token; Path=/" : null),
+          get: (key: string) =>
+            key.toLowerCase() === "set-cookie"
+              ? "better-auth.session_token=fake-token; Path=/"
+              : null,
           getSetCookie: () => ["better-auth.session_token=fake-token; Path=/"],
         },
         json: async () => ({ user: mockUser, session: mockSession }),
@@ -202,7 +201,10 @@ describe("Demo Endpoints (/api/demo)", () => {
       const fakeResponse = {
         ok: true,
         headers: {
-          get: (key: string) => (key.toLowerCase() === "set-cookie" ? "better-auth.session_token=cashier-token; Path=/" : null),
+          get: (key: string) =>
+            key.toLowerCase() === "set-cookie"
+              ? "better-auth.session_token=cashier-token; Path=/"
+              : null,
           getSetCookie: () => ["better-auth.session_token=cashier-token; Path=/"],
         },
         json: async () => ({ user: mockUser, session: mockSession }),
