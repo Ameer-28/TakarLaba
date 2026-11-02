@@ -74,4 +74,8 @@ export const queryKeys = {
     all: ["demo"] as const,
     status: () => [...queryKeys.demo.all, "status"] as const,
   },
+  analytics: {
+    all: ["analytics"] as const,
+    capacity: () => [...queryKeys.analytics.all, "capacity"] as const,
+  },
 };

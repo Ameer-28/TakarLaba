@@ -1349,4 +1349,88 @@ Membuat sesi autentikasi secara terprogram untuk pengguna demo (`OWNER` atau `CA
 
 ---
 
+### 3.11 Analitik & Kapasitas Menu (`/api/analytics`)
+
+Fitur kalkulasi kapasitas porsi dan deteksi bahan pembatas (bottleneck) per menu aktif sesuai aturan bisnis BR-08 (FR-CAP-01).
+
+#### GET `/api/analytics/capacity`
+Menghitung estimasi sisa porsi menu berdasarkan stok bahan baku valid non-kedaluwarsa yang tersedia (`floor(min(stokRawValid / rawPerPorsi))`). Mengembalikan DTO tersanitasi untuk peran `CASHIER` (tanpa data rincian stok internal atau biaya) dan rincian lengkap untuk `OWNER`.
+
+- **Metode:** `GET`
+- **Autentikasi:** Sesi aktif (`OWNER` atau `CASHIER`)
+- **Header:** `Cookie: takarlaba_session=...`
+- **Request Body:** Tidak ada
+- **Response 200 OK (OWNER):**
+  ```json
+  {
+    "ok": true,
+    "data": [
+      {
+        "id": "menu-kopi-susu",
+        "name": "Es Kopi Susu Aren",
+        "category": "BEVERAGE",
+        "sellingPrice": "18000.00",
+        "hasRecipe": true,
+        "capacity": 25,
+        "bottleneckIngredientName": "Susu UHT",
+        "bottleneck": {
+          "ingredientId": "ing-susu",
+          "ingredientName": "Susu UHT",
+          "baseUnit": "ML",
+          "validStockBase": "3750.000",
+          "rawPerPortion": "150.000",
+          "maxPortions": 25
+        },
+        "items": [
+          {
+            "ingredientId": "ing-kopi",
+            "ingredientName": "Biji Kopi",
+            "baseUnit": "G",
+            "validStockBase": "720.000",
+            "rawPerPortion": "18.000",
+            "maxPortions": 40
+          },
+          {
+            "ingredientId": "ing-susu",
+            "ingredientName": "Susu UHT",
+            "baseUnit": "ML",
+            "validStockBase": "3750.000",
+            "rawPerPortion": "150.000",
+            "maxPortions": 25
+          }
+        ]
+      }
+    ]
+  }
+  ```
+- **Response 200 OK (CASHIER - DTO Sanitasi Rule 7):**
+  ```json
+  {
+    "ok": true,
+    "data": [
+      {
+        "id": "menu-kopi-susu",
+        "name": "Es Kopi Susu Aren",
+        "category": "BEVERAGE",
+        "sellingPrice": "18000.00",
+        "hasRecipe": true,
+        "capacity": 25,
+        "bottleneckIngredientName": "Susu UHT"
+      }
+    ]
+  }
+  ```
+- **Response 401 Unauthorized:**
+  ```json
+  {
+    "ok": false,
+    "error": {
+      "code": "UNAUTHENTICATED",
+      "message": "Sesi tidak valid atau telah berakhir"
+    }
+  }
+  ```
+
+---
+
 ## 4. Kontrak Direncanakan (Roadmap Fitur)
