@@ -47,6 +47,7 @@ Semua endpoint REST API TakarLaba menggunakan format envelope JSON standar yang 
 | `409 Conflict` | `INSUFFICIENT_STOCK` | Stok bahan batch FEFO tidak mencukupi saat proses checkout POS. |
 | `413 Payload Too Large` | `PAYLOAD_TOO_LARGE` | Body permintaan melebihi batas 100kb. |
 | `429 Too Many Requests` | `RATE_LIMITED` | Batas laju permintaan tercapai (rate limiter). |
+| `429 Too Many Requests` | `DEMO_COOLDOWN` | Jeda cooldown 60 detik antar permintaan reset demo belum terpenuhi. |
 | `500 Internal Server Error` | `INTERNAL_ERROR` | Kesalahan tidak terduga pada server backend (detail disembunyikan dari klien). |
 | `503 Service Unavailable` | `DATABASE_UNAVAILABLE` | Database PostgreSQL tidak terjangkau atau gagal merespons query. |
 
@@ -1259,6 +1260,89 @@ Mengambil metrik ringkasan harian (omzet hari ini WIB, transaksi, estimasi laba 
         }
       ],
       "isNewBusiness": false
+    }
+  }
+  ```
+
+---
+
+### 3.10 Akses Demo & Reset (`/api/demo`)
+
+Fitur khusus evaluasi juri dan demonstrasi deterministik (FR-DEMO-01/02). Hanya aktif jika `DEMO_MODE=true` di backend dan hanya mengoperasikan bisnis bertanda `isDemo: true`.
+
+#### GET `/api/demo/status`
+Memeriksa status ketersediaan mode demo dan sisa waktu jeda pendinginan (cooldown).
+
+- **Metode:** `GET`
+- **Autentikasi:** Publik
+- **Request Body:** Tidak ada
+- **Response 200 OK:**
+  ```json
+  {
+    "ok": true,
+    "data": {
+      "enabled": true,
+      "cooldownSeconds": 0
+    }
+  }
+  ```
+
+#### POST `/api/demo/reset`
+Mereset data bisnis demo kembali ke kondisi fixture deterministik awal (PRD Lampiran B), memuat riwayat 30 hari (1.300 porsi) dan saldo stok awal.
+
+- **Metode:** `POST`
+- **Autentikasi:** Publik (dibatasi `DEMO_MODE=true` dan tenant `isDemo: true`)
+- **Header:** `Origin: <FRONTEND_URL>`
+- **Request Body:** Tidak ada
+- **Response 200 OK:**
+  ```json
+  {
+    "ok": true,
+    "data": {
+      "message": "Data contoh demo berhasil direset ke kondisi awal",
+      "resetAt": "2026-10-31T12:00:00.000Z"
+    }
+  }
+  ```
+- **Response 429 Too Many Requests (Cooldown):**
+  ```json
+  {
+    "ok": false,
+    "error": {
+      "code": "DEMO_COOLDOWN",
+      "message": "Tunggu 45 detik sebelum reset data demo kembali"
+    }
+  }
+  ```
+
+#### POST `/api/demo/login`
+Membuat sesi autentikasi secara terprogram untuk pengguna demo (`OWNER` atau `CASHIER`) tanpa mengekspos kredensial kata sandi ke browser. Mengembalikan data profil dan header `Set-Cookie` sesi Better Auth.
+
+- **Metode:** `POST`
+- **Autentikasi:** Publik
+- **Header:** `Origin: <FRONTEND_URL>`
+- **Request Body:**
+  ```json
+  {
+    "role": "OWNER"
+  }
+  ```
+- **Response 200 OK:**
+  ```json
+  {
+    "ok": true,
+    "data": {
+      "user": {
+        "id": "demo-owner-id",
+        "email": "owner@takarlaba.demo",
+        "name": "Demo Pemilik",
+        "role": "OWNER"
+      },
+      "session": {
+        "id": "session-cuid",
+        "userId": "demo-owner-id"
+      },
+      "role": "OWNER"
     }
   }
   ```

@@ -104,6 +104,45 @@ Frontend akan berjalan di `http://localhost:5173` dengan proxy `/api` otomatis m
 
 ---
 
+## 🧪 Mode Demo & Evaluasi Juri (PRD Lampiran A & B)
+
+TakarLaba menyediakan sistem demonstrasi deterministik instan yang dirancang khusus untuk mempermudah evaluasi juri kompetisi **GTNIC 2026**:
+
+### 1. Konfigurasi Variabel Lingkungan
+Aktifkan mode demo pada konfigurasi backend (`backend/.env`):
+```ini
+DEMO_MODE=true
+DEMO_PASSWORD="DemoPassword123!"
+```
+
+### 2. Akun Demo Bawaan
+Tersedia dua peran pengguna demo siap pakai:
+- **Demo Pemilik (Owner):** `owner@takarlaba.demo` (akses penuh ke Dashboard, Analitik, HPP/Costing, Peringatan Margin, Pembelian, dan Pengaturan).
+- **Demo Kasir (Cashier):** `kasir@takarlaba.demo` (akses terbatas hanya ke layar POS dan Riwayat Penjualan, tanpa akses ke data biaya bahan, HPP, atau margin laba).
+
+> **Akses Cepat Instan:** Pada halaman `/login`, juri dapat langsung mengklik tombol **"Masuk sebagai Demo Owner"** atau **"Masuk sebagai Demo Kasir"** untuk langsung login tanpa perlu mengetikkan kata sandi.
+
+### 3. Pengisian Data Awal & Reset Data Contoh
+- Klik tombol **"Isi Data Contoh"** pada halaman login atau tombol **"Reset data contoh"** pada banner bagian atas App Shell.
+- Aksi ini memanggil endpoint `POST /api/demo/reset` yang secara atomik mereset bisnis demo ke kondisi fixture deterministik:
+  - **Overhead:** Rp1.560.000/bulan (Listrik, gas, air + penyusutan alat + biaya lain) dengan target volume 1.300 porsi $\rightarrow$ **Rp1.200/porsi**.
+  - **16 Bahan Baku:** Lengkap dengan rasio konversi satuan dasar (g, ml, pcs) dan harga pokok awal.
+  - **6 Menu & Resep:** Es Kopi Susu Aren (HPP Bahan 7.740, HPP Penuh 8.940, harga 18.000), Americano (4.800), Es Teh Manis (3.200), Roti Bakar (8.500), Matcha Latte (10.500), Croissant (12.500).
+  - **Riwayat Penjualan 30 Hari:** Tepat 1.300 porsi dengan bobot hari kerja dan akhir pekan serta kombinasi keranjang belanja realistis.
+  - **Saldo Stok Awal:** Stok Susu UHT Batch A segera kedaluwarsa (H+2), Croissant Beku dengan batch kedaluwarsa kemarin (H-1), dan Gula Aren Cair di bawah stok minimum.
+- Dilengkapi **jeda pendinginan (_cooldown_) 60 detik** via kolom `demoResetAt` untuk mencegah penyalahgunaan berulang.
+
+### 4. Demonstrasi Fitur Unggulan (Price Shock Impact)
+1. Masuk sebagai Demo Owner $\rightarrow$ buka menu **Es Kopi Susu Aren** (HPP Bahan Rp7.740, HPP Penuh Rp8.940, margin aman 50,33%).
+2. Masukkan pembelian baru Susu UHT 10 L @ Rp24.000/L (Rp24/ml).
+3. Modal **Price Shock Impact** otomatis muncul: HPP Penuh melonjak ke Rp9.840 sehingga margin penuh anjlok ke **45,33%** (< target 50%).
+4. Sistem memberikan dua solusi konkret:
+   - **Opsi A (Naikkan Harga):** Rekomendasi harga baru **Rp20.000** (pembulatan step 500, margin pulih ke 50,8%).
+   - **Opsi B (Rekayasa Porsi):** Pertahankan harga Rp18.000 dengan memangkas takaran susu dari **150 ml $\rightarrow$ 115 ml** (hemat Rp840).
+5. Klik **"Terapkan harga rekomendasi"** $\rightarrow$ harga menu otomatis terbarui dan status peringatan teratasi (_RESOLVED_).
+
+---
+
 ## 📜 Perintah yang Tersedia (NPM Scripts)
 
 ### Backend (`cd backend`)

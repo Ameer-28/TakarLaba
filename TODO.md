@@ -1,7 +1,7 @@
 # TODO.md — Pelacak Progres & Memori Proyek
 
 > AI **wajib** memperbarui file ini setiap selesai/mulai/terblokir pada satu tugas (lihat `WORKFLOW.md` §5).
-> Terakhir diperbarui: 2026-10-31 · Stack: React 19 + Vite / Express 5 / Prisma 7 · Status: Audit & Refaktor Menus/Sales/Alerts/POS Selesai 100%
+> Terakhir diperbarui: 2026-11-02 · Stack: React 19 + Vite / Express 5 / Prisma 7 · Status: Demo Seed & Reset Selesai 100% (T-060, T-061, T-062)
 
 ## Status Legend
 
@@ -75,9 +75,9 @@ Aturan: hanya satu tugas `[/]` per agent pada satu waktu.
 
 ### Demo & submission (paralel, mulai 26 Okt)
 
-- [ ] **T-060** (P0) [BE] Seed penuh fixture A & B (riwayat 30 hari deterministik, opening stock, edge case kedaluwarsa)
-- [ ] **T-061** (P0) [BE+FE] `POST /api/demo/reset` (guard `DEMO_MODE` + `isDemo` + cooldown 60 dtk) + tombol demo login — dep: T-060
-- [ ] **T-062** (P0) [FE] Banner Mode Demo + dry-run skrip demo Lampiran A
+- [x] **T-060** (P0) [BE] Seed penuh fixture A & B (riwayat 30 hari deterministik, opening stock, edge case kedaluwarsa)
+- [x] **T-061** (P0) [BE+FE] `POST /api/demo/reset` (guard `DEMO_MODE` + `isDemo` + cooldown 60 dtk) + tombol demo login — dep: T-060
+- [x] **T-062** (P0) [FE] Banner Mode Demo + dry-run skrip demo Lampiran A
 - [ ] **T-070** (P0) [DOC] README lengkap: masalah & solusi, fitur, stack & arsitektur, instalasi (frontend+backend+database), env vars, link live, screenshot
 - [ ] **T-071** (P0) [DOC] Verifikasi klaim kompetitor via trial; verifikasi sumber berita/statistik (PRD §1.2)
 - [ ] **T-072** (P0) [BE+FE] Security review (SKILL.md §2): tenant isolation, RBAC, DTO kasir, same-origin, helmet, rate limit
@@ -149,6 +149,7 @@ Aturan: hanya satu tugas `[/]` per agent pada satu waktu.
 
 | Tanggal    | Agent/Orang | Ringkasan                                                                                                                                                                                                                                                                                                             | Tugas terkait              |
 | ---------- | ----------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------- |
+| 2026-11-02 | Agent       | Selesai T-060, T-061, T-062: Fixture deterministik PRD Lampiran B (16 bahan, 6 menu, overhead Rp1.200/porsi), generator 1.300 porsi 30 hari PRNG, opening stock (Susu H+2, Croissant expired), endpoint demo (status, reset cooldown 60s, login tanpa password), UI banner & tombol login cepat, dan tests | T-060, T-061, T-062        |
 | 2026-11-01 | Agent       | Perbaikan FK cleanupBusinesses (urutan penghapusan SaleItem -> Business) dan demo-scenario.test.ts (OverheadCost & autentikasi via POST /api/auth/sign-in/email); dekomposisi menu.repo.ts, persistSaleTransaction, persistDipAlert, format.ts, menu-table, menu-modal; CI Run 37 diverifikasi 100% HIJAU (Backend test:integration lulus melawan PostgreSQL 17) | T-043, T-046               |
 | 2026-10-31 | Agent       | Audit perbaikan bug POS kasir (GET /api/pos/menus), pembuatan test integrasi DB nyata Postgres (sale-atomic & demo scenario Lampiran A), refactor backend & frontend; unit/HTTP tests lokal hijau | T-045, T-047, T-048        |
 | 2026-10-31 | Agent       | Selesai T-052: Modal dampak pasca-pembelian (Price Shock Impact Modal) + Halaman Pusat Peringatan (KPI cards, tab filter, card alert, detail modal resep & Opsi B, dialog abaikan dengan catatan, aksi terapkan harga instan) | T-052                      |
