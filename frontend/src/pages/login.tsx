@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from "react-router";
 import { signIn, useSession, type UserRole } from "@/lib/auth-client";
 import { toast } from "sonner";
 import { ShieldCheck, Loader2 } from "lucide-react";
+import { apiClient } from "@/api/client";
 import { LoginForm } from "@/components/features/auth/login-form";
 import { DemoAccountsPanel } from "@/components/features/auth/demo-accounts-panel";
 import type { LoginFormValues } from "@/components/features/auth/types";
@@ -60,30 +61,21 @@ export function LoginPage() {
   const handleDemoLogin = async (role: "owner" | "cashier") => {
     setAuthError(null);
     setIsDemoSubmitting(role);
-    const demoEmail = role === "owner" ? "owner@takarlaba.demo" : "kasir@takarlaba.demo";
-    const demoPassword = "password123";
+    const backendRole = role === "owner" ? "OWNER" : "CASHIER";
 
     try {
-      const result = await signIn.email({
-        email: demoEmail,
-        password: demoPassword,
+      await apiClient<{ user: unknown; session: unknown }>("/api/demo/login", {
+        method: "POST",
+        body: JSON.stringify({ role: backendRole }),
       });
-
-      if (result.error) {
-        const msg =
-          result.error.message ||
-          "Akun demo belum dibuat atau sedang di-reset. Hubungi administrator.";
-        setAuthError(msg);
-        toast.error("Demo login gagal", { description: msg });
-        return;
-      }
 
       toast.success(`Berhasil masuk sebagai Demo ${role === "owner" ? "Owner" : "Kasir"}`);
       navigate(role === "owner" ? "/dashboard" : "/pos", { replace: true });
-    } catch {
-      const fallbackMsg = "Gagal terhubung ke layanan otentikasi demo.";
+    } catch (err: unknown) {
+      const fallbackMsg =
+        err instanceof Error ? err.message : "Gagal terhubung ke layanan otentikasi demo.";
       setAuthError(fallbackMsg);
-      toast.error("Koneksi demo gagal", { description: fallbackMsg });
+      toast.error("Demo login gagal", { description: fallbackMsg });
     } finally {
       setIsDemoSubmitting(null);
     }

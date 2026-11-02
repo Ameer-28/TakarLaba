@@ -70,4 +70,8 @@ export const queryKeys = {
     all: ["pos"] as const,
     menus: () => [...queryKeys.pos.all, "menus"] as const,
   },
+  demo: {
+    all: ["demo"] as const,
+    status: () => [...queryKeys.demo.all, "status"] as const,
+  },
 };
