@@ -92,7 +92,7 @@ Aturan: hanya satu tugas `[/]` per agent pada satu waktu.
 ## 🟡 Medium Priority — Fitur Sekunder & Polish UI/UX (P1)
 
 - [x] **T-100** (P1) [BE+FE] `domain/capacity.ts` + endpoint + UI kapasitas/bottleneck di POS, menu, dashboard — AC: FR-CAP-01
-- [ ] **T-101** (P1) [BE+FE] `domain/menu-engineering.ts` + endpoint + scatter Recharts + tabel padanan + rekomendasi terhitung + guard data — AC: fixture B 6/6 (sebelum & sesudah shock)
+- [x] **T-101** (P1) [BE+FE] `domain/menu-engineering.ts` + endpoint + scatter Recharts + tabel padanan + rekomendasi terhitung + guard data — AC: fixture B 6/6 (sebelum & sesudah shock)
 - [ ] **T-102** (P1) [BE+FE] Void transaksi (restore ke batch asal, alasan wajib) — AC: FR-POS-03
 - [ ] **T-103** (P1) [BE+FE] Catat bahan terbuang (WASTE) + nilai kerugian — AC: FR-INV-03
 - [ ] **T-104** (P1) [BE+FE] Riwayat pembelian + void pembelian (hanya jika batch belum terpakai)
@@ -149,6 +149,7 @@ Aturan: hanya satu tugas `[/]` per agent pada satu waktu.
 
 | Tanggal    | Agent/Orang | Ringkasan                                                                                                                                                                                                                                                                                                             | Tugas terkait              |
 | ---------- | ----------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------- |
+| 2026-11-02 | Agent       | Selesai T-101: Matriks Menu Engineering Kasavana & Smith (4 kuadran: Star, Plowhorse, Puzzle, Dog), pure domain logic, query aggregat penjualan, endpoint GET /api/analytics/menu-engineering, scatter plot SVG interaktif, tabel padanan accessible, rekomendasi taktis terhitung otomatis, dan perbaikan CI runner integration test | T-101                      |
 | 2026-11-02 | Agent       | Selesai T-100: Endpoint analitik GET /api/analytics/capacity (DTO kasir tanpa biaya Rule 7), kalkulasi bottleneck BR-08, integrasi kapasitas porsi pada menu table, mobile card, recipe preview panel, dan halaman analitik                                                                                       | T-100                      |
 | 2026-11-02 | Agent       | Selesai T-060, T-061, T-062: Fixture deterministik PRD Lampiran B (16 bahan, 6 menu, overhead Rp1.200/porsi), generator 1.300 porsi 30 hari PRNG, opening stock (Susu H+2, Croissant expired), endpoint demo (status, reset cooldown 60s, login tanpa password), UI banner & tombol login cepat, dan tests | T-060, T-061, T-062        |
 | 2026-11-01 | Agent       | Perbaikan FK cleanupBusinesses (urutan penghapusan SaleItem -> Business) dan demo-scenario.test.ts (OverheadCost & autentikasi via POST /api/auth/sign-in/email); dekomposisi menu.repo.ts, persistSaleTransaction, persistDipAlert, format.ts, menu-table, menu-modal; CI Run 37 diverifikasi 100% HIJAU (Backend test:integration lulus melawan PostgreSQL 17) | T-043, T-046               |
