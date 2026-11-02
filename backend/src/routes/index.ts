@@ -11,6 +11,7 @@ import { alertRouter } from "./alert.routes.js";
 import { dashboardRouter } from "./dashboard.routes.js";
 import { posRouter } from "./pos.routes.js";
 import { demoRouter } from "./demo.routes.js";
+import { analyticsRouter } from "./analytics.routes.js";
 
 export const apiRouter = Router();
 
@@ -26,3 +27,4 @@ apiRouter.use(alertRouter);
 apiRouter.use(dashboardRouter);
 apiRouter.use(posRouter);
 apiRouter.use(demoRouter);
+apiRouter.use(analyticsRouter);

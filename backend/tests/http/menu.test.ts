@@ -22,6 +22,7 @@ vi.mock("../../src/repositories/menu.repo.js", () => ({
     countSales: vi.fn(),
     saveRecipe: vi.fn(),
     getLatestCostPerBaseMap: vi.fn(),
+    getValidStockBatches: vi.fn().mockResolvedValue([]),
   },
   MenuRepository: vi.fn(),
 }));

@@ -1,6 +1,8 @@
 import { Decimal } from "decimal.js";
 import { toBaseQuantity } from "../domain/units.js";
 import { calculateMenuCosting, type RecipeItemCostInput } from "../domain/costing.js";
+import { calculateMenuCapacity, type MenuCapacityResult } from "../domain/capacity.js";
+import { isExpired } from "../lib/date.js";
 import { NotFoundError, ValidationError } from "../lib/errors.js";
 import type { MenuRepository } from "../repositories/menu.repo.js";
 import type { IngredientRepository } from "../repositories/ingredient.repo.js";
@@ -55,7 +57,16 @@ export class MenuCostService {
     );
 
     const ingredientIds = input.items.map((i) => i.ingredientId);
-    const costMap = await this.repo.getLatestCostPerBaseMap(businessId, ingredientIds);
+    const stockBatchesPromise =
+      typeof this.repo.getValidStockBatches === "function"
+        ? this.repo.getValidStockBatches(businessId).catch(() => [])
+        : Promise.resolve([]);
+
+    const [costMap, stockBatches] = await Promise.all([
+      this.repo.getLatestCostPerBaseMap(businessId, ingredientIds),
+      stockBatchesPromise,
+    ]);
+
     for (const costInput of recipeCostInputs) {
       costInput.costPerBase = costMap.get(costInput.ingredientId) ?? null;
     }
@@ -67,7 +78,32 @@ export class MenuCostService {
       targetMarginPercent: targetMargin,
     });
 
-    return this.formatCostPreviewResponse(result, itemMetadataList);
+    const availableStockMap = new Map<string, Decimal>();
+    if (Array.isArray(stockBatches)) {
+      for (const batch of stockBatches) {
+        if (!isExpired(batch.expiryDate)) {
+          const remaining = new Decimal(batch.remainingQtyBase.toString());
+          const current = availableStockMap.get(batch.ingredientId) ?? new Decimal(0);
+          availableStockMap.set(batch.ingredientId, current.plus(remaining));
+        }
+      }
+    }
+
+    const capResult = calculateMenuCapacity(
+      {
+        menuId: input.menuId ?? "preview",
+        recipeItems: recipeCostInputs.map((r, idx) => ({
+          ingredientId: r.ingredientId,
+          ingredientName: itemMetadataList[idx]?.ingredientName,
+          baseUnit: itemMetadataList[idx]?.baseUnit,
+          qtyUsable: r.qtyUsable,
+          yieldPercent: r.yieldPercent,
+        })),
+      },
+      availableStockMap
+    );
+
+    return this.formatCostPreviewResponse(result, itemMetadataList, capResult);
   }
 
   private async resolvePreviewPriceAndMargin(businessId: string, input: PreviewCostInput) {
@@ -109,6 +145,8 @@ export class MenuCostService {
       marginBahanPercent: null,
       marginStatus: "INCOMPLETE" as const,
       isCostComplete: false,
+      capacity: 0,
+      bottleneckIngredientName: null,
       items: [],
     };
   }
@@ -173,7 +211,8 @@ export class MenuCostService {
 
   private formatCostPreviewResponse(
     result: ReturnType<typeof calculateMenuCosting>,
-    itemMetadataList: CostPreviewMetaItem[]
+    itemMetadataList: CostPreviewMetaItem[],
+    capResult?: MenuCapacityResult
   ) {
     return {
       hppBahan: result.hppBahan ? result.hppBahan.toFixed(2) : null,
@@ -185,6 +224,8 @@ export class MenuCostService {
       marginBahanPercent: result.marginBahanPercent ? result.marginBahanPercent.toFixed(2) : null,
       marginStatus: result.marginStatus,
       isCostComplete: result.isCostComplete,
+      capacity: capResult?.capacity ?? 0,
+      bottleneckIngredientName: capResult?.bottleneck?.ingredientName ?? null,
       items: result.items.map((item, idx) => {
         const meta = itemMetadataList[idx]!;
         return {
