@@ -43,6 +43,29 @@ export function MenuTableRow({
               ) : (
                 <span className="text-[11px] text-slate-400">Tanpa kategori</span>
               )}
+              {menu.hasRecipe && menu.capacity !== undefined && (
+                <span
+                  className={`text-[11px] font-medium px-1.5 py-0.5 rounded ${
+                    menu.capacity === 0
+                      ? "text-rose-700 bg-rose-50 border border-rose-200"
+                      : menu.capacity <= 10
+                        ? "text-amber-800 bg-amber-50 border border-amber-200"
+                        : "text-slate-600 bg-slate-100"
+                  }`}
+                  title={
+                    menu.bottleneckIngredientName
+                      ? `Dibatasi oleh: ${menu.bottleneckIngredientName}`
+                      : undefined
+                  }
+                >
+                  Sisa {menu.capacity} porsi
+                  {menu.bottleneckIngredientName && menu.capacity <= 10 && (
+                    <span className="text-[10px] text-slate-400 ml-1">
+                      ({menu.bottleneckIngredientName})
+                    </span>
+                  )}
+                </span>
+              )}
             </div>
           </div>
         </div>
