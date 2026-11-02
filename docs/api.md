@@ -1431,6 +1431,82 @@ Menghitung estimasi sisa porsi menu berdasarkan stok bahan baku valid non-kedalu
   }
   ```
 
+#### GET `/api/analytics/menu-engineering`
+Menghitung matriks Menu Engineering Kasavana & Smith (4 kuadran: Star, Plowhorse, Puzzle, Dog) serta rekomendasi taktis terhitung otomatis sesuai aturan bisnis BR-10 (FR-MEG-01).
+
+- **Metode:** `GET`
+- **Autentikasi:** Sesi aktif role `OWNER` (peran `CASHIER` menerima 403 Forbidden sesuai Rule 7)
+- **Header:** `Cookie: takarlaba_session=...`
+- **Query Params:**
+  - `days` (opsional, integer): Rentang hari evaluasi penjualan. Pilihan antarmuka: 7, 30, 90 (default 30; min 1, max 365).
+- **Aturan Ambang Batas (BR-10):**
+  - Popularitas (Volume): $0.7 \times (1 / N) \times \text{Total Porsi Terklasifikasi}$
+  - Profitabilitas: Margin Kontribusi Rata-rata Tertimbang $\sum(CM_i \times \text{Porsi}_i) / \sum \text{Porsi}_i$
+  - Syarat Kecukupan Data: $\ge 4$ menu aktif dan $\ge 30$ transaksi selesai dalam rentang waktu. Menu baru (< 14 hari) dan menu tanpa penjualan ditandai terpisah sebagai belum terklasifikasi.
+- **Response 200 OK (OWNER):**
+  ```json
+  {
+    "ok": true,
+    "data": {
+      "isDataSufficient": true,
+      "insufficientReason": null,
+      "days": 30,
+      "totalTransactions": 1300,
+      "totalClassifiedPortions": 1300,
+      "popularityThresholdPortions": "151.67",
+      "weightedMarginThreshold": "8641.54",
+      "classifiedMenus": [
+        {
+          "menuId": "menu-kopi-susu",
+          "menuName": "Es Kopi Susu Aren",
+          "category": "BEVERAGE",
+          "sellingPrice": "18000.00",
+          "hppPenuh": "8940.00",
+          "marginKontribusi": "9060.00",
+          "portionsSold": 500,
+          "popularitySharePercent": "38.5",
+          "quadrant": "STAR",
+          "recommendation": {
+            "action": "MAINTAIN_QUALITY",
+            "title": "Pertahankan Kualitas & Penempatan Utama",
+            "description": "Menu bintang penyumbang laba terbesar. Jangan ubah takaran resep. Pertahankan di posisi teratas daftar menu / kasir.",
+            "badgeVariant": "success"
+          }
+        }
+      ],
+      "unclassifiedMenus": [
+        {
+          "menuId": "menu-baru",
+          "menuName": "Cold Brew Hazelnut",
+          "category": "BEVERAGE",
+          "reason": "NEW_MENU",
+          "description": "Menu baru (<14 hari). Masih dalam periode inkubasi."
+        }
+      ]
+    }
+  }
+  ```
+- **Response 403 Forbidden (CASHIER):**
+  ```json
+  {
+    "ok": false,
+    "error": {
+      "code": "FORBIDDEN",
+      "message": "Akses ditolak. Fitur ini memerlukan salah satu hak akses: OWNER."
+    }
+  }
+  ```
+- **Response 401 Unauthorized:**
+  ```json
+  {
+    "ok": false,
+    "error": {
+      "code": "UNAUTHENTICATED",
+      "message": "Autentikasi diperlukan. Sesi tidak valid atau telah berakhir."
+    }
+  }
+  ```
+
 ---
 
 ## 4. Kontrak Direncanakan (Roadmap Fitur)

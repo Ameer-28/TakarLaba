@@ -77,5 +77,7 @@ export const queryKeys = {
   analytics: {
     all: ["analytics"] as const,
     capacity: () => [...queryKeys.analytics.all, "capacity"] as const,
+    menuEngineering: (days?: number) =>
+      [...queryKeys.analytics.all, "menu-engineering", days ?? 30] as const,
   },
 };
