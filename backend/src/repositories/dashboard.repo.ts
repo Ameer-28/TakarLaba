@@ -26,6 +26,59 @@ export class DashboardRepository {
   }
 
   /**
+   * Retrieves total completed transaction count in date range for Menu Engineering
+   */
+  async getCompletedSaleCount(businessId: string, startDate: Date, endDate: Date): Promise<number> {
+    return prisma.sale.count({
+      where: {
+        businessId,
+        status: "COMPLETED",
+        soldAt: {
+          gte: startDate,
+          lte: endDate,
+        },
+      },
+    });
+  }
+
+  /**
+   * Retrieves sum of quantities sold grouped by menuId in date range
+   */
+  async getMenuSalesQuantities(
+    businessId: string,
+    startDate: Date,
+    endDate: Date
+  ): Promise<Array<{ menuId: string; _sum: { qty: number | null } }>> {
+    const items = await prisma.saleItem.findMany({
+      where: {
+        sale: {
+          businessId,
+          status: "COMPLETED",
+          soldAt: {
+            gte: startDate,
+            lte: endDate,
+          },
+        },
+      },
+      select: {
+        menuId: true,
+        qty: true,
+      },
+    });
+
+    const sumMap = new Map<string, number>();
+    for (const item of items) {
+      const current = sumMap.get(item.menuId) ?? 0;
+      sumMap.set(item.menuId, current + item.qty);
+    }
+
+    return Array.from(sumMap.entries()).map(([menuId, qty]) => ({
+      menuId,
+      _sum: { qty },
+    }));
+  }
+
+  /**
    * Retrieves recent sales transactions for today
    */
   async getRecentSales(businessId: string, startDate: Date, endDate: Date, limit = 5) {
