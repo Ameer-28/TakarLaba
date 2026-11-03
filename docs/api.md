@@ -434,6 +434,81 @@ Mengambil daftar batch stok aktif (`remainingQtyBase > 0`), diurutkan secara ket
   }
   ```
 
+#### POST `/api/stock/waste` (alias: `/api/inventory/waste`)
+Mencatat bahan baku yang terbuang (*waste*) untuk batch tertentu, memotong sisa stok batch secara atomik, membuat pergerakan `StockMovement(WASTE)`, dan menghitung nilai kerugian finansial (Rp) berdasarkan harga pokok batch terkait (AC: FR-INV-03).
+
+- **Metode:** `POST`
+- **Autentikasi:** Wajib sesi aktif role `OWNER` (role `CASHIER` menerima `403 FORBIDDEN`).
+- **Request Body:**
+  ```json
+  {
+    "batchId": "cuid_batch_123",
+    "qty": 2,
+    "unit": "L",
+    "reason": "Susu asam dan basi karena kulkas mati",
+    "wasteDate": "2026-11-04T05:00:00.000Z"
+  }
+  ```
+  - `batchId` (wajib): ID batch bahan baku yang akan dipotong.
+  - `qty` (wajib, angka positif $> 0$, maks 1.000.000): Jumlah bahan yang terbuang.
+  - `unit` (opsional): Satuan takaran terbuang. Jika berbeda dengan `baseUnit` bahan, otomatis dikonversi menggunakan faktor rasio `IngredientUnit`.
+  - `reason` (wajib, string 3..255 karakter): Alasan pembuangan/kerugian bahan baku.
+  - `wasteDate` (opsional, string ISO datetime): Tanggal kejadian terbuang (default: waktu saat ini).
+- **Validasi Bisnis:**
+  - `400 VALIDATION_ERROR`: Jika kuantitas $\le 0$ atau alasan kosong / $< 3$ karakter.
+  - `404 NOT_FOUND`: Jika `batchId` tidak ditemukan dalam lingkup bisnis.
+  - `409 CONFLICT`: Jika jumlah terbuang melebihi sisa stok yang ada pada batch (`qtyBase > remainingQtyBase`).
+- **Response 201 Created:**
+  ```json
+  {
+    "ok": true,
+    "data": {
+      "movementId": "mov_waste_123",
+      "batchId": "cuid_batch_123",
+      "ingredientId": "ing_susu_123",
+      "ingredientName": "Susu UHT",
+      "baseUnit": "ML",
+      "qtyBase": "2000.000",
+      "remainingQtyBase": "3000.000",
+      "costPerBase": "18.000000",
+      "wastedValue": "36000.00",
+      "reason": "Susu asam dan basi karena kulkas mati",
+      "createdAt": "2026-11-04T05:00:00.000Z"
+    }
+  }
+  ```
+
+#### GET `/api/inventory/waste` (alias: `/api/stock/waste`)
+Mengambil riwayat pencatatan bahan baku terbuang dan nilai kerugian finansialnya.
+
+- **Metode:** `GET`
+- **Autentikasi:** Wajib sesi aktif role `OWNER`.
+- **Query Params:**
+  - `limit` (opsional, integer 1..100, default: 50)
+  - `skip` (opsional, integer $\ge 0$, default: 0)
+- **Response 200 OK:**
+  ```json
+  {
+    "ok": true,
+    "data": [
+      {
+        "id": "mov_waste_123",
+        "ingredientId": "ing_susu_123",
+        "ingredientName": "Susu UHT",
+        "baseUnit": "ML",
+        "batchId": "cuid_batch_123",
+        "qtyBase": "2000.000",
+        "costPerBase": "18.000000",
+        "wastedValue": "36000.00",
+        "reason": "Susu asam dan basi karena kulkas mati",
+        "createdAt": "2026-11-04T05:00:00.000Z",
+        "createdByName": "Owner Demo",
+        "expiryDate": "2026-11-06T00:00:00.000Z"
+      }
+    ]
+  }
+  ```
+
 ---
 
 ### 3.5 Pengaturan Usaha & Biaya Overhead (`/api/settings` & `/api/overheads`)
