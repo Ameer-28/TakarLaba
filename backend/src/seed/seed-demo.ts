@@ -122,80 +122,83 @@ export async function cleanDemoBusiness(businessId = DEMO_BUSINESS_ID, deleteUse
     return;
   }
 
-  await prisma.$transaction(async (tx) => {
-    // 1. SaleItem
-    await tx.saleItem.deleteMany({
-      where: { sale: { businessId } },
-    });
-
-    // 2. Sale
-    await tx.sale.deleteMany({
-      where: { businessId },
-    });
-
-    // 3. StockMovement
-    await tx.stockMovement.deleteMany({
-      where: { businessId },
-    });
-
-    // 4. MarginAlert
-    await tx.marginAlert.deleteMany({
-      where: { businessId },
-    });
-
-    // 5. MenuPriceHistory
-    await tx.menuPriceHistory.deleteMany({
-      where: { menu: { businessId } },
-    });
-
-    // 6. RecipeItem
-    await tx.recipeItem.deleteMany({
-      where: { menu: { businessId } },
-    });
-
-    // 7. Menu
-    await tx.menu.deleteMany({
-      where: { businessId },
-    });
-
-    // 8. OverheadCost
-    await tx.overheadCost.deleteMany({
-      where: { businessId },
-    });
-
-    // 9. StockBatch
-    await tx.stockBatch.deleteMany({
-      where: { businessId },
-    });
-
-    // 10. Purchase
-    await tx.purchase.deleteMany({
-      where: { businessId },
-    });
-
-    // 11. IngredientUnit
-    await tx.ingredientUnit.deleteMany({
-      where: { ingredient: { businessId } },
-    });
-
-    // 12. Ingredient
-    await tx.ingredient.deleteMany({
-      where: { businessId },
-    });
-
-    // 13. Users (optional, e.g. for complete teardown)
-    if (deleteUsers) {
-      await tx.session.deleteMany({
-        where: { user: { businessId } },
+  await prisma.$transaction(
+    async (tx) => {
+      // 1. SaleItem
+      await tx.saleItem.deleteMany({
+        where: { sale: { businessId } },
       });
-      await tx.account.deleteMany({
-        where: { user: { businessId } },
-      });
-      await tx.user.deleteMany({
+
+      // 2. Sale
+      await tx.sale.deleteMany({
         where: { businessId },
       });
-    }
-  });
+
+      // 3. StockMovement
+      await tx.stockMovement.deleteMany({
+        where: { businessId },
+      });
+
+      // 4. MarginAlert
+      await tx.marginAlert.deleteMany({
+        where: { businessId },
+      });
+
+      // 5. MenuPriceHistory
+      await tx.menuPriceHistory.deleteMany({
+        where: { menu: { businessId } },
+      });
+
+      // 6. RecipeItem
+      await tx.recipeItem.deleteMany({
+        where: { menu: { businessId } },
+      });
+
+      // 7. Menu
+      await tx.menu.deleteMany({
+        where: { businessId },
+      });
+
+      // 8. OverheadCost
+      await tx.overheadCost.deleteMany({
+        where: { businessId },
+      });
+
+      // 9. StockBatch
+      await tx.stockBatch.deleteMany({
+        where: { businessId },
+      });
+
+      // 10. Purchase
+      await tx.purchase.deleteMany({
+        where: { businessId },
+      });
+
+      // 11. IngredientUnit
+      await tx.ingredientUnit.deleteMany({
+        where: { ingredient: { businessId } },
+      });
+
+      // 12. Ingredient
+      await tx.ingredient.deleteMany({
+        where: { businessId },
+      });
+
+      // 13. Users (optional, e.g. for complete teardown)
+      if (deleteUsers) {
+        await tx.session.deleteMany({
+          where: { user: { businessId } },
+        });
+        await tx.account.deleteMany({
+          where: { user: { businessId } },
+        });
+        await tx.user.deleteMany({
+          where: { businessId },
+        });
+      }
+    },
+    { maxWait: 10000, timeout: 60000 }
+  );
 
   logger.info({ businessId }, "Data bisnis demo berhasil dibersihkan");
 }
@@ -288,30 +291,30 @@ export async function seedDemo(options: SeedDemoOptions = {}) {
     }
   }
 
-  // 4. Seed overheads, ingredients, units, menus, recipes inside transaction
-  await prisma.$transaction(async (tx) => {
-    // 4a. Overhead costs
-    for (const ovh of DEMO_OVERHEAD_COSTS) {
-      await tx.overheadCost.create({
-        data: {
-          id: `${businessId}-${ovh.id}`,
-          businessId: business.id,
-          name: ovh.name,
-          type: ovh.type,
-          monthlyAmount: ovh.monthlyAmount,
-          isActive: ovh.isActive,
-        },
-      });
-    }
+  // 4. Seed overheads, ingredients, units, menus, recipes, sales, and batches inside a single high-performance transaction
+  await prisma.$transaction(
+    async (tx) => {
+      // 4a. Overhead costs (batch insert)
+      const overheadData = DEMO_OVERHEAD_COSTS.map((ovh) => ({
+        id: `${businessId}-${ovh.id}`,
+        businessId: business.id,
+        name: ovh.name,
+        type: ovh.type,
+        monthlyAmount: ovh.monthlyAmount,
+        isActive: ovh.isActive,
+      }));
+      await tx.overheadCost.createMany({ data: overheadData });
 
-    // 4b. Ingredients & units
-    const ingIdMap = new Map<string, string>();
-    for (const ing of DEMO_INGREDIENTS) {
-      const actualIngId = `${businessId}-${ing.id}`;
-      ingIdMap.set(ing.id, actualIngId);
+      // 4b. Ingredients & units (batch insert)
+      const ingIdMap = new Map<string, string>();
+      const ingredientData = [];
+      const unitData = [];
 
-      await tx.ingredient.create({
-        data: {
+      for (const ing of DEMO_INGREDIENTS) {
+        const actualIngId = `${businessId}-${ing.id}`;
+        ingIdMap.set(ing.id, actualIngId);
+
+        ingredientData.push({
           id: actualIngId,
           businessId: business.id,
           name: ing.name,
@@ -322,28 +325,29 @@ export async function seedDemo(options: SeedDemoOptions = {}) {
           isPerishable: ing.isPerishable,
           minStockBase: ing.minStockBase,
           isActive: true,
-        },
-      });
+        });
 
-      for (const u of ing.units) {
-        await tx.ingredientUnit.create({
-          data: {
+        for (const u of ing.units) {
+          unitData.push({
             ingredientId: actualIngId,
             name: u.name,
             toBaseFactor: u.toBaseFactor,
-          },
-        });
+          });
+        }
       }
-    }
+      await tx.ingredient.createMany({ data: ingredientData });
+      await tx.ingredientUnit.createMany({ data: unitData });
 
-    // 4c. Menus & recipes
-    const menuIdMap = new Map<string, string>();
-    for (const menu of DEMO_MENUS) {
-      const actualMenuId = `${businessId}-${menu.id}`;
-      menuIdMap.set(menu.id, actualMenuId);
+      // 4c. Menus & recipes (batch insert)
+      const menuIdMap = new Map<string, string>();
+      const menuData = [];
+      const recipeItemData = [];
 
-      await tx.menu.create({
-        data: {
+      for (const menu of DEMO_MENUS) {
+        const actualMenuId = `${businessId}-${menu.id}`;
+        menuIdMap.set(menu.id, actualMenuId);
+
+        menuData.push({
           id: actualMenuId,
           businessId: business.id,
           name: menu.name,
@@ -352,36 +356,37 @@ export async function seedDemo(options: SeedDemoOptions = {}) {
           sellingPrice: menu.sellingPrice,
           targetMargin: menu.targetMargin,
           isActive: true,
-        },
-      });
+        });
 
-      for (const r of menu.recipes) {
-        const actualIngId = ingIdMap.get(r.ingredientId);
-        if (!actualIngId) {
-          throw new Error(`Ingredient mapping not found for ${r.ingredientId}`);
-        }
-        await tx.recipeItem.create({
-          data: {
+        for (const r of menu.recipes) {
+          const actualIngId = ingIdMap.get(r.ingredientId);
+          if (!actualIngId) {
+            throw new Error(`Ingredient mapping not found for ${r.ingredientId}`);
+          }
+          recipeItemData.push({
             menuId: actualMenuId,
             ingredientId: actualIngId,
             qtyUsableBase: r.qtyUsableBase,
-          },
-        });
+          });
+        }
       }
-    }
+      await tx.menu.createMany({ data: menuData });
+      await tx.recipeItem.createMany({ data: recipeItemData });
 
-    // 4d. Seed 30-day historical sales (1.300 portions) WITHOUT stock deduction
-    const { sales } = generate30DaySales({
-      businessId: business.id,
-      cashierId: cashierUserId,
-      referenceDate: refDate,
-      overheadPerPortion: 1200,
-    });
+      // 4d. Seed 30-day historical sales (1.300 portions) WITHOUT stock deduction
+      const { sales } = generate30DaySales({
+        businessId: business.id,
+        cashierId: cashierUserId,
+        referenceDate: refDate,
+        overheadPerPortion: 1200,
+      });
 
-    for (const sale of sales) {
-      const saleRecordId = `${businessId}-${sale.id}`;
-      await tx.sale.create({
-        data: {
+      const salesData = [];
+      const saleItemsData = [];
+
+      for (const sale of sales) {
+        const saleRecordId = `${businessId}-${sale.id}`;
+        salesData.push({
           id: saleRecordId,
           businessId: business.id,
           invoiceNo: sale.invoiceNo,
@@ -392,39 +397,52 @@ export async function seedDemo(options: SeedDemoOptions = {}) {
           totalAmount: sale.totalAmount,
           totalIngredientCost: sale.totalIngredientCost,
           totalOverhead: sale.totalOverhead,
-          status: "COMPLETED",
+          status: "COMPLETED" as const,
           createdAt: sale.createdAt,
-          items: {
-            create: sale.items.map((it) => {
-              const actualMenuId = menuIdMap.get(it.menuId) ?? it.menuId;
-              return {
-                id: `${businessId}-${it.id}`,
-                menuId: actualMenuId,
-                menuNameSnapshot: it.menuNameSnapshot,
-                qty: it.qty,
-                unitPrice: it.unitPrice,
-                ingredientCostActual: it.ingredientCostActual,
-                overheadAllocated: it.overheadAllocated,
-              };
-            }),
-          },
-        },
-      });
-    }
+        });
 
-    // 4e. Seed opening stock batches AFTER sales (opening balance)
-    for (const batch of DEMO_OPENING_BATCHES) {
-      const actualIngId = ingIdMap.get(batch.ingredientId);
-      if (!actualIngId) continue;
-
-      let expiryDate: Date | null = null;
-      if (batch.daysExpiryOffset !== null) {
-        expiryDate = new Date(refDate);
-        expiryDate.setDate(expiryDate.getDate() + batch.daysExpiryOffset);
+        for (const it of sale.items) {
+          const actualMenuId = menuIdMap.get(it.menuId) ?? it.menuId;
+          saleItemsData.push({
+            id: `${businessId}-${it.id}`,
+            saleId: saleRecordId,
+            menuId: actualMenuId,
+            menuNameSnapshot: it.menuNameSnapshot,
+            qty: it.qty,
+            unitPrice: it.unitPrice,
+            ingredientCostActual: it.ingredientCostActual,
+            overheadAllocated: it.overheadAllocated,
+          });
+        }
       }
 
-      await tx.stockBatch.create({
-        data: {
+      // Batch insert in chunks of 500 to keep parameter count safely below PG limits
+      const CHUNK_SIZE = 500;
+      for (let i = 0; i < salesData.length; i += CHUNK_SIZE) {
+        await tx.sale.createMany({
+          data: salesData.slice(i, i + CHUNK_SIZE),
+        });
+      }
+
+      for (let i = 0; i < saleItemsData.length; i += CHUNK_SIZE) {
+        await tx.saleItem.createMany({
+          data: saleItemsData.slice(i, i + CHUNK_SIZE),
+        });
+      }
+
+      // 4e. Seed opening stock batches AFTER sales (opening balance)
+      const batchData = [];
+      for (const batch of DEMO_OPENING_BATCHES) {
+        const actualIngId = ingIdMap.get(batch.ingredientId);
+        if (!actualIngId) continue;
+
+        let expiryDate: Date | null = null;
+        if (batch.daysExpiryOffset !== null) {
+          expiryDate = new Date(refDate);
+          expiryDate.setDate(expiryDate.getDate() + batch.daysExpiryOffset);
+        }
+
+        batchData.push({
           id: `${businessId}-${batch.id}`,
           businessId: business.id,
           ingredientId: actualIngId,
@@ -436,10 +454,12 @@ export async function seedDemo(options: SeedDemoOptions = {}) {
           initialQtyBase: batch.initialQtyBase,
           remainingQtyBase: batch.remainingQtyBase,
           costPerBase: batch.costPerBase,
-        },
-      });
-    }
-  });
+        });
+      }
+      await tx.stockBatch.createMany({ data: batchData });
+    },
+    { maxWait: 10000, timeout: 60000 }
+  );
 
   logger.info(
     { businessId },
