@@ -115,22 +115,24 @@ DEMO_MODE=true
 DEMO_PASSWORD="DemoPassword123!"
 ```
 
-### 2. Akun Demo Bawaan
+### 2. Akun Demo Bawaan & Login Cepat
 Tersedia dua peran pengguna demo siap pakai:
 - **Demo Pemilik (Owner):** `owner@takarlaba.demo` (akses penuh ke Dashboard, Analitik, HPP/Costing, Peringatan Margin, Pembelian, dan Pengaturan).
 - **Demo Kasir (Cashier):** `kasir@takarlaba.demo` (akses terbatas hanya ke layar POS dan Riwayat Penjualan, tanpa akses ke data biaya bahan, HPP, atau margin laba).
 
-> **Akses Cepat Instan:** Pada halaman `/login`, juri dapat langsung mengklik tombol **"Masuk sebagai Demo Owner"** atau **"Masuk sebagai Demo Kasir"** untuk langsung login tanpa perlu mengetikkan kata sandi.
+> **Akses Cepat Instan:** Pada halaman `/login`, juri dapat langsung mengklik tombol **"Masuk sebagai Demo Owner"** atau **"Masuk sebagai Demo Kasir"** untuk langsung login tanpa perlu mengetikkan kata sandi. Endpoint `POST /api/demo/login` dilengkapi proteksi laju request (maksimal 10 login per IP per 10 menit dan 60 login per jam secara global) serta fitur *session reuse* yang mendeteksi cookie sesi aktif agar tidak membebani database.
 
-### 3. Pengisian Data Awal & Reset Data Contoh
-- Klik tombol **"Isi Data Contoh"** pada halaman login atau tombol **"Reset data contoh"** pada banner bagian atas App Shell.
-- Aksi ini memanggil endpoint `POST /api/demo/reset` yang secara atomik mereset bisnis demo ke kondisi fixture deterministik:
+### 3. Pengisian Data Awal & Reset Terproteksi
+Untuk menjaga integritas data evaluasi bersama, aksi reset data demo diproteksi secara ketat:
+- **Hanya untuk Demo Owner:** Tombol reset tidak terekspos di halaman publik atau kasir; tombol **"Reset data contoh"** hanya muncul pada banner atas (`DemoBanner`) setelah juri login sebagai **Demo Owner**.
+- **Konfirmasi Aman:** Mengklik tombol reset akan memunculkan dialog konfirmasi pencegahan ketidaksengajaan.
+- Aksi ini memanggil endpoint terproteksi `POST /api/demo/reset` yang secara atomik mereset bisnis demo ke kondisi fixture deterministik (PRD Lampiran B):
   - **Overhead:** Rp1.560.000/bulan (Listrik, gas, air + penyusutan alat + biaya lain) dengan target volume 1.300 porsi $\rightarrow$ **Rp1.200/porsi**.
   - **16 Bahan Baku:** Lengkap dengan rasio konversi satuan dasar (g, ml, pcs) dan harga pokok awal.
   - **6 Menu & Resep:** Es Kopi Susu Aren (HPP Bahan 7.740, HPP Penuh 8.940, harga 18.000), Americano (4.800), Es Teh Manis (3.200), Roti Bakar (8.500), Matcha Latte (10.500), Croissant (12.500).
-  - **Riwayat Penjualan 30 Hari:** Tepat 1.300 porsi dengan bobot hari kerja dan akhir pekan serta kombinasi keranjang belanja realistis.
+  - **Riwayat Penjualan 30 Hari:** Tepat 1.300 porsi dengan bobot hari kerja dan akhir pekan serta kombinasi keranjang belanja realistis (dieksekusi cepat via batched `createMany`).
   - **Saldo Stok Awal:** Stok Susu UHT Batch A segera kedaluwarsa (H+2), Croissant Beku dengan batch kedaluwarsa kemarin (H-1), dan Gula Aren Cair di bawah stok minimum.
-- Dilengkapi **jeda pendinginan (_cooldown_) 60 detik** via kolom `demoResetAt` untuk mencegah penyalahgunaan berulang.
+- Dilengkapi **jeda pendinginan (_cooldown_) 60 detik** via kolom `demoResetAt` untuk mencegah penyalahgunaan berulang, serta pembersihan berkala sesi demo lama (> 24 jam).
 
 ### 4. Demonstrasi Fitur Unggulan (Price Shock Impact)
 1. Masuk sebagai Demo Owner $\rightarrow$ buka menu **Es Kopi Susu Aren** (HPP Bahan Rp7.740, HPP Penuh Rp8.940, margin aman 50,33%).

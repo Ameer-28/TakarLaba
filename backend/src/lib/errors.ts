@@ -77,3 +77,9 @@ export class DemoCooldownError extends AppError {
     super(`Tunggu ${remainingSeconds} detik sebelum reset data demo kembali`, "DEMO_COOLDOWN", 429);
   }
 }
+
+export class RateLimitError extends AppError {
+  constructor(message = "Batas laju permintaan tercapai. Silakan coba lagi nanti.") {
+    super(message, "RATE_LIMITED", 429);
+  }
+}

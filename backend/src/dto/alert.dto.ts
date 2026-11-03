@@ -1,5 +1,6 @@
 import { Decimal } from "decimal.js";
 import type { OptionASnapshot, OptionBSnapshot } from "../domain/alert-snapshot.js";
+import { formatMoney, formatQuantity, formatPercent } from "../lib/money.js";
 
 export interface ImpactedMenuAlert {
   alertId: string;
@@ -46,8 +47,8 @@ type PrismaAlertWithRelations = {
   status: string;
   resolution: string | null;
   note: string | null;
-  createdAt: Date;
-  resolvedAt: Date | null;
+  createdAt: Date | string;
+  resolvedAt: Date | string | null;
   ingredientCostBefore: Decimal | string | number;
   ingredientCostAfter: Decimal | string | number;
   fullCostBefore: Decimal | string | number;
@@ -57,15 +58,15 @@ type PrismaAlertWithRelations = {
   targetPct: Decimal | string | number;
   sellingPriceAtTrigger: Decimal | string | number;
   recommendedPrice: Decimal | string | number;
-  menu: {
+  menu?: {
     id: string;
     name: string;
     sellingPrice: Decimal | string | number;
     targetMargin: Decimal | string | number | null;
-  };
+  } | null;
   resolvedBy?: { id: string; name: string } | null;
   triggerIngredient?: { id: string; name: string; baseUnit: string } | null;
-  triggerPurchase?: { id: string; supplierName: string | null; purchasedAt: Date } | null;
+  triggerPurchase?: { id: string; supplierName: string | null; purchasedAt: Date | string } | null;
 };
 
 export function buildAlertPayload(params: {
@@ -145,17 +146,31 @@ export function mapAlertListItem(alert: PrismaAlertWithRelations) {
     id: alert.id,
     businessId: alert.businessId,
     menuId: alert.menuId,
-    menu: {
-      id: alert.menu.id,
-      name: alert.menu.name,
-      sellingPrice: alert.menu.sellingPrice.toString(),
-      targetMargin: alert.menu.targetMargin ? alert.menu.targetMargin.toString() : null,
-    },
+    menu: alert.menu
+      ? {
+          id: alert.menu.id,
+          name: alert.menu.name,
+          sellingPrice: formatMoney(alert.menu.sellingPrice),
+          targetMargin: alert.menu.targetMargin ? formatPercent(alert.menu.targetMargin) : null,
+        }
+      : null,
     status: alert.status,
     resolution: alert.resolution,
+    alert: {
+      id: alert.id,
+      status: alert.status,
+      resolution: alert.resolution,
+    },
     note: alert.note,
-    createdAt: alert.createdAt.toISOString(),
-    resolvedAt: alert.resolvedAt ? alert.resolvedAt.toISOString() : null,
+    createdAt:
+      alert.createdAt instanceof Date
+        ? alert.createdAt.toISOString()
+        : String(alert.createdAt ?? new Date().toISOString()),
+    resolvedAt: alert.resolvedAt
+      ? alert.resolvedAt instanceof Date
+        ? alert.resolvedAt.toISOString()
+        : String(alert.resolvedAt)
+      : null,
     resolvedBy: alert.resolvedBy ? { id: alert.resolvedBy.id, name: alert.resolvedBy.name } : null,
     triggerIngredient: alert.triggerIngredient
       ? {
@@ -168,24 +183,27 @@ export function mapAlertListItem(alert: PrismaAlertWithRelations) {
       ? {
           id: alert.triggerPurchase.id,
           supplierName: alert.triggerPurchase.supplierName,
-          purchasedAt: alert.triggerPurchase.purchasedAt.toISOString(),
+          purchasedAt:
+            alert.triggerPurchase.purchasedAt instanceof Date
+              ? alert.triggerPurchase.purchasedAt.toISOString()
+              : String(alert.triggerPurchase.purchasedAt ?? new Date().toISOString()),
         }
       : null,
-    ingredientCostBefore: new Decimal(alert.ingredientCostBefore.toString()).toFixed(2),
-    ingredientCostAfter: new Decimal(alert.ingredientCostAfter.toString()).toFixed(2),
-    fullCostBefore: new Decimal(alert.fullCostBefore.toString()).toFixed(2),
-    fullCostAfter: new Decimal(alert.fullCostAfter.toString()).toFixed(2),
-    marginBeforePct: new Decimal(alert.marginBeforePct.toString()).toFixed(2),
-    marginAfterPct: new Decimal(alert.marginAfterPct.toString()).toFixed(2),
-    targetPct: new Decimal(alert.targetPct.toString()).toFixed(2),
-    sellingPriceAtTrigger: new Decimal(alert.sellingPriceAtTrigger.toString()).toFixed(2),
-    recommendedPrice: new Decimal(alert.recommendedPrice.toString()).toFixed(2),
+    ingredientCostBefore: formatMoney(alert.ingredientCostBefore),
+    ingredientCostAfter: formatMoney(alert.ingredientCostAfter),
+    fullCostBefore: formatMoney(alert.fullCostBefore),
+    fullCostAfter: formatMoney(alert.fullCostAfter),
+    marginBeforePct: formatPercent(alert.marginBeforePct),
+    marginAfterPct: formatPercent(alert.marginAfterPct),
+    targetPct: formatPercent(alert.targetPct),
+    sellingPriceAtTrigger: formatMoney(alert.sellingPriceAtTrigger),
+    recommendedPrice: formatMoney(alert.recommendedPrice),
   };
 }
 
 export function mapAlertDetail(
   alert: PrismaAlertWithRelations & {
-    menu: PrismaAlertWithRelations["menu"] & {
+    menu: NonNullable<PrismaAlertWithRelations["menu"]> & {
       recipeItems: Array<{
         id: string;
         ingredientId: string;
@@ -202,18 +220,33 @@ export function mapAlertDetail(
     businessId: alert.businessId,
     menuId: alert.menuId,
     menuName: alert.menu.name,
-    menuSellingPrice: alert.menu.sellingPrice.toString(),
+    menuSellingPrice: formatMoney(alert.menu.sellingPrice),
     status: alert.status,
     resolution: alert.resolution,
+    alert: {
+      id: alert.id,
+      status: alert.status,
+      resolution: alert.resolution,
+    },
     note: alert.note,
-    createdAt: alert.createdAt.toISOString(),
-    resolvedAt: alert.resolvedAt ? alert.resolvedAt.toISOString() : null,
+    createdAt:
+      alert.createdAt instanceof Date
+        ? alert.createdAt.toISOString()
+        : String(alert.createdAt ?? new Date().toISOString()),
+    resolvedAt: alert.resolvedAt
+      ? alert.resolvedAt instanceof Date
+        ? alert.resolvedAt.toISOString()
+        : String(alert.resolvedAt)
+      : null,
     resolvedBy: alert.resolvedBy ? { id: alert.resolvedBy.id, name: alert.resolvedBy.name } : null,
     triggerPurchase: alert.triggerPurchase
       ? {
           id: alert.triggerPurchase.id,
           supplierName: alert.triggerPurchase.supplierName,
-          purchasedAt: alert.triggerPurchase.purchasedAt.toISOString(),
+          purchasedAt:
+            alert.triggerPurchase.purchasedAt instanceof Date
+              ? alert.triggerPurchase.purchasedAt.toISOString()
+              : String(alert.triggerPurchase.purchasedAt ?? new Date().toISOString()),
         }
       : null,
     triggerIngredient: alert.triggerIngredient
@@ -224,14 +257,14 @@ export function mapAlertDetail(
         }
       : null,
     costs: {
-      ingredientCostBefore: new Decimal(alert.ingredientCostBefore.toString()).toFixed(2),
-      ingredientCostAfter: new Decimal(alert.ingredientCostAfter.toString()).toFixed(2),
-      fullCostBefore: new Decimal(alert.fullCostBefore.toString()).toFixed(2),
-      fullCostAfter: new Decimal(alert.fullCostAfter.toString()).toFixed(2),
-      marginBeforePct: new Decimal(alert.marginBeforePct.toString()).toFixed(2),
-      marginAfterPct: new Decimal(alert.marginAfterPct.toString()).toFixed(2),
-      targetPct: new Decimal(alert.targetPct.toString()).toFixed(2),
-      sellingPriceAtTrigger: new Decimal(alert.sellingPriceAtTrigger.toString()).toFixed(2),
+      ingredientCostBefore: formatMoney(alert.ingredientCostBefore),
+      ingredientCostAfter: formatMoney(alert.ingredientCostAfter),
+      fullCostBefore: formatMoney(alert.fullCostBefore),
+      fullCostAfter: formatMoney(alert.fullCostAfter),
+      marginBeforePct: formatPercent(alert.marginBeforePct),
+      marginAfterPct: formatPercent(alert.marginAfterPct),
+      targetPct: formatPercent(alert.targetPct),
+      sellingPriceAtTrigger: formatMoney(alert.sellingPriceAtTrigger),
     },
     optionA,
     optionB,
@@ -239,7 +272,7 @@ export function mapAlertDetail(
       id: r.id,
       ingredientId: r.ingredientId,
       ingredientName: r.ingredient.name,
-      amount: r.qtyUsableBase.toString(),
+      amount: formatQuantity(r.qtyUsableBase),
       unit: r.ingredient.baseUnit,
     })),
   };

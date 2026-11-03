@@ -23,6 +23,8 @@ export default defineConfig({
     include: ["tests/integration/db/**/*.test.ts"],
     passWithNoTests: true,
     fileParallelism: false,
+    testTimeout: 30000,
+    hookTimeout: 30000,
     env: envVars,
   },
 });

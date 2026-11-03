@@ -1,4 +1,5 @@
 import { describe, it, expect } from "vitest";
+import { createHash } from "node:crypto";
 import { Decimal } from "decimal.js";
 import {
   DEMO_BUSINESS_SETTINGS,
@@ -200,5 +201,40 @@ describe("Deterministic Sales Generator (PRD Lampiran B)", () => {
     // DOG: Low Popularity, Low Margin
     expect(portionMap["demo-menu-croissant"]!).toBeLessThan(popularityThreshold);
     expect(contributionMarginMap["demo-menu-croissant"]!).toBeLessThan(weightedMarginThreshold);
+  });
+
+  it("verifies seed sales invariants: exact 1.300 portions, exact distribution, checksum determinism, and 0 stock movements", () => {
+    const refDate = new Date("2026-10-31T00:00:00.000+07:00");
+    const { sales, totalPortions, menuPortions } = generate30DaySales({
+      referenceDate: refDate,
+      seed: 0x5eed1300,
+    });
+
+    // 1. Total portions exactly 1.300
+    expect(totalPortions).toBe(1300);
+
+    // 2. Exact distribution per menu (PRD Lampiran B)
+    expect(menuPortions["demo-menu-kopi-susu"]).toBe(400);
+    expect(menuPortions["demo-menu-americano"]).toBe(400);
+    expect(menuPortions["demo-menu-es-teh"]).toBe(200);
+    expect(menuPortions["demo-menu-roti-bakar"]).toBe(170);
+    expect(menuPortions["demo-menu-matcha-latte"]).toBe(80);
+    expect(menuPortions["demo-menu-croissant"]).toBe(50);
+
+    // 3. No stock movements generated for historical sales (opening balance assumption)
+    // generate30DaySales produces purely sales and sale items without inventory movement records
+    for (const sale of sales) {
+      expect((sale as unknown as { movements?: unknown[] }).movements).toBeUndefined();
+    }
+
+    // 4. Deterministic transaction checksum across all generated sales
+    const hasher = createHash("sha256");
+    for (const s of sales) {
+      hasher.update(
+        `${s.invoiceNo}|${s.totalAmount}|${s.items.map((i) => `${i.menuId}:${i.qty}:${i.unitPrice}`).join(",")}`
+      );
+    }
+    const digest = hasher.digest("hex");
+    expect(digest).toBe("1df13e973198256e6a6d0cfbb72227134bdf1983928a724723788db7957875e6");
   });
 });

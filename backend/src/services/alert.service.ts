@@ -101,7 +101,7 @@ export class AlertService {
     );
 
     await this.reevaluateAlertsForMenu(businessId, menu.id);
-    return resolvedAlert;
+    return mapAlertListItem(resolvedAlert);
   }
 
   /**
@@ -114,12 +114,13 @@ export class AlertService {
       throw new ValidationError("Peringatan ini sudah diselesaikan sebelumnya");
     }
 
-    return this.repo.resolve(
+    const resolved = await this.repo.resolve(
       alert.id,
       "DISMISSED",
       userId,
       note ?? "Peringatan diabaikan oleh pemilik usaha"
     );
+    return mapAlertListItem(resolved);
   }
 
   /**
@@ -132,7 +133,8 @@ export class AlertService {
       throw new ValidationError("Hanya peringatan dengan status OPEN yang dapat di-acknowledge");
     }
 
-    return this.repo.acknowledge(alert.id);
+    const ack = await this.repo.acknowledge(alert.id);
+    return mapAlertListItem(ack);
   }
 
   /**

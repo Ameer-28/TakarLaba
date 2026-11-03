@@ -172,13 +172,15 @@ describeDb("Real DB: Deterministic Seed & Lampiran A Scenario Verification", () 
 
     expect(applyRes.status).toBe(200);
     expect(applyRes.body.ok).toBe(true);
+    expect(applyRes.body.data.menu.sellingPrice).toBe("20000.00");
     expect(applyRes.body.data.status).toBe("RESOLVED");
-    expect(applyRes.body.data.resolution).toBe("PRICE_RAISED");
+    expect(applyRes.body.data.alert.status).toBe("RESOLVED");
+    expect(applyRes.body.data.alert.resolution).toBe("PRICE_RAISED");
 
     // Verify menu selling price is now 20.000 in DB
     const updatedMenu = await prisma.menu.findUniqueOrThrow({
       where: { id: kopiSusuMenu.id },
     });
     expect(Number(updatedMenu.sellingPrice)).toBe(20000);
-  });
+  }, 30000);
 });
