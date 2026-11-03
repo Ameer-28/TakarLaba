@@ -1,7 +1,10 @@
 import { Decimal } from "decimal.js";
 import { inventoryRepository, type BatchFilter } from "../repositories/inventory.repo.js";
 import { isExpired, isExpiringSoon } from "../lib/date.js";
+import { NotFoundError, ValidationError } from "../lib/errors.js";
+import { formatMoney } from "../lib/money.js";
 import type { Role } from "../types/express.js";
+import type { RecordWasteInput } from "../validation/inventory.schema.js";
 
 export type StockStatus = "AMAN" | "SEGERA" | "KEDALUWARSA" | "HABIS";
 
@@ -38,6 +41,35 @@ export interface StockBatchItemDto {
   status: StockStatus;
   supplierName?: string | null;
   purchaseId?: string | null;
+}
+
+export interface WasteRecordResponseDto {
+  movementId: string;
+  batchId: string;
+  ingredientId: string;
+  ingredientName: string;
+  baseUnit: string;
+  qtyBase: string;
+  remainingQtyBase: string;
+  costPerBase: string;
+  wastedValue: string;
+  reason: string;
+  createdAt: Date;
+}
+
+export interface WasteHistoryItemDto {
+  id: string;
+  ingredientId: string;
+  ingredientName: string;
+  baseUnit: string;
+  batchId: string | null;
+  qtyBase: string;
+  costPerBase: string;
+  wastedValue: string;
+  reason: string;
+  createdAt: Date;
+  createdByName?: string | null;
+  expiryDate?: Date | null;
 }
 
 export class InventoryService {
@@ -204,6 +236,94 @@ export class InventoryService {
       }
 
       return itemDto;
+    });
+  }
+
+  /**
+   * Records a waste stock movement for a specific batch (FR-INV-03).
+   * Verifies remaining stock, performs unit conversion if needed,
+   * decrements batch stock atomik, and calculates wasted value.
+   */
+  async recordWaste(
+    businessId: string,
+    userId: string,
+    input: RecordWasteInput
+  ): Promise<WasteRecordResponseDto> {
+    const batch = await this.repo.findBatchById(businessId, input.batchId);
+    if (!batch) {
+      throw new NotFoundError("Batch bahan baku tidak ditemukan");
+    }
+
+    const inputQty = new Decimal(input.qty.toString());
+    let qtyBase = inputQty;
+
+    // Unit conversion
+    if (input.unit && input.unit.trim().toLowerCase() !== batch.ingredient.baseUnit.toLowerCase()) {
+      const matchUnit = batch.ingredient.units.find(
+        (u) => u.name.toLowerCase() === input.unit!.trim().toLowerCase()
+      );
+      if (!matchUnit) {
+        throw new ValidationError(
+          `Satuan "${input.unit}" tidak terdaftar untuk bahan "${batch.ingredient.name}"`
+        );
+      }
+      qtyBase = inputQty.times(new Decimal(matchUnit.toBaseFactor.toString()));
+    }
+
+    const wasteDate = input.wasteDate ? new Date(input.wasteDate) : undefined;
+
+    const result = await this.repo.recordWasteAtomic({
+      businessId,
+      userId,
+      batchId: input.batchId,
+      qtyBase,
+      reason: input.reason,
+      wasteDate,
+    });
+
+    return {
+      movementId: result.movement.id,
+      batchId: result.batch.id,
+      ingredientId: result.ingredient.id,
+      ingredientName: result.ingredient.name,
+      baseUnit: result.ingredient.baseUnit,
+      qtyBase: result.qtyBase.toFixed(3),
+      remainingQtyBase: new Decimal(result.batch.remainingQtyBase.toString()).toFixed(3),
+      costPerBase: new Decimal(result.batch.costPerBase.toString()).toFixed(6),
+      wastedValue: formatMoney(result.wastedValue),
+      reason: result.movement.note ?? input.reason.trim(),
+      createdAt: result.movement.createdAt,
+    };
+  }
+
+  /**
+   * Retrieves waste stock movements and history for a business.
+   */
+  async getWasteHistory(
+    businessId: string,
+    filter?: { skip?: number; take?: number }
+  ): Promise<WasteHistoryItemDto[]> {
+    const movements = await this.repo.findWasteMovements(businessId, filter);
+
+    return movements.map((mov) => {
+      const qty = new Decimal(mov.qtyBaseDelta.toString()).abs();
+      const cost = new Decimal(mov.costPerBase.toString());
+      const wastedValue = qty.times(cost);
+
+      return {
+        id: mov.id,
+        ingredientId: mov.ingredientId,
+        ingredientName: mov.ingredient.name,
+        baseUnit: mov.ingredient.baseUnit,
+        batchId: mov.batchId,
+        qtyBase: qty.toFixed(3),
+        costPerBase: cost.toFixed(6),
+        wastedValue: formatMoney(wastedValue),
+        reason: mov.note ?? "",
+        createdAt: mov.createdAt,
+        createdByName: mov.createdBy?.name,
+        expiryDate: mov.batch?.expiryDate,
+      };
     });
   }
 }
