@@ -2,9 +2,15 @@
 
 > Sumber kebenaran kontrak API TakarLaba. Terakhir diperbarui: 2026-10-22 (Fase 2: Bahan Baku, Pembelian, & Persediaan FEFO).
 
-## 1. Konvensi Envelope Standar
+## 1. Konvensi Envelope & Format Data Finansial
 
-Semua endpoint REST API TakarLaba menggunakan format envelope JSON standar yang konsisten untuk menjaga integritas komunikasi frontend-backend. Nilai uang dan kuantitas selalu dikirimkan sebagai **string** atau **angka terformat** untuk mencegah floating-point rounding issue (aturan domain TakarLaba).
+Semua endpoint REST API TakarLaba menggunakan format envelope JSON standar yang konsisten untuk menjaga integritas komunikasi frontend-backend. Nilai uang dan kuantitas selalu dikirimkan sebagai **string** terformat secara seragam untuk mencegah floating-point rounding issue (aturan domain TakarLaba):
+
+- **Uang (Monetary):** Selalu string dengan **2 desimal** (contoh: `"20000.00"`, `"7740.00"`). Berlaku untuk harga jual (`sellingPrice`), HPP Bahan (`hppBahan`), HPP Penuh (`hppPenuh`), estimasi profit, omzet, subtotal, dan rekomendasi harga.
+- **Kuantitas (Quantity):** Selalu string dengan **3 desimal** (contoh: `"15.000"`, `"150.000"`). Berlaku untuk takaran resep (`qtyUsableBase`) dan stok batch (`remainingQtyBase`).
+- **Biaya per Base Unit (`costPerBase`):** Selalu string dengan **6 desimal** (contoh: `"18.000000"`).
+- **Persentase (Percentage):** Selalu string dengan **2 desimal** (contoh: `"50.00"`). Berlaku untuk margin (`marginPercent`), target margin (`targetPct`), dan yield (`yieldPercent`).
+- **Dilarang tipe float numerik** dalam komunikasi JSON lintas jaringan. Frontend hanya menerima string dan menampilkan representasi rupiah lokal untuk kebutuhan tampilan visual pengguna.
 
 ### Respons Sukses
 ```json

@@ -92,4 +92,31 @@ export function toCostPerBaseString(val: DecimalValue): string {
   return toCostPerBase(val).toFixed(6);
 }
 
+/**
+ * Format any DecimalValue or null/undefined to standardized 2-decimal money string.
+ * Example: 20000 -> "20000.00"
+ */
+export function formatMoney(val: DecimalValue | null | undefined): string {
+  if (val === null || val === undefined) return "0.00";
+  return toMoney(val).toFixed(2);
+}
+
+/**
+ * Format any DecimalValue or null/undefined to standardized 3-decimal quantity string.
+ * Example: 15 -> "15.000"
+ */
+export function formatQuantity(val: DecimalValue | null | undefined): string {
+  if (val === null || val === undefined) return "0.000";
+  return toQuantity(val).toFixed(3);
+}
+
+/**
+ * Format any DecimalValue or null/undefined to standardized 2-decimal percentage string.
+ * Example: 50 -> "50.00"
+ */
+export function formatPercent(val: DecimalValue | null | undefined): string {
+  if (val === null || val === undefined) return "0.00";
+  return toPercent(val).toFixed(2);
+}
+
 export { Decimal };
