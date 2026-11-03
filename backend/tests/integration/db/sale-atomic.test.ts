@@ -287,4 +287,97 @@ describeDb("Real DB: Atomic POS Checkout & FEFO Stock Locking", () => {
     expect(finalStock).toBe(30);
     expect(finalStock).toBeGreaterThanOrEqual(0);
   });
+
+  it("atomically voids a sale, restores batch stock, records VOID_RESTORE movements, and rejects double-void", async () => {
+    const business = await createTestBusiness("sale-void");
+    businessIds.push(business.id);
+    const owner = await createTestUser(business.id, "OWNER");
+    const cashier = await createTestUser(business.id, "CASHIER");
+
+    const kopi = await createTestIngredient({
+      businessId: business.id,
+      name: "Biji Kopi Arabika",
+      category: IngredientCategory.MAIN,
+      baseUnit: BaseUnit.G,
+      yieldPercent: 100,
+    });
+
+    const batch = await createTestBatch({
+      businessId: business.id,
+      ingredientId: kopi.id,
+      receivedAt: new Date(),
+      expiryDate: new Date(Date.now() + 86400000 * 10),
+      initialQtyBase: 500,
+      remainingQtyBase: 500,
+      costPerBase: "180.000000",
+      purchaseUnit: "kg",
+      purchaseQty: 0.5,
+      purchasePrice: 90000,
+    });
+
+    const menu = await createTestMenuWithRecipe({
+      businessId: business.id,
+      name: "Americano Double Shot",
+      sellingPrice: "20000.00",
+      isActive: true,
+      recipeItems: [
+        {
+          ingredientId: kopi.id,
+          qtyUsableBase: 20,
+        },
+      ],
+    });
+
+    // Checkout 2 portions = 40g
+    const sale = await saleRepo.checkoutAtomic({
+      businessId: business.id,
+      cashierId: cashier.id,
+      idempotencyKey: "sale-to-void-1",
+      paymentMethod: "CASH",
+      items: [{ menuId: menu.id, qty: 2 }],
+      overheadPerPortion: new Decimal("1000.00"),
+    });
+
+    // Verify stock is now 460g (500 - 40)
+    const batchAfterCheckout = await prisma.stockBatch.findUniqueOrThrow({
+      where: { id: batch.id },
+    });
+    expect(Number(batchAfterCheckout.remainingQtyBase)).toBe(460);
+
+    // Now void the transaction
+    const voided = await saleRepo.voidSaleAtomic(
+      business.id,
+      owner.id,
+      sale.id,
+      "Salah input jumlah pesanan"
+    );
+
+    expect(voided.status).toBe("VOIDED");
+    expect(voided.voidReason).toBe("Salah input jumlah pesanan");
+    expect(voided.voidedById).toBe(owner.id);
+    expect(voided.voidedAt).toBeInstanceOf(Date);
+
+    // Verify batch stock is restored back to 500g
+    const batchAfterVoid = await prisma.stockBatch.findUniqueOrThrow({
+      where: { id: batch.id },
+    });
+    expect(Number(batchAfterVoid.remainingQtyBase)).toBe(500);
+
+    // Verify a VOID_RESTORE stock movement exists
+    const voidMovement = await prisma.stockMovement.findFirst({
+      where: {
+        businessId: business.id,
+        refType: "SALE",
+        refId: sale.id,
+        type: "VOID_RESTORE",
+      },
+    });
+    expect(voidMovement).toBeDefined();
+    expect(Number(voidMovement?.qtyBaseDelta)).toBe(40);
+
+    // Verify second void attempt is rejected with ConflictError
+    await expect(
+      saleRepo.voidSaleAtomic(business.id, owner.id, sale.id, "Coba void lagi")
+    ).rejects.toThrow("sudah dibatalkan sebelumnya");
+  });
 });

@@ -66,6 +66,9 @@ export interface SaleOwnerResponseDto {
   grossMargin: string;
   marginPercentage: string;
   status: string;
+  voidedAt?: Date | null;
+  voidReason?: string | null;
+  voidedById?: string | null;
   items: SaleItemOwnerDto[];
 }
 
@@ -79,6 +82,8 @@ export interface SaleCashierResponseDto {
   paymentMethod: string;
   totalAmount: string;
   status: string;
+  voidedAt?: Date | null;
+  voidReason?: string | null;
   items: SaleItemCashierDto[];
 }
 
@@ -139,6 +144,9 @@ export interface SaleEntityWithItems {
   totalIngredientCost: Decimal | string | number;
   totalOverhead: Decimal | string | number;
   status: string;
+  voidedAt?: Date | null;
+  voidReason?: string | null;
+  voidedById?: string | null;
   items: SaleItemEntity[];
   movements?: MovementWithDetails[];
 }
@@ -260,6 +268,8 @@ export function mapCashierDto(
     paymentMethod: sale.paymentMethod,
     totalAmount: totalRevenue.toFixed(2),
     status: sale.status,
+    voidedAt: sale.voidedAt ?? null,
+    voidReason: sale.voidReason ?? null,
     items: sale.items.map((item) =>
       mapCashierItem(item, movementsByItemId.get(item.id) || [], hasMovements)
     ),
@@ -296,6 +306,9 @@ export function mapOwnerDto(
     grossMargin: grossMargin.toFixed(2),
     marginPercentage,
     status: sale.status,
+    voidedAt: sale.voidedAt ?? null,
+    voidReason: sale.voidReason ?? null,
+    voidedById: sale.voidedById ?? null,
     items: sale.items.map((item) =>
       mapOwnerItem(item, movementsByItemId.get(item.id) || [], hasMovements)
     ),

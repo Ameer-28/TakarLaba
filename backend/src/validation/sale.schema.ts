@@ -29,6 +29,15 @@ export const querySaleSchema = z.object({
   limit: z.coerce.number().min(1).max(100).default(20),
 });
 
+export const voidSaleSchema = z.object({
+  reason: z
+    .string({ error: "Alasan pembatalan transaksi wajib diisi" })
+    .trim()
+    .min(3, "Alasan pembatalan minimal 3 karakter")
+    .max(255, "Alasan pembatalan maksimal 255 karakter"),
+});
+
 export type SaleItemInput = z.infer<typeof saleItemInputSchema>;
 export type CreateSaleInput = z.infer<typeof createSaleSchema>;
 export type QuerySaleInput = z.infer<typeof querySaleSchema>;
+export type VoidSaleInput = z.infer<typeof voidSaleSchema>;

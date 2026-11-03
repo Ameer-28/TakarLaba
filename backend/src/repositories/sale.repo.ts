@@ -1,6 +1,7 @@
 import { prisma } from "../lib/db.js";
 import { Decimal } from "decimal.js";
 import { todayWIB } from "../lib/date.js";
+import { NotFoundError, ConflictError } from "../lib/errors.js";
 import type { FefoBatch } from "../domain/fefo.js";
 import {
   generateInvoiceNo,
@@ -365,6 +366,137 @@ export class SaleRepository {
           batchesMap,
           allocationResult,
         });
+      },
+      {
+        timeout: 15000,
+      }
+    );
+  }
+
+  /**
+   * Atomically void a sale transaction and restore inventory back to original batches (FR-POS-03).
+   * Enforces that sale exists, belongs to tenant, and is not already VOIDED.
+   * Restores consumed quantities to each batch and inserts VOID_RESTORE movements.
+   */
+  async voidSaleAtomic(businessId: string, userId: string, saleId: string, reason: string) {
+    return prisma.$transaction(
+      async (tx) => {
+        const sale = await tx.sale.findFirst({
+          where: { id: saleId, businessId },
+          include: {
+            items: true,
+            cashier: { select: { id: true, name: true, role: true } },
+          },
+        });
+
+        if (!sale) {
+          throw new NotFoundError("Transaksi penjualan tidak ditemukan");
+        }
+
+        if (sale.status === "VOIDED") {
+          throw new ConflictError("Transaksi penjualan sudah dibatalkan sebelumnya");
+        }
+
+        const itemIds = sale.items.map((i) => i.id);
+        const saleMovements =
+          itemIds.length > 0
+            ? await tx.stockMovement.findMany({
+                where: {
+                  businessId,
+                  refType: "SALE_ITEM",
+                  refId: { in: itemIds },
+                  type: "SALE",
+                },
+              })
+            : [];
+
+        const restoreMovements: Array<{
+          businessId: string;
+          ingredientId: string;
+          batchId: string;
+          type: "VOID_RESTORE";
+          qtyBaseDelta: string;
+          costPerBase: string;
+          refType: string;
+          refId: string;
+          reason: string;
+          createdById: string;
+        }> = [];
+
+        for (const mov of saleMovements) {
+          const restoreQty = new Decimal(mov.qtyBaseDelta.toString()).abs();
+
+          if (mov.batchId) {
+            await tx.stockBatch.update({
+              where: { id: mov.batchId },
+              data: {
+                remainingQtyBase: {
+                  increment: restoreQty.toFixed(3),
+                },
+              },
+            });
+
+            restoreMovements.push({
+              businessId,
+              ingredientId: mov.ingredientId,
+              batchId: mov.batchId,
+              type: "VOID_RESTORE",
+              qtyBaseDelta: restoreQty.toFixed(3),
+              costPerBase: new Decimal(mov.costPerBase.toString()).toFixed(6),
+              refType: "SALE",
+              refId: sale.id,
+              reason: reason.trim(),
+              createdById: userId,
+            });
+          }
+        }
+
+        if (restoreMovements.length > 0) {
+          await tx.stockMovement.createMany({
+            data: restoreMovements,
+          });
+        }
+
+        const voidedSale = await tx.sale.update({
+          where: { id: sale.id },
+          data: {
+            status: "VOIDED",
+            voidedAt: new Date(),
+            voidReason: reason.trim(),
+            voidedById: userId,
+          },
+          include: {
+            items: true,
+            cashier: { select: { id: true, name: true, role: true } },
+          },
+        });
+
+        const allMovements = await tx.stockMovement.findMany({
+          where: {
+            businessId,
+            OR: [
+              { refType: "SALE_ITEM", refId: { in: itemIds } },
+              { refType: "SALE", refId: sale.id },
+            ],
+          },
+          include: {
+            ingredient: { select: { id: true, name: true, baseUnit: true } },
+            batch: {
+              select: {
+                id: true,
+                expiryDate: true,
+                purchaseUnit: true,
+                purchaseUnitPrice: true,
+                costPerBase: true,
+              },
+            },
+          },
+        });
+
+        return {
+          ...voidedSale,
+          movements: allMovements,
+        };
       },
       {
         timeout: 15000,
