@@ -1292,13 +1292,23 @@ Memeriksa status ketersediaan mode demo dan sisa waktu jeda pendinginan (cooldow
     }
   }
   ```
+- **Response 403 Forbidden:**
+  ```json
+  {
+    "ok": false,
+    "error": {
+      "code": "FORBIDDEN",
+      "message": "Mode demo dinonaktifkan di lingkungan ini"
+    }
+  }
+  ```
 
 #### POST `/api/demo/reset`
-Mereset data bisnis demo kembali ke kondisi fixture deterministik awal (PRD Lampiran B), memuat riwayat 30 hari (1.300 porsi) dan saldo stok awal.
+Mereset data bisnis demo kembali ke kondisi fixture deterministik awal (PRD Lampiran B), memuat riwayat 30 hari (1.300 porsi) dan saldo stok awal. Memerlukan autentikasi aktif sebagai Demo Owner (`OWNER` dari bisnis `isDemo: true`) untuk mencegah reset sembarangan oleh pihak publik atau peran kasir. Membersihkan sesi demo yang berusia lebih dari 24 jam dengan tetap mempertahankan sesi aktif.
 
 - **Metode:** `POST`
-- **Autentikasi:** Publik (dibatasi `DEMO_MODE=true` dan tenant `isDemo: true`)
-- **Header:** `Origin: <FRONTEND_URL>`
+- **Autentikasi:** Wajib sesi aktif `OWNER` dari bisnis demo (`isDemo: true`)
+- **Header:** `Origin: <FRONTEND_URL>`, `Cookie: better-auth.session_token=...`
 - **Request Body:** Tidak ada
 - **Response 200 OK:**
   ```json
@@ -1307,6 +1317,26 @@ Mereset data bisnis demo kembali ke kondisi fixture deterministik awal (PRD Lamp
     "data": {
       "message": "Data contoh demo berhasil direset ke kondisi awal",
       "resetAt": "2026-10-31T12:00:00.000Z"
+    }
+  }
+  ```
+- **Response 401 Unauthorized:**
+  ```json
+  {
+    "ok": false,
+    "error": {
+      "code": "UNAUTHENTICATED",
+      "message": "Sesi login diperlukan untuk reset data demo"
+    }
+  }
+  ```
+- **Response 403 Forbidden (Bukan Demo Owner atau Mode Demo Nonaktif):**
+  ```json
+  {
+    "ok": false,
+    "error": {
+      "code": "FORBIDDEN",
+      "message": "Hanya Demo Owner yang dapat melakukan reset demo"
     }
   }
   ```
@@ -1323,6 +1353,12 @@ Mereset data bisnis demo kembali ke kondisi fixture deterministik awal (PRD Lamp
 
 #### POST `/api/demo/login`
 Membuat sesi autentikasi secara terprogram untuk pengguna demo (`OWNER` atau `CASHIER`) tanpa mengekspos kredensial kata sandi ke browser. Mengembalikan data profil dan header `Set-Cookie` sesi Better Auth.
+
+Dilengkapi dengan:
+1. **Session Reuse:** Jika klien sudah memiliki cookie sesi demo yang valid dengan role yang diminta, sesi tersebut langsung dipakai ulang tanpa membuat sesi baru di database.
+2. **Serverless-Safe Rate Limiting:** Batasan laju berbasis kueri tabel `Session` untuk mencegah penumpukan sesi:
+   - Maksimal **10 login per IP per 10 menit**.
+   - Maksimal **60 login per jam secara global**.
 
 - **Metode:** `POST`
 - **Autentikasi:** Publik
@@ -1349,6 +1385,26 @@ Membuat sesi autentikasi secara terprogram untuk pengguna demo (`OWNER` atau `CA
         "userId": "demo-owner-id"
       },
       "role": "OWNER"
+    }
+  }
+  ```
+- **Response 429 Too Many Requests (Rate Limit):**
+  ```json
+  {
+    "ok": false,
+    "error": {
+      "code": "RATE_LIMITED",
+      "message": "Terlalu banyak permintaan login demo dari IP ini. Coba lagi dalam 10 menit."
+    }
+  }
+  ```
+- **Response 403 Forbidden (Mode Demo Nonaktif):**
+  ```json
+  {
+    "ok": false,
+    "error": {
+      "code": "FORBIDDEN",
+      "message": "Mode demo dinonaktifkan di lingkungan ini"
     }
   }
   ```
