@@ -61,4 +61,67 @@ describe("Inventory API client integration", () => {
       expect.objectContaining({ credentials: "same-origin" })
     );
   });
+
+  it("sends POST /api/stock/waste to record stock waste", async () => {
+    const mockResponse = {
+      movementId: "mov-waste-1",
+      batchId: "batch-1",
+      ingredientId: "ing-1",
+      ingredientName: "Susu UHT",
+      baseUnit: "ML",
+      qtyBase: "2000.000",
+      remainingQtyBase: "3000.000",
+      costPerBase: "18.000000",
+      wastedValue: "36000.00",
+      reason: "Basi",
+      createdAt: "2026-11-04T05:00:00.000Z",
+    };
+
+    globalThis.fetch = vi.fn().mockResolvedValueOnce({
+      status: 201,
+      text: vi.fn().mockResolvedValueOnce(JSON.stringify({ ok: true, data: mockResponse })),
+    } as unknown as Response);
+
+    const result = await apiClient("/stock/waste", {
+      method: "POST",
+      body: JSON.stringify({
+        batchId: "batch-1",
+        qty: 2,
+        unit: "L",
+        reason: "Basi",
+      }),
+    });
+
+    expect(result).toEqual(mockResponse);
+    expect(globalThis.fetch).toHaveBeenCalledWith(
+      expect.stringContaining("/api/stock/waste"),
+      expect.objectContaining({
+        method: "POST",
+        credentials: "same-origin",
+        body: JSON.stringify({
+          batchId: "batch-1",
+          qty: 2,
+          unit: "L",
+          reason: "Basi",
+        }),
+      })
+    );
+  });
+
+  it("sends GET /api/inventory/waste to fetch waste history", async () => {
+    globalThis.fetch = vi.fn().mockResolvedValueOnce({
+      status: 200,
+      text: vi.fn().mockResolvedValueOnce(JSON.stringify({ ok: true, data: [] })),
+    } as unknown as Response);
+
+    const result = await apiClient("/inventory/waste", {
+      params: { limit: 20, skip: 0 },
+    });
+
+    expect(result).toEqual([]);
+    expect(globalThis.fetch).toHaveBeenCalledWith(
+      expect.stringContaining("/api/inventory/waste?limit=20&skip=0"),
+      expect.objectContaining({ credentials: "same-origin" })
+    );
+  });
 });
