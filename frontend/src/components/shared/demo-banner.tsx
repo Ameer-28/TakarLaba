@@ -30,13 +30,14 @@ export function DemoBanner() {
   const isDemoBusiness = Boolean(
     settings?.isDemo || session?.user?.email?.endsWith("@takarlaba.demo")
   );
+  const isOwner = (session?.user as { role?: string })?.role === "OWNER";
 
   if (!demoStatus?.enabled || !isDemoBusiness) {
     return null;
   }
 
   const handleReset = async () => {
-    if (cooldown > 0 || resetMutation.isPending) return;
+    if (!isOwner || cooldown > 0 || resetMutation.isPending) return;
     try {
       await resetMutation.mutateAsync();
       setCooldown(60);
@@ -62,19 +63,21 @@ export function DemoBanner() {
         </span>
       </div>
 
-      <button
-        type="button"
-        disabled={isResetting || cooldown > 0}
-        onClick={handleReset}
-        className="inline-flex items-center gap-1.5 px-3 py-1 font-semibold text-xs rounded-lg bg-amber-600 hover:bg-amber-700 text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-xs"
-      >
-        {isResetting ? (
-          <Loader2 className="w-3.5 h-3.5 animate-spin" />
-        ) : (
-          <RotateCcw className="w-3.5 h-3.5" />
-        )}
-        <span>{formatResetButtonText(cooldown, isResetting)}</span>
-      </button>
+      {isOwner && (
+        <button
+          type="button"
+          disabled={isResetting || cooldown > 0}
+          onClick={handleReset}
+          className="inline-flex items-center gap-1.5 px-3 py-1 font-semibold text-xs rounded-lg bg-amber-600 hover:bg-amber-700 text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-xs cursor-pointer"
+        >
+          {isResetting ? (
+            <Loader2 className="w-3.5 h-3.5 animate-spin" />
+          ) : (
+            <RotateCcw className="w-3.5 h-3.5" />
+          )}
+          <span>{formatResetButtonText(cooldown, isResetting)}</span>
+        </button>
+      )}
     </aside>
   );
 }
