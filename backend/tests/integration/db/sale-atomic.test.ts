@@ -374,6 +374,7 @@ describeDb("Real DB: Atomic POS Checkout & FEFO Stock Locking", () => {
     });
     expect(voidMovement).toBeDefined();
     expect(Number(voidMovement?.qtyBaseDelta)).toBe(40);
+    expect(voidMovement?.note).toBe("Salah input jumlah pesanan");
 
     // Verify second void attempt is rejected with ConflictError
     await expect(

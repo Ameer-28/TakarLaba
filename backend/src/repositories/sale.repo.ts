@@ -10,6 +10,7 @@ import {
   type SaleAllocationResult,
 } from "../domain/checkout.js";
 import type { PaymentMethod } from "../generated/prisma/enums.js";
+import type { Prisma } from "../generated/prisma/client.js";
 
 export { generateInvoiceNo } from "../domain/checkout.js";
 
@@ -410,18 +411,7 @@ export class SaleRepository {
               })
             : [];
 
-        const restoreMovements: Array<{
-          businessId: string;
-          ingredientId: string;
-          batchId: string;
-          type: "VOID_RESTORE";
-          qtyBaseDelta: string;
-          costPerBase: string;
-          refType: string;
-          refId: string;
-          reason: string;
-          createdById: string;
-        }> = [];
+        const restoreMovements: Prisma.StockMovementCreateManyInput[] = [];
 
         for (const mov of saleMovements) {
           const restoreQty = new Decimal(mov.qtyBaseDelta.toString()).abs();
@@ -445,7 +435,7 @@ export class SaleRepository {
               costPerBase: new Decimal(mov.costPerBase.toString()).toFixed(6),
               refType: "SALE",
               refId: sale.id,
-              reason: reason.trim(),
+              note: reason.trim(),
               createdById: userId,
             });
           }
