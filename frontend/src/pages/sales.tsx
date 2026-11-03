@@ -177,6 +177,10 @@ export function SalesPage() {
         onClose={() => setSelectedSale(null)}
         sale={selectedSale}
         isOwner={isOwner}
+        onVoidSuccess={(updated) => {
+          setSelectedSale(updated);
+          refetch();
+        }}
       />
     </div>
   );
