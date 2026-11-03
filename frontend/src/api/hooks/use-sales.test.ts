@@ -133,4 +133,41 @@ describe("Sales API client integration (T-041)", () => {
       })
     );
   });
+
+  it("sends POST /api/sales/:id/void to void transaction", async () => {
+    const mockVoided: SaleDetail = {
+      id: "sale-123",
+      invoiceNo: "INV-20261029-A1B2C3",
+      idempotencyKey: "idem-key-999",
+      soldAt: "2026-10-29T10:00:00.000Z",
+      cashierId: "user-owner-1",
+      paymentMethod: "CASH",
+      totalAmount: "36000.00",
+      status: "VOIDED",
+      voidedAt: "2026-10-29T11:00:00.000Z",
+      voidReason: "Salah input menu",
+      voidedById: "user-owner-1",
+      items: [],
+    };
+
+    globalThis.fetch = vi.fn().mockResolvedValueOnce({
+      status: 200,
+      text: vi.fn().mockResolvedValueOnce(JSON.stringify({ ok: true, data: mockVoided })),
+    } as unknown as Response);
+
+    const result = await apiClient<SaleDetail>("/sales/sale-123/void", {
+      method: "POST",
+      body: JSON.stringify({ reason: "Salah input menu" }),
+    });
+
+    expect(result).toEqual(mockVoided);
+    expect(globalThis.fetch).toHaveBeenCalledWith(
+      "/api/sales/sale-123/void",
+      expect.objectContaining({
+        method: "POST",
+        credentials: "same-origin",
+        body: JSON.stringify({ reason: "Salah input menu" }),
+      })
+    );
+  });
 });

@@ -51,6 +51,9 @@ export interface SaleDetail {
   grossMargin?: string;
   marginPercentage?: string;
   status: SaleStatus;
+  voidedAt?: string | null;
+  voidReason?: string | null;
+  voidedById?: string | null;
   items: SaleItemDetail[];
 }
 
@@ -145,5 +148,35 @@ export function useSaleDetail(id: string, options?: { enabled?: boolean }) {
       return apiClient<SaleDetail>(`/sales/${id}`);
     },
     enabled: !!id && (options?.enabled ?? true),
+  });
+}
+
+export interface VoidSaleVariables {
+  saleId: string;
+  reason: string;
+}
+
+/**
+ * Mutation hook to void a sale transaction and restore inventory (POST /api/sales/:id/void).
+ * Invalidates sales, inventory, dashboard, analytics, and menu queries on success.
+ */
+export function useVoidSale() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ saleId, reason }: VoidSaleVariables) => {
+      return apiClient<SaleDetail>(`/sales/${saleId}/void`, {
+        method: "POST",
+        body: JSON.stringify({ reason }),
+      });
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.sales.all });
+      queryClient.invalidateQueries({ queryKey: queryKeys.sales.detail(variables.saleId) });
+      queryClient.invalidateQueries({ queryKey: queryKeys.inventory.all });
+      queryClient.invalidateQueries({ queryKey: queryKeys.dashboard.all });
+      queryClient.invalidateQueries({ queryKey: queryKeys.analytics.all });
+      queryClient.invalidateQueries({ queryKey: queryKeys.menus.all });
+    },
   });
 }

@@ -1032,6 +1032,68 @@ Mengambil detail satu transaksi penjualan berdasarkan ID, termasuk alokasi batch
 - **Response 200 OK (CASHIER):**
   Field biaya (`totalIngredientCost`, `totalOverhead`, `grossMargin`, `marginPercentage`, `ingredientCostActual`, `overheadAllocated`, serta `costPerBase` dan `subtotalCost` pada `batchAllocations`) **dihilangkan**. Kasir hanya melihat informasi operasional (`ingredientName`, `baseUnit`, `batchExpiryDate`, `qtyDeducted`).
 
+#### POST `/api/sales/:id/void`
+Membatalkan (void) satu transaksi penjualan dan mengembalikan stok bahan baku ke batch asal masing-masing secara atomik dalam satu transaksi database (`FR-POS-03`). Mengubah status transaksi menjadi `VOIDED`, mencatat alasan pembatalan wajib, waktu void, user yang membatalkan, serta merekam pergerakan stok `StockMovement(VOID_RESTORE)`. Transaksi yang di-void otomatis dikecualikan dari laporan keuangan dan analitik.
+
+- **Metode:** `POST`
+- **Autentikasi:** Wajib sesi aktif role `OWNER` (role `CASHIER` menerima `403 FORBIDDEN`).
+- **Header:** `Origin: <FRONTEND_URL>`
+- **URL Params:**
+  - `id`: ID transaksi penjualan (`cuid`)
+- **Request Body:**
+  ```json
+  {
+    "reason": "Pelanggan membatalkan pesanan karena salah varian menu"
+  }
+  ```
+- **Response 200 OK:**
+  ```json
+  {
+    "ok": true,
+    "data": {
+      "id": "sale_clx123",
+      "invoiceNo": "INV-20261029-A1B2C3",
+      "idempotencyKey": "idem-key-123",
+      "soldAt": "2026-10-29T10:00:00.000Z",
+      "cashierId": "user_owner_1",
+      "cashier": {
+        "id": "user_owner_1",
+        "name": "Owner Demo",
+        "role": "OWNER"
+      },
+      "paymentMethod": "CASH",
+      "totalAmount": "36000.00",
+      "totalIngredientCost": "15480.00",
+      "totalOverhead": "2400.00",
+      "grossMargin": "18120.00",
+      "marginPercentage": "50.33",
+      "status": "VOIDED",
+      "voidedAt": "2026-10-29T11:00:00.000Z",
+      "voidReason": "Pelanggan membatalkan pesanan karena salah varian menu",
+      "voidedById": "user_owner_1",
+      "items": [
+        {
+          "id": "item_1",
+          "menuId": "menu_hero",
+          "menuNameSnapshot": "Es Kopi Susu Aren",
+          "qty": 2,
+          "unitPrice": "18000.00",
+          "subtotalPrice": "36000.00",
+          "ingredientCostActual": "15480.00",
+          "overheadAllocated": "2400.00",
+          "grossMargin": "18120.00",
+          "marginPercentage": "50.33"
+        }
+      ]
+    }
+  }
+  ```
+- **Response 400 Bad Request:** Jika alasan pembatalan kurang dari 3 karakter atau lebih dari 255 karakter.
+- **Response 401 Unauthorized:** Pengguna belum terautentikasi.
+- **Response 403 Forbidden:** Pengguna berstatus kasir (`CASHIER`).
+- **Response 404 Not Found:** Transaksi penjualan tidak ditemukan.
+- **Response 409 Conflict:** Transaksi penjualan sudah dibatalkan sebelumnya (`VOIDED`).
+
 ---
 
 ### 3.8 Peringatan Margin & Price Shock Impact (`/api/alerts`)
