@@ -93,7 +93,7 @@ Aturan: hanya satu tugas `[/]` per agent pada satu waktu.
 
 - [x] **T-100** (P1) [BE+FE] `domain/capacity.ts` + endpoint + UI kapasitas/bottleneck di POS, menu, dashboard — AC: FR-CAP-01
 - [x] **T-101** (P1) [BE+FE] `domain/menu-engineering.ts` + endpoint + scatter Recharts + tabel padanan + rekomendasi terhitung + guard data — AC: fixture B 6/6 (sebelum & sesudah shock)
-- [ ] **T-102** (P1) [BE+FE] Void transaksi (restore ke batch asal, alasan wajib) — AC: FR-POS-03
+- [x] **T-102** (P1) [BE+FE] Void transaksi (restore ke batch asal, alasan wajib) — AC: FR-POS-03
 - [ ] **T-103** (P1) [BE+FE] Catat bahan terbuang (WASTE) + nilai kerugian — AC: FR-INV-03
 - [ ] **T-104** (P1) [BE+FE] Riwayat pembelian + void pembelian (hanya jika batch belum terpakai)
 - [ ] **T-105** (P1) [BE+FE] Registrasi + onboarding wizard
@@ -149,6 +149,7 @@ Aturan: hanya satu tugas `[/]` per agent pada satu waktu.
 
 | Tanggal    | Agent/Orang | Ringkasan                                                                                                                                                                                                                                                                                                             | Tugas terkait              |
 | ---------- | ----------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------- |
+| 2026-11-03 | Agent       | Selesai T-102: Fitur void transaksi penjualan atomik (FR-POS-03), pemulihan stok batch asal via StockMovement(VOID_RESTORE), endpoint POST /api/sales/:id/void (OWNER only), UI modal konfirmasi void & badge status Dibatalkan pada riwayat penjualan, serta unit/integration tests                                 | T-102                      |
 | 2026-11-03 | Agent       | Standardisasi format string finansial DTO API (uang 2 desimal, kuantitas 3 desimal), optimasi batch insertion seed demo createMany 500 baris dengan timeout $transaction, pengamanan endpoint demo (RBAC Demo Owner pada reset, session table rate limiting & reuse pada login demo, purga sesi >24j), pemindahan UI reset ke DemoBanner terotentikasi, serta dokumentasi docs/api.md & README.md | T-060, T-061, T-062        |
 | 2026-11-02 | Agent       | Selesai T-101: Matriks Menu Engineering Kasavana & Smith (4 kuadran: Star, Plowhorse, Puzzle, Dog), pure domain logic, query aggregat penjualan, endpoint GET /api/analytics/menu-engineering, scatter plot SVG interaktif, tabel padanan accessible, rekomendasi taktis terhitung otomatis, dan perbaikan CI runner integration test | T-101                      |
 | 2026-11-02 | Agent       | Selesai T-100: Endpoint analitik GET /api/analytics/capacity (DTO kasir tanpa biaya Rule 7), kalkulasi bottleneck BR-08, integrasi kapasitas porsi pada menu table, mobile card, recipe preview panel, dan halaman analitik                                                                                       | T-100                      |
