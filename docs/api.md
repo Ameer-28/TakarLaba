@@ -1390,7 +1390,7 @@ Menandai peringatan telah ditinjau pemilik usaha (mengubah status dari `OPEN` ke
 - **Autentikasi:** Wajib sesi aktif role `OWNER`.
 - **Response 200 OK:** Mengembalikan objek alert dengan `status: "ACKNOWLEDGED"`.
 
-### 3.10 Dashboard & Ringkasan Bisnis (T-053 — AC: FR-DASH-01)
+### 3.9 Dashboard & Ringkasan Bisnis (T-053 — AC: FR-DASH-01)
 
 #### GET `/api/dashboard/summary`
 Mengambil metrik ringkasan harian (omzet hari ini WIB, transaksi, estimasi laba kotor setelah HPP aktual & alokasi overhead, nilai rupiah bahan kedaluwarsa ≤ N hari, jumlah stok rendah), 5 peringatan margin teratas, 5 menu dengan estimasi kapasitas porsi terendah beserta bahan pembatasnya (bottleneck), dan transaksi penjualan terkini.

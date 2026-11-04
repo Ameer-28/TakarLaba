@@ -305,6 +305,21 @@ npm run build          # Produksi bundle Vite
 
 ---
 
+## 📚 Indeks Dokumentasi Teknis
+
+Dokumentasi arsitektur, basis data, dan spesifikasi API tersedia secara rinci:
+
+| Dokumen | Deskripsi | Tautan |
+| :--- | :--- | :--- |
+| **Entity-Relationship Diagram (ERD)** | Pemetaan skema relasional 15 entitas, kamus data, siklus hidup FEFO, dan aturan presisi desimal | [docs/erd.md](docs/erd.md) · [Diagram SVG](docs/erd-diagram.svg) |
+| **Spesifikasi Kontrak REST API** | Kontrak API 14 domain endpoint, envelope data, batas laju, otorisasi peran, dan kode status HTTP | [docs/api.md](docs/api.md) |
+| **Proposal Teknis GTNIC 2026** | Latar belakang masalah UMKM kuliner, solusi inovatif, arsitektur sistem, dan roadmap produk | [docs/proposal-gtnic-2026.md](docs/proposal-gtnic-2026.md) |
+| **Laporan Audit Keamanan OWASP** | Audit defensif OWASP Top 10, sanitasi input Zod, proteksi SSRF, DTO Rule 7, dan rate limiting | [docs/security-audit-report.md](docs/security-audit-report.md) |
+| **Audit Responsif & Kompatibilitas Peramban** | Verifikasi tampilan mobile 360 px, tablet, desktop, dan pengujian Safari/Chrome/Firefox | [docs/responsive-and-browser-audit.md](docs/responsive-and-browser-audit.md) |
+| **Analisis Pasar & Kompetitor** | Studi banding terhadap Moka, Pawoon, Olsera, dan keunggulan *Decision Layer* TakarLaba | [docs/market-and-competitor-analysis.md](docs/market-and-competitor-analysis.md) |
+
+---
+
 ## 🔒 Keamanan & Prinsip Desain Defensif
 
 1. **Strict Multi-Tenant Scoping:** Tidak ada query database yang mempercayai `businessId` dari input klien. Seluruh query di repository diikat pada `businessId` yang diekstrak dari sesi pengguna terotentikasi.

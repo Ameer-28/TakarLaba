@@ -99,7 +99,7 @@ Aturan: hanya satu tugas `[/]` per agent pada satu waktu.
 - [x] **T-105** (P1) [BE+FE] Registrasi + onboarding wizard
 - [x] **T-106** (P1) [FE] Input uang diterima & kembalian; struk print
 - [x] **T-107** (P1) [BE+FE] Grafik dashboard (penjualan 7 hari, top menu)
-- [ ] **T-108** (P1) [DOC] `docs/erd.md` + gambar, `docs/api.md` lengkap, screenshot
+- [x] **T-108** (P1) [DOC] `docs/erd.md` + gambar, `docs/api.md` lengkap, screenshot
 - [ ] **T-109** (P1) [FE] Polish UX: skeleton, empty state, error boundary, pesan Indonesia konsisten, a11y pass
 - [ ] **T-110** (P1) [FE+BE] Lighthouse (perf ≥ 80, a11y ≥ 90), bundle size awal ≤ 250 KB gzip (route-level splitting), optimasi query dashboard
 - [ ] **T-111** (P1) [DOC] Uji awam (3 orang): bahan → resep → penjualan; catat temuan
@@ -149,6 +149,7 @@ Aturan: hanya satu tugas `[/]` per agent pada satu waktu.
 
 | Tanggal    | Agent/Orang | Ringkasan                                                                                                                                                                                                                                                                                                             | Tugas terkait              |
 | ---------- | ----------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------- |
+| 2026-11-04 | Agent       | Selesai T-108: Dokumentasi ERD komprehensif (docs/erd.md), diagram visual skema relasional (docs/erd-diagram.svg), kamus data 15 entitas, siklus hidup batch FEFO & margin alert, standarisasi penomoran subbab docs/api.md, dan indeks dokumentasi teknis di README.md | T-108                      |
 | 2026-11-04 | Agent       | Selesai T-107: Grafik tren penjualan 7 hari & ranking 5 menu terlaris pada ringkasan dashboard (FR-DASH-01), agregasi backend salesLast7Days (omzet, porsi, transaksi) & topMenus, dokumentasi di docs/api.md, kartu grafik bar responsif DashboardSalesTrendChart, ranking menu berprogres DashboardTopMenus, integrasi pada /dashboard, dan unit tests | T-107                      |
 | 2026-11-04 | Agent       | Selesai T-106: Input uang diterima & kalkulasi kembalian/kurang bayar real-time pada checkout POS, tombol uang pas & pecahan cepat, tombol reset input, pelokalan label pembayaran di struk, nama kasir pada cetakan struk, optimasi print CSS thermal printer (@page tanpa header browser), dan unit tests | T-106                      |
 | 2026-11-04 | Agent       | Selesai T-105: Registrasi pemilik bisnis baru atomik (FR-AUTH-04), endpoint POST /api/register, pembuatan workspace Business & akun Better Auth OWNER terotentikasi otomatis, form pendaftaran di /register, wizard 3 langkah terpandu di /onboarding (bahan -> menu/resep -> overhead) dengan live kalkulasi, integrasi link pendaftaran di halaman login & CTA wizard di dashboard | T-105                      |

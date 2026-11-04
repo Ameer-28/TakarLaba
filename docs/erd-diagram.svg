@@ -1,0 +1,256 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 950" width="100%" height="100%" style="background:#0f172a; font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0f172a" />
+      <stop offset="100%" stop-color="#1e293b" />
+    </linearGradient>
+    <filter id="shadow" x="-5%" y="-5%" width="110%" height="110%">
+      <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#000000" flood-opacity="0.4"/>
+    </filter>
+    <marker id="arrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#64748b" />
+    </marker>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1400" height="950" fill="url(#bgGrad)" />
+
+  <!-- Title & Subtitle -->
+  <g transform="translate(50, 45)">
+    <text x="0" y="0" font-size="24" font-weight="800" fill="#f8fafc" letter-spacing="-0.5">TakarLaba — Entity-Relationship Diagram (ERD)</text>
+    <text x="0" y="24" font-size="13" font-weight="500" fill="#94a3b8">PostgreSQL 17 (Neon) · Prisma ORM 7 · Multi-Tenant · Anti-Float Decimal Architecture</text>
+  </g>
+
+  <!-- Domain 1: Multi-Tenant Root & Auth -->
+  <!-- Business -->
+  <g transform="translate(50, 100)" filter="url(#shadow)">
+    <rect width="250" height="190" rx="10" fill="#1e1b4b" stroke="#6366f1" stroke-width="2" />
+    <rect width="250" height="34" rx="10" fill="#4338ca" />
+    <rect width="250" height="10" y="24" fill="#4338ca" />
+    <text x="15" y="22" font-size="14" font-weight="700" fill="#ffffff">Business (Root Tenant)</text>
+    <g transform="translate(15, 52)" font-size="11" fill="#c7d2fe">
+      <text x="0" y="0" font-weight="700" fill="#a5b4fc">PK  id : String (cuid)</text>
+      <text x="0" y="18">name : String</text>
+      <text x="0" y="36">isDemo : Boolean</text>
+      <text x="0" y="54">targetMarginDefault : Decimal(5,2)</text>
+      <text x="0" y="72">expiryWarnDays : Int (3)</text>
+      <text x="0" y="90">priceRoundingStep : Int (500)</text>
+      <text x="0" y="108">expectedMonthlyPortions : Int</text>
+      <text x="0" y="126">timezone : String (WIB)</text>
+    </g>
+  </g>
+
+  <!-- User -->
+  <g transform="translate(340, 100)" filter="url(#shadow)">
+    <rect width="240" height="170" rx="10" fill="#1e1b4b" stroke="#6366f1" stroke-width="1.5" />
+    <rect width="240" height="34" rx="10" fill="#4338ca" />
+    <rect width="240" height="10" y="24" fill="#4338ca" />
+    <text x="15" y="22" font-size="14" font-weight="700" fill="#ffffff">User (Better Auth)</text>
+    <g transform="translate(15, 52)" font-size="11" fill="#c7d2fe">
+      <text x="0" y="0" font-weight="700" fill="#a5b4fc">PK  id : String (cuid)</text>
+      <text x="0" y="18" fill="#e0e7ff">FK  businessId : String (cascade)</text>
+      <text x="0" y="36">name : String</text>
+      <text x="0" y="54">email : String (unique)</text>
+      <text x="0" y="72">role : OWNER | CASHIER</text>
+      <text x="0" y="90">isActive : Boolean</text>
+      <text x="0" y="108">createdAt : DateTime</text>
+    </g>
+  </g>
+
+  <!-- Domain 2: Inventory & FEFO Batches -->
+  <!-- Ingredient -->
+  <g transform="translate(50, 330)" filter="url(#shadow)">
+    <rect width="250" height="200" rx="10" fill="#064e3b" stroke="#10b981" stroke-width="2" />
+    <rect width="250" height="34" rx="10" fill="#047857" />
+    <rect width="250" height="10" y="24" fill="#047857" />
+    <text x="15" y="22" font-size="14" font-weight="700" fill="#ffffff">Ingredient (Master Bahan)</text>
+    <g transform="translate(15, 52)" font-size="11" fill="#a7f3d0">
+      <text x="0" y="0" font-weight="700" fill="#6ee7b7">PK  id : String (cuid)</text>
+      <text x="0" y="18" fill="#d1fae5">FK  businessId : String</text>
+      <text x="0" y="36">name : String</text>
+      <text x="0" y="54">category : MAIN | SUPPORT | PACK</text>
+      <text x="0" y="72">baseUnit : G | ML | PCS</text>
+      <text x="0" y="90">yieldPercent : Decimal(5,2)</text>
+      <text x="0" y="108">isPerishable : Boolean</text>
+      <text x="0" y="126">minStockBase : Decimal(14,3)</text>
+      <text x="0" y="144">isActive : Boolean</text>
+    </g>
+  </g>
+
+  <!-- Purchase -->
+  <g transform="translate(340, 330)" filter="url(#shadow)">
+    <rect width="240" height="160" rx="10" fill="#064e3b" stroke="#10b981" stroke-width="1.5" />
+    <rect width="240" height="34" rx="10" fill="#047857" />
+    <rect width="240" height="10" y="24" fill="#047857" />
+    <text x="15" y="22" font-size="14" font-weight="700" fill="#ffffff">Purchase (Nota Belanja)</text>
+    <g transform="translate(15, 52)" font-size="11" fill="#a7f3d0">
+      <text x="0" y="0" font-weight="700" fill="#6ee7b7">PK  id : String (cuid)</text>
+      <text x="0" y="18" fill="#d1fae5">FK  businessId : String</text>
+      <text x="0" y="36" fill="#d1fae5">FK  createdById : String</text>
+      <text x="0" y="54">supplierName : String?</text>
+      <text x="0" y="72">purchasedAt : DateTime</text>
+      <text x="0" y="90">totalAmount : Decimal(14,2)</text>
+      <text x="0" y="108">note : String? (Void prefix)</text>
+    </g>
+  </g>
+
+  <!-- StockBatch -->
+  <g transform="translate(620, 330)" filter="url(#shadow)">
+    <rect width="250" height="210" rx="10" fill="#064e3b" stroke="#10b981" stroke-width="2" />
+    <rect width="250" height="34" rx="10" fill="#047857" />
+    <rect width="250" height="10" y="24" fill="#047857" />
+    <text x="15" y="22" font-size="14" font-weight="700" fill="#ffffff">StockBatch (FEFO)</text>
+    <g transform="translate(15, 52)" font-size="11" fill="#a7f3d0">
+      <text x="0" y="0" font-weight="700" fill="#6ee7b7">PK  id : String (cuid)</text>
+      <text x="0" y="18" fill="#d1fae5">FK  businessId : String</text>
+      <text x="0" y="36" fill="#d1fae5">FK  ingredientId : String</text>
+      <text x="0" y="54" fill="#d1fae5">FK  purchaseId : String?</text>
+      <text x="0" y="72">receivedAt : DateTime</text>
+      <text x="0" y="90" font-weight="700" fill="#fef08a">expiryDate : DateTime? (FEFO)</text>
+      <text x="0" y="108">initialQtyBase : Decimal(14,3)</text>
+      <text x="0" y="126" font-weight="700">remainingQtyBase : Decimal(14,3)</text>
+      <text x="0" y="144" fill="#6ee7b7">costPerBase : Decimal(18,6)</text>
+    </g>
+  </g>
+
+  <!-- StockMovement -->
+  <g transform="translate(910, 330)" filter="url(#shadow)">
+    <rect width="230" height="190" rx="10" fill="#064e3b" stroke="#10b981" stroke-width="1.5" />
+    <rect width="230" height="34" rx="10" fill="#047857" />
+    <rect width="230" height="10" y="24" fill="#047857" />
+    <text x="15" y="22" font-size="14" font-weight="700" fill="#ffffff">StockMovement</text>
+    <g transform="translate(15, 52)" font-size="11" fill="#a7f3d0">
+      <text x="0" y="0" font-weight="700" fill="#6ee7b7">PK  id : String (cuid)</text>
+      <text x="0" y="18" fill="#d1fae5">FK  businessId : String</text>
+      <text x="0" y="36" fill="#d1fae5">FK  ingredientId : String</text>
+      <text x="0" y="54" fill="#d1fae5">FK  batchId : String?</text>
+      <text x="0" y="72">type : PURCHASE|SALE|VOID|WASTE</text>
+      <text x="0" y="90">qtyBaseDelta : Decimal(14,3)</text>
+      <text x="0" y="108">costPerBase : Decimal(18,6)</text>
+      <text x="0" y="126">refType / refId : String?</text>
+    </g>
+  </g>
+
+  <!-- Domain 3: Menu, Recipe & Costing -->
+  <!-- Menu -->
+  <g transform="translate(50, 580)" filter="url(#shadow)">
+    <rect width="250" height="170" rx="10" fill="#451a03" stroke="#f59e0b" stroke-width="2" />
+    <rect width="250" height="34" rx="10" fill="#b45309" />
+    <rect width="250" height="10" y="24" fill="#b45309" />
+    <text x="15" y="22" font-size="14" font-weight="700" fill="#ffffff">Menu (Katalog Produk)</text>
+    <g transform="translate(15, 52)" font-size="11" fill="#fde68a">
+      <text x="0" y="0" font-weight="700" fill="#fef08a">PK  id : String (cuid)</text>
+      <text x="0" y="18" fill="#fef3c7">FK  businessId : String</text>
+      <text x="0" y="36">name : String</text>
+      <text x="0" y="54">category : String?</text>
+      <text x="0" y="72">sellingPrice : Decimal(14,2)</text>
+      <text x="0" y="90">targetMargin : Decimal(5,2)?</text>
+      <text x="0" y="108">isActive : Boolean</text>
+    </g>
+  </g>
+
+  <!-- RecipeItem -->
+  <g transform="translate(340, 580)" filter="url(#shadow)">
+    <rect width="240" height="150" rx="10" fill="#451a03" stroke="#f59e0b" stroke-width="1.5" />
+    <rect width="240" height="34" rx="10" fill="#b45309" />
+    <rect width="240" height="10" y="24" fill="#b45309" />
+    <text x="15" y="22" font-size="14" font-weight="700" fill="#ffffff">RecipeItem (Formula)</text>
+    <g transform="translate(15, 52)" font-size="11" fill="#fde68a">
+      <text x="0" y="0" font-weight="700" fill="#fef08a">PK  id : String (cuid)</text>
+      <text x="0" y="18" fill="#fef3c7">FK  menuId : String</text>
+      <text x="0" y="36" fill="#fef3c7">FK  ingredientId : String</text>
+      <text x="0" y="54" font-weight="700">qtyUsableBase : Decimal(14,3)</text>
+      <text x="0" y="72">createdAt : DateTime</text>
+    </g>
+  </g>
+
+  <!-- OverheadCost -->
+  <g transform="translate(620, 580)" filter="url(#shadow)">
+    <rect width="250" height="150" rx="10" fill="#451a03" stroke="#f59e0b" stroke-width="1.5" />
+    <rect width="250" height="34" rx="10" fill="#b45309" />
+    <rect width="250" height="10" y="24" fill="#b45309" />
+    <text x="15" y="22" font-size="14" font-weight="700" fill="#ffffff">OverheadCost (Beban Tetap)</text>
+    <g transform="translate(15, 52)" font-size="11" fill="#fde68a">
+      <text x="0" y="0" font-weight="700" fill="#fef08a">PK  id : String (cuid)</text>
+      <text x="0" y="18" fill="#fef3c7">FK  businessId : String</text>
+      <text x="0" y="36">name : String (Listrik/Sewa)</text>
+      <text x="0" y="54">type : UTILITY|LABOR|DEPR|OTHER</text>
+      <text x="0" y="72">monthlyAmount : Decimal(14,2)</text>
+      <text x="0" y="90">isActive : Boolean</text>
+    </g>
+  </g>
+
+  <!-- Domain 4: Sales & POS -->
+  <!-- Sale -->
+  <g transform="translate(50, 780)" filter="url(#shadow)">
+    <rect width="270" height="150" rx="10" fill="#082f49" stroke="#0ea5e9" stroke-width="2" />
+    <rect width="270" height="34" rx="10" fill="#0369a1" />
+    <rect width="270" height="10" y="24" fill="#0369a1" />
+    <text x="15" y="22" font-size="14" font-weight="700" fill="#ffffff">Sale (Transaksi Kasir POS)</text>
+    <g transform="translate(15, 52)" font-size="11" fill="#bae6fd">
+      <text x="0" y="0" font-weight="700" fill="#7dd3fc">PK  id : String (cuid)</text>
+      <text x="0" y="18" fill="#e0f2fe">FK  businessId : String | cashierId</text>
+      <text x="0" y="36">invoiceNo : String (unique)</text>
+      <text x="0" y="54">paymentMethod : CASH|QRIS|TRANSFER</text>
+      <text x="0" y="72">totalAmount : Decimal(14,2)</text>
+      <text x="0" y="90">status : COMPLETED | VOIDED</text>
+    </g>
+  </g>
+
+  <!-- SaleItem -->
+  <g transform="translate(360, 780)" filter="url(#shadow)">
+    <rect width="250" height="150" rx="10" fill="#082f49" stroke="#0ea5e9" stroke-width="1.5" />
+    <rect width="250" height="34" rx="10" fill="#0369a1" />
+    <rect width="250" height="10" y="24" fill="#0369a1" />
+    <text x="15" y="22" font-size="14" font-weight="700" fill="#ffffff">SaleItem (Rincian Menu)</text>
+    <g transform="translate(15, 52)" font-size="11" fill="#bae6fd">
+      <text x="0" y="0" font-weight="700" fill="#7dd3fc">PK  id : String (cuid)</text>
+      <text x="0" y="18" fill="#e0f2fe">FK  saleId : String | menuId : String</text>
+      <text x="0" y="36">qty : Int · unitPrice : Decimal(14,2)</text>
+      <text x="0" y="54">ingredientCostActual : Decimal(14,2)</text>
+      <text x="0" y="72">overheadAllocated : Decimal(14,2)</text>
+    </g>
+  </g>
+
+  <!-- Domain 5: Margin Alert -->
+  <!-- MarginAlert -->
+  <g transform="translate(910, 580)" filter="url(#shadow)">
+    <rect width="260" height="200" rx="10" fill="#4c0519" stroke="#f43f5e" stroke-width="2" />
+    <rect width="260" height="34" rx="10" fill="#be123c" />
+    <rect width="260" height="10" y="24" fill="#be123c" />
+    <text x="15" y="22" font-size="14" font-weight="700" fill="#ffffff">MarginAlert (Price Shock)</text>
+    <g transform="translate(15, 52)" font-size="11" fill="#fecdd3">
+      <text x="0" y="0" font-weight="700" fill="#fda4af">PK  id : String (cuid)</text>
+      <text x="0" y="18" fill="#ffe4e6">FK  businessId : String | menuId</text>
+      <text x="0" y="36">status : OPEN | ACK | RESOLVED</text>
+      <text x="0" y="54">marginBeforePct / marginAfterPct</text>
+      <text x="0" y="72">ingredientCostBefore / After</text>
+      <text x="0" y="90" font-weight="700">recommendedPrice : Decimal(14,2)</text>
+      <text x="0" y="108">resolution : PRICE_RAISED | AUTO</text>
+      <text x="0" y="126">resolvedAt : DateTime?</text>
+    </g>
+  </g>
+
+  <!-- Connector Lines -->
+  <!-- Business to Ingredient -->
+  <path d="M 175 290 L 175 330" stroke="#64748b" stroke-width="1.5" stroke-dasharray="4" marker-end="url(#arrow)" />
+  <!-- Business to Menu -->
+  <path d="M 120 290 L 120 580" stroke="#64748b" stroke-width="1.5" stroke-dasharray="4" marker-end="url(#arrow)" />
+  <!-- Ingredient to StockBatch -->
+  <path d="M 300 420 L 620 420" stroke="#10b981" stroke-width="1.5" marker-end="url(#arrow)" />
+  <!-- Purchase to StockBatch -->
+  <path d="M 580 410 L 620 410" stroke="#10b981" stroke-width="1.5" marker-end="url(#arrow)" />
+  <!-- StockBatch to StockMovement -->
+  <path d="M 870 425 L 910 425" stroke="#10b981" stroke-width="1.5" marker-end="url(#arrow)" />
+  <!-- Menu to RecipeItem -->
+  <path d="M 300 655 L 340 655" stroke="#f59e0b" stroke-width="1.5" marker-end="url(#arrow)" />
+  <!-- Ingredient to RecipeItem -->
+  <path d="M 270 530 L 370 580" stroke="#f59e0b" stroke-width="1.5" marker-end="url(#arrow)" />
+  <!-- Sale to SaleItem -->
+  <path d="M 320 855 L 360 855" stroke="#0ea5e9" stroke-width="1.5" marker-end="url(#arrow)" />
+  <!-- Menu to SaleItem -->
+  <path d="M 175 750 L 390 780" stroke="#0ea5e9" stroke-width="1.5" stroke-dasharray="4" marker-end="url(#arrow)" />
+  <!-- Menu to MarginAlert -->
+  <path d="M 300 680 L 910 680" stroke="#f43f5e" stroke-width="1.5" marker-end="url(#arrow)" />
+
+</svg>
