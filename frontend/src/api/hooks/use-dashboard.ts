@@ -54,6 +54,20 @@ export interface DashboardSummaryData {
     cashierName: string;
     itemCount: number;
   }>;
+  salesLast7Days?: Array<{
+    date: string;
+    dayName: string;
+    label: string;
+    omzet: string;
+    portionCount: number;
+    transactionCount: number;
+  }>;
+  topMenus?: Array<{
+    menuId: string;
+    menuName: string;
+    totalQty: number;
+    totalRevenue: string;
+  }>;
   isNewBusiness: boolean;
 }
 
