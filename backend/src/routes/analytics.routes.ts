@@ -4,7 +4,9 @@ import { requireAuth, requireRole, requireCtx } from "../middleware/auth.js";
 import { validate } from "../middleware/validate.js";
 import {
   menuEngineeringQuerySchema,
+  wasteRadarQuerySchema,
   type MenuEngineeringQuery,
+  type WasteRadarQuery,
 } from "../validation/analytics.schema.js";
 
 export const analyticsRouter = Router();
@@ -32,6 +34,20 @@ analyticsRouter.get(
     const valid = req.valid as MenuEngineeringQuery;
     const days = valid?.days ?? 30;
     const data = await analyticsService.getMenuEngineering(ctx.businessId, days);
+    res.json({ ok: true, data });
+  }
+);
+
+// GET /api/analytics/waste-radar - Waste Radar: nilai risiko, menu terkait, batas diskon promo (OWNER only, FR-WST-01)
+analyticsRouter.get(
+  "/analytics/waste-radar",
+  requireAuth,
+  requireRole(["OWNER"]),
+  validate(wasteRadarQuerySchema, "query"),
+  async (req, res) => {
+    const ctx = requireCtx(req);
+    const valid = req.valid as WasteRadarQuery;
+    const data = await analyticsService.getWasteRadar(ctx.businessId, valid?.days);
     res.json({ ok: true, data });
   }
 );

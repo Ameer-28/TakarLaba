@@ -212,6 +212,33 @@ export class InventoryRepository {
       take: filter?.take,
     });
   }
+
+  /**
+   * Retrieves batches expiring on or before maxExpiryDate (including already expired) with ingredient details for Waste Radar (FR-WST-01).
+   */
+  async findExpiringBatchesWithIngredient(businessId: string, maxExpiryDate: Date) {
+    return prisma.stockBatch.findMany({
+      where: {
+        businessId,
+        remainingQtyBase: { gt: 0 },
+        expiryDate: {
+          not: null,
+          lte: maxExpiryDate,
+        },
+      },
+      include: {
+        ingredient: {
+          select: {
+            id: true,
+            name: true,
+            category: true,
+            baseUnit: true,
+          },
+        },
+      },
+      orderBy: [{ expiryDate: "asc" }, { receivedAt: "asc" }],
+    });
+  }
 }
 
 export const inventoryRepository = new InventoryRepository();

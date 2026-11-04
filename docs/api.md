@@ -1789,6 +1789,83 @@ Menghitung matriks Menu Engineering Kasavana & Smith (4 kuadran: Star, Plowhorse
   }
   ```
 
+#### GET `/api/analytics/waste-radar`
+Memindai stok batch bahan baku yang mendekati batas kedaluwarsa atau telah kedaluwarsa (FR-WST-01, P2), menghitung nilai risiko kerugian (Rp), serta merekomendasikan menu terkait yang dapat dipromosikan beserta batas harga lantai promo dan batas diskon aman tanpa merugi.
+
+- **Metode:** `GET`
+- **Autentikasi:** Sesi aktif role `OWNER` (peran `CASHIER` menerima 403 Forbidden sesuai Rule 7)
+- **Header:** `Cookie: takarlaba_session=...`
+- **Query Params:**
+  - `days` (opsional, integer): Rentang hari pemantauan ke depan (default `business.expiryWarnDays`, min 1, max 60).
+- **Rumus Bisnis (FR-WST-01):**
+  - Nilai Risiko: $\text{Sisa Stok Batch} \times \text{Cost per Base}$
+  - Harga Lantai Promo: $\lceil \text{HPP Penuh} / (1 - \text{wastePromoMinMargin} / 100) / \text{step} \rceil \times \text{step}$
+  - Batas Diskon Aman: $\max(0, \text{Harga Jual Normal} - \text{Harga Lantai Promo})$
+- **Response 200 OK:**
+  ```json
+  {
+    "ok": true,
+    "data": {
+      "summary": {
+        "totalRiskValue": "170000.00",
+        "totalExpiringBatches": 2,
+        "totalImpactedMenus": 3,
+        "warnDays": 7,
+        "wastePromoMinMarginPercent": "10.00"
+      },
+      "items": [
+        {
+          "batchId": "cuid-batch-1",
+          "ingredientId": "cuid-ing-1",
+          "ingredientName": "Susu Segar UHT",
+          "category": "Dairy",
+          "remainingQty": "5.000",
+          "unit": "L",
+          "costPerBase": "18000.00",
+          "expiryDate": "2026-11-06",
+          "daysUntilExpiry": 2,
+          "status": "EXPIRING_SOON",
+          "riskValue": "90000.00",
+          "relatedMenus": [
+            {
+              "menuId": "cuid-menu-1",
+              "menuName": "Cafe Latte",
+              "category": "Minuman",
+              "sellingPrice": "22000.00",
+              "hppPenuh": "11000.00",
+              "currentMarginPercent": "50.00",
+              "promoFloorPrice": "12500.00",
+              "maxDiscountAmount": "9500.00",
+              "maxDiscountPercent": "43.18",
+              "promoMarginPercent": "12.00"
+            }
+          ]
+        }
+      ]
+    }
+  }
+  ```
+- **Response 403 Forbidden (CASHIER):**
+  ```json
+  {
+    "ok": false,
+    "error": {
+      "code": "FORBIDDEN",
+      "message": "Akses ditolak. Fitur ini memerlukan salah satu hak akses: OWNER."
+    }
+  }
+  ```
+- **Response 401 Unauthorized:**
+  ```json
+  {
+    "ok": false,
+    "error": {
+      "code": "UNAUTHENTICATED",
+      "message": "Autentikasi diperlukan. Sesi tidak valid atau telah berakhir."
+    }
+  }
+  ```
+
 ---
 
 ### 3.12 Registrasi & Onboarding Pemilik Baru (`/api/register`)
