@@ -95,7 +95,7 @@ Aturan: hanya satu tugas `[/]` per agent pada satu waktu.
 - [x] **T-101** (P1) [BE+FE] `domain/menu-engineering.ts` + endpoint + scatter Recharts + tabel padanan + rekomendasi terhitung + guard data — AC: fixture B 6/6 (sebelum & sesudah shock)
 - [x] **T-102** (P1) [BE+FE] Void transaksi (restore ke batch asal, alasan wajib) — AC: FR-POS-03
 - [x] **T-103** (P1) [BE+FE] Catat bahan terbuang (WASTE) + nilai kerugian — AC: FR-INV-03
-- [ ] **T-104** (P1) [BE+FE] Riwayat pembelian + void pembelian (hanya jika batch belum terpakai)
+- [x] **T-104** (P1) [BE+FE] Riwayat pembelian + void pembelian (hanya jika batch belum terpakai)
 - [ ] **T-105** (P1) [BE+FE] Registrasi + onboarding wizard
 - [ ] **T-106** (P1) [FE] Input uang diterima & kembalian; struk print
 - [ ] **T-107** (P1) [BE+FE] Grafik dashboard (penjualan 7 hari, top menu)
@@ -149,6 +149,7 @@ Aturan: hanya satu tugas `[/]` per agent pada satu waktu.
 
 | Tanggal    | Agent/Orang | Ringkasan                                                                                                                                                                                                                                                                                                             | Tugas terkait              |
 | ---------- | ----------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------- |
+| 2026-11-04 | Agent       | Selesai T-104: Pembatalan nota pembelian (void purchase) atomik (FR-PUR-02), endpoint POST /api/purchases/:id/void, penolakan jika stok terpakai, pembalikan stok batch (ADJUSTMENT movement) dan pemulihan replacement cost, modal PurchaseVoidModal, serta filter tanggal & badge dibatalkan pada riwayat pembelian | T-104                      |
 | 2026-11-04 | Agent       | Selesai T-103: Pencatatan bahan terbuang (WASTE) & nilai kerugian finansial (Rp) atomik (FR-INV-03), endpoints POST/GET /api/stock/waste & /api/inventory/waste, validasi kuantitas batch dan alasan wajib, modal WasteRecordModal, WasteHistoryList view, integrasi tab Bahan Terbuang di halaman stok bahan | T-103                      |
 | 2026-11-04 | Agent       | Selesai persiapan demo & submission (T-070 s.d. T-074, T-077): README komprehensif, analisis pasar & kompetitor (docs/market-and-competitor-analysis.md), laporan audit keamanan OWASP defensif (docs/security-audit-report.md), audit responsif & peramban (docs/responsive-and-browser-audit.md), draft proposal GTNIC 2026 (docs/proposal-gtnic-2026.md), dan audit git history tanpa kebocoran secret | T-070, T-071, T-072, T-073, T-074, T-077 |
 | 2026-11-03 | Agent       | Selesai T-102: Fitur void transaksi penjualan atomik (FR-POS-03), pemulihan stok batch asal via StockMovement(VOID_RESTORE), endpoint POST /api/sales/:id/void (OWNER only), UI modal konfirmasi void & badge status Dibatalkan pada riwayat penjualan, serta unit/integration tests                                 | T-102                      |
