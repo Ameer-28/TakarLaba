@@ -348,6 +348,63 @@ Mengambil rincian satu nota pembelian lengkap dengan item batch yang dihasilkan.
 - **Params:** `id` (string UUID / CUID pembelian)
 - **Response 200 OK:** Objek nota pembelian tunggal.
 
+#### POST `/api/purchases/:id/void`
+Membatalkan (void) satu nota pembelian dan membalikkan persediaan stok batch yang dihasilkan secara atomik dalam satu transaksi database (`FR-PUR-02`). Pembatalan hanya diizinkan apabila seluruh stok batch yang dihasilkan dari nota tersebut **belum terpakai sama sekali** (`remainingQtyBase == initialQtyBase`). Jika ada batch yang telah terpotong (melalui penjualan kasir atau pencatatan waste), pembatalan ditolak dengan status 409 Conflict.
+
+Setelah pembatalan berhasil:
+- Stok sisa pada batch terkait dinolkan (`remainingQtyBase = 0.000`).
+- Dibuat pergerakan stok penyesuaian `StockMovement(ADJUSTMENT)` bertanda negatif dengan referensi `PURCHASE_VOID`.
+- Field `note` nota pembelian ditandai `[DIBATALKAN: <alasan>]`.
+- Biaya pengganti (*replacement cost*) bahan baku otomatis kembali ke batch sebelum nota ini.
+- Peringatan margin (*Price Shock Alerts*) pada seluruh menu dievaluasi ulang secara otomatis.
+
+- **Metode:** `POST`
+- **Autentikasi:** Wajib sesi aktif role `OWNER` (role `CASHIER` menerima `403 FORBIDDEN`).
+- **Params:** `id` (string CUID nota pembelian)
+- **Request Body:**
+  ```json
+  {
+    "reason": "Salah input faktur belanja dan salah supplier"
+  }
+  ```
+  - `reason` (wajib, string 3..255 karakter): Alasan pembatalan nota belanja.
+- **Validasi Bisnis:**
+  - `400 VALIDATION_ERROR`: Jika alasan pembatalan kurang dari 3 karakter.
+  - `403 FORBIDDEN`: Jika pemanggil bukan role `OWNER`.
+  - `404 NOT_FOUND`: Jika nota pembelian tidak ditemukan dalam bisnis.
+  - `409 CONFLICT`: Jika nota pembelian sudah dibatalkan sebelumnya, atau jika ada bahan dari nota ini yang sudah terpakai.
+- **Response 200 OK:**
+  ```json
+  {
+    "ok": true,
+    "data": {
+      "id": "purch_clx123",
+      "businessId": "biz_demo_123",
+      "supplierName": "Toko Bahan Sejahtera",
+      "purchasedAt": "2026-11-04T08:00:00.000Z",
+      "note": "[DIBATALKAN: Salah input faktur belanja dan salah supplier] Pembelian mingguan",
+      "totalAmount": "180000.00",
+      "createdById": "user_owner_1",
+      "createdAt": "2026-11-04T08:00:00.000Z",
+      "batches": [
+        {
+          "id": "batch_cuid_1",
+          "ingredientId": "ing_kopi_123",
+          "remainingQtyBase": "0.000",
+          "initialQtyBase": "1000.000",
+          "costPerBase": "180.000000",
+          "ingredient": {
+            "id": "ing_kopi_123",
+            "name": "Biji Kopi Arabika",
+            "baseUnit": "G",
+            "category": "MAIN"
+          }
+        }
+      ]
+    }
+  }
+  ```
+
 ---
 
 ### 3.4 Persediaan & Stok Batch FEFO (`/api/inventory`)
