@@ -11,6 +11,9 @@ const LoginPage = lazy(() => import("./pages/login").then((m) => ({ default: m.L
 const RegisterPage = lazy(() =>
   import("./pages/register").then((m) => ({ default: m.RegisterPage }))
 );
+const OnboardingPage = lazy(() =>
+  import("./pages/onboarding").then((m) => ({ default: m.OnboardingPage }))
+);
 const DashboardPage = lazy(() =>
   import("./pages/dashboard").then((m) => ({ default: m.DashboardPage }))
 );
@@ -64,6 +67,16 @@ export const router = createBrowserRouter([
               <RoleRoute allowedRoles={["OWNER"]}>
                 <Suspense fallback={<RouteLoadingFallback />}>
                   <DashboardPage />
+                </Suspense>
+              </RoleRoute>
+            ),
+          },
+          {
+            path: "/onboarding",
+            element: (
+              <RoleRoute allowedRoles={["OWNER"]}>
+                <Suspense fallback={<RouteLoadingFallback />}>
+                  <OnboardingPage />
                 </Suspense>
               </RoleRoute>
             ),
