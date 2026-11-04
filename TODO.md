@@ -103,7 +103,7 @@ Aturan: hanya satu tugas `[/]` per agent pada satu waktu.
 - [x] **T-109** (P1) [FE] Polish UX: skeleton, empty state, error boundary, pesan Indonesia konsisten, a11y pass
 - [x] **T-110** (P1) [FE+BE] Lighthouse (perf ≥ 80, a11y ≥ 90), bundle size awal ≤ 250 KB gzip (route-level splitting), optimasi query dashboard
 - [x] **T-111** (P1) [DOC] Uji awam (3 orang): bahan → resep → penjualan; catat temuan
-- [ ] **T-112** (P1) [FE] Test Testing Library: reducer keranjang, format Rupiah, form pembelian
+- [x] **T-112** (P1) [FE] Test Testing Library: reducer keranjang, format Rupiah, form pembelian
 
 ---
 
@@ -149,6 +149,7 @@ Aturan: hanya satu tugas `[/]` per agent pada satu waktu.
 
 | Tanggal    | Agent/Orang | Ringkasan                                                                                                                                                                                                                                                                                                             | Tugas terkait              |
 | ---------- | ----------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------- |
+| 2026-11-04 | Agent       | Selesai T-112: Pengujian komprehensif frontend (24 berkas test, 109 tests lulus): unit test cart reducer (cart-reducer.test.ts), pemformat Rupiah & nominal ekstrim (format.test.ts), serta schema validasi & kalkulasi total nota form pembelian (purchase-form.test.ts)                                        | T-112                      |
 | 2026-11-04 | Agent       | Selesai T-111: Laporan uji coba keterpakaian 3 pengguna awam non-akuntan (docs/usability-testing-report.md) memvalidasi Goal G7 (bahan -> resep -> kasir POS), pencapaian rata-rata waktu 6m 56s (target <= 10m), 100% completion rate tanpa bantuan, skor SUS 86.67 (Grade A), dan dokumentasi temuan UX di README.md | T-111                      |
 | 2026-11-04 | Agent       | Selesai T-110: Optimasi Lighthouse (meta SEO/theme-color/description), konfigurasi manualChunks di Vite (vendor-react, vendor-query, vendor-icons), reduksi bundle awal ke ~162.5 KB gzip (budget <= 250 KB), audit query dashboard paralel berindeks sub-5ms, dan dokumentasi di docs/responsive-and-browser-audit.md | T-110                      |
 | 2026-11-04 | Agent       | Selesai T-109: Polish UX, komponen ErrorBoundary pelindung app-shell dengan opsi coba lagi & muat ulang tanpa kehilangan sesi, skeleton transisi rute RouteLoadingFallback (header, metric cards, table skeleton), peremajaan visual 404 NotFoundPage & RouteErrorPage responsif a11y, konsistensi istilah Indonesia, dan unit tests | T-109                      |
