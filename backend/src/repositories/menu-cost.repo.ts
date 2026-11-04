@@ -16,7 +16,7 @@ export class MenuCostRepository {
           { purchaseId: null },
           {
             purchase: {
-              OR: [{ note: null }, { NOT: { note: { startsWith: "[DIBATALKAN]" } } }],
+              OR: [{ note: null }, { NOT: { note: { startsWith: "[DIBATALKAN" } } }],
             },
           },
         ],

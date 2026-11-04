@@ -158,7 +158,7 @@ export function PurchaseHistory({ onOpenCreate }: PurchaseHistoryProps) {
             {purchases.map((purchase) => {
               const totalAmountNum = Number(purchase.totalAmount);
               const batchCount = purchase.batches?.length ?? 0;
-              const isVoided = Boolean(purchase.note?.startsWith("[DIBATALKAN]"));
+              const isVoided = Boolean(purchase.note?.startsWith("[DIBATALKAN"));
 
               return (
                 <div
