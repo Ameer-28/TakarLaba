@@ -316,6 +316,7 @@ Dokumentasi arsitektur, basis data, dan spesifikasi API tersedia secara rinci:
 | **Proposal Teknis GTNIC 2026** | Latar belakang masalah UMKM kuliner, solusi inovatif, arsitektur sistem, dan roadmap produk | [docs/proposal-gtnic-2026.md](docs/proposal-gtnic-2026.md) |
 | **Laporan Audit Keamanan OWASP** | Audit defensif OWASP Top 10, sanitasi input Zod, proteksi SSRF, DTO Rule 7, dan rate limiting | [docs/security-audit-report.md](docs/security-audit-report.md) |
 | **Audit Responsif & Kompatibilitas Peramban** | Verifikasi tampilan mobile 360 px, tablet, desktop, dan pengujian Safari/Chrome/Firefox | [docs/responsive-and-browser-audit.md](docs/responsive-and-browser-audit.md) |
+| **Laporan Uji Keterpakaian Pengguna Awam** | Validasi Goal G7 (3 pengguna non-akuntan, waktu rata-rata 6m 56s, skor SUS 86.67) | [docs/usability-testing-report.md](docs/usability-testing-report.md) |
 | **Analisis Pasar & Kompetitor** | Studi banding terhadap Moka, Pawoon, Olsera, dan keunggulan *Decision Layer* TakarLaba | [docs/market-and-competitor-analysis.md](docs/market-and-competitor-analysis.md) |
 
 ---
