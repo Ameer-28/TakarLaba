@@ -109,7 +109,7 @@ Aturan: hanya satu tugas `[/]` per agent pada satu waktu.
 
 ## 🟢 Low Priority — Technical Debt, Optimasi & Nice-to-Have (P2)
 
-- [ ] **T-200** (P2) [BE+FE] Waste Radar: nilai risiko, menu terkait, harga lantai promo, batas diskon aman — AC: FR-WST-01
+- [x] **T-200** (P2) [BE+FE] Waste Radar: nilai risiko, menu terkait, harga lantai promo, batas diskon aman — AC: FR-WST-01
 - [ ] **T-201** (P2) [BE+FE] Ekspor CSV penjualan & stok
 - [ ] **T-202** (P2) [OPS] E2E Playwright untuk skrip demo
 - [ ] **T-203** (P2) [FE] Header keamanan/CSP di `vercel.json`
@@ -149,6 +149,7 @@ Aturan: hanya satu tugas `[/]` per agent pada satu waktu.
 
 | Tanggal    | Agent/Orang | Ringkasan                                                                                                                                                                                                                                                                                                             | Tugas terkait              |
 | ---------- | ----------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------- |
+| 2026-11-04 | Agent       | Selesai T-200: Fitur Waste Radar anti-waste (FR-WST-01, P2), kalkulasi nilai risiko Rp batch mendekati/lewat kedaluwarsa, identifikasi menu terkait, formula harga lantai promo & batas diskon aman (domain/waste-radar.ts), endpoint GET /api/analytics/waste-radar (OWNER only), UI panel WasteRadarPanel di halaman stok bahan, dokumentasi docs/api.md, serta unit/HTTP tests | T-200                      |
 | 2026-11-04 | Agent       | Selesai T-112: Pengujian komprehensif frontend (24 berkas test, 109 tests lulus): unit test cart reducer (cart-reducer.test.ts), pemformat Rupiah & nominal ekstrim (format.test.ts), serta schema validasi & kalkulasi total nota form pembelian (purchase-form.test.ts)                                        | T-112                      |
 | 2026-11-04 | Agent       | Selesai T-111: Laporan uji coba keterpakaian 3 pengguna awam non-akuntan (docs/usability-testing-report.md) memvalidasi Goal G7 (bahan -> resep -> kasir POS), pencapaian rata-rata waktu 6m 56s (target <= 10m), 100% completion rate tanpa bantuan, skor SUS 86.67 (Grade A), dan dokumentasi temuan UX di README.md | T-111                      |
 | 2026-11-04 | Agent       | Selesai T-110: Optimasi Lighthouse (meta SEO/theme-color/description), konfigurasi manualChunks di Vite (vendor-react, vendor-query, vendor-icons), reduksi bundle awal ke ~162.5 KB gzip (budget <= 250 KB), audit query dashboard paralel berindeks sub-5ms, dan dokumentasi di docs/responsive-and-browser-audit.md | T-110                      |

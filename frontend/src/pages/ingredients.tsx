@@ -1,10 +1,11 @@
 import { useState, useMemo } from "react";
-import { Plus, Receipt, Layers, Trash2, Boxes } from "lucide-react";
+import { Plus, Receipt, Layers, Trash2, Boxes, AlertTriangle } from "lucide-react";
 import { useIngredients } from "@/api/hooks/use-ingredients";
 import { PurchaseHistory } from "@/components/features/purchase-history";
 import { InventorySummary } from "@/components/features/inventory-summary";
 import { WasteHistoryList } from "@/components/features/inventory/waste-history-list";
 import { WasteRecordModal } from "@/components/features/inventory/waste-record-modal";
+import { WasteRadarPanel } from "@/components/features/inventory/waste-radar-panel";
 import { useSession } from "@/lib/auth-client";
 import {
   IngredientCatalogView,
@@ -16,7 +17,9 @@ export function IngredientsPage() {
   const { data: session } = useSession();
   const isOwner = session?.user?.role !== "CASHIER";
 
-  const [activeTab, setActiveTab] = useState<"catalog" | "stock" | "history" | "waste">("catalog");
+  const [activeTab, setActiveTab] = useState<"catalog" | "stock" | "history" | "waste" | "radar">(
+    "catalog"
+  );
   const [searchTerm, setSearchTerm] = useState("");
   const [categoryFilter, setCategoryFilter] = useState<string>("ALL");
   const [statusFilter, setStatusFilter] = useState<"ALL" | "ACTIVE" | "INACTIVE">("ACTIVE");
@@ -120,9 +123,24 @@ export function IngredientsPage() {
             <span>Bahan Terbuang (Waste)</span>
           </button>
         )}
+        {isOwner && (
+          <button
+            onClick={() => setActiveTab("radar")}
+            className={`flex items-center gap-2 py-3 px-4 border-b-2 font-semibold text-xs sm:text-sm transition-colors whitespace-nowrap ${
+              activeTab === "radar"
+                ? "border-amber-600 text-amber-600"
+                : "border-transparent text-slate-500 hover:text-slate-800"
+            }`}
+          >
+            <AlertTriangle className="w-4 h-4" />
+            <span>Waste Radar</span>
+          </button>
+        )}
       </div>
 
-      {activeTab === "history" ? (
+      {activeTab === "radar" ? (
+        <WasteRadarPanel />
+      ) : activeTab === "history" ? (
         <PurchaseHistory onOpenCreate={() => actions.setIsCreateOpen(true)} />
       ) : activeTab === "stock" ? (
         <InventorySummary

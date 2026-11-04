@@ -83,5 +83,6 @@ export const queryKeys = {
     capacity: () => [...queryKeys.analytics.all, "capacity"] as const,
     menuEngineering: (days?: number) =>
       [...queryKeys.analytics.all, "menu-engineering", days ?? 30] as const,
+    wasteRadar: (days?: number) => [...queryKeys.analytics.all, "waste-radar", days] as const,
   },
 };
