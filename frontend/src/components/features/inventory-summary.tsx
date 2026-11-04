@@ -4,15 +4,18 @@ import {
   useInventorySummary,
   useInventoryBatches,
   type IngredientStockSummary,
+  type StockBatchItem,
 } from "@/api/hooks/use-inventory";
 import { useSession } from "@/lib/auth-client";
 import { InventoryMetricsHeader } from "./inventory/inventory-metrics-header";
 import { InventoryBatchModal } from "./inventory/inventory-batch-modal";
 import { InventoryItemCard } from "./inventory/inventory-item-card";
+import { WasteRecordModal } from "./inventory/waste-record-modal";
 
 interface InventorySummaryProps {
-  onOpenPurchase: () => void;
-  onOpenCreateIngredient: () => void;
+  onOpenPurchase?: () => void;
+  onOpenCreateIngredient?: () => void;
+  isOwner?: boolean;
 }
 
 const FILTER_TABS = [
@@ -26,13 +29,16 @@ const FILTER_TABS = [
 export function InventorySummary({
   onOpenPurchase,
   onOpenCreateIngredient,
+  isOwner: isOwnerProp,
 }: InventorySummaryProps) {
   const { data: session } = useSession();
-  const isOwner = session?.user?.role !== "CASHIER";
+  const isOwner = isOwnerProp ?? session?.user?.role !== "CASHIER";
 
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("ALL");
   const [selectedIngredient, setSelectedIngredient] = useState<IngredientStockSummary | null>(null);
+  const [wasteModalBatch, setWasteModalBatch] = useState<StockBatchItem | null>(null);
+  const [isWasteModalOpen, setIsWasteModalOpen] = useState(false);
 
   const { data: summaries = [], isPending, isError, error, refetch } = useInventorySummary(3);
 
@@ -189,6 +195,20 @@ export function InventorySummary({
         batches={batches}
         isPending={isBatchesPending}
         isOwner={isOwner}
+        onRecordWaste={(batch) => {
+          setWasteModalBatch(batch);
+          setIsWasteModalOpen(true);
+        }}
+      />
+
+      <WasteRecordModal
+        isOpen={isWasteModalOpen}
+        onClose={() => {
+          setIsWasteModalOpen(false);
+          setWasteModalBatch(null);
+        }}
+        initialBatch={wasteModalBatch}
+        onSuccess={() => refetch()}
       />
     </div>
   );

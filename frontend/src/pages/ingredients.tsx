@@ -1,7 +1,11 @@
 import { useState, useMemo } from "react";
-import { Plus, Receipt, Layers } from "lucide-react";
+import { Plus, Receipt, Layers, Trash2, Boxes } from "lucide-react";
 import { useIngredients } from "@/api/hooks/use-ingredients";
 import { PurchaseHistory } from "@/components/features/purchase-history";
+import { InventorySummary } from "@/components/features/inventory-summary";
+import { WasteHistoryList } from "@/components/features/inventory/waste-history-list";
+import { WasteRecordModal } from "@/components/features/inventory/waste-record-modal";
+import { useSession } from "@/lib/auth-client";
 import {
   IngredientCatalogView,
   IngredientModals,
@@ -9,10 +13,14 @@ import {
 } from "@/components/features/ingredients";
 
 export function IngredientsPage() {
-  const [activeTab, setActiveTab] = useState<"catalog" | "history">("catalog");
+  const { data: session } = useSession();
+  const isOwner = session?.user?.role !== "CASHIER";
+
+  const [activeTab, setActiveTab] = useState<"catalog" | "stock" | "history" | "waste">("catalog");
   const [searchTerm, setSearchTerm] = useState("");
   const [categoryFilter, setCategoryFilter] = useState<string>("ALL");
   const [statusFilter, setStatusFilter] = useState<"ALL" | "ACTIVE" | "INACTIVE">("ACTIVE");
+  const [isWasteModalOpen, setIsWasteModalOpen] = useState(false);
 
   const { data: ingredients = [], isPending, isError, error, refetch } = useIngredients();
   const actions = useIngredientActions();
@@ -39,6 +47,15 @@ export function IngredientsPage() {
           </p>
         </div>
         <div className="flex items-center gap-2">
+          {isOwner && (
+            <button
+              onClick={() => setIsWasteModalOpen(true)}
+              className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs sm:text-sm font-semibold shadow-xs transition-colors"
+            >
+              <Trash2 className="w-4 h-4" />
+              <span>Catat Terbuang</span>
+            </button>
+          )}
           <button
             onClick={() => actions.setIsPurchaseModalOpen(true)}
             className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-semibold shadow-xs transition-colors"
@@ -56,10 +73,10 @@ export function IngredientsPage() {
         </div>
       </div>
 
-      <div className="flex items-center gap-2 border-b border-slate-200">
+      <div className="flex items-center gap-2 border-b border-slate-200 overflow-x-auto">
         <button
           onClick={() => setActiveTab("catalog")}
-          className={`flex items-center gap-2 py-3 px-4 border-b-2 font-semibold text-xs sm:text-sm transition-colors ${
+          className={`flex items-center gap-2 py-3 px-4 border-b-2 font-semibold text-xs sm:text-sm transition-colors whitespace-nowrap ${
             activeTab === "catalog"
               ? "border-emerald-600 text-emerald-600"
               : "border-transparent text-slate-500 hover:text-slate-800"
@@ -69,8 +86,19 @@ export function IngredientsPage() {
           <span>Katalog Bahan ({ingredients.length})</span>
         </button>
         <button
+          onClick={() => setActiveTab("stock")}
+          className={`flex items-center gap-2 py-3 px-4 border-b-2 font-semibold text-xs sm:text-sm transition-colors whitespace-nowrap ${
+            activeTab === "stock"
+              ? "border-emerald-600 text-emerald-600"
+              : "border-transparent text-slate-500 hover:text-slate-800"
+          }`}
+        >
+          <Boxes className="w-4 h-4" />
+          <span>Stok &amp; FEFO</span>
+        </button>
+        <button
           onClick={() => setActiveTab("history")}
-          className={`flex items-center gap-2 py-3 px-4 border-b-2 font-semibold text-xs sm:text-sm transition-colors ${
+          className={`flex items-center gap-2 py-3 px-4 border-b-2 font-semibold text-xs sm:text-sm transition-colors whitespace-nowrap ${
             activeTab === "history"
               ? "border-emerald-600 text-emerald-600"
               : "border-transparent text-slate-500 hover:text-slate-800"
@@ -79,10 +107,31 @@ export function IngredientsPage() {
           <Receipt className="w-4 h-4" />
           <span>Riwayat Nota Belanja</span>
         </button>
+        {isOwner && (
+          <button
+            onClick={() => setActiveTab("waste")}
+            className={`flex items-center gap-2 py-3 px-4 border-b-2 font-semibold text-xs sm:text-sm transition-colors whitespace-nowrap ${
+              activeTab === "waste"
+                ? "border-rose-600 text-rose-600"
+                : "border-transparent text-slate-500 hover:text-slate-800"
+            }`}
+          >
+            <Trash2 className="w-4 h-4" />
+            <span>Bahan Terbuang (Waste)</span>
+          </button>
+        )}
       </div>
 
       {activeTab === "history" ? (
         <PurchaseHistory onOpenCreate={() => actions.setIsCreateOpen(true)} />
+      ) : activeTab === "stock" ? (
+        <InventorySummary
+          isOwner={isOwner}
+          onOpenPurchase={() => actions.setIsPurchaseModalOpen(true)}
+          onOpenCreateIngredient={() => actions.setIsCreateOpen(true)}
+        />
+      ) : activeTab === "waste" ? (
+        <WasteHistoryList onOpenRecordModal={() => setIsWasteModalOpen(true)} />
       ) : (
         <IngredientCatalogView
           ingredients={ingredients}
@@ -127,6 +176,12 @@ export function IngredientsPage() {
         isPurchaseModalOpen={actions.isPurchaseModalOpen}
         onClosePurchaseModal={() => actions.setIsPurchaseModalOpen(false)}
         onPurchaseSuccess={() => refetch()}
+      />
+
+      <WasteRecordModal
+        isOpen={isWasteModalOpen}
+        onClose={() => setIsWasteModalOpen(false)}
+        onSuccess={() => refetch()}
       />
     </div>
   );

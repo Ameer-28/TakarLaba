@@ -42,20 +42,43 @@ export class MenuService {
     let costMap = new Map<string, Decimal>();
     let overheadPerPortion = new Decimal(0);
     let defaultTargetMargin = new Decimal(50);
+    const availableStockMap = new Map<string, Decimal>();
 
     if (allIngredientIds.length > 0) {
-      const [loadedCostMap, loadedOverhead, loadedTarget] = await Promise.all([
+      const stockBatchesPromise =
+        typeof this.repo.getValidStockBatches === "function"
+          ? this.repo.getValidStockBatches(businessId).catch(() => [])
+          : Promise.resolve([]);
+
+      const [loadedCostMap, loadedOverhead, loadedTarget, stockBatches] = await Promise.all([
         this.repo.getLatestCostPerBaseMap(businessId, allIngredientIds),
         this.getOverheadPerPortion(businessId),
         this.getDefaultTargetMargin(businessId),
+        stockBatchesPromise,
       ]);
       costMap = loadedCostMap;
       overheadPerPortion = loadedOverhead;
       defaultTargetMargin = loadedTarget;
+
+      if (Array.isArray(stockBatches)) {
+        for (const batch of stockBatches) {
+          if (!isExpired(batch.expiryDate)) {
+            const remaining = new Decimal(batch.remainingQtyBase.toString());
+            const current = availableStockMap.get(batch.ingredientId) ?? new Decimal(0);
+            availableStockMap.set(batch.ingredientId, current.plus(remaining));
+          }
+        }
+      }
     }
 
     return menus.map((m) =>
-      this.mapMenuCostSummary(m, costMap, overheadPerPortion, defaultTargetMargin)
+      this.mapMenuCostSummary(
+        m,
+        costMap,
+        overheadPerPortion,
+        defaultTargetMargin,
+        availableStockMap
+      )
     );
   }
 
@@ -63,11 +86,32 @@ export class MenuService {
     m: Awaited<ReturnType<MenuRepository["findMany"]>>[number],
     costMap: Map<string, Decimal>,
     overheadPerPortion: Decimal,
-    defaultTargetMargin: Decimal
+    defaultTargetMargin: Decimal,
+    availableStockMap: Map<string, Decimal>
   ) {
     if (!m.hasRecipe || !m.recipeItems || m.recipeItems.length === 0) {
-      return { ...m, costSummary: null };
+      return {
+        ...m,
+        capacity: 0,
+        bottleneckIngredientName: null,
+        costSummary: null,
+      };
     }
+
+    const capResult = calculateMenuCapacity(
+      {
+        menuId: m.id,
+        menuName: m.name,
+        recipeItems: m.recipeItems.map((r) => ({
+          ingredientId: r.ingredientId,
+          ingredientName: r.ingredient.name,
+          baseUnit: r.ingredient.baseUnit,
+          qtyUsable: r.qtyUsableBase.toString(),
+          yieldPercent: r.ingredient.yieldPercent.toString(),
+        })),
+      },
+      availableStockMap
+    );
 
     const targetMargin = m.targetMargin ? new Decimal(m.targetMargin) : defaultTargetMargin;
     const recipeCostInputs = m.recipeItems.map((r) => ({
@@ -90,6 +134,8 @@ export class MenuService {
 
     return {
       ...m,
+      capacity: capResult.capacity,
+      bottleneckIngredientName: capResult.bottleneck?.ingredientName ?? null,
       costSummary: {
         hppBahan: costing.hppBahan ? costing.hppBahan.toFixed(2) : null,
         overheadPerPortion: costing.overheadPerPortion.toFixed(2),

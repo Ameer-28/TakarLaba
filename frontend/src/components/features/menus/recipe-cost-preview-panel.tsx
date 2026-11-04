@@ -110,6 +110,26 @@ export function RecipeCostPreviewPanel({
         </div>
       </div>
 
+      {/* Capacity & Bottleneck Estimator */}
+      {previewData && (
+        <div className="p-3 bg-slate-800/80 rounded-xl space-y-1.5 border border-slate-700/60 text-xs">
+          <div className="flex items-center justify-between">
+            <span className="text-slate-400">Estimasi Kapasitas Porsi</span>
+            <span className="font-bold text-white tabular-nums">
+              {previewData.capacity !== undefined ? `${previewData.capacity} porsi` : "0 porsi"}
+            </span>
+          </div>
+          {previewData.bottleneckIngredientName && (
+            <div className="text-[11px] text-slate-400 flex items-center justify-between pt-1 border-t border-slate-700/40">
+              <span>Bahan Pembatas:</span>
+              <span className="text-amber-300 font-medium">
+                {previewData.bottleneckIngredientName}
+              </span>
+            </div>
+          )}
+        </div>
+      )}
+
       {!previewData?.isCostComplete && (
         <div className="p-3 bg-amber-500/10 border border-amber-500/20 rounded-xl text-[11px] text-amber-200 space-y-1">
           <p className="font-bold flex items-center gap-1.5">

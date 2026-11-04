@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import request from "supertest";
 import { createApp } from "../../src/create-app.js";
 import { Decimal } from "decimal.js";
-import { InsufficientStockError } from "../../src/lib/errors.js";
+import { InsufficientStockError, NotFoundError, ConflictError } from "../../src/lib/errors.js";
 
 vi.mock("../../src/lib/auth.js", () => ({
   auth: {
@@ -18,6 +18,7 @@ vi.mock("../../src/repositories/sale.repo.js", () => ({
     findByIdempotencyKey: vi.fn(),
     findById: vi.fn(),
     findMany: vi.fn(),
+    voidSaleAtomic: vi.fn(),
   },
   SaleRepository: vi.fn(),
   generateInvoiceNo: vi.fn(() => "INV-20261029-A1B2C3"),
@@ -528,6 +529,116 @@ describe("POS Sales Routes (T-041 — FR-POS-01, FR-POS-02)", () => {
       expect(res.status).toBe(404);
       expect(res.body.ok).toBe(false);
       expect(res.body.error.code).toBe("NOT_FOUND");
+    });
+  });
+
+  describe("POST /api/sales/:id/void (FR-POS-03)", () => {
+    it("rejects unauthenticated requests with 401 UNAUTHENTICATED", async () => {
+      vi.mocked(auth.api.getSession).mockResolvedValue(null);
+
+      const res = await request(app)
+        .post("/api/sales/sale-123/void")
+        .send({ reason: "Salah input pesanan" });
+
+      expect(res.status).toBe(401);
+      expect(res.body.ok).toBe(false);
+      expect(res.body.error.code).toBe("UNAUTHENTICATED");
+    });
+
+    it("rejects CASHIER requests with 403 FORBIDDEN", async () => {
+      vi.mocked(auth.api.getSession).mockResolvedValue(cashierSession);
+
+      const res = await request(app)
+        .post("/api/sales/sale-123/void")
+        .send({ reason: "Salah input pesanan" });
+
+      expect(res.status).toBe(403);
+      expect(res.body.ok).toBe(false);
+      expect(res.body.error.code).toBe("FORBIDDEN");
+    });
+
+    it("validates void reason: rejects if reason is missing or < 3 chars with 400 VALIDATION_ERROR", async () => {
+      vi.mocked(auth.api.getSession).mockResolvedValue(ownerSession);
+
+      const res = await request(app).post("/api/sales/sale-123/void").send({ reason: "ok" });
+
+      expect(res.status).toBe(400);
+      expect(res.body.ok).toBe(false);
+      expect(res.body.error.code).toBe("VALIDATION_ERROR");
+    });
+
+    it("returns 404 NOT_FOUND if sale does not exist", async () => {
+      vi.mocked(auth.api.getSession).mockResolvedValue(ownerSession);
+      vi.mocked(saleRepository.voidSaleAtomic).mockRejectedValue(
+        new NotFoundError("Transaksi penjualan tidak ditemukan")
+      );
+
+      const res = await request(app)
+        .post("/api/sales/non-existent/void")
+        .send({ reason: "Salah input pesanan" });
+
+      expect(res.status).toBe(404);
+      expect(res.body.ok).toBe(false);
+      expect(res.body.error.code).toBe("NOT_FOUND");
+    });
+
+    it("returns 409 CONFLICT if sale is already VOIDED", async () => {
+      vi.mocked(auth.api.getSession).mockResolvedValue(ownerSession);
+      vi.mocked(saleRepository.voidSaleAtomic).mockRejectedValue(
+        new ConflictError("Transaksi penjualan sudah dibatalkan sebelumnya")
+      );
+
+      const res = await request(app)
+        .post("/api/sales/already-voided/void")
+        .send({ reason: "Salah input pesanan" });
+
+      expect(res.status).toBe(409);
+      expect(res.body.ok).toBe(false);
+      expect(res.body.error.code).toBe("CONFLICT");
+    });
+
+    it("successfully voids transaction for OWNER and returns voided sale data", async () => {
+      vi.mocked(auth.api.getSession).mockResolvedValue(ownerSession);
+      const mockVoidedSale = {
+        id: "sale-123",
+        invoiceNo: "INV-20261029-A1B2C3",
+        idempotencyKey: "idem-key-123",
+        soldAt: new Date("2026-10-29T10:00:00Z"),
+        cashierId: mockOwnerId,
+        cashier: { id: mockOwnerId, name: "Owner Demo", role: "OWNER" },
+        paymentMethod: "CASH",
+        totalAmount: new Decimal("36000.00"),
+        totalIngredientCost: new Decimal("15480.00"),
+        totalOverhead: new Decimal("2400.00"),
+        status: "VOIDED",
+        voidedAt: new Date("2026-10-29T11:00:00Z"),
+        voidReason: "Salah input pesanan pembeli",
+        voidedById: mockOwnerId,
+        items: [
+          {
+            id: "sale-item-1",
+            menuId: "menu-1",
+            menuNameSnapshot: "Es Kopi Susu Aren",
+            qty: 2,
+            unitPrice: new Decimal("18000.00"),
+            ingredientCostActual: new Decimal("15480.00"),
+            overheadAllocated: new Decimal("2400.00"),
+          },
+        ],
+        movements: [],
+      };
+      vi.mocked(saleRepository.voidSaleAtomic).mockResolvedValue(mockVoidedSale);
+
+      const res = await request(app)
+        .post("/api/sales/sale-123/void")
+        .send({ reason: "Salah input pesanan pembeli" });
+
+      expect(res.status).toBe(200);
+      expect(res.body.ok).toBe(true);
+      expect(res.body.data.id).toBe("sale-123");
+      expect(res.body.data.status).toBe("VOIDED");
+      expect(res.body.data.voidReason).toBe("Salah input pesanan pembeli");
+      expect(res.body.data.voidedById).toBe(mockOwnerId);
     });
   });
 });

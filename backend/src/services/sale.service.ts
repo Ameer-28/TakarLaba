@@ -164,6 +164,21 @@ export class SaleService {
   }
 
   /**
+   * Void a sale transaction (POST /api/sales/:id/void).
+   * Restores consumed batch stock and creates VOID_RESTORE movements.
+   * Allowed for OWNER only (FR-POS-03).
+   */
+  async voidSale(
+    businessId: string,
+    userId: string,
+    saleId: string,
+    reason: string
+  ): Promise<SaleOwnerResponseDto> {
+    const voidedSale = await this.repo.voidSaleAtomic(businessId, userId, saleId, reason);
+    return mapSaleToDto(voidedSale, "OWNER") as SaleOwnerResponseDto;
+  }
+
+  /**
    * Strict allowlist DTO mapper enforcing Rule 7 and PRD FR-AUTH-03:
    * Strips all cost fields (ingredientCostActual, overheadAllocated, totalIngredientCost, totalOverhead,
    * grossMargin, marginPercentage, batch costPerBase, batch subtotalCost) from responses returned to CASHIER role.

@@ -51,6 +51,8 @@ export interface MenuItem {
   targetMargin: string | null;
   isActive: boolean;
   hasRecipe: boolean;
+  capacity?: number;
+  bottleneckIngredientName?: string | null;
   recipeItemsCount: number;
   saleItemsCount: number;
   costSummary?: MenuCostSummary | null;
@@ -119,6 +121,8 @@ export interface PreviewCostResponse {
   marginBahanPercent: string | null;
   marginStatus: MarginStatus;
   isCostComplete: boolean;
+  capacity?: number;
+  bottleneckIngredientName?: string | null;
   items: PreviewCostItem[];
 }
 

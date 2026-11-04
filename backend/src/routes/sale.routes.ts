@@ -5,8 +5,10 @@ import { validate } from "../middleware/validate.js";
 import {
   createSaleSchema,
   querySaleSchema,
+  voidSaleSchema,
   type CreateSaleInput,
   type QuerySaleInput,
+  type VoidSaleInput,
 } from "../validation/sale.schema.js";
 import { ValidationError } from "../lib/errors.js";
 
@@ -86,3 +88,23 @@ saleRouter.get("/sales/:id", requireAuth, requireRole(["OWNER", "CASHIER"]), asy
 
   res.json({ ok: true, data: sale });
 });
+
+/**
+ * 4. POST /api/sales/:id/void - Void a sale transaction and restore inventory (FR-POS-03)
+ * Allowed for OWNER only.
+ */
+saleRouter.post(
+  "/sales/:id/void",
+  requireAuth,
+  requireRole(["OWNER"]),
+  validate(voidSaleSchema),
+  async (req, res) => {
+    const ctx = requireCtx(req);
+    const saleId = req.params.id as string;
+    const { reason } = req.valid as VoidSaleInput;
+
+    const voidedSale = await saleService.voidSale(ctx.businessId, ctx.userId, saleId, reason);
+
+    res.json({ ok: true, data: voidedSale });
+  }
+);

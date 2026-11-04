@@ -15,6 +15,9 @@ vi.mock("../../src/repositories/inventory.repo.js", () => ({
   inventoryRepository: {
     findIngredientsWithBatches: vi.fn(),
     findBatches: vi.fn(),
+    findBatchById: vi.fn(),
+    recordWasteAtomic: vi.fn(),
+    findWasteMovements: vi.fn(),
   },
   InventoryRepository: vi.fn(),
 }));
@@ -266,6 +269,223 @@ describe("Inventory Routes & Service Integration (T-022)", () => {
       expect(resBatchesInvalid.status).toBe(400);
       expect(resBatchesInvalid.body.ok).toBe(false);
       expect(resBatchesInvalid.body.error.code).toBe("VALIDATION_ERROR");
+    });
+  });
+
+  describe("POST /api/stock/waste & /api/inventory/waste (FR-INV-03)", () => {
+    it("rejects unauthenticated requests with 401 UNAUTHENTICATED", async () => {
+      vi.mocked(auth.api.getSession).mockResolvedValueOnce(null);
+
+      const res = await request(app)
+        .post("/api/stock/waste")
+        .set("Origin", "http://localhost:5173")
+        .send({
+          batchId: "batch-1",
+          qty: 100,
+          reason: "Basi karena kulkas mati",
+        });
+
+      expect(res.status).toBe(401);
+      expect(res.body.ok).toBe(false);
+      expect(res.body.error.code).toBe("UNAUTHENTICATED");
+    });
+
+    it("rejects CASHIER role with 403 FORBIDDEN", async () => {
+      vi.mocked(auth.api.getSession).mockResolvedValueOnce(cashierSession);
+
+      const res = await request(app)
+        .post("/api/stock/waste")
+        .set("Origin", "http://localhost:5173")
+        .send({
+          batchId: "batch-1",
+          qty: 100,
+          reason: "Basi karena kulkas mati",
+        });
+
+      expect(res.status).toBe(403);
+      expect(res.body.ok).toBe(false);
+      expect(res.body.error.code).toBe("FORBIDDEN");
+    });
+
+    it("validates mandatory reason and positive quantity with 400 VALIDATION_ERROR", async () => {
+      vi.mocked(auth.api.getSession).mockResolvedValueOnce(ownerSession);
+
+      // Missing reason and negative qty
+      const res = await request(app)
+        .post("/api/stock/waste")
+        .set("Origin", "http://localhost:5173")
+        .send({
+          batchId: "batch-1",
+          qty: -5,
+          reason: "a", // too short (< 3 chars)
+        });
+
+      expect(res.status).toBe(400);
+      expect(res.body.ok).toBe(false);
+      expect(res.body.error.code).toBe("VALIDATION_ERROR");
+    });
+
+    it("returns 404 NOT_FOUND when batch does not exist", async () => {
+      vi.mocked(auth.api.getSession).mockResolvedValueOnce(ownerSession);
+      vi.mocked(inventoryRepository.findBatchById).mockResolvedValueOnce(null);
+
+      const res = await request(app)
+        .post("/api/stock/waste")
+        .set("Origin", "http://localhost:5173")
+        .send({
+          batchId: "nonexistent-batch",
+          qty: 100,
+          reason: "Bahan kedaluwarsa",
+        });
+
+      expect(res.status).toBe(404);
+      expect(res.body.ok).toBe(false);
+      expect(res.body.error.code).toBe("NOT_FOUND");
+    });
+
+    it("successfully records waste and returns wasted financial value (201)", async () => {
+      vi.mocked(auth.api.getSession).mockResolvedValueOnce(ownerSession);
+
+      const mockBatch = {
+        id: "batch-101",
+        businessId: mockBusinessId,
+        ingredientId: "ing-susu",
+        purchaseQty: "10.000" as unknown as Decimal,
+        purchaseUnit: "L",
+        purchaseUnitPrice: "18000.00" as unknown as Decimal,
+        initialQtyBase: "10000.000" as unknown as Decimal,
+        remainingQtyBase: "5000.000" as unknown as Decimal,
+        costPerBase: "18.000000" as unknown as Decimal,
+        expiryDate: new Date(),
+        receivedAt: new Date(),
+        createdAt: new Date(),
+        purchaseId: null,
+        ingredient: {
+          id: "ing-susu",
+          businessId: mockBusinessId,
+          name: "Susu UHT",
+          nameKey: "susu_uht",
+          category: "MAIN",
+          baseUnit: "ML",
+          yieldPercent: "100.00" as unknown as Decimal,
+          minStockBase: "1000.000" as unknown as Decimal,
+          isActive: true,
+          isPerishable: true,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          units: [
+            {
+              id: "unit-l",
+              ingredientId: "ing-susu",
+              name: "L",
+              toBaseFactor: "1000.0000" as unknown as Decimal,
+              createdAt: new Date(),
+            },
+          ],
+        },
+      };
+
+      vi.mocked(inventoryRepository.findBatchById).mockResolvedValueOnce(
+        mockBatch as unknown as Awaited<ReturnType<typeof inventoryRepository.findBatchById>>
+      );
+
+      vi.mocked(inventoryRepository.recordWasteAtomic).mockResolvedValueOnce({
+        movement: {
+          id: "mov-waste-1",
+          businessId: mockBusinessId,
+          ingredientId: "ing-susu",
+          batchId: "batch-101",
+          type: "WASTE",
+          qtyBaseDelta: "-2000.000" as unknown as Decimal,
+          costPerBase: "18.000000" as unknown as Decimal,
+          refType: "WASTE",
+          refId: null,
+          note: "Susu asam dan basi",
+          createdById: "user-owner-1",
+          createdAt: new Date("2026-11-04T05:00:00Z"),
+        },
+        batch: {
+          ...mockBatch,
+          remainingQtyBase: "3000.000" as unknown as Decimal,
+        },
+        ingredient: mockBatch.ingredient,
+        qtyBase: new Decimal(2000),
+        wastedValue: new Decimal(36000), // 2000 * 18 = 36.000
+      } as unknown as Awaited<ReturnType<typeof inventoryRepository.recordWasteAtomic>>);
+
+      // Record 2 L of milk waste (2 L * 1000 = 2000 ml)
+      const res = await request(app)
+        .post("/api/stock/waste")
+        .set("Origin", "http://localhost:5173")
+        .send({
+          batchId: "batch-101",
+          qty: 2,
+          unit: "L",
+          reason: "Susu asam dan basi",
+        });
+
+      expect(res.status).toBe(201);
+      expect(res.body.ok).toBe(true);
+      expect(res.body.data.movementId).toBe("mov-waste-1");
+      expect(res.body.data.ingredientName).toBe("Susu UHT");
+      expect(res.body.data.qtyBase).toBe("2000.000");
+      expect(res.body.data.baseUnit).toBe("ML");
+      expect(res.body.data.remainingQtyBase).toBe("3000.000");
+      expect(res.body.data.costPerBase).toBe("18.000000");
+      expect(res.body.data.wastedValue).toBe("36000.00");
+      expect(res.body.data.reason).toBe("Susu asam dan basi");
+    });
+  });
+
+  describe("GET /api/stock/waste & /api/inventory/waste", () => {
+    it("returns waste history list for OWNER", async () => {
+      vi.mocked(auth.api.getSession).mockResolvedValueOnce(ownerSession);
+
+      vi.mocked(inventoryRepository.findWasteMovements).mockResolvedValueOnce([
+        {
+          id: "mov-waste-1",
+          businessId: mockBusinessId,
+          ingredientId: "ing-susu",
+          batchId: "batch-101",
+          type: "WASTE",
+          qtyBaseDelta: "-2000.000" as unknown as Decimal,
+          costPerBase: "18.000000" as unknown as Decimal,
+          refType: "WASTE",
+          refId: null,
+          note: "Susu asam dan basi",
+          createdById: "user-owner-1",
+          createdAt: new Date("2026-11-04T05:00:00Z"),
+          ingredient: {
+            id: "ing-susu",
+            name: "Susu UHT",
+            baseUnit: "ML",
+            category: "MAIN",
+          },
+          batch: {
+            id: "batch-101",
+            purchaseUnit: "L",
+            purchaseUnitPrice: "18000.00" as unknown as Decimal,
+            expiryDate: new Date(),
+          },
+          createdBy: {
+            id: "user-owner-1",
+            name: "Owner Demo",
+          },
+        },
+      ] as unknown as Awaited<ReturnType<typeof inventoryRepository.findWasteMovements>>);
+
+      const res = await request(app)
+        .get("/api/inventory/waste")
+        .set("Origin", "http://localhost:5173");
+
+      expect(res.status).toBe(200);
+      expect(res.body.ok).toBe(true);
+      expect(Array.isArray(res.body.data)).toBe(true);
+      expect(res.body.data[0].ingredientName).toBe("Susu UHT");
+      expect(res.body.data[0].qtyBase).toBe("2000.000");
+      expect(res.body.data[0].wastedValue).toBe("36000.00");
+      expect(res.body.data[0].reason).toBe("Susu asam dan basi");
+      expect(res.body.data[0].createdByName).toBe("Owner Demo");
     });
   });
 });

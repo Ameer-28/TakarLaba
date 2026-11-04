@@ -50,6 +50,10 @@ export const queryKeys = {
       filter
         ? ([...queryKeys.inventory.all, "batches", filter] as const)
         : ([...queryKeys.inventory.all, "batches"] as const),
+    waste: (filter?: Record<string, unknown>) =>
+      filter
+        ? ([...queryKeys.inventory.all, "waste", filter] as const)
+        : ([...queryKeys.inventory.all, "waste"] as const),
   },
   settings: {
     all: ["settings"] as const,
@@ -69,5 +73,15 @@ export const queryKeys = {
   pos: {
     all: ["pos"] as const,
     menus: () => [...queryKeys.pos.all, "menus"] as const,
+  },
+  demo: {
+    all: ["demo"] as const,
+    status: () => [...queryKeys.demo.all, "status"] as const,
+  },
+  analytics: {
+    all: ["analytics"] as const,
+    capacity: () => [...queryKeys.analytics.all, "capacity"] as const,
+    menuEngineering: (days?: number) =>
+      [...queryKeys.analytics.all, "menu-engineering", days ?? 30] as const,
   },
 };

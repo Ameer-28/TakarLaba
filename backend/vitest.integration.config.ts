@@ -8,6 +8,8 @@ const envVars: Record<string, string> = {
   BETTER_AUTH_SECRET: "12345678901234567890123456789012",
   BETTER_AUTH_URL: "http://localhost:4000",
   FRONTEND_URL: "http://localhost:5173",
+  DEMO_MODE: "true",
+  DEMO_PASSWORD: "DemoPassword123!",
   NODE_ENV: "test",
 };
 
@@ -21,6 +23,8 @@ export default defineConfig({
     include: ["tests/integration/db/**/*.test.ts"],
     passWithNoTests: true,
     fileParallelism: false,
+    testTimeout: 30000,
+    hookTimeout: 30000,
     env: envVars,
   },
 });

@@ -2,9 +2,15 @@
 
 > Sumber kebenaran kontrak API TakarLaba. Terakhir diperbarui: 2026-10-22 (Fase 2: Bahan Baku, Pembelian, & Persediaan FEFO).
 
-## 1. Konvensi Envelope Standar
+## 1. Konvensi Envelope & Format Data Finansial
 
-Semua endpoint REST API TakarLaba menggunakan format envelope JSON standar yang konsisten untuk menjaga integritas komunikasi frontend-backend. Nilai uang dan kuantitas selalu dikirimkan sebagai **string** atau **angka terformat** untuk mencegah floating-point rounding issue (aturan domain TakarLaba).
+Semua endpoint REST API TakarLaba menggunakan format envelope JSON standar yang konsisten untuk menjaga integritas komunikasi frontend-backend. Nilai uang dan kuantitas selalu dikirimkan sebagai **string** terformat secara seragam untuk mencegah floating-point rounding issue (aturan domain TakarLaba):
+
+- **Uang (Monetary):** Selalu string dengan **2 desimal** (contoh: `"20000.00"`, `"7740.00"`). Berlaku untuk harga jual (`sellingPrice`), HPP Bahan (`hppBahan`), HPP Penuh (`hppPenuh`), estimasi profit, omzet, subtotal, dan rekomendasi harga.
+- **Kuantitas (Quantity):** Selalu string dengan **3 desimal** (contoh: `"15.000"`, `"150.000"`). Berlaku untuk takaran resep (`qtyUsableBase`) dan stok batch (`remainingQtyBase`).
+- **Biaya per Base Unit (`costPerBase`):** Selalu string dengan **6 desimal** (contoh: `"18.000000"`).
+- **Persentase (Percentage):** Selalu string dengan **2 desimal** (contoh: `"50.00"`). Berlaku untuk margin (`marginPercent`), target margin (`targetPct`), dan yield (`yieldPercent`).
+- **Dilarang tipe float numerik** dalam komunikasi JSON lintas jaringan. Frontend hanya menerima string dan menampilkan representasi rupiah lokal untuk kebutuhan tampilan visual pengguna.
 
 ### Respons Sukses
 ```json
@@ -47,6 +53,7 @@ Semua endpoint REST API TakarLaba menggunakan format envelope JSON standar yang 
 | `409 Conflict` | `INSUFFICIENT_STOCK` | Stok bahan batch FEFO tidak mencukupi saat proses checkout POS. |
 | `413 Payload Too Large` | `PAYLOAD_TOO_LARGE` | Body permintaan melebihi batas 100kb. |
 | `429 Too Many Requests` | `RATE_LIMITED` | Batas laju permintaan tercapai (rate limiter). |
+| `429 Too Many Requests` | `DEMO_COOLDOWN` | Jeda cooldown 60 detik antar permintaan reset demo belum terpenuhi. |
 | `500 Internal Server Error` | `INTERNAL_ERROR` | Kesalahan tidak terduga pada server backend (detail disembunyikan dari klien). |
 | `503 Service Unavailable` | `DATABASE_UNAVAILABLE` | Database PostgreSQL tidak terjangkau atau gagal merespons query. |
 
@@ -422,6 +429,81 @@ Mengambil daftar batch stok aktif (`remainingQtyBase > 0`), diurutkan secara ket
         "costPerBase": "18.000000",
         "supplierName": "Peternakan Sejahtera",
         "status": "SEGERA"
+      }
+    ]
+  }
+  ```
+
+#### POST `/api/stock/waste` (alias: `/api/inventory/waste`)
+Mencatat bahan baku yang terbuang (*waste*) untuk batch tertentu, memotong sisa stok batch secara atomik, membuat pergerakan `StockMovement(WASTE)`, dan menghitung nilai kerugian finansial (Rp) berdasarkan harga pokok batch terkait (AC: FR-INV-03).
+
+- **Metode:** `POST`
+- **Autentikasi:** Wajib sesi aktif role `OWNER` (role `CASHIER` menerima `403 FORBIDDEN`).
+- **Request Body:**
+  ```json
+  {
+    "batchId": "cuid_batch_123",
+    "qty": 2,
+    "unit": "L",
+    "reason": "Susu asam dan basi karena kulkas mati",
+    "wasteDate": "2026-11-04T05:00:00.000Z"
+  }
+  ```
+  - `batchId` (wajib): ID batch bahan baku yang akan dipotong.
+  - `qty` (wajib, angka positif $> 0$, maks 1.000.000): Jumlah bahan yang terbuang.
+  - `unit` (opsional): Satuan takaran terbuang. Jika berbeda dengan `baseUnit` bahan, otomatis dikonversi menggunakan faktor rasio `IngredientUnit`.
+  - `reason` (wajib, string 3..255 karakter): Alasan pembuangan/kerugian bahan baku.
+  - `wasteDate` (opsional, string ISO datetime): Tanggal kejadian terbuang (default: waktu saat ini).
+- **Validasi Bisnis:**
+  - `400 VALIDATION_ERROR`: Jika kuantitas $\le 0$ atau alasan kosong / $< 3$ karakter.
+  - `404 NOT_FOUND`: Jika `batchId` tidak ditemukan dalam lingkup bisnis.
+  - `409 CONFLICT`: Jika jumlah terbuang melebihi sisa stok yang ada pada batch (`qtyBase > remainingQtyBase`).
+- **Response 201 Created:**
+  ```json
+  {
+    "ok": true,
+    "data": {
+      "movementId": "mov_waste_123",
+      "batchId": "cuid_batch_123",
+      "ingredientId": "ing_susu_123",
+      "ingredientName": "Susu UHT",
+      "baseUnit": "ML",
+      "qtyBase": "2000.000",
+      "remainingQtyBase": "3000.000",
+      "costPerBase": "18.000000",
+      "wastedValue": "36000.00",
+      "reason": "Susu asam dan basi karena kulkas mati",
+      "createdAt": "2026-11-04T05:00:00.000Z"
+    }
+  }
+  ```
+
+#### GET `/api/inventory/waste` (alias: `/api/stock/waste`)
+Mengambil riwayat pencatatan bahan baku terbuang dan nilai kerugian finansialnya.
+
+- **Metode:** `GET`
+- **Autentikasi:** Wajib sesi aktif role `OWNER`.
+- **Query Params:**
+  - `limit` (opsional, integer 1..100, default: 50)
+  - `skip` (opsional, integer $\ge 0$, default: 0)
+- **Response 200 OK:**
+  ```json
+  {
+    "ok": true,
+    "data": [
+      {
+        "id": "mov_waste_123",
+        "ingredientId": "ing_susu_123",
+        "ingredientName": "Susu UHT",
+        "baseUnit": "ML",
+        "batchId": "cuid_batch_123",
+        "qtyBase": "2000.000",
+        "costPerBase": "18.000000",
+        "wastedValue": "36000.00",
+        "reason": "Susu asam dan basi karena kulkas mati",
+        "createdAt": "2026-11-04T05:00:00.000Z",
+        "createdByName": "Owner Demo",
+        "expiryDate": "2026-11-06T00:00:00.000Z"
       }
     ]
   }
@@ -1025,6 +1107,68 @@ Mengambil detail satu transaksi penjualan berdasarkan ID, termasuk alokasi batch
 - **Response 200 OK (CASHIER):**
   Field biaya (`totalIngredientCost`, `totalOverhead`, `grossMargin`, `marginPercentage`, `ingredientCostActual`, `overheadAllocated`, serta `costPerBase` dan `subtotalCost` pada `batchAllocations`) **dihilangkan**. Kasir hanya melihat informasi operasional (`ingredientName`, `baseUnit`, `batchExpiryDate`, `qtyDeducted`).
 
+#### POST `/api/sales/:id/void`
+Membatalkan (void) satu transaksi penjualan dan mengembalikan stok bahan baku ke batch asal masing-masing secara atomik dalam satu transaksi database (`FR-POS-03`). Mengubah status transaksi menjadi `VOIDED`, mencatat alasan pembatalan wajib, waktu void, user yang membatalkan, serta merekam pergerakan stok `StockMovement(VOID_RESTORE)`. Transaksi yang di-void otomatis dikecualikan dari laporan keuangan dan analitik.
+
+- **Metode:** `POST`
+- **Autentikasi:** Wajib sesi aktif role `OWNER` (role `CASHIER` menerima `403 FORBIDDEN`).
+- **Header:** `Origin: <FRONTEND_URL>`
+- **URL Params:**
+  - `id`: ID transaksi penjualan (`cuid`)
+- **Request Body:**
+  ```json
+  {
+    "reason": "Pelanggan membatalkan pesanan karena salah varian menu"
+  }
+  ```
+- **Response 200 OK:**
+  ```json
+  {
+    "ok": true,
+    "data": {
+      "id": "sale_clx123",
+      "invoiceNo": "INV-20261029-A1B2C3",
+      "idempotencyKey": "idem-key-123",
+      "soldAt": "2026-10-29T10:00:00.000Z",
+      "cashierId": "user_owner_1",
+      "cashier": {
+        "id": "user_owner_1",
+        "name": "Owner Demo",
+        "role": "OWNER"
+      },
+      "paymentMethod": "CASH",
+      "totalAmount": "36000.00",
+      "totalIngredientCost": "15480.00",
+      "totalOverhead": "2400.00",
+      "grossMargin": "18120.00",
+      "marginPercentage": "50.33",
+      "status": "VOIDED",
+      "voidedAt": "2026-10-29T11:00:00.000Z",
+      "voidReason": "Pelanggan membatalkan pesanan karena salah varian menu",
+      "voidedById": "user_owner_1",
+      "items": [
+        {
+          "id": "item_1",
+          "menuId": "menu_hero",
+          "menuNameSnapshot": "Es Kopi Susu Aren",
+          "qty": 2,
+          "unitPrice": "18000.00",
+          "subtotalPrice": "36000.00",
+          "ingredientCostActual": "15480.00",
+          "overheadAllocated": "2400.00",
+          "grossMargin": "18120.00",
+          "marginPercentage": "50.33"
+        }
+      ]
+    }
+  }
+  ```
+- **Response 400 Bad Request:** Jika alasan pembatalan kurang dari 3 karakter atau lebih dari 255 karakter.
+- **Response 401 Unauthorized:** Pengguna belum terautentikasi.
+- **Response 403 Forbidden:** Pengguna berstatus kasir (`CASHIER`).
+- **Response 404 Not Found:** Transaksi penjualan tidak ditemukan.
+- **Response 409 Conflict:** Transaksi penjualan sudah dibatalkan sebelumnya (`VOIDED`).
+
 ---
 
 ### 3.8 Peringatan Margin & Price Shock Impact (`/api/alerts`)
@@ -1259,6 +1403,305 @@ Mengambil metrik ringkasan harian (omzet hari ini WIB, transaksi, estimasi laba 
         }
       ],
       "isNewBusiness": false
+    }
+  }
+  ```
+
+---
+
+### 3.10 Akses Demo & Reset (`/api/demo`)
+
+Fitur khusus evaluasi juri dan demonstrasi deterministik (FR-DEMO-01/02). Hanya aktif jika `DEMO_MODE=true` di backend dan hanya mengoperasikan bisnis bertanda `isDemo: true`.
+
+#### GET `/api/demo/status`
+Memeriksa status ketersediaan mode demo dan sisa waktu jeda pendinginan (cooldown).
+
+- **Metode:** `GET`
+- **Autentikasi:** Publik
+- **Request Body:** Tidak ada
+- **Response 200 OK:**
+  ```json
+  {
+    "ok": true,
+    "data": {
+      "enabled": true,
+      "cooldownSeconds": 0
+    }
+  }
+  ```
+- **Response 403 Forbidden:**
+  ```json
+  {
+    "ok": false,
+    "error": {
+      "code": "FORBIDDEN",
+      "message": "Mode demo dinonaktifkan di lingkungan ini"
+    }
+  }
+  ```
+
+#### POST `/api/demo/reset`
+Mereset data bisnis demo kembali ke kondisi fixture deterministik awal (PRD Lampiran B), memuat riwayat 30 hari (1.300 porsi) dan saldo stok awal. Memerlukan autentikasi aktif sebagai Demo Owner (`OWNER` dari bisnis `isDemo: true`) untuk mencegah reset sembarangan oleh pihak publik atau peran kasir. Membersihkan sesi demo yang berusia lebih dari 24 jam dengan tetap mempertahankan sesi aktif.
+
+- **Metode:** `POST`
+- **Autentikasi:** Wajib sesi aktif `OWNER` dari bisnis demo (`isDemo: true`)
+- **Header:** `Origin: <FRONTEND_URL>`, `Cookie: better-auth.session_token=...`
+- **Request Body:** Tidak ada
+- **Response 200 OK:**
+  ```json
+  {
+    "ok": true,
+    "data": {
+      "message": "Data contoh demo berhasil direset ke kondisi awal",
+      "resetAt": "2026-10-31T12:00:00.000Z"
+    }
+  }
+  ```
+- **Response 401 Unauthorized:**
+  ```json
+  {
+    "ok": false,
+    "error": {
+      "code": "UNAUTHENTICATED",
+      "message": "Sesi login diperlukan untuk reset data demo"
+    }
+  }
+  ```
+- **Response 403 Forbidden (Bukan Demo Owner atau Mode Demo Nonaktif):**
+  ```json
+  {
+    "ok": false,
+    "error": {
+      "code": "FORBIDDEN",
+      "message": "Hanya Demo Owner yang dapat melakukan reset demo"
+    }
+  }
+  ```
+- **Response 429 Too Many Requests (Cooldown):**
+  ```json
+  {
+    "ok": false,
+    "error": {
+      "code": "DEMO_COOLDOWN",
+      "message": "Tunggu 45 detik sebelum reset data demo kembali"
+    }
+  }
+  ```
+
+#### POST `/api/demo/login`
+Membuat sesi autentikasi secara terprogram untuk pengguna demo (`OWNER` atau `CASHIER`) tanpa mengekspos kredensial kata sandi ke browser. Mengembalikan data profil dan header `Set-Cookie` sesi Better Auth.
+
+Dilengkapi dengan:
+1. **Session Reuse:** Jika klien sudah memiliki cookie sesi demo yang valid dengan role yang diminta, sesi tersebut langsung dipakai ulang tanpa membuat sesi baru di database.
+2. **Serverless-Safe Rate Limiting:** Batasan laju berbasis kueri tabel `Session` untuk mencegah penumpukan sesi:
+   - Maksimal **10 login per IP per 10 menit**.
+   - Maksimal **60 login per jam secara global**.
+
+- **Metode:** `POST`
+- **Autentikasi:** Publik
+- **Header:** `Origin: <FRONTEND_URL>`
+- **Request Body:**
+  ```json
+  {
+    "role": "OWNER"
+  }
+  ```
+- **Response 200 OK:**
+  ```json
+  {
+    "ok": true,
+    "data": {
+      "user": {
+        "id": "demo-owner-id",
+        "email": "owner@takarlaba.demo",
+        "name": "Demo Pemilik",
+        "role": "OWNER"
+      },
+      "session": {
+        "id": "session-cuid",
+        "userId": "demo-owner-id"
+      },
+      "role": "OWNER"
+    }
+  }
+  ```
+- **Response 429 Too Many Requests (Rate Limit):**
+  ```json
+  {
+    "ok": false,
+    "error": {
+      "code": "RATE_LIMITED",
+      "message": "Terlalu banyak permintaan login demo dari IP ini. Coba lagi dalam 10 menit."
+    }
+  }
+  ```
+- **Response 403 Forbidden (Mode Demo Nonaktif):**
+  ```json
+  {
+    "ok": false,
+    "error": {
+      "code": "FORBIDDEN",
+      "message": "Mode demo dinonaktifkan di lingkungan ini"
+    }
+  }
+  ```
+
+---
+
+### 3.11 Analitik & Kapasitas Menu (`/api/analytics`)
+
+Fitur kalkulasi kapasitas porsi dan deteksi bahan pembatas (bottleneck) per menu aktif sesuai aturan bisnis BR-08 (FR-CAP-01).
+
+#### GET `/api/analytics/capacity`
+Menghitung estimasi sisa porsi menu berdasarkan stok bahan baku valid non-kedaluwarsa yang tersedia (`floor(min(stokRawValid / rawPerPorsi))`). Mengembalikan DTO tersanitasi untuk peran `CASHIER` (tanpa data rincian stok internal atau biaya) dan rincian lengkap untuk `OWNER`.
+
+- **Metode:** `GET`
+- **Autentikasi:** Sesi aktif (`OWNER` atau `CASHIER`)
+- **Header:** `Cookie: takarlaba_session=...`
+- **Request Body:** Tidak ada
+- **Response 200 OK (OWNER):**
+  ```json
+  {
+    "ok": true,
+    "data": [
+      {
+        "id": "menu-kopi-susu",
+        "name": "Es Kopi Susu Aren",
+        "category": "BEVERAGE",
+        "sellingPrice": "18000.00",
+        "hasRecipe": true,
+        "capacity": 25,
+        "bottleneckIngredientName": "Susu UHT",
+        "bottleneck": {
+          "ingredientId": "ing-susu",
+          "ingredientName": "Susu UHT",
+          "baseUnit": "ML",
+          "validStockBase": "3750.000",
+          "rawPerPortion": "150.000",
+          "maxPortions": 25
+        },
+        "items": [
+          {
+            "ingredientId": "ing-kopi",
+            "ingredientName": "Biji Kopi",
+            "baseUnit": "G",
+            "validStockBase": "720.000",
+            "rawPerPortion": "18.000",
+            "maxPortions": 40
+          },
+          {
+            "ingredientId": "ing-susu",
+            "ingredientName": "Susu UHT",
+            "baseUnit": "ML",
+            "validStockBase": "3750.000",
+            "rawPerPortion": "150.000",
+            "maxPortions": 25
+          }
+        ]
+      }
+    ]
+  }
+  ```
+- **Response 200 OK (CASHIER - DTO Sanitasi Rule 7):**
+  ```json
+  {
+    "ok": true,
+    "data": [
+      {
+        "id": "menu-kopi-susu",
+        "name": "Es Kopi Susu Aren",
+        "category": "BEVERAGE",
+        "sellingPrice": "18000.00",
+        "hasRecipe": true,
+        "capacity": 25,
+        "bottleneckIngredientName": "Susu UHT"
+      }
+    ]
+  }
+  ```
+- **Response 401 Unauthorized:**
+  ```json
+  {
+    "ok": false,
+    "error": {
+      "code": "UNAUTHENTICATED",
+      "message": "Sesi tidak valid atau telah berakhir"
+    }
+  }
+  ```
+
+#### GET `/api/analytics/menu-engineering`
+Menghitung matriks Menu Engineering Kasavana & Smith (4 kuadran: Star, Plowhorse, Puzzle, Dog) serta rekomendasi taktis terhitung otomatis sesuai aturan bisnis BR-10 (FR-MEG-01).
+
+- **Metode:** `GET`
+- **Autentikasi:** Sesi aktif role `OWNER` (peran `CASHIER` menerima 403 Forbidden sesuai Rule 7)
+- **Header:** `Cookie: takarlaba_session=...`
+- **Query Params:**
+  - `days` (opsional, integer): Rentang hari evaluasi penjualan. Pilihan antarmuka: 7, 30, 90 (default 30; min 1, max 365).
+- **Aturan Ambang Batas (BR-10):**
+  - Popularitas (Volume): $0.7 \times (1 / N) \times \text{Total Porsi Terklasifikasi}$
+  - Profitabilitas: Margin Kontribusi Rata-rata Tertimbang $\sum(CM_i \times \text{Porsi}_i) / \sum \text{Porsi}_i$
+  - Syarat Kecukupan Data: $\ge 4$ menu aktif dan $\ge 30$ transaksi selesai dalam rentang waktu. Menu baru (< 14 hari) dan menu tanpa penjualan ditandai terpisah sebagai belum terklasifikasi.
+- **Response 200 OK (OWNER):**
+  ```json
+  {
+    "ok": true,
+    "data": {
+      "isDataSufficient": true,
+      "insufficientReason": null,
+      "days": 30,
+      "totalTransactions": 1300,
+      "totalClassifiedPortions": 1300,
+      "popularityThresholdPortions": "151.67",
+      "weightedMarginThreshold": "8641.54",
+      "classifiedMenus": [
+        {
+          "menuId": "menu-kopi-susu",
+          "menuName": "Es Kopi Susu Aren",
+          "category": "BEVERAGE",
+          "sellingPrice": "18000.00",
+          "hppPenuh": "8940.00",
+          "marginKontribusi": "9060.00",
+          "portionsSold": 500,
+          "popularitySharePercent": "38.5",
+          "quadrant": "STAR",
+          "recommendation": {
+            "action": "MAINTAIN_QUALITY",
+            "title": "Pertahankan Kualitas & Penempatan Utama",
+            "description": "Menu bintang penyumbang laba terbesar. Jangan ubah takaran resep. Pertahankan di posisi teratas daftar menu / kasir.",
+            "badgeVariant": "success"
+          }
+        }
+      ],
+      "unclassifiedMenus": [
+        {
+          "menuId": "menu-baru",
+          "menuName": "Cold Brew Hazelnut",
+          "category": "BEVERAGE",
+          "reason": "NEW_MENU",
+          "description": "Menu baru (<14 hari). Masih dalam periode inkubasi."
+        }
+      ]
+    }
+  }
+  ```
+- **Response 403 Forbidden (CASHIER):**
+  ```json
+  {
+    "ok": false,
+    "error": {
+      "code": "FORBIDDEN",
+      "message": "Akses ditolak. Fitur ini memerlukan salah satu hak akses: OWNER."
+    }
+  }
+  ```
+- **Response 401 Unauthorized:**
+  ```json
+  {
+    "ok": false,
+    "error": {
+      "code": "UNAUTHENTICATED",
+      "message": "Autentikasi diperlukan. Sesi tidak valid atau telah berakhir."
     }
   }
   ```

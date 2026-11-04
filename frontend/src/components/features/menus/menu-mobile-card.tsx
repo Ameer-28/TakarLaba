@@ -54,6 +54,36 @@ export function MenuMobileCard({
         </button>
       </div>
 
+      {/* Capacity & Bottleneck Badge */}
+      {menu.hasRecipe && menu.capacity !== undefined && (
+        <div className="flex items-center justify-between text-xs px-2.5 py-1.5 bg-slate-50 border border-slate-100 rounded-xl">
+          <span className="text-slate-500 font-medium">Kapasitas Porsi</span>
+          <div className="flex items-center gap-1.5">
+            {menu.capacity === 0 ? (
+              <span className="font-bold text-rose-700 bg-rose-50 px-2 py-0.5 rounded-md border border-rose-200 text-[11px]">
+                Habis (0)
+              </span>
+            ) : menu.capacity <= 10 ? (
+              <span className="font-bold text-amber-800 bg-amber-50 px-2 py-0.5 rounded-md border border-amber-200 text-[11px] tabular-nums">
+                Sisa {menu.capacity} porsi
+              </span>
+            ) : (
+              <span className="font-semibold text-slate-700 bg-white px-2 py-0.5 rounded-md border border-slate-200 text-[11px] tabular-nums">
+                {menu.capacity} porsi
+              </span>
+            )}
+            {menu.bottleneckIngredientName && (
+              <span
+                className="text-[10px] text-slate-400 truncate max-w-[120px]"
+                title={`Dibatasi: ${menu.bottleneckIngredientName}`}
+              >
+                ({menu.bottleneckIngredientName})
+              </span>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* Financial Metrics Grid */}
       <div className="grid grid-cols-2 gap-2 p-3 bg-slate-50/70 rounded-xl text-xs">
         <div>

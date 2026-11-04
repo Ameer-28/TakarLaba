@@ -54,7 +54,22 @@ export function SaleTable({ sales, isOwner = false, onSelectSale }: SaleTablePro
                     onClick={() => onSelectSale(sale)}
                   >
                     <td className="py-3.5 px-4">
-                      <div className="font-extrabold text-slate-900">{sale.invoiceNo}</div>
+                      <div className="flex items-center gap-2">
+                        <span
+                          className={`font-extrabold ${
+                            sale.status === "VOIDED"
+                              ? "line-through text-slate-400"
+                              : "text-slate-900"
+                          }`}
+                        >
+                          {sale.invoiceNo}
+                        </span>
+                        {sale.status === "VOIDED" && (
+                          <span className="inline-flex items-center px-1.5 py-0.5 rounded-md bg-rose-50 border border-rose-200 text-rose-700 text-[10px] font-bold">
+                            Dibatalkan
+                          </span>
+                        )}
+                      </div>
                       <div className="text-[11px] text-slate-400 flex items-center gap-1 mt-0.5">
                         <Clock className="w-3 h-3" />
                         <span>
@@ -141,7 +156,20 @@ export function SaleTable({ sales, isOwner = false, onSelectSale }: SaleTablePro
               {/* Top line: Invoice & Payment */}
               <div className="flex items-start justify-between">
                 <div>
-                  <div className="font-extrabold text-slate-900 text-sm">{sale.invoiceNo}</div>
+                  <div className="flex items-center gap-2">
+                    <span
+                      className={`font-extrabold text-sm ${
+                        sale.status === "VOIDED" ? "line-through text-slate-400" : "text-slate-900"
+                      }`}
+                    >
+                      {sale.invoiceNo}
+                    </span>
+                    {sale.status === "VOIDED" && (
+                      <span className="inline-flex items-center px-1.5 py-0.5 rounded-md bg-rose-50 border border-rose-200 text-rose-700 text-[10px] font-bold">
+                        Dibatalkan
+                      </span>
+                    )}
+                  </div>
                   <div className="text-[11px] text-slate-400 mt-0.5">
                     {formattedDate}, {formattedTime} WIB • {sale.cashier?.name ?? "Kasir"}
                   </div>
