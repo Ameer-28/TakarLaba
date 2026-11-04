@@ -8,6 +8,9 @@ import { RouteLoadingFallback } from "./components/shared/route-loading-fallback
 
 // Route-level code splitting
 const LoginPage = lazy(() => import("./pages/login").then((m) => ({ default: m.LoginPage })));
+const RegisterPage = lazy(() =>
+  import("./pages/register").then((m) => ({ default: m.RegisterPage }))
+);
 const DashboardPage = lazy(() =>
   import("./pages/dashboard").then((m) => ({ default: m.DashboardPage }))
 );
@@ -31,6 +34,15 @@ export const router = createBrowserRouter([
     element: (
       <Suspense fallback={<RouteLoadingFallback />}>
         <LoginPage />
+      </Suspense>
+    ),
+    errorElement: <RouteErrorPage />,
+  },
+  {
+    path: "/register",
+    element: (
+      <Suspense fallback={<RouteLoadingFallback />}>
+        <RegisterPage />
       </Suspense>
     ),
     errorElement: <RouteErrorPage />,

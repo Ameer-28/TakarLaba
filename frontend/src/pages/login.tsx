@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate, useLocation } from "react-router";
+import { useNavigate, useLocation, Link } from "react-router";
 import { signIn, useSession, type UserRole } from "@/lib/auth-client";
 import { toast } from "sonner";
 import { ShieldCheck, Loader2 } from "lucide-react";
@@ -120,6 +120,17 @@ export function LoginPage() {
             isAnySubmitting={isAnySubmitting}
             isSubmitting={isSubmitting}
           />
+          <div className="mt-4 pt-4 border-t border-slate-100 text-center">
+            <p className="text-xs text-slate-500">
+              Belum punya akun usaha?{" "}
+              <Link
+                to="/register"
+                className="font-bold text-emerald-600 hover:text-emerald-700 hover:underline transition"
+              >
+                Daftar Bisnis Baru
+              </Link>
+            </p>
+          </div>
           <DemoAccountsPanel
             onDemoLogin={handleDemoLogin}
             isSubmitting={isAnySubmitting}
