@@ -16,6 +16,7 @@ vi.mock("../../src/repositories/purchase.repo.js", () => ({
     createAtomic: vi.fn(),
     findMany: vi.fn(),
     findById: vi.fn(),
+    voidPurchaseAtomic: vi.fn(),
   },
   PurchaseRepository: vi.fn(),
 }));
@@ -483,6 +484,82 @@ describe("Purchase Routes & Service Integration (T-021)", () => {
       expect(res.body.ok).toBe(true);
       expect(res.body.data).toHaveLength(1);
       expect(res.body.meta.total).toBe(1);
+    });
+  });
+
+  describe("POST /api/purchases/:id/void (FR-PUR-02)", () => {
+    it("returns 401 when unauthenticated", async () => {
+      vi.mocked(auth.api.getSession).mockResolvedValueOnce(null);
+
+      const res = await request(app)
+        .post("/api/purchases/purch-1/void")
+        .set("Origin", "http://localhost:5173")
+        .send({ reason: "Salah input nota" });
+
+      expect(res.status).toBe(401);
+      expect(res.body.ok).toBe(false);
+    });
+
+    it("returns 403 when user is CASHIER", async () => {
+      vi.mocked(auth.api.getSession).mockResolvedValueOnce({
+        user: {
+          id: "cashier-1",
+          name: "Kasir",
+          email: "cashier@demo.id",
+          role: "CASHIER",
+          businessId: mockBusinessId,
+        },
+      } as unknown as Awaited<ReturnType<typeof auth.api.getSession>>);
+
+      const res = await request(app)
+        .post("/api/purchases/purch-1/void")
+        .set("Origin", "http://localhost:5173")
+        .send({ reason: "Salah input nota" });
+
+      expect(res.status).toBe(403);
+      expect(res.body.ok).toBe(false);
+    });
+
+    it("returns 400 when reason is less than 3 characters", async () => {
+      vi.mocked(auth.api.getSession).mockResolvedValueOnce(ownerSession);
+
+      const res = await request(app)
+        .post("/api/purchases/purch-1/void")
+        .set("Origin", "http://localhost:5173")
+        .send({ reason: "ab" });
+
+      expect(res.status).toBe(400);
+      expect(res.body.ok).toBe(false);
+      expect(res.body.error.code).toBe("VALIDATION_ERROR");
+    });
+
+    it("returns 200 and voided purchase when valid", async () => {
+      vi.mocked(auth.api.getSession).mockResolvedValueOnce(ownerSession);
+      vi.mocked(purchaseRepository.voidPurchaseAtomic).mockResolvedValueOnce({
+        id: "purch-1",
+        businessId: mockBusinessId,
+        supplierName: "Supplier A",
+        totalAmount: "150000.00" as unknown as Decimal,
+        note: "[DIBATALKAN: Salah input nota] Pembelian mingguan",
+        purchasedAt: new Date(),
+        batches: [],
+      } as unknown as Awaited<ReturnType<typeof purchaseRepository.voidPurchaseAtomic>>);
+
+      const res = await request(app)
+        .post("/api/purchases/purch-1/void")
+        .set("Origin", "http://localhost:5173")
+        .send({ reason: "Salah input nota" });
+
+      expect(res.status).toBe(200);
+      expect(res.body.ok).toBe(true);
+      expect(res.body.data.id).toBe("purch-1");
+      expect(res.body.data.note).toContain("[DIBATALKAN: Salah input nota]");
+      expect(purchaseRepository.voidPurchaseAtomic).toHaveBeenCalledWith(
+        mockBusinessId,
+        mockUserId,
+        "purch-1",
+        "Salah input nota"
+      );
     });
   });
 });

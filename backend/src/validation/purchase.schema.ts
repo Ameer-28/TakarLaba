@@ -41,6 +41,14 @@ export const queryPurchaseSchema = z.object({
   limit: z.coerce.number().min(1).max(100).default(20),
 });
 
+export const voidPurchaseSchema = z.object({
+  reason: z
+    .string({ error: "Alasan pembatalan nota pembelian wajib diisi" })
+    .min(3, { error: "Alasan pembatalan minimal 3 karakter" })
+    .max(255, { error: "Alasan pembatalan maksimal 255 karakter" }),
+});
+
 export type PurchaseItemInput = z.infer<typeof purchaseItemInputSchema>;
 export type CreatePurchaseInput = z.infer<typeof createPurchaseSchema>;
 export type QueryPurchaseInput = z.infer<typeof queryPurchaseSchema>;
+export type VoidPurchaseInput = z.infer<typeof voidPurchaseSchema>;

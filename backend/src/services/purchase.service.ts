@@ -183,6 +183,31 @@ export class PurchaseService {
     }
     return purchase;
   }
+
+  /**
+   * Voids a purchase atomically and re-evaluates business margin alerts (FR-PUR-02).
+   */
+  async voidPurchase(businessId: string, userId: string, purchaseId: string, reason: string) {
+    if (!reason || reason.trim().length < 3) {
+      throw new ValidationError("Alasan pembatalan nota pembelian minimal 3 karakter");
+    }
+
+    const voidedPurchase = await this.repo.voidPurchaseAtomic(
+      businessId,
+      userId,
+      purchaseId,
+      reason.trim()
+    );
+
+    // Re-evaluate alerts for the business as replacement costs may fall back to previous batches
+    try {
+      await this.alerts.reevaluateAllAlertsForBusiness(businessId);
+    } catch {
+      // Non-blocking if alert evaluator encounters minor issues
+    }
+
+    return voidedPurchase;
+  }
 }
 
 export const purchaseService = new PurchaseService();

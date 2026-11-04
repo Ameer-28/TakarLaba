@@ -12,6 +12,14 @@ export class MenuCostRepository {
       where: {
         businessId,
         ingredientId: { in: ingredientIds },
+        OR: [
+          { purchaseId: null },
+          {
+            purchase: {
+              OR: [{ note: null }, { NOT: { note: { startsWith: "[DIBATALKAN]" } } }],
+            },
+          },
+        ],
       },
       select: {
         ingredientId: true,
