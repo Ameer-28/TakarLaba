@@ -2,6 +2,7 @@ import { Printer, CheckCircle2, Plus } from "lucide-react";
 import type { SaleDetail } from "../../../api/hooks/use-sales.js";
 import { formatRupiah } from "../../../lib/format.js";
 import { useSettings } from "../../../api/hooks/use-settings.js";
+import { formatPaymentMethodLabel } from "./pos-utils.js";
 
 interface ReceiptDialogProps {
   isOpen: boolean;
@@ -70,9 +71,17 @@ export function ReceiptDialog({ isOpen, onClose, sale, cashReceived }: ReceiptDi
                 <span>Waktu</span>
                 <span>{formattedDate} WIB</span>
               </div>
+              {sale.cashier?.name && (
+                <div className="flex justify-between">
+                  <span>Kasir</span>
+                  <span className="font-semibold text-slate-900">{sale.cashier.name}</span>
+                </div>
+              )}
               <div className="flex justify-between">
                 <span>Pembayaran</span>
-                <span className="font-bold text-slate-900">{sale.paymentMethod}</span>
+                <span className="font-bold text-slate-900">
+                  {formatPaymentMethodLabel(sale.paymentMethod)}
+                </span>
               </div>
             </div>
 

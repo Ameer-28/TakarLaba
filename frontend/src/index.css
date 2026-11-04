@@ -93,22 +93,37 @@ body {
 }
 
 @media print {
+  @page {
+    margin: 0;
+    size: auto;
+  }
+
+  body {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    background: transparent !important;
+  }
+
   body * {
     visibility: hidden;
   }
+
   #receipt-print-area,
   #receipt-print-area * {
     visibility: visible;
   }
+
   #receipt-print-area {
     position: absolute;
     left: 0;
     top: 0;
     width: 100%;
-    max-width: 320px;
-    margin: 0;
-    padding: 8px;
-    box-shadow: none;
-    border: none;
+    max-width: 300px;
+    margin: 0 auto;
+    padding: 12px;
+    box-shadow: none !important;
+    border: none !important;
+    background: white !important;
+    color: black !important;
   }
 }

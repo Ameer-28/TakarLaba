@@ -22,3 +22,21 @@ export function calculateQuickCashOptions(totalAmount: number): number[] {
     .sort((a, b) => a - b)
     .slice(0, 4);
 }
+
+export function formatPaymentMethodLabel(method: "CASH" | "QRIS" | "TRANSFER"): string {
+  switch (method) {
+    case "CASH":
+      return "Tunai";
+    case "QRIS":
+      return "QRIS";
+    case "TRANSFER":
+      return "Transfer Bank";
+  }
+}
+
+export function calculateCashChange(totalAmount: number, cashReceived: number) {
+  const isInsufficient = cashReceived < totalAmount;
+  const change = Math.max(0, cashReceived - totalAmount);
+  const shortage = isInsufficient ? totalAmount - cashReceived : 0;
+  return { isInsufficient, change, shortage };
+}

@@ -97,7 +97,7 @@ Aturan: hanya satu tugas `[/]` per agent pada satu waktu.
 - [x] **T-103** (P1) [BE+FE] Catat bahan terbuang (WASTE) + nilai kerugian — AC: FR-INV-03
 - [x] **T-104** (P1) [BE+FE] Riwayat pembelian + void pembelian (hanya jika batch belum terpakai)
 - [x] **T-105** (P1) [BE+FE] Registrasi + onboarding wizard
-- [ ] **T-106** (P1) [FE] Input uang diterima & kembalian; struk print
+- [x] **T-106** (P1) [FE] Input uang diterima & kembalian; struk print
 - [ ] **T-107** (P1) [BE+FE] Grafik dashboard (penjualan 7 hari, top menu)
 - [ ] **T-108** (P1) [DOC] `docs/erd.md` + gambar, `docs/api.md` lengkap, screenshot
 - [ ] **T-109** (P1) [FE] Polish UX: skeleton, empty state, error boundary, pesan Indonesia konsisten, a11y pass
@@ -149,6 +149,7 @@ Aturan: hanya satu tugas `[/]` per agent pada satu waktu.
 
 | Tanggal    | Agent/Orang | Ringkasan                                                                                                                                                                                                                                                                                                             | Tugas terkait              |
 | ---------- | ----------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------- |
+| 2026-11-04 | Agent       | Selesai T-106: Input uang diterima & kalkulasi kembalian/kurang bayar real-time pada checkout POS, tombol uang pas & pecahan cepat, tombol reset input, pelokalan label pembayaran di struk, nama kasir pada cetakan struk, optimasi print CSS thermal printer (@page tanpa header browser), dan unit tests | T-106                      |
 | 2026-11-04 | Agent       | Selesai T-105: Registrasi pemilik bisnis baru atomik (FR-AUTH-04), endpoint POST /api/register, pembuatan workspace Business & akun Better Auth OWNER terotentikasi otomatis, form pendaftaran di /register, wizard 3 langkah terpandu di /onboarding (bahan -> menu/resep -> overhead) dengan live kalkulasi, integrasi link pendaftaran di halaman login & CTA wizard di dashboard | T-105                      |
 | 2026-11-04 | Agent       | Selesai T-104: Pembatalan nota pembelian (void purchase) atomik (FR-PUR-02), endpoint POST /api/purchases/:id/void, penolakan jika stok terpakai, pembalikan stok batch (ADJUSTMENT movement) dan pemulihan replacement cost, modal PurchaseVoidModal, serta filter tanggal & badge dibatalkan pada riwayat pembelian | T-104                      |
 | 2026-11-04 | Agent       | Selesai T-103: Pencatatan bahan terbuang (WASTE) & nilai kerugian finansial (Rp) atomik (FR-INV-03), endpoints POST/GET /api/stock/waste & /api/inventory/waste, validasi kuantitas batch dan alasan wajib, modal WasteRecordModal, WasteHistoryList view, integrasi tab Bahan Terbuang di halaman stok bahan | T-103                      |
