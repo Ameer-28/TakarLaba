@@ -1459,6 +1459,32 @@ Mengambil metrik ringkasan harian (omzet hari ini WIB, transaksi, estimasi laba 
           "itemCount": 2
         }
       ],
+      "salesLast7Days": [
+        {
+          "date": "2026-10-25",
+          "dayName": "Min",
+          "label": "25 Okt",
+          "omzet": "120000.00",
+          "portionCount": 6,
+          "transactionCount": 4
+        },
+        {
+          "date": "2026-10-31",
+          "dayName": "Sab",
+          "label": "31 Okt",
+          "omzet": "150000.00",
+          "portionCount": 8,
+          "transactionCount": 5
+        }
+      ],
+      "topMenus": [
+        {
+          "menuId": "menu-cuid",
+          "menuName": "Es Kopi Susu Aren",
+          "totalQty": 24,
+          "totalRevenue": "432000.00"
+        }
+      ],
       "isNewBusiness": false
     }
   }

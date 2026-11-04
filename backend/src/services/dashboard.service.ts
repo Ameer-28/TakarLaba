@@ -1,6 +1,6 @@
 import { Decimal } from "decimal.js";
 import { dashboardRepository, DashboardRepository } from "../repositories/dashboard.repo.js";
-import { startOfDayWIB, endOfDayWIB, isExpired } from "../lib/date.js";
+import { startOfDayWIB, endOfDayWIB, isExpired, todayWIBString } from "../lib/date.js";
 import { toMoney, toPercent } from "../lib/money.js";
 import { calculateMenuCapacity } from "../domain/capacity.js";
 import { NotFoundError } from "../lib/errors.js";
@@ -57,6 +57,20 @@ export interface DashboardSummaryResponse {
     cashierName: string;
     itemCount: number;
   }>;
+  salesLast7Days: Array<{
+    date: string;
+    dayName: string;
+    label: string;
+    omzet: string;
+    portionCount: number;
+    transactionCount: number;
+  }>;
+  topMenus: Array<{
+    menuId: string;
+    menuName: string;
+    totalQty: number;
+    totalRevenue: string;
+  }>;
   isNewBusiness: boolean;
 }
 
@@ -81,6 +95,9 @@ export class DashboardService {
     thresholdDate.setDate(thresholdDate.getDate() + expiryWarnDays);
     const thresholdEnd = endOfDayWIB(thresholdDate);
 
+    const sevenDaysAgo = new Date(startDate.getTime() - 6 * 24 * 60 * 60 * 1000);
+    const sevenDaysAgoStart = startOfDayWIB(sevenDaysAgo);
+
     const [
       salesAgg,
       recentSalesRaw,
@@ -90,6 +107,7 @@ export class DashboardService {
       ingredients,
       menus,
       counts,
+      sales7DaysRaw,
     ] = await Promise.all([
       this.repo.getTodaySalesAggregate(businessId, startDate, endDate),
       this.repo.getRecentSales(businessId, startDate, endDate, 5),
@@ -99,6 +117,7 @@ export class DashboardService {
       this.repo.getActiveIngredientsWithBatches(businessId),
       this.repo.getActiveMenusWithRecipes(businessId),
       this.repo.getCounts(businessId),
+      this.repo.getSalesForDateRange(businessId, sevenDaysAgoStart, endDate),
     ]);
 
     const salesMetrics = this.computeSalesMetrics(salesAgg);
@@ -107,6 +126,8 @@ export class DashboardService {
     const lowestCapacityMenus = this.computeLowestCapacityMenus(menus, availableStockMap);
     const topAlerts = this.formatTopAlerts(topAlertsRaw);
     const recentSales = this.formatRecentSales(recentSalesRaw);
+    const salesLast7Days = this.computeSalesLast7Days(sales7DaysRaw ?? [], startDate);
+    const topMenus = this.computeTopMenus(sales7DaysRaw ?? [], 5);
 
     const isNewBusiness =
       counts.saleCount === 0 && counts.menuCount === 0 && counts.ingredientCount === 0;
@@ -126,6 +147,8 @@ export class DashboardService {
       topAlerts,
       lowestCapacityMenus,
       recentSales,
+      salesLast7Days,
+      topMenus,
       isNewBusiness,
     };
   }
@@ -278,6 +301,123 @@ export class DashboardService {
       cashierName: s.cashier?.name ?? "Kasir",
       itemCount: s.items.reduce((sum, item) => sum + item.qty, 0),
     }));
+  }
+
+  private computeSalesLast7Days(
+    sales: Awaited<ReturnType<DashboardRepository["getSalesForDateRange"]>>,
+    today: Date
+  ): DashboardSummaryResponse["salesLast7Days"] {
+    const dayNames = ["Min", "Sen", "Sel", "Rab", "Kam", "Jum", "Sab"];
+    const monthNames = [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "Mei",
+      "Jun",
+      "Jul",
+      "Agu",
+      "Sep",
+      "Okt",
+      "Nov",
+      "Des",
+    ];
+
+    const result: DashboardSummaryResponse["salesLast7Days"] = [];
+    const dayMap = new Map<
+      string,
+      { omzet: Decimal; portionCount: number; transactionCount: number }
+    >();
+
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date(today.getTime() - i * 24 * 60 * 60 * 1000);
+      const dateStr = todayWIBString(d);
+      dayMap.set(dateStr, {
+        omzet: new Decimal(0),
+        portionCount: 0,
+        transactionCount: 0,
+      });
+
+      // WIB formatted date
+      const wibHourDate = new Date(d.getTime() + 7 * 60 * 60 * 1000);
+      const wibDayOfWeek = wibHourDate.getUTCDay();
+      const wibDayOfMonth = wibHourDate.getUTCDate();
+      const wibMonth = wibHourDate.getUTCMonth();
+
+      result.push({
+        date: dateStr,
+        dayName: dayNames[wibDayOfWeek] ?? "Hari",
+        label: `${wibDayOfMonth} ${monthNames[wibMonth]}`,
+        omzet: "0.00",
+        portionCount: 0,
+        transactionCount: 0,
+      });
+    }
+
+    for (const sale of sales) {
+      const saleDateStr = todayWIBString(sale.soldAt);
+      const dayData = dayMap.get(saleDateStr);
+      if (dayData) {
+        dayData.omzet = dayData.omzet.plus(new Decimal(sale.totalAmount.toString()));
+        dayData.transactionCount += 1;
+        for (const item of sale.items) {
+          dayData.portionCount += item.qty;
+        }
+      }
+    }
+
+    for (const r of result) {
+      const data = dayMap.get(r.date);
+      if (data) {
+        r.omzet = data.omzet.toFixed(2);
+        r.portionCount = data.portionCount;
+        r.transactionCount = data.transactionCount;
+      }
+    }
+
+    return result;
+  }
+
+  private computeTopMenus(
+    sales: Awaited<ReturnType<DashboardRepository["getSalesForDateRange"]>>,
+    limit = 5
+  ): DashboardSummaryResponse["topMenus"] {
+    const menuMap = new Map<
+      string,
+      { menuName: string; totalQty: number; totalRevenue: Decimal }
+    >();
+
+    for (const sale of sales) {
+      for (const item of sale.items) {
+        const existing = menuMap.get(item.menuId);
+        const itemRevenue = new Decimal(item.unitPrice.toString()).times(item.qty);
+        if (existing) {
+          existing.totalQty += item.qty;
+          existing.totalRevenue = existing.totalRevenue.plus(itemRevenue);
+        } else {
+          menuMap.set(item.menuId, {
+            menuName: item.menuNameSnapshot,
+            totalQty: item.qty,
+            totalRevenue: itemRevenue,
+          });
+        }
+      }
+    }
+
+    return Array.from(menuMap.entries())
+      .map(([menuId, data]) => ({
+        menuId,
+        menuName: data.menuName,
+        totalQty: data.totalQty,
+        totalRevenue: data.totalRevenue.toFixed(2),
+      }))
+      .sort((a, b) => {
+        if (b.totalQty !== a.totalQty) {
+          return b.totalQty - a.totalQty;
+        }
+        return new Decimal(b.totalRevenue).minus(new Decimal(a.totalRevenue)).toNumber();
+      })
+      .slice(0, limit);
   }
 }
 
