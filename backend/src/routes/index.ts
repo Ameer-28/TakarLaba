@@ -12,10 +12,12 @@ import { dashboardRouter } from "./dashboard.routes.js";
 import { posRouter } from "./pos.routes.js";
 import { demoRouter } from "./demo.routes.js";
 import { analyticsRouter } from "./analytics.routes.js";
+import { registrationRouter } from "./registration.routes.js";
 
 export const apiRouter = Router();
 
 apiRouter.use(healthRouter);
+apiRouter.use(registrationRouter);
 apiRouter.use(ingredientRouter);
 apiRouter.use(purchaseRouter);
 apiRouter.use(inventoryRouter);

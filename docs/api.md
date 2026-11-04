@@ -1765,4 +1765,72 @@ Menghitung matriks Menu Engineering Kasavana & Smith (4 kuadran: Star, Plowhorse
 
 ---
 
+### 3.12 Registrasi & Onboarding Pemilik Baru (`/api/register`)
+
+#### POST `/api/register`
+Mendaftarkan pemilik bisnis baru beserta workspace usaha kulinernya secara atomik (FR-AUTH-04). Endpoint publik ini membuat entitas `Business` dengan pengaturan operasional default (target margin 50%, expiryWarnDays 3 hari, priceRoundingStep 500, expectedMonthlyPortions 1.000 porsi), mendaftarkan kredensial pengguna ke Better Auth sebagai akun ber-role `OWNER`, menetapkan cookie sesi autentikasi (`Set-Cookie`), dan mengembalikan profil pengguna serta workspace.
+
+- **Metode:** `POST`
+- **Autentikasi:** Publik (tanpa sesi)
+- **Header:** `Origin: <FRONTEND_URL>`, `Content-Type: application/json`
+- **Request Body:**
+  ```json
+  {
+    "name": "Budi Santoso",
+    "businessName": "Kopi Mantap Jiwa",
+    "email": "budi@kopimantap.id",
+    "password": "Password123!"
+  }
+  ```
+- **Response 201 Created:**
+  ```json
+  {
+    "ok": true,
+    "data": {
+      "user": {
+        "id": "cuid-user-123",
+        "name": "Budi Santoso",
+        "email": "budi@kopimantap.id",
+        "role": "OWNER",
+        "businessId": "cuid-biz-123",
+        "isActive": true
+      },
+      "business": {
+        "id": "cuid-biz-123",
+        "name": "Kopi Mantap Jiwa",
+        "isDemo": false,
+        "targetMarginDefault": "50.00",
+        "expectedMonthlyPortions": 1000,
+        "priceRoundingStep": 500,
+        "expiryWarnDays": 3
+      }
+    }
+  }
+  ```
+- **Response 400 Bad Request (Validasi Gagal):**
+  ```json
+  {
+    "ok": false,
+    "error": {
+      "code": "VALIDATION_ERROR",
+      "message": "Validasi input gagal",
+      "fieldErrors": {
+        "password": ["Kata sandi minimal 8 karakter"]
+      }
+    }
+  }
+  ```
+- **Response 409 Conflict (Email Sudah Terdaftar):**
+  ```json
+  {
+    "ok": false,
+    "error": {
+      "code": "CONFLICT",
+      "message": "Email sudah terdaftar. Silakan gunakan email lain atau masuk."
+    }
+  }
+  ```
+
+---
+
 ## 4. Kontrak Direncanakan (Roadmap Fitur)
