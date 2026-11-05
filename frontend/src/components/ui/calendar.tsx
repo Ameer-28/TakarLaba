@@ -273,43 +273,30 @@ export const Calendar = ({
 
   const handleManualStartChange = (val: string) => {
     setStartDateInput(val);
-    const parsed = parseYMD(val);
-    if (parsed) {
-      setDraftStart(parsed);
-      setCurrentMonth(parsed);
+    const parsedStart = parseYMD(val);
+    const parsedEnd = parseYMD(endDateInput);
+    if (parsedStart) {
+      setDraftStart(parsedStart);
+      setCurrentMonth(parsedStart);
+      if (parsedEnd) {
+        const start = parsedStart <= parsedEnd ? parsedStart : parsedEnd;
+        const end = parsedStart <= parsedEnd ? parsedEnd : parsedStart;
+        onChange({ start: startOfDay(start), end: endOfDay(end) });
+      }
     }
   };
 
   const handleManualEndChange = (val: string) => {
     setEndDateInput(val);
-    const parsed = parseYMD(val);
-    if (parsed) {
-      setDraftEnd(parsed);
-    }
-  };
-
-  const handleApplyManual = () => {
     const parsedStart = parseYMD(startDateInput);
-    const parsedEnd = parseYMD(endDateInput);
-
-    if (parsedStart && parsedEnd) {
-      const start = parsedStart <= parsedEnd ? parsedStart : parsedEnd;
-      const end = parsedStart <= parsedEnd ? parsedEnd : parsedStart;
-      setDraftStart(start);
-      setDraftEnd(end);
-      onChange({ start: startOfDay(start), end: endOfDay(end) });
-      setIsOpen(false);
-    } else if (parsedStart) {
-      setDraftStart(parsedStart);
-      setDraftEnd(parsedStart);
-      onChange({ start: startOfDay(parsedStart), end: endOfDay(parsedStart) });
-      setIsOpen(false);
-    } else if (draftStart && draftEnd) {
-      onChange({ start: startOfDay(draftStart), end: endOfDay(draftEnd) });
-      setIsOpen(false);
-    } else if (draftStart) {
-      onChange({ start: startOfDay(draftStart), end: endOfDay(draftStart) });
-      setIsOpen(false);
+    const parsedEnd = parseYMD(val);
+    if (parsedEnd) {
+      setDraftEnd(parsedEnd);
+      if (parsedStart) {
+        const start = parsedStart <= parsedEnd ? parsedStart : parsedEnd;
+        const end = parsedStart <= parsedEnd ? parsedEnd : parsedStart;
+        onChange({ start: startOfDay(start), end: endOfDay(end) });
+      }
     }
   };
 
@@ -547,37 +534,32 @@ export const Calendar = ({
             </div>
           </div>
 
-          {/* Full Width Bottom Row: Manual Date Inputs & Apply Button (Never overflows!) */}
-          <div className="mt-3.5 pt-3 border-t border-[#CCD0CF]/60 flex flex-wrap items-center justify-between gap-2.5">
-            <div className="flex flex-wrap items-center gap-2">
-              <div className="flex items-center gap-1">
-                <span className="text-[10px] font-bold text-[#4A5C6A]">Dari:</span>
-                <input
-                  type="date"
-                  value={startDateInput}
-                  onChange={(e) => handleManualStartChange(e.target.value)}
-                  className="w-[124px] px-2 py-1 text-xs border border-[#CCD0CF] rounded-lg bg-white text-[#06141B] font-medium focus:outline-none focus:border-[#253745] tabular-nums"
-                />
-              </div>
-              <div className="flex items-center gap-1">
-                <span className="text-[10px] font-bold text-[#4A5C6A]">S/d:</span>
-                <input
-                  type="date"
-                  value={endDateInput}
-                  onChange={(e) => handleManualEndChange(e.target.value)}
-                  className="w-[124px] px-2 py-1 text-xs border border-[#CCD0CF] rounded-lg bg-white text-[#06141B] font-medium focus:outline-none focus:border-[#253745] tabular-nums"
-                />
-              </div>
+          {/* Full Width Bottom Row: Manual Date Inputs */}
+          <div className="mt-3.5 pt-3 border-t border-[#CCD0CF]/60 flex items-center justify-between sm:justify-start gap-4">
+            <div className="flex items-center gap-1.5">
+              <span className="text-[10px] font-bold text-[#4A5C6A]">Dari:</span>
+              <input
+                type="date"
+                value={startDateInput}
+                onChange={(e) => handleManualStartChange(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") setIsOpen(false);
+                }}
+                className="w-[124px] px-2 py-1 text-xs border border-[#CCD0CF] rounded-lg bg-white text-[#06141B] font-medium focus:outline-none focus:border-[#253745] tabular-nums"
+              />
             </div>
-
-            <button
-              type="button"
-              onClick={handleApplyManual}
-              className="shrink-0 inline-flex items-center justify-center gap-1 px-3.5 py-1.5 rounded-lg bg-[#11212D] hover:bg-[#253745] active:bg-[#06141B] text-white text-xs font-bold transition-colors cursor-pointer shadow-2xs ml-auto"
-            >
-              <span>Terapkan</span>
-              <span className="text-xs">&crarr;</span>
-            </button>
+            <div className="flex items-center gap-1.5">
+              <span className="text-[10px] font-bold text-[#4A5C6A]">S/d:</span>
+              <input
+                type="date"
+                value={endDateInput}
+                onChange={(e) => handleManualEndChange(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") setIsOpen(false);
+                }}
+                className="w-[124px] px-2 py-1 text-xs border border-[#CCD0CF] rounded-lg bg-white text-[#06141B] font-medium focus:outline-none focus:border-[#253745] tabular-nums"
+              />
+            </div>
           </div>
         </div>
       )}
