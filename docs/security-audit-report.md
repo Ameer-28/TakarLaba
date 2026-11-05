@@ -58,11 +58,18 @@ Laporan ini mendokumentasikan hasil audit postur keamanan defensif TakarLaba pad
   - Header wajib `Idempotency-Key` (UUIDv4) dibuat per percobaan checkout oleh klien.
   - Database memeriksa keunikan transaksi; bila `idempotencyKey` yang sama dikirimkan ulang, backend mengembalikan catatan penjualan yang sudah ada tanpa menduplikasi pemotongan stok bahan atau saldo keuangan.
 
-### 2.5 Keamanan Jaringan & Session Cookie (A05, A07)
+### 2.5 Keamanan Jaringan, Session Cookie & Edge Headers (A05, A07)
 - **Single-Origin Reverse Proxy:** Frontend me-_rewrite_ rute `/api/*` ke backend via Vercel Edge. Browser klien hanya berkomunikasi dengan domain frontend yang sama.
 - **Zero CORS:** Tidak diperlukan konfigurasi `Access-Control-Allow-Origin: *` yang longgar.
 - **Cookie First-Party:** Cookie sesi disimpan dengan bendera `HttpOnly`, `SameSite: Lax/None`, dan `Secure`, sehingga imun terhadap pencurian via skrip XSS peramban dan tidak terblokir oleh kebijakan privasi Safari ITP.
 - **Same-Origin Middleware:** Setiap request mutasi HTTP (`POST`, `PUT`, `PATCH`, `DELETE`) divalidasi header `Origin` atau `Referer`-nya terhadap `FRONTEND_URL`.
+- **Edge Security Headers & CSP (T-203):** Seluruh file statis SPA di edge Vercel (`frontend/vercel.json`) diproteksi dengan header:
+  - `Content-Security-Policy`: `default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' https://takar-laba-api.vercel.app; frame-ancestors 'none'; form-action 'self'; base-uri 'self'; object-src 'none';`
+  - `X-Frame-Options: DENY` (anti-clickjacking)
+  - `X-Content-Type-Options: nosniff` (anti-MIME sniffing)
+  - `Referrer-Policy: strict-origin-when-cross-origin`
+  - `Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=()` (penutupan API sensor/privasi yang tidak digunakan)
+  - `Strict-Transport-Security: max-age=63072000; includeSubDomains; preload` (HSTS berdurasi 2 tahun)
 
 ### 2.6 Pengamanan Mode Demo Deterministik
 - **Akses Reset Terotentikasi:** Endpoint `POST /api/demo/reset` mewajibkan login pengguna dengan peran `OWNER` pada bisnis demo (`isDemo: true`).
