@@ -22,13 +22,13 @@ export function PurchaseInvoiceFields({ register, errors, todayStr }: PurchaseIn
             Tanggal Belanja <span className="text-rose-500">*</span>
           </label>
           <div className="relative">
+            <Calendar className="w-3.5 h-3.5 text-[#f27238] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
             <input
               type="date"
               max={todayStr}
               {...register("purchasedAt")}
-              className="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs font-mono bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+              className="w-full pl-9 pr-3 py-2 rounded-xl border border-stone-200/90 hover:border-orange-200 text-xs font-mono bg-white focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-[#f27238] transition-all"
             />
-            <Calendar className="w-3.5 h-3.5 text-slate-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
           </div>
           {errors.purchasedAt && (
             <p className="text-[11px] text-rose-500 mt-1">{errors.purchasedAt.message}</p>

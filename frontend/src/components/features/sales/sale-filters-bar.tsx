@@ -143,28 +143,31 @@ export function SaleFiltersBar({
         </div>
 
         {/* Custom Date Inputs */}
-        <div className="flex items-center gap-2">
-          <input
-            type="date"
-            value={startDate}
-            onChange={(e) => onDateChange(e.target.value, endDate)}
-            className="px-2.5 py-1 rounded-lg border border-slate-200 text-xs text-slate-700 bg-white focus:outline-hidden focus:border-amber-500"
-            title="Tanggal mulai"
-          />
-          <span className="text-slate-400 text-xs">s/d</span>
-          <input
-            type="date"
-            value={endDate}
-            onChange={(e) => onDateChange(startDate, e.target.value)}
-            className="px-2.5 py-1 rounded-lg border border-slate-200 text-xs text-slate-700 bg-white focus:outline-hidden focus:border-amber-500"
-            title="Tanggal selesai"
-          />
+        <div className="flex items-center gap-2 bg-white border border-stone-200/90 hover:border-orange-200 rounded-2xl px-3 py-1.5 text-xs text-stone-700 shadow-2xs transition-colors">
+          <Calendar className="w-4 h-4 text-[#f27238] shrink-0" />
+          <div className="flex items-center gap-1.5 font-medium">
+            <input
+              type="date"
+              value={startDate}
+              onChange={(e) => onDateChange(e.target.value, endDate)}
+              className="bg-stone-50 hover:bg-stone-100/80 border border-stone-200/70 rounded-xl px-2.5 py-1 text-xs text-stone-800 font-medium focus:ring-2 focus:ring-orange-500/20 focus:border-[#f27238] transition-all cursor-pointer"
+              title="Tanggal mulai"
+            />
+            <span className="text-stone-400 text-xs font-bold">s/d</span>
+            <input
+              type="date"
+              value={endDate}
+              onChange={(e) => onDateChange(startDate, e.target.value)}
+              className="bg-stone-50 hover:bg-stone-100/80 border border-stone-200/70 rounded-xl px-2.5 py-1 text-xs text-stone-800 font-medium focus:ring-2 focus:ring-orange-500/20 focus:border-[#f27238] transition-all cursor-pointer"
+              title="Tanggal selesai"
+            />
+          </div>
 
           {hasActiveFilters && (
             <button
               type="button"
               onClick={onReset}
-              className="inline-flex items-center gap-1 text-[11px] font-bold text-rose-600 hover:text-rose-700 ml-1 px-2 py-1 rounded-md hover:bg-rose-50"
+              className="inline-flex items-center gap-1 text-[11px] font-bold text-rose-600 hover:text-rose-700 ml-1 px-2 py-1 rounded-lg hover:bg-rose-50 cursor-pointer"
             >
               <Filter className="w-3 h-3" /> Reset
             </button>

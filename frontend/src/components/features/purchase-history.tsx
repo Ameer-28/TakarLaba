@@ -62,23 +62,25 @@ export function PurchaseHistory({ onOpenCreate }: PurchaseHistoryProps) {
           </div>
 
           <div className="flex items-center gap-1.5">
-            <div className="flex items-center gap-1 bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-1.5 text-xs text-slate-600">
-              <Calendar className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-              <input
-                type="date"
-                value={startDate}
-                onChange={(e) => setStartDate(e.target.value)}
-                className="bg-transparent border-0 text-xs text-slate-700 focus:outline-hidden"
-                title="Tanggal Mulai"
-              />
-              <span className="text-slate-300">-</span>
-              <input
-                type="date"
-                value={endDate}
-                onChange={(e) => setEndDate(e.target.value)}
-                className="bg-transparent border-0 text-xs text-slate-700 focus:outline-hidden"
-                title="Tanggal Selesai"
-              />
+            <div className="flex items-center gap-2 bg-white border border-stone-200/90 hover:border-orange-200 rounded-2xl px-3 py-1.5 text-xs text-stone-700 shadow-2xs transition-colors">
+              <Calendar className="w-4 h-4 text-[#f27238] shrink-0" />
+              <div className="flex items-center gap-1.5 font-medium">
+                <input
+                  type="date"
+                  value={startDate}
+                  onChange={(e) => setStartDate(e.target.value)}
+                  className="bg-stone-50 hover:bg-stone-100/80 border border-stone-200/70 rounded-xl px-2.5 py-1 text-xs text-stone-800 font-medium focus:ring-2 focus:ring-orange-500/20 focus:border-[#f27238] transition-all cursor-pointer"
+                  title="Tanggal Mulai"
+                />
+                <span className="text-stone-400 text-xs font-bold">s/d</span>
+                <input
+                  type="date"
+                  value={endDate}
+                  onChange={(e) => setEndDate(e.target.value)}
+                  className="bg-stone-50 hover:bg-stone-100/80 border border-stone-200/70 rounded-xl px-2.5 py-1 text-xs text-stone-800 font-medium focus:ring-2 focus:ring-orange-500/20 focus:border-[#f27238] transition-all cursor-pointer"
+                  title="Tanggal Selesai"
+                />
+              </div>
             </div>
 
             {hasFilter && (
