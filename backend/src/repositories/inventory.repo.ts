@@ -1,6 +1,6 @@
 import { prisma } from "../lib/db.js";
 import { Decimal } from "decimal.js";
-import { NotFoundError, ConflictError } from "../lib/errors.js";
+import { NotFoundError, ConflictError, ValidationError } from "../lib/errors.js";
 
 export interface BatchFilter {
   ingredientId?: string;
@@ -16,6 +16,15 @@ export interface RecordWasteParams {
   qtyBase: Decimal;
   reason: string;
   wasteDate?: Date;
+}
+
+export interface RecordAdjustmentParams {
+  businessId: string;
+  userId: string;
+  batchId: string;
+  actualQtyBase: Decimal;
+  reason: string;
+  adjustmentDate?: Date;
 }
 
 export class InventoryRepository {
@@ -182,6 +191,110 @@ export class InventoryRepository {
       where: {
         businessId,
         type: "WASTE",
+      },
+      include: {
+        ingredient: {
+          select: {
+            id: true,
+            name: true,
+            baseUnit: true,
+            category: true,
+          },
+        },
+        batch: {
+          select: {
+            id: true,
+            purchaseUnit: true,
+            purchaseUnitPrice: true,
+            expiryDate: true,
+          },
+        },
+        createdBy: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+      },
+      orderBy: { createdAt: "desc" },
+      skip: filter?.skip,
+      take: filter?.take,
+    });
+  }
+
+  /**
+   * Atomically records a stock opname adjustment, updates the batch remainingQtyBase to actualQtyBase,
+   * records a StockMovement(ADJUSTMENT) with delta = actualQtyBase - currentQtyBase,
+   * and calculates financial value difference.
+   */
+  async recordAdjustmentAtomic(params: RecordAdjustmentParams) {
+    return prisma.$transaction(async (tx) => {
+      const batch = await tx.stockBatch.findFirst({
+        where: { id: params.batchId, businessId: params.businessId },
+        include: {
+          ingredient: true,
+        },
+      });
+
+      if (!batch) {
+        throw new NotFoundError("Batch bahan baku tidak ditemukan");
+      }
+
+      const previousQtyBase = new Decimal(batch.remainingQtyBase.toString());
+      const deltaQtyBase = params.actualQtyBase.minus(previousQtyBase);
+
+      if (deltaQtyBase.isZero()) {
+        throw new ValidationError(
+          "Stok fisik sama dengan stok sistem; tidak ada penyesuaian yang perlu disimpan."
+        );
+      }
+
+      const costPerBase = new Decimal(batch.costPerBase.toString());
+      const diffValue = deltaQtyBase.times(costPerBase);
+
+      const updatedBatch = await tx.stockBatch.update({
+        where: { id: batch.id },
+        data: {
+          remainingQtyBase: params.actualQtyBase.toFixed(3),
+        },
+      });
+
+      const movement = await tx.stockMovement.create({
+        data: {
+          businessId: params.businessId,
+          ingredientId: batch.ingredientId,
+          batchId: batch.id,
+          type: "ADJUSTMENT",
+          qtyBaseDelta: deltaQtyBase.toFixed(3),
+          costPerBase: costPerBase.toFixed(6),
+          refType: "STOCK_OPNAME",
+          refId: batch.id,
+          note: params.reason.trim(),
+          createdById: params.userId,
+          createdAt: params.adjustmentDate ?? new Date(),
+        },
+      });
+
+      return {
+        movement,
+        batch: updatedBatch,
+        ingredient: batch.ingredient,
+        previousQtyBase,
+        actualQtyBase: params.actualQtyBase,
+        deltaQtyBase,
+        diffValue,
+      };
+    });
+  }
+
+  /**
+   * Retrieves adjustment stock movements for a business.
+   */
+  async findAdjustmentMovements(businessId: string, filter?: { skip?: number; take?: number }) {
+    return prisma.stockMovement.findMany({
+      where: {
+        businessId,
+        type: "ADJUSTMENT",
       },
       include: {
         ingredient: {

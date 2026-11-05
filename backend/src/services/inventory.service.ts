@@ -4,7 +4,7 @@ import { isExpired, isExpiringSoon } from "../lib/date.js";
 import { NotFoundError, ValidationError } from "../lib/errors.js";
 import { formatMoney } from "../lib/money.js";
 import type { Role } from "../types/express.js";
-import type { RecordWasteInput } from "../validation/inventory.schema.js";
+import type { RecordWasteInput, RecordAdjustmentInput } from "../validation/inventory.schema.js";
 
 export type StockStatus = "AMAN" | "SEGERA" | "KEDALUWARSA" | "HABIS";
 
@@ -66,6 +66,35 @@ export interface WasteHistoryItemDto {
   qtyBase: string;
   costPerBase: string;
   wastedValue: string;
+  reason: string;
+  createdAt: Date;
+  createdByName?: string | null;
+  expiryDate?: Date | null;
+}
+
+export interface AdjustmentRecordResponseDto {
+  movementId: string;
+  batchId: string;
+  ingredientId: string;
+  ingredientName: string;
+  baseUnit: string;
+  previousQtyBase: string;
+  actualQtyBase: string;
+  deltaQtyBase: string;
+  diffValue: string;
+  reason: string;
+  createdAt: Date;
+}
+
+export interface AdjustmentHistoryItemDto {
+  id: string;
+  ingredientId: string;
+  ingredientName: string;
+  baseUnit: string;
+  batchId: string | null;
+  deltaQtyBase: string;
+  costPerBase: string;
+  diffValue: string;
   reason: string;
   createdAt: Date;
   createdByName?: string | null;
@@ -319,6 +348,93 @@ export class InventoryService {
         qtyBase: qty.toFixed(3),
         costPerBase: cost.toFixed(6),
         wastedValue: formatMoney(wastedValue),
+        reason: mov.note ?? "",
+        createdAt: mov.createdAt,
+        createdByName: mov.createdBy?.name,
+        expiryDate: mov.batch?.expiryDate,
+      };
+    });
+  }
+
+  /**
+   * Records a stock opname adjustment for a specific batch, updates the batch remainingQtyBase,
+   * and logs a StockMovement(ADJUSTMENT).
+   */
+  async recordAdjustment(
+    businessId: string,
+    userId: string,
+    input: RecordAdjustmentInput
+  ): Promise<AdjustmentRecordResponseDto> {
+    const batch = await this.repo.findBatchById(businessId, input.batchId);
+    if (!batch) {
+      throw new NotFoundError("Batch bahan baku tidak ditemukan");
+    }
+
+    const inputQty = new Decimal(input.actualQty.toString());
+    let actualQtyBase = inputQty;
+
+    // Unit conversion if specified
+    if (input.unit && input.unit.trim().toLowerCase() !== batch.ingredient.baseUnit.toLowerCase()) {
+      const matchUnit = batch.ingredient.units.find(
+        (u) => u.name.toLowerCase() === input.unit!.trim().toLowerCase()
+      );
+      if (!matchUnit) {
+        throw new ValidationError(
+          `Satuan "${input.unit}" tidak terdaftar untuk bahan "${batch.ingredient.name}"`
+        );
+      }
+      actualQtyBase = inputQty.times(new Decimal(matchUnit.toBaseFactor.toString()));
+    }
+
+    const adjustmentDate = input.adjustmentDate ? new Date(input.adjustmentDate) : undefined;
+
+    const result = await this.repo.recordAdjustmentAtomic({
+      businessId,
+      userId,
+      batchId: input.batchId,
+      actualQtyBase,
+      reason: input.reason,
+      adjustmentDate,
+    });
+
+    return {
+      movementId: result.movement.id,
+      batchId: result.batch.id,
+      ingredientId: result.ingredient.id,
+      ingredientName: result.ingredient.name,
+      baseUnit: result.ingredient.baseUnit,
+      previousQtyBase: result.previousQtyBase.toFixed(3),
+      actualQtyBase: result.actualQtyBase.toFixed(3),
+      deltaQtyBase: result.deltaQtyBase.toFixed(3),
+      diffValue: formatMoney(result.diffValue),
+      reason: result.movement.note ?? input.reason.trim(),
+      createdAt: result.movement.createdAt,
+    };
+  }
+
+  /**
+   * Retrieves adjustment stock movements and history for a business.
+   */
+  async getAdjustmentHistory(
+    businessId: string,
+    filter?: { skip?: number; take?: number }
+  ): Promise<AdjustmentHistoryItemDto[]> {
+    const movements = await this.repo.findAdjustmentMovements(businessId, filter);
+
+    return movements.map((mov) => {
+      const delta = new Decimal(mov.qtyBaseDelta.toString());
+      const cost = new Decimal(mov.costPerBase.toString());
+      const diffValue = delta.times(cost);
+
+      return {
+        id: mov.id,
+        ingredientId: mov.ingredientId,
+        ingredientName: mov.ingredient.name,
+        baseUnit: mov.ingredient.baseUnit,
+        batchId: mov.batchId,
+        deltaQtyBase: delta.toFixed(3),
+        costPerBase: cost.toFixed(6),
+        diffValue: formatMoney(diffValue),
         reason: mov.note ?? "",
         createdAt: mov.createdAt,
         createdByName: mov.createdBy?.name,

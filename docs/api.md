@@ -566,6 +566,75 @@ Mengambil riwayat pencatatan bahan baku terbuang dan nilai kerugian finansialnya
   }
   ```
 
+#### POST `/api/inventory/adjustments` (alias: `/api/stock/adjustments`) (T-204)
+Mencatat hasil penyesuaian stok opname fisik pada batch bahan baku tertentu secara atomik. Mengubah nilai `remainingQtyBase` pada batch menjadi `actualQtyBase`, mencatat audit `StockMovement(ADJUSTMENT)` dengan delta kuantitas (`actualQtyBase - previousQtyBase`), serta menghitung nilai selisih finansialnya (surplus atau susut).
+
+- **Metode:** `POST`
+- **Autentikasi:** Wajib sesi aktif role `OWNER` (role `CASHIER` menerima `403 FORBIDDEN`).
+- **Request Body:**
+  ```json
+  {
+    "batchId": "cuid_batch_123",
+    "actualQty": 4500,
+    "unit": "ML",
+    "reason": "Koreksi susut penyimpanan opname mingguan"
+  }
+  ```
+  - `batchId`: string wajib.
+  - `actualQty`: angka non-negatif ($\ge 0$).
+  - `unit`: opsional (konversi otomatis ke base unit jika berbeda).
+  - `reason`: string 3..255 karakter.
+- **Response 201 Created:**
+  ```json
+  {
+    "ok": true,
+    "data": {
+      "movementId": "mov_adj_123",
+      "batchId": "cuid_batch_123",
+      "ingredientId": "ing_susu_123",
+      "ingredientName": "Susu UHT",
+      "baseUnit": "ML",
+      "previousQtyBase": "5000.000",
+      "actualQtyBase": "4500.000",
+      "deltaQtyBase": "-500.000",
+      "diffValue": "-9000.00",
+      "reason": "Koreksi susut penyimpanan opname mingguan",
+      "createdAt": "2026-11-05T08:00:00.000Z"
+    }
+  }
+  ```
+
+#### GET `/api/inventory/adjustments` (alias: `/api/stock/adjustments`) (T-204)
+Mengambil riwayat penyesuaian stok opname fisik beserta nilai deviasi kuantitas dan finansialnya.
+
+- **Metode:** `GET`
+- **Autentikasi:** Wajib sesi aktif role `OWNER`.
+- **Query Params:**
+  - `limit` (opsional, integer 1..100, default: 50)
+  - `skip` (opsional, integer $\ge 0$, default: 0)
+- **Response 200 OK:**
+  ```json
+  {
+    "ok": true,
+    "data": [
+      {
+        "id": "mov_adj_123",
+        "ingredientId": "ing_susu_123",
+        "ingredientName": "Susu UHT",
+        "baseUnit": "ML",
+        "batchId": "cuid_batch_123",
+        "deltaQtyBase": "-500.000",
+        "costPerBase": "18.000000",
+        "diffValue": "-9000.00",
+        "reason": "Koreksi susut penyimpanan opname mingguan",
+        "createdAt": "2026-11-05T08:00:00.000Z",
+        "createdByName": "Owner Demo",
+        "expiryDate": "2026-11-06T00:00:00.000Z"
+      }
+    ]
+  }
+  ```
+
 ---
 
 ### 3.5 Pengaturan Usaha & Biaya Overhead (`/api/settings` & `/api/overheads`)

@@ -18,6 +18,8 @@ vi.mock("../../src/repositories/inventory.repo.js", () => ({
     findBatchById: vi.fn(),
     recordWasteAtomic: vi.fn(),
     findWasteMovements: vi.fn(),
+    recordAdjustmentAtomic: vi.fn(),
+    findAdjustmentMovements: vi.fn(),
   },
   InventoryRepository: vi.fn(),
 }));
@@ -485,6 +487,172 @@ describe("Inventory Routes & Service Integration (T-022)", () => {
       expect(res.body.data[0].qtyBase).toBe("2000.000");
       expect(res.body.data[0].wastedValue).toBe("36000.00");
       expect(res.body.data[0].reason).toBe("Susu asam dan basi");
+      expect(res.body.data[0].createdByName).toBe("Owner Demo");
+    });
+  });
+
+  describe("POST & GET /api/inventory/adjustments & /api/stock/adjustments (T-204)", () => {
+    it("should return 401 when unauthenticated", async () => {
+      vi.mocked(auth.api.getSession).mockResolvedValue(null);
+
+      const resPost = await request(app)
+        .post("/api/inventory/adjustments")
+        .set("Origin", "http://localhost:5173")
+        .send({ batchId: "b-1", actualQty: 500, reason: "Opname mingguan" });
+      expect(resPost.status).toBe(401);
+
+      const resGet = await request(app)
+        .get("/api/inventory/adjustments")
+        .set("Origin", "http://localhost:5173");
+      expect(resGet.status).toBe(401);
+    });
+
+    it("should return 403 when user is CASHIER", async () => {
+      vi.mocked(auth.api.getSession).mockResolvedValue(cashierSession as never);
+
+      const resPost = await request(app)
+        .post("/api/stock/adjustments")
+        .set("Origin", "http://localhost:5173")
+        .send({ batchId: "b-1", actualQty: 500, reason: "Opname mingguan" });
+      expect(resPost.status).toBe(403);
+
+      const resGet = await request(app)
+        .get("/api/stock/adjustments")
+        .set("Origin", "http://localhost:5173");
+      expect(resGet.status).toBe(403);
+    });
+
+    it("should return 400 when input validation fails", async () => {
+      vi.mocked(auth.api.getSession).mockResolvedValue(ownerSession as never);
+
+      const res = await request(app)
+        .post("/api/inventory/adjustments")
+        .set("Origin", "http://localhost:5173")
+        .send({ batchId: "", actualQty: -5, reason: "a" });
+
+      expect(res.status).toBe(400);
+      expect(res.body.ok).toBe(false);
+      expect(res.body.error.code).toBe("VALIDATION_ERROR");
+    });
+
+    it("should return 404 when batch is not found", async () => {
+      vi.mocked(auth.api.getSession).mockResolvedValue(ownerSession as never);
+      vi.mocked(inventoryRepository.findBatchById).mockResolvedValue(null);
+
+      const res = await request(app)
+        .post("/api/inventory/adjustments")
+        .set("Origin", "http://localhost:5173")
+        .send({
+          batchId: "non-existent",
+          actualQty: 100,
+          reason: "Koreksi selisih hitung fisik",
+        });
+
+      expect(res.status).toBe(404);
+      expect(res.body.ok).toBe(false);
+      expect(res.body.error.message).toContain("Batch bahan baku tidak ditemukan");
+    });
+
+    it("should successfully record a stock adjustment and return 201", async () => {
+      vi.mocked(auth.api.getSession).mockResolvedValue(ownerSession as never);
+
+      vi.mocked(inventoryRepository.findBatchById).mockResolvedValue({
+        id: "batch-101",
+        businessId: mockBusinessId,
+        ingredientId: "ing-susu",
+        remainingQtyBase: "5000.000" as unknown as Decimal,
+        costPerBase: "18.000000" as unknown as Decimal,
+        ingredient: {
+          id: "ing-susu",
+          name: "Susu UHT",
+          baseUnit: "ML",
+          units: [{ id: "u-1", name: "L", toBaseFactor: "1000.0000" as unknown as Decimal }],
+        },
+      } as unknown as Awaited<ReturnType<typeof inventoryRepository.findBatchById>>);
+
+      vi.mocked(inventoryRepository.recordAdjustmentAtomic).mockResolvedValue({
+        movement: {
+          id: "mov-adj-1",
+          note: "Koreksi susut penyimpanan",
+          createdAt: new Date("2026-11-05T08:00:00Z"),
+        },
+        batch: {
+          id: "batch-101",
+          remainingQtyBase: "4500.000" as unknown as Decimal,
+          costPerBase: "18.000000" as unknown as Decimal,
+        },
+        ingredient: {
+          id: "ing-susu",
+          name: "Susu UHT",
+          baseUnit: "ML",
+        },
+        previousQtyBase: new Decimal("5000.000"),
+        actualQtyBase: new Decimal("4500.000"),
+        deltaQtyBase: new Decimal("-500.000"),
+        diffValue: new Decimal("-9000.00"),
+      } as unknown as Awaited<ReturnType<typeof inventoryRepository.recordAdjustmentAtomic>>);
+
+      const res = await request(app)
+        .post("/api/inventory/adjustments")
+        .set("Origin", "http://localhost:5173")
+        .send({
+          batchId: "batch-101",
+          actualQty: 4500,
+          reason: "Koreksi susut penyimpanan",
+        });
+
+      expect(res.status).toBe(201);
+      expect(res.body.ok).toBe(true);
+      expect(res.body.data.movementId).toBe("mov-adj-1");
+      expect(res.body.data.ingredientName).toBe("Susu UHT");
+      expect(res.body.data.previousQtyBase).toBe("5000.000");
+      expect(res.body.data.actualQtyBase).toBe("4500.000");
+      expect(res.body.data.deltaQtyBase).toBe("-500.000");
+      expect(res.body.data.diffValue).toBe("-9000.00");
+    });
+
+    it("should retrieve adjustment history for OWNER", async () => {
+      vi.mocked(auth.api.getSession).mockResolvedValue(ownerSession as never);
+
+      vi.mocked(inventoryRepository.findAdjustmentMovements).mockResolvedValue([
+        {
+          id: "mov-adj-1",
+          ingredientId: "ing-susu",
+          batchId: "batch-101",
+          type: "ADJUSTMENT",
+          qtyBaseDelta: "-500.000" as unknown as Decimal,
+          costPerBase: "18.000000" as unknown as Decimal,
+          note: "Koreksi susut penyimpanan",
+          createdAt: new Date("2026-11-05T08:00:00Z"),
+          ingredient: {
+            id: "ing-susu",
+            name: "Susu UHT",
+            baseUnit: "ML",
+            category: "MAIN",
+          },
+          batch: {
+            id: "batch-101",
+            purchaseUnit: "L",
+            purchaseUnitPrice: "18000.00" as unknown as Decimal,
+            expiryDate: new Date(),
+          },
+          createdBy: {
+            id: "user-owner-1",
+            name: "Owner Demo",
+          },
+        },
+      ] as unknown as Awaited<ReturnType<typeof inventoryRepository.findAdjustmentMovements>>);
+
+      const res = await request(app)
+        .get("/api/inventory/adjustments")
+        .set("Origin", "http://localhost:5173");
+
+      expect(res.status).toBe(200);
+      expect(res.body.ok).toBe(true);
+      expect(Array.isArray(res.body.data)).toBe(true);
+      expect(res.body.data[0].ingredientName).toBe("Susu UHT");
+      expect(res.body.data[0].deltaQtyBase).toBe("-500.000");
+      expect(res.body.data[0].diffValue).toBe("-9000.00");
       expect(res.body.data[0].createdByName).toBe("Owner Demo");
     });
   });
