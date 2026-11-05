@@ -85,7 +85,7 @@ export function LoginPage() {
   if (isSessionPending) {
     return (
       <div
-        className="min-h-screen flex flex-col items-center justify-center bg-[#F0F4F5] text-[#4A5C6A] gap-3"
+        className="min-h-screen flex flex-col items-center justify-center bg-white text-[#4A5C6A] gap-3"
         role="status"
         aria-live="polite"
       >
@@ -98,7 +98,7 @@ export function LoginPage() {
   const isAnySubmitting = isSubmitting || isDemoSubmitting !== null;
 
   return (
-    <div className="min-h-screen bg-[#F0F4F5] flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-white flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <div className="flex justify-center">
           <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-[#11212D] text-[#CCD0CF] shadow-md shadow-[#11212D]/20">

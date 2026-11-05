@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import {
   ShoppingBag,
   Receipt,
@@ -12,6 +12,8 @@ import {
 } from "lucide-react";
 import { usePurchases, type PurchaseRecord } from "@/api/hooks/use-purchases";
 import { formatRupiah, formatDate } from "@/lib/format";
+import { Calendar as DateRangePicker, type RangeValue } from "@/components/ui/calendar";
+import { parseYMD, formatToYMD } from "@/components/ui/calendar-utils";
 import { PurchaseBatchDetailModal } from "./purchases/purchase-batch-detail-modal";
 import { PurchaseVoidModal } from "./purchases/purchase-void-modal";
 
@@ -40,6 +42,27 @@ export function PurchaseHistory({ onOpenCreate }: PurchaseHistoryProps) {
 
   const hasFilter = Boolean(searchTerm.trim() || startDate || endDate);
 
+  const rangeValue: RangeValue | null = useMemo(() => {
+    if (!startDate && !endDate) return null;
+    return {
+      start: startDate ? parseYMD(startDate) : null,
+      end: endDate ? parseYMD(endDate) : null,
+    };
+  }, [startDate, endDate]);
+
+  const handleRangeChange = (val: RangeValue | null) => {
+    if (!val || (!val.start && !val.end)) {
+      setStartDate("");
+      setEndDate("");
+    } else if (val.start && val.end) {
+      setStartDate(formatToYMD(val.start));
+      setEndDate(formatToYMD(val.end));
+    } else if (val.start) {
+      setStartDate(formatToYMD(val.start));
+      setEndDate(formatToYMD(val.start));
+    }
+  };
+
   const handleResetFilter = () => {
     setSearchTerm("");
     setStartDate("");
@@ -48,40 +71,27 @@ export function PurchaseHistory({ onOpenCreate }: PurchaseHistoryProps) {
 
   return (
     <div className="space-y-4">
-      <div className="bg-white rounded-2xl border border-slate-200 p-4 shadow-xs flex flex-col lg:flex-row gap-3 items-stretch lg:items-center justify-between">
+      <div className="bg-white rounded-2xl border border-[#CCD0CF] p-4 shadow-xs flex flex-col lg:flex-row gap-3 items-stretch lg:items-center justify-between">
         <div className="flex flex-col sm:flex-row gap-2 flex-1">
           <div className="relative flex-1">
-            <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+            <Search className="w-4 h-4 text-[#4A5C6A] absolute left-3.5 top-1/2 -translate-y-1/2" />
             <input
               type="text"
               placeholder="Cari berdasarkan nama supplier atau toko..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 rounded-xl border border-slate-200 text-xs focus:outline-hidden focus:ring-2 focus:ring-emerald-500/20 placeholder:text-slate-400"
+              className="w-full pl-10 pr-4 py-2 rounded-xl border border-[#CCD0CF] text-xs text-[#06141B] focus:outline-hidden focus:ring-2 focus:ring-[#253745]/20 focus:border-[#253745] placeholder:text-[#4A5C6A] bg-white"
             />
           </div>
 
           <div className="flex items-center gap-1.5">
-            <div className="flex items-center gap-2 bg-white border border-[#CCD0CF] hover:border-[#9BA8AB] rounded-2xl px-3 py-1.5 text-xs text-[#06141B] shadow-2xs transition-colors">
-              <Calendar className="w-4 h-4 text-[#253745] shrink-0" />
-              <div className="flex items-center gap-1.5 font-medium">
-                <input
-                  type="date"
-                  value={startDate}
-                  onChange={(e) => setStartDate(e.target.value)}
-                  className="bg-slate-50 hover:bg-slate-100/80 border border-[#CCD0CF] rounded-xl px-2.5 py-1 text-xs text-[#06141B] font-medium focus:ring-2 focus:ring-[#253745]/20 focus:border-[#253745] transition-all cursor-pointer"
-                  title="Tanggal Mulai"
-                />
-                <span className="text-[#4A5C6A] text-xs font-bold">s/d</span>
-                <input
-                  type="date"
-                  value={endDate}
-                  onChange={(e) => setEndDate(e.target.value)}
-                  className="bg-slate-50 hover:bg-slate-100/80 border border-[#CCD0CF] rounded-xl px-2.5 py-1 text-xs text-[#06141B] font-medium focus:ring-2 focus:ring-[#253745]/20 focus:border-[#253745] transition-all cursor-pointer"
-                  title="Tanggal Selesai"
-                />
-              </div>
-            </div>
+            <DateRangePicker
+              value={rangeValue}
+              onChange={handleRangeChange}
+              allowClear
+              placeholder="Pilih Periode Pengadaan"
+              popoverAlignment="end"
+            />
 
             {hasFilter && (
               <button

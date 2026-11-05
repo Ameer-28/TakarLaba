@@ -54,7 +54,7 @@ export function AppShell() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F0F4F5] flex flex-col lg:flex-row">
+    <div className="min-h-screen bg-white flex flex-col lg:flex-row">
       {/* Desktop Sidebar (lg: min 1024px) */}
       <aside
         className={`hidden lg:flex lg:flex-col lg:fixed lg:inset-y-0 lg:border-r lg:border-[#CCD0CF] lg:bg-white lg:z-30 transition-all duration-300 ease-in-out ${
@@ -262,7 +262,7 @@ export function AppShell() {
 
       {/* Main Content Area */}
       <main
-        className={`flex-1 min-h-screen flex flex-col bg-[#F0F4F5] transition-all duration-300 ease-in-out ${
+        className={`flex-1 min-h-screen flex flex-col bg-white transition-all duration-300 ease-in-out ${
           isCollapsed ? "lg:pl-20" : "lg:pl-64"
         }`}
       >
