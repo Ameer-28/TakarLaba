@@ -45,12 +45,12 @@ export function ReceiptDialog({
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-200">
       <div className="bg-white w-full max-w-sm rounded-3xl shadow-2xl border border-slate-100 overflow-hidden flex flex-col max-h-[90vh]">
         {/* Top Success Banner */}
-        <div className="bg-[#f27238] p-4 text-white text-center print:hidden">
+        <div className="bg-[#11212D] p-4 text-white text-center print:hidden">
           <div className="w-10 h-10 rounded-full bg-white/20 mx-auto flex items-center justify-center mb-2">
             <CheckCircle2 className="w-6 h-6 text-white" />
           </div>
           <h3 className="font-extrabold text-base">Transaksi Berhasil</h3>
-          <p className="text-xs text-orange-100 mt-0.5">
+          <p className="text-xs text-[#CCD0CF] mt-0.5">
             Stok batch FEFO telah berhasil dipotong otomatis
           </p>
         </div>
@@ -167,7 +167,7 @@ export function ReceiptDialog({
           <button
             type="button"
             onClick={onClose}
-            className="flex-1 flex items-center justify-center gap-1.5 py-2.5 px-3 text-xs font-bold text-white bg-[#f27238] hover:bg-[#e06129] active:bg-orange-700 rounded-full shadow-md shadow-orange-500/20 transition-all cursor-pointer"
+            className="flex-1 flex items-center justify-center gap-1.5 py-2.5 px-3 text-xs font-bold text-white bg-[#11212D] hover:bg-[#253745] active:bg-[#06141B] rounded-full shadow-md shadow-[#11212D]/20 transition-all cursor-pointer"
           >
             <Plus className="w-4 h-4" />
             <span>Transaksi Baru</span>

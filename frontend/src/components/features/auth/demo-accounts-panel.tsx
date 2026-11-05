@@ -39,12 +39,12 @@ export function DemoAccountsPanel({
             type="button"
             disabled={isSubmitting}
             onClick={() => onDemoLogin("owner")}
-            className="inline-flex items-center justify-center gap-2 px-3 py-2.5 border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 bg-slate-50 hover:bg-slate-100 hover:border-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-500 disabled:opacity-60 transition-all text-left cursor-pointer"
+            className="inline-flex items-center justify-center gap-2 px-3 py-2.5 border border-[#CCD0CF] rounded-xl text-xs font-semibold text-[#06141B] bg-slate-50 hover:bg-[#CCD0CF]/30 hover:border-[#9BA8AB] focus:outline-none focus:ring-2 focus:ring-[#253745]/20 disabled:opacity-60 transition-all text-left cursor-pointer"
           >
             {submittingRole === "owner" ? (
-              <Loader2 className="w-4 h-4 animate-spin text-emerald-600 flex-shrink-0" />
+              <Loader2 className="w-4 h-4 animate-spin text-[#11212D] flex-shrink-0" />
             ) : (
-              <ChefHat className="w-4 h-4 text-emerald-600 flex-shrink-0" />
+              <ChefHat className="w-4 h-4 text-[#11212D] flex-shrink-0" />
             )}
             <span className="truncate">Masuk sebagai Demo Owner</span>
           </button>
@@ -53,12 +53,12 @@ export function DemoAccountsPanel({
             type="button"
             disabled={isSubmitting}
             onClick={() => onDemoLogin("cashier")}
-            className="inline-flex items-center justify-center gap-2 px-3 py-2.5 border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 bg-slate-50 hover:bg-slate-100 hover:border-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-500 disabled:opacity-60 transition-all text-left cursor-pointer"
+            className="inline-flex items-center justify-center gap-2 px-3 py-2.5 border border-[#CCD0CF] rounded-xl text-xs font-semibold text-[#06141B] bg-slate-50 hover:bg-[#CCD0CF]/30 hover:border-[#9BA8AB] focus:outline-none focus:ring-2 focus:ring-[#253745]/20 disabled:opacity-60 transition-all text-left cursor-pointer"
           >
             {submittingRole === "cashier" ? (
-              <Loader2 className="w-4 h-4 animate-spin text-blue-600 flex-shrink-0" />
+              <Loader2 className="w-4 h-4 animate-spin text-[#253745] flex-shrink-0" />
             ) : (
-              <Store className="w-4 h-4 text-blue-600 flex-shrink-0" />
+              <Store className="w-4 h-4 text-[#253745] flex-shrink-0" />
             )}
             <span className="truncate">Masuk sebagai Demo Kasir</span>
           </button>

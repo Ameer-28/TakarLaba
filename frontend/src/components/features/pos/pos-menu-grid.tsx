@@ -43,7 +43,7 @@ function getMenuIcon(name: string, category: string | null) {
     text.includes("v60") ||
     text.includes("americano")
   ) {
-    return <Coffee className="w-8 h-8 sm:w-10 sm:h-10 text-[#f27238]" />;
+    return <Coffee className="w-8 h-8 sm:w-10 sm:h-10 text-[#253745]" />;
   }
   if (
     text.includes("teh") ||
@@ -57,7 +57,7 @@ function getMenuIcon(name: string, category: string | null) {
     text.includes("susu") ||
     text.includes("milk")
   ) {
-    return <CupSoda className="w-8 h-8 sm:w-10 sm:h-10 text-[#f27238]" />;
+    return <CupSoda className="w-8 h-8 sm:w-10 sm:h-10 text-[#253745]" />;
   }
   if (
     text.includes("snack") ||
@@ -68,9 +68,9 @@ function getMenuIcon(name: string, category: string | null) {
     text.includes("toast") ||
     text.includes("pastry")
   ) {
-    return <Cake className="w-8 h-8 sm:w-10 sm:h-10 text-[#f27238]" />;
+    return <Cake className="w-8 h-8 sm:w-10 sm:h-10 text-[#253745]" />;
   }
-  return <Utensils className="w-8 h-8 sm:w-10 sm:h-10 text-[#f27238]" />;
+  return <Utensils className="w-8 h-8 sm:w-10 sm:h-10 text-[#253745]" />;
 }
 
 export function PosMenuGrid({
@@ -128,17 +128,17 @@ export function PosMenuGrid({
       <div className="space-y-3">
         {/* Rounded-full Search Bar */}
         <div className="relative">
-          <Search className="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2 text-stone-400" />
+          <Search className="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2 text-[#4A5C6A]" />
           <input
             ref={searchInputRef}
             type="text"
             value={search}
             onChange={(e) => onSearchChange(e.target.value)}
             placeholder="Cari menu pesanan..."
-            className="w-full pl-11 pr-24 py-3 text-sm bg-white border border-stone-200/90 rounded-full focus:outline-hidden focus:ring-2 focus:ring-orange-500/20 focus:border-[#f27238] transition-all placeholder:text-stone-400 shadow-2xs"
+            className="w-full pl-11 pr-24 py-3 text-sm bg-white border border-[#CCD0CF] rounded-full focus:outline-hidden focus:ring-2 focus:ring-[#253745]/20 focus:border-[#253745] transition-all placeholder:text-[#4A5C6A] shadow-2xs"
           />
           <div className="absolute right-3.5 top-1/2 -translate-y-1/2 hidden sm:flex items-center gap-1 select-none pointer-events-none">
-            <kbd className="px-1.5 py-0.5 text-[10px] font-mono font-bold text-stone-400 bg-stone-50 border border-stone-200 rounded shadow-2xs">
+            <kbd className="px-1.5 py-0.5 text-[10px] font-mono font-bold text-[#4A5C6A] bg-[#CCD0CF]/20 border border-[#CCD0CF] rounded shadow-2xs">
               F1 / /
             </kbd>
           </div>
@@ -151,8 +151,8 @@ export function PosMenuGrid({
             onClick={() => onSelectCategory("ALL")}
             className={`px-4 sm:px-5 py-2 rounded-full text-xs font-bold transition-all shrink-0 cursor-pointer ${
               selectedCategory === "ALL"
-                ? "bg-[#f27238] text-white shadow-2xs border border-[#f27238]"
-                : "bg-white text-stone-600 hover:text-stone-900 border border-stone-200/80 hover:border-orange-200 shadow-2xs"
+                ? "bg-[#11212D] text-white shadow-2xs border border-[#11212D]"
+                : "bg-white text-[#4A5C6A] hover:text-[#06141B] border border-[#CCD0CF] hover:border-[#9BA8AB] shadow-2xs"
             }`}
           >
             Semua Menu
@@ -164,8 +164,8 @@ export function PosMenuGrid({
               onClick={() => onSelectCategory(cat)}
               className={`px-4 sm:px-5 py-2 rounded-full text-xs font-bold transition-all shrink-0 cursor-pointer ${
                 selectedCategory === cat
-                  ? "bg-[#f27238] text-white shadow-2xs border border-[#f27238]"
-                  : "bg-white text-stone-600 hover:text-stone-900 border border-stone-200/80 hover:border-orange-200 shadow-2xs"
+                  ? "bg-[#11212D] text-white shadow-2xs border border-[#11212D]"
+                  : "bg-white text-[#4A5C6A] hover:text-[#06141B] border border-[#CCD0CF] hover:border-[#9BA8AB] shadow-2xs"
               }`}
             >
               {cat}
@@ -176,43 +176,43 @@ export function PosMenuGrid({
 
       {/* Section Header */}
       <div className="flex items-center justify-between px-1">
-        <h3 className="font-extrabold text-slate-900 text-base sm:text-lg tracking-tight">
+        <h3 className="font-extrabold text-[#06141B] text-base sm:text-lg tracking-tight">
           {selectedCategory === "ALL" ? "Daftar Menu" : `Menu ${selectedCategory}`}
         </h3>
-        <span className="text-xs font-semibold text-stone-500 tabular-nums">
+        <span className="text-xs font-semibold text-[#4A5C6A] tabular-nums">
           {filteredMenus.length} menu tersedia
         </span>
       </div>
 
       {/* Menu Cards Grid */}
       {isPending ? (
-        <div className="bg-white rounded-3xl border border-stone-200/80 p-12 text-center text-stone-500 space-y-2 shadow-2xs">
-          <div className="w-8 h-8 border-3 border-[#f27238] border-t-transparent rounded-full animate-spin mx-auto" />
+        <div className="bg-white rounded-3xl border border-[#CCD0CF] p-12 text-center text-[#4A5C6A] space-y-2 shadow-2xs">
+          <div className="w-8 h-8 border-3 border-[#11212D] border-t-transparent rounded-full animate-spin mx-auto" />
           <p className="text-sm">Memuat katalog kasir...</p>
         </div>
       ) : isError ? (
-        <div className="bg-white rounded-3xl border border-stone-200/80 p-8 text-center space-y-3 shadow-2xs">
+        <div className="bg-white rounded-3xl border border-[#CCD0CF] p-8 text-center space-y-3 shadow-2xs">
           <AlertCircle className="w-8 h-8 text-rose-500 mx-auto" />
           <p className="text-sm font-semibold text-rose-700">Gagal memuat katalog menu</p>
           <button
             type="button"
             onClick={onRefetch}
-            className="px-4 py-2 text-xs font-bold text-stone-700 bg-stone-100 hover:bg-stone-200 rounded-full transition-colors cursor-pointer"
+            className="px-4 py-2 text-xs font-bold text-[#06141B] bg-[#CCD0CF]/40 hover:bg-[#CCD0CF] rounded-full transition-colors cursor-pointer"
           >
             Coba Lagi
           </button>
         </div>
       ) : filteredMenus.length === 0 ? (
-        <div className="bg-white rounded-3xl border border-stone-200/80 p-12 text-center space-y-3 shadow-2xs">
-          <div className="w-12 h-12 bg-orange-50 text-orange-400 rounded-2xl flex items-center justify-center mx-auto">
+        <div className="bg-white rounded-3xl border border-[#CCD0CF] p-12 text-center space-y-3 shadow-2xs">
+          <div className="w-12 h-12 bg-[#CCD0CF]/40 text-[#253745] rounded-2xl flex items-center justify-center mx-auto border border-[#CCD0CF]">
             <UtensilsCrossed className="w-6 h-6" />
           </div>
-          <h3 className="text-base font-bold text-slate-800">
+          <h3 className="text-base font-bold text-[#06141B]">
             {search || selectedCategory !== "ALL"
               ? "Tidak Ada Menu yang Cocok"
               : "Belum Ada Menu Siap Jual"}
           </h3>
-          <p className="text-sm text-stone-500 max-w-sm mx-auto">
+          <p className="text-sm text-[#4A5C6A] max-w-sm mx-auto">
             {search || selectedCategory !== "ALL"
               ? "Coba ubah kata kunci pencarian atau pilih kategori lain."
               : "Tambahkan menu dan susun takaran resep di katalog agar menu dapat dijual di kasir."}
@@ -246,17 +246,17 @@ export function PosMenuGrid({
                 }}
                 className={`group relative bg-white rounded-3xl border p-4.5 transition-all flex flex-col justify-between select-none ${
                   isSellable
-                    ? "border-stone-200/80 hover:border-orange-300 hover:shadow-md cursor-pointer active:scale-[0.99]"
-                    : "border-stone-200 bg-stone-50/60 opacity-65 cursor-not-allowed"
+                    ? "border-[#CCD0CF] hover:border-[#253745] hover:shadow-md cursor-pointer active:scale-[0.99]"
+                    : "border-[#CCD0CF] bg-[#CCD0CF]/20 opacity-65 cursor-not-allowed"
                 }`}
               >
                 {/* Card Top: Thumbnail + Info */}
                 <div className="flex items-start gap-3.5">
                   {/* Left Thumbnail Box */}
-                  <div className="w-20 h-20 sm:w-22 sm:h-22 rounded-2xl bg-orange-50/80 border border-orange-100/70 flex items-center justify-center shrink-0 relative overflow-hidden group-hover:scale-105 transition-transform">
+                  <div className="w-20 h-20 sm:w-22 sm:h-22 rounded-2xl bg-[#CCD0CF]/30 border border-[#CCD0CF] flex items-center justify-center shrink-0 relative overflow-hidden group-hover:scale-105 transition-transform">
                     {getMenuIcon(menu.name, menu.category)}
                     {totalMenuInCartQty > 0 && (
-                      <span className="absolute top-1.5 right-1.5 px-1.5 py-0.5 text-[10px] font-black bg-[#f27238] text-white rounded-full shadow-2xs">
+                      <span className="absolute top-1.5 right-1.5 px-1.5 py-0.5 text-[10px] font-black bg-[#11212D] text-white rounded-full shadow-2xs">
                         {totalMenuInCartQty}
                       </span>
                     )}
@@ -265,18 +265,18 @@ export function PosMenuGrid({
                   {/* Right Details */}
                   <div className="min-w-0 flex-1">
                     <div className="flex items-start justify-between gap-1">
-                      <h4 className="font-extrabold text-slate-900 text-base leading-snug line-clamp-1 group-hover:text-[#f27238] transition-colors">
+                      <h4 className="font-extrabold text-[#06141B] text-base leading-snug line-clamp-1 group-hover:text-[#253745] transition-colors">
                         {menu.name}
                       </h4>
                     </div>
 
-                    <div className="text-base font-black text-[#f27238] tabular-nums mt-0.5">
+                    <div className="text-base font-black text-[#11212D] tabular-nums mt-0.5">
                       {formatRupiah(menu.sellingPrice)}
                     </div>
 
                     <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
                       {menu.category && (
-                        <span className="inline-block px-2 py-0.5 text-[10px] font-bold bg-stone-100 text-stone-600 rounded-full">
+                        <span className="inline-block px-2 py-0.5 text-[10px] font-bold bg-[#CCD0CF]/40 text-[#11212D] rounded-full">
                           {menu.category}
                         </span>
                       )}
@@ -290,14 +290,14 @@ export function PosMenuGrid({
                           Sisa {menu.capacity}
                         </span>
                       ) : (
-                        <span className="text-[10px] font-semibold text-stone-500 tabular-nums">
+                        <span className="text-[10px] font-semibold text-[#4A5C6A] tabular-nums">
                           Sisa {menu.capacity}
                         </span>
                       )}
                     </div>
 
                     {menu.bottleneckIngredientName && menu.capacity <= 10 && (
-                      <p className="mt-1 text-[10px] text-stone-400 truncate">
+                      <p className="mt-1 text-[10px] text-[#4A5C6A] truncate">
                         Dibatasi: {menu.bottleneckIngredientName}
                       </p>
                     )}
@@ -305,11 +305,11 @@ export function PosMenuGrid({
                     {/* Beverage Temperature Selector (Dingin vs Panas) */}
                     {isDrink && (
                       <div
-                        className="flex items-center gap-2 mt-2 pt-2 border-t border-stone-100"
+                        className="flex items-center gap-2 mt-2 pt-2 border-t border-[#CCD0CF]/60"
                         onClick={(e) => e.stopPropagation()}
                       >
-                        <span className="text-[10px] font-bold text-stone-500">Pilihan:</span>
-                        <div className="inline-flex items-center p-0.5 bg-stone-100 rounded-full border border-stone-200/70 select-none">
+                        <span className="text-[10px] font-bold text-[#4A5C6A]">Pilihan:</span>
+                        <div className="inline-flex items-center p-0.5 bg-[#CCD0CF]/30 rounded-full border border-[#CCD0CF] select-none">
                           <button
                             type="button"
                             onClick={(e) => {
@@ -318,8 +318,8 @@ export function PosMenuGrid({
                             }}
                             className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold transition-all cursor-pointer ${
                               temperature === "ICE"
-                                ? "bg-slate-900 text-white shadow-2xs"
-                                : "text-stone-600 hover:text-stone-900"
+                                ? "bg-[#11212D] text-white shadow-2xs"
+                                : "text-[#4A5C6A] hover:text-[#06141B]"
                             }`}
                             title="Pilihan Dingin (Ice)"
                           >
@@ -333,8 +333,8 @@ export function PosMenuGrid({
                             }}
                             className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold transition-all cursor-pointer ${
                               temperature === "HOT"
-                                ? "bg-slate-900 text-white shadow-2xs"
-                                : "text-stone-600 hover:text-stone-900"
+                                ? "bg-[#11212D] text-white shadow-2xs"
+                                : "text-[#4A5C6A] hover:text-[#06141B]"
                             }`}
                             title="Pilihan Panas (Hot)"
                           >
@@ -347,13 +347,13 @@ export function PosMenuGrid({
                 </div>
 
                 {/* Card Bottom: Stepper / Action Controls */}
-                <div className="mt-4 pt-3 border-t border-stone-100 flex items-center justify-between gap-2">
+                <div className="mt-4 pt-3 border-t border-[#CCD0CF]/60 flex items-center justify-between gap-2">
                   {isSellable ? (
                     inCartQty > 0 ? (
                       <div className="w-full flex items-center justify-between">
                         {/* Inline Stepper matching Purr'Coffee */}
                         <div
-                          className="flex items-center gap-2 bg-stone-100 rounded-full px-2.5 py-1 border border-stone-200/80"
+                          className="flex items-center gap-2 bg-[#CCD0CF]/30 rounded-full px-2.5 py-1 border border-[#CCD0CF]"
                           onClick={(e) => e.stopPropagation()}
                         >
                           <button
@@ -362,12 +362,12 @@ export function PosMenuGrid({
                               e.stopPropagation();
                               onDecrement?.(menu.id, temperature);
                             }}
-                            className="w-5 h-5 rounded-full bg-white text-stone-700 hover:text-rose-600 flex items-center justify-center shadow-2xs text-xs font-bold cursor-pointer transition-colors"
+                            className="w-5 h-5 rounded-full bg-white text-[#11212D] hover:text-rose-600 flex items-center justify-center shadow-2xs text-xs font-bold cursor-pointer transition-colors"
                             title="Kurang 1"
                           >
                             <Minus className="w-3 h-3" />
                           </button>
-                          <span className="tabular-nums font-black text-xs text-slate-900 px-1 select-none">
+                          <span className="tabular-nums font-black text-xs text-[#06141B] px-1 select-none">
                             {inCartQty}
                           </span>
                           <button
@@ -376,7 +376,7 @@ export function PosMenuGrid({
                               e.stopPropagation();
                               onIncrement?.(menu.id, temperature);
                             }}
-                            className="w-5 h-5 rounded-full bg-[#f27238] text-white hover:bg-[#e06129] flex items-center justify-center shadow-2xs text-xs font-bold cursor-pointer transition-colors"
+                            className="w-5 h-5 rounded-full bg-[#11212D] text-white hover:bg-[#253745] flex items-center justify-center shadow-2xs text-xs font-bold cursor-pointer transition-colors"
                             title="Tambah 1"
                           >
                             <Plus className="w-3 h-3" />
@@ -384,7 +384,7 @@ export function PosMenuGrid({
                         </div>
 
                         {/* Solid Added to Cart Pill */}
-                        <span className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-full bg-[#f27238] text-white shadow-2xs">
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-full bg-[#11212D] text-white shadow-2xs">
                           <ShoppingBag className="w-3 h-3" />
                           <span>
                             {isDrink
@@ -402,7 +402,7 @@ export function PosMenuGrid({
                           e.stopPropagation();
                           onAddToCart(menu, temperature);
                         }}
-                        className="w-full flex items-center justify-center gap-1.5 px-4 py-2 text-xs font-bold text-[#f27238] hover:text-white bg-orange-50 hover:bg-[#f27238] border border-orange-200/80 rounded-full transition-all cursor-pointer shadow-2xs"
+                        className="w-full flex items-center justify-center gap-1.5 px-4 py-2 text-xs font-bold text-[#11212D] hover:text-white bg-[#CCD0CF]/40 hover:bg-[#11212D] border border-[#CCD0CF] rounded-full transition-all cursor-pointer shadow-2xs"
                       >
                         <Plus className="w-3.5 h-3.5" />
                         <span>

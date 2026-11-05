@@ -18,11 +18,13 @@ export function PaymentMethodSelector({ value, onChange }: PaymentMethodSelector
           onClick={() => onChange("CASH")}
           className={`flex flex-col items-center justify-center p-3 rounded-2xl border transition-all cursor-pointer ${
             value === "CASH"
-              ? "bg-orange-50 border-[#f27238] text-orange-950 font-bold shadow-xs"
-              : "bg-white border-stone-200 text-stone-600 hover:bg-stone-50"
+              ? "bg-[#11212D] border-[#11212D] text-white font-bold shadow-xs"
+              : "bg-white border-[#CCD0CF] text-[#4A5C6A] hover:bg-[#CCD0CF]/20 hover:text-[#06141B]"
           }`}
         >
-          <Banknote className="w-5 h-5 mb-1 text-[#f27238]" />
+          <Banknote
+            className={`w-5 h-5 mb-1 ${value === "CASH" ? "text-[#CCD0CF]" : "text-[#253745]"}`}
+          />
           <span className="text-xs">Tunai</span>
         </button>
 
@@ -31,11 +33,13 @@ export function PaymentMethodSelector({ value, onChange }: PaymentMethodSelector
           onClick={() => onChange("QRIS")}
           className={`flex flex-col items-center justify-center p-3 rounded-2xl border transition-all cursor-pointer ${
             value === "QRIS"
-              ? "bg-orange-50 border-[#f27238] text-orange-950 font-bold shadow-xs"
-              : "bg-white border-stone-200 text-stone-600 hover:bg-stone-50"
+              ? "bg-[#11212D] border-[#11212D] text-white font-bold shadow-xs"
+              : "bg-white border-[#CCD0CF] text-[#4A5C6A] hover:bg-[#CCD0CF]/20 hover:text-[#06141B]"
           }`}
         >
-          <QrCode className="w-5 h-5 mb-1 text-sky-600" />
+          <QrCode
+            className={`w-5 h-5 mb-1 ${value === "QRIS" ? "text-[#CCD0CF]" : "text-sky-600"}`}
+          />
           <span className="text-xs">QRIS</span>
         </button>
 
@@ -44,11 +48,13 @@ export function PaymentMethodSelector({ value, onChange }: PaymentMethodSelector
           onClick={() => onChange("TRANSFER")}
           className={`flex flex-col items-center justify-center p-3 rounded-2xl border transition-all cursor-pointer ${
             value === "TRANSFER"
-              ? "bg-orange-50 border-[#f27238] text-orange-950 font-bold shadow-xs"
-              : "bg-white border-stone-200 text-stone-600 hover:bg-stone-50"
+              ? "bg-[#11212D] border-[#11212D] text-white font-bold shadow-xs"
+              : "bg-white border-[#CCD0CF] text-[#4A5C6A] hover:bg-[#CCD0CF]/20 hover:text-[#06141B]"
           }`}
         >
-          <ArrowRightLeft className="w-5 h-5 mb-1 text-purple-600" />
+          <ArrowRightLeft
+            className={`w-5 h-5 mb-1 ${value === "TRANSFER" ? "text-[#CCD0CF]" : "text-indigo-600"}`}
+          />
           <span className="text-xs">Transfer</span>
         </button>
       </div>

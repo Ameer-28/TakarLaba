@@ -22,7 +22,7 @@ export function DashboardTopMenus({ topMenus = [] }: DashboardTopMenusProps) {
       case 2:
         return "bg-slate-200 text-slate-800 border-slate-300";
       case 3:
-        return "bg-orange-100 text-orange-800 border-orange-300";
+        return "bg-[#CCD0CF]/60 text-[#11212D] border-[#9BA8AB]";
       default:
         return "bg-slate-100 text-slate-600 border-slate-200";
     }

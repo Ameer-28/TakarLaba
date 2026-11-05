@@ -31,7 +31,7 @@ function getItemMiniIcon(name: string, category: string | null) {
     text.includes("latte") ||
     text.includes("espresso")
   ) {
-    return <Coffee className="w-5 h-5 text-[#f27238]" />;
+    return <Coffee className="w-5 h-5 text-[#253745]" />;
   }
   if (
     text.includes("teh") ||
@@ -39,12 +39,12 @@ function getItemMiniIcon(name: string, category: string | null) {
     text.includes("drink") ||
     text.includes("soda")
   ) {
-    return <CupSoda className="w-5 h-5 text-[#f27238]" />;
+    return <CupSoda className="w-5 h-5 text-[#253745]" />;
   }
   if (text.includes("snack") || text.includes("roti") || text.includes("kue")) {
-    return <Cake className="w-5 h-5 text-[#f27238]" />;
+    return <Cake className="w-5 h-5 text-[#253745]" />;
   }
-  return <Utensils className="w-5 h-5 text-[#f27238]" />;
+  return <Utensils className="w-5 h-5 text-[#253745]" />;
 }
 
 export function PosCartPanel({
@@ -60,14 +60,14 @@ export function PosCartPanel({
   const totalAmount = getCartTotalAmount(items);
 
   return (
-    <div className="bg-white rounded-3xl border border-stone-200/80 shadow-[0_2px_12px_-2px_rgba(0,0,0,0.03)] flex flex-col h-full overflow-hidden">
+    <div className="bg-white rounded-3xl border border-[#CCD0CF] shadow-[0_2px_12px_-2px_rgba(0,0,0,0.03)] flex flex-col h-full overflow-hidden">
       {/* Header */}
-      <div className="p-4 sm:p-5 border-b border-stone-100 flex items-center justify-between">
+      <div className="p-4 sm:p-5 border-b border-[#CCD0CF] flex items-center justify-between">
         <div>
-          <h3 className="font-extrabold text-slate-900 text-base sm:text-lg tracking-tight">
+          <h3 className="font-extrabold text-[#06141B] text-base sm:text-lg tracking-tight">
             Keranjang
           </h3>
-          <span className="text-xs text-stone-500 font-semibold tabular-nums">
+          <span className="text-xs text-[#4A5C6A] font-semibold tabular-nums">
             {totalQty > 0 ? `${totalQty} porsi dipilih` : "Belum ada pesanan"}
           </span>
         </div>
@@ -76,11 +76,11 @@ export function PosCartPanel({
           <button
             type="button"
             onClick={onClear}
-            className="text-xs font-bold text-stone-400 hover:text-rose-600 transition-colors cursor-pointer px-2.5 py-1.5 rounded-full hover:bg-rose-50 flex items-center gap-1.5"
+            className="text-xs font-bold text-[#4A5C6A] hover:text-rose-600 transition-colors cursor-pointer px-2.5 py-1.5 rounded-full hover:bg-rose-50 flex items-center gap-1.5"
             title="Kosongkan Semua Item (F4)"
           >
             <span>Kosongkan</span>
-            <kbd className="hidden sm:inline-block px-1.5 py-0.5 text-[9px] font-mono text-stone-400 bg-stone-100 border border-stone-200 rounded shadow-2xs">
+            <kbd className="hidden sm:inline-block px-1.5 py-0.5 text-[9px] font-mono text-[#4A5C6A] bg-[#CCD0CF]/30 border border-[#CCD0CF] rounded shadow-2xs">
               F4
             </kbd>
           </button>
@@ -88,15 +88,15 @@ export function PosCartPanel({
       </div>
 
       {/* Order Type Selector Pills (Matching Purr'Coffee) */}
-      <div className="p-3 bg-stone-50/70 border-b border-stone-100">
-        <div className="grid grid-cols-3 gap-1.5 p-1 bg-stone-100/80 rounded-full border border-stone-200/70">
+      <div className="p-3 bg-slate-50/50 border-b border-[#CCD0CF]">
+        <div className="grid grid-cols-3 gap-1.5 p-1 bg-[#CCD0CF]/30 rounded-full border border-[#CCD0CF]">
           <button
             type="button"
             onClick={() => setOrderType("DINE_IN")}
             className={`py-1.5 px-2 rounded-full text-xs font-bold transition-all text-center truncate cursor-pointer ${
               orderType === "DINE_IN"
-                ? "bg-slate-900 text-white shadow-2xs"
-                : "text-stone-600 hover:text-stone-900"
+                ? "bg-[#11212D] text-white shadow-2xs"
+                : "text-[#4A5C6A] hover:text-[#06141B]"
             }`}
           >
             Dine In
@@ -106,8 +106,8 @@ export function PosCartPanel({
             onClick={() => setOrderType("TAKE_AWAY")}
             className={`py-1.5 px-2 rounded-full text-xs font-bold transition-all text-center truncate cursor-pointer ${
               orderType === "TAKE_AWAY"
-                ? "bg-slate-900 text-white shadow-2xs"
-                : "text-stone-600 hover:text-stone-900"
+                ? "bg-[#11212D] text-white shadow-2xs"
+                : "text-[#4A5C6A] hover:text-[#06141B]"
             }`}
           >
             Take Away
@@ -117,8 +117,8 @@ export function PosCartPanel({
             onClick={() => setOrderType("DELIVERY")}
             className={`py-1.5 px-2 rounded-full text-xs font-bold transition-all text-center truncate cursor-pointer ${
               orderType === "DELIVERY"
-                ? "bg-slate-900 text-white shadow-2xs"
-                : "text-stone-600 hover:text-stone-900"
+                ? "bg-[#11212D] text-white shadow-2xs"
+                : "text-[#4A5C6A] hover:text-[#06141B]"
             }`}
           >
             Delivery
@@ -129,12 +129,12 @@ export function PosCartPanel({
       {/* Cart Items List */}
       <div className="flex-1 overflow-y-auto p-4 space-y-3 min-h-[240px] max-h-[420px]">
         {items.length === 0 ? (
-          <div className="h-full flex flex-col items-center justify-center text-center p-6 text-stone-400 space-y-2.5">
-            <div className="w-14 h-14 rounded-3xl bg-orange-50/70 flex items-center justify-center text-orange-400 border border-orange-100/60 shadow-2xs">
+          <div className="h-full flex flex-col items-center justify-center text-center p-6 text-[#4A5C6A] space-y-2.5">
+            <div className="w-14 h-14 rounded-3xl bg-[#CCD0CF]/30 flex items-center justify-center text-[#253745] border border-[#CCD0CF] shadow-2xs">
               <ShoppingCart className="w-7 h-7" />
             </div>
-            <p className="font-extrabold text-slate-800 text-sm">Keranjang Masih Kosong</p>
-            <p className="text-xs text-stone-400 max-w-xs leading-relaxed">
+            <p className="font-extrabold text-[#06141B] text-sm">Keranjang Masih Kosong</p>
+            <p className="text-xs text-[#4A5C6A] max-w-xs leading-relaxed">
               Pilih menu dari katalog di sebelah kiri untuk mulai memasukkan pesanan pelanggan.
             </p>
           </div>
@@ -212,7 +212,7 @@ export function PosCartPanel({
                       <button
                         type="button"
                         onClick={() => onIncrement(itemKey)}
-                        className="w-5 h-5 flex items-center justify-center bg-[#f27238] hover:bg-[#e06129] text-white rounded-full transition-colors cursor-pointer shadow-2xs"
+                        className="w-5 h-5 flex items-center justify-center bg-[#11212D] hover:bg-[#253745] text-white rounded-full transition-colors cursor-pointer shadow-2xs"
                         title="Tambah kuantitas"
                       >
                         <Plus className="w-2.5 h-2.5" />
@@ -227,16 +227,16 @@ export function PosCartPanel({
       </div>
 
       {/* Bill Summary & Primary CTA (Matching Purr'Coffee) */}
-      <div className="p-4 sm:p-5 border-t border-stone-100 bg-stone-50/50 space-y-3">
-        <div className="space-y-1.5 text-xs text-stone-600">
+      <div className="p-4 sm:p-5 border-t border-[#CCD0CF] bg-slate-50/50 space-y-3">
+        <div className="space-y-1.5 text-xs text-[#4A5C6A]">
           <div className="flex justify-between items-center">
             <span>Item Pesanan</span>
-            <span className="tabular-nums font-semibold">{totalQty} porsi</span>
+            <span className="tabular-nums font-semibold text-[#06141B]">{totalQty} porsi</span>
           </div>
 
           <div className="flex justify-between items-center">
             <span>Tipe Layanan</span>
-            <span className="font-bold text-slate-800">
+            <span className="font-bold text-[#06141B]">
               {orderType === "DINE_IN"
                 ? "Dine In"
                 : orderType === "TAKE_AWAY"
@@ -245,9 +245,9 @@ export function PosCartPanel({
             </span>
           </div>
 
-          <div className="flex justify-between items-baseline pt-2 border-t border-stone-200/80">
-            <span className="text-sm font-extrabold text-slate-900">Total Tagihan</span>
-            <span className="text-lg font-black text-slate-900 tabular-nums">
+          <div className="flex justify-between items-baseline pt-2 border-t border-[#CCD0CF]">
+            <span className="text-sm font-extrabold text-[#06141B]">Total Tagihan</span>
+            <span className="text-lg font-black text-[#06141B] tabular-nums">
               {formatRupiah(totalAmount)}
             </span>
           </div>
@@ -257,7 +257,7 @@ export function PosCartPanel({
           type="button"
           onClick={onCheckout}
           disabled={items.length === 0}
-          className="w-full py-3.5 px-4 bg-[#f27238] hover:bg-[#e06129] active:scale-[0.99] text-white font-extrabold text-sm rounded-full shadow-md shadow-orange-500/20 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+          className="w-full py-3.5 px-4 bg-[#11212D] hover:bg-[#253745] active:bg-[#06141B] active:scale-[0.99] text-white font-extrabold text-sm rounded-full shadow-md shadow-[#11212D]/20 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
         >
           <span>Bayar Pesanan</span>
           <kbd className="px-1.5 py-0.5 text-[10px] font-mono bg-white/20 text-white rounded-md">
