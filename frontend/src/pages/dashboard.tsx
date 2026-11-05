@@ -28,14 +28,17 @@ export function DashboardPage() {
             <div key={i} className="h-28 bg-slate-100 rounded-2xl" />
           ))}
         </div>
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          <div className="lg:col-span-7 space-y-6">
-            <div className="h-64 bg-slate-100 rounded-2xl" />
-            <div className="h-64 bg-slate-100 rounded-2xl" />
-          </div>
-          <div className="lg:col-span-5">
-            <div className="h-96 bg-slate-100 rounded-2xl" />
-          </div>
+        {/* Full-width 7-day trend chart skeleton */}
+        <div className="h-72 bg-slate-100 rounded-2xl" />
+        {/* Top menus & recent sales side-by-side skeleton */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+          <div className="h-72 bg-slate-100 rounded-2xl" />
+          <div className="h-72 bg-slate-100 rounded-2xl" />
+        </div>
+        {/* Alerts & capacity bottlenecks skeleton */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+          <div className="h-64 bg-slate-100 rounded-2xl" />
+          <div className="h-64 bg-slate-100 rounded-2xl" />
         </div>
       </div>
     );
@@ -98,24 +101,21 @@ export function DashboardPage() {
       {/* New business onboarding banner */}
       {data.isNewBusiness && <DashboardEmptyState />}
 
-      {/* Top Analytics: 7-Day Sales Trend & Top Menus (Equal Size 50-50 side-by-side) */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 items-stretch">
+      {/* 7-Day Sales Trend (Full Width) */}
+      <div className="w-full">
         <DashboardSalesTrendChart salesLast7Days={data.salesLast7Days} />
-        <DashboardTopMenus topMenus={data.topMenus} />
       </div>
 
-      {/* Operational Alerts, Capacity & Recent Daily Sales */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 items-start">
-        {/* Left Column: Margin Alerts & Capacity Bottlenecks */}
-        <div className="space-y-5">
-          <DashboardTopAlerts alerts={data.topAlerts} />
-          <DashboardLowestCapacity menus={data.lowestCapacityMenus} />
-        </div>
+      {/* Top Menus & Recent Daily Sales (Side-by-Side below the Trend Chart) */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 items-stretch">
+        <DashboardTopMenus topMenus={data.topMenus} />
+        <DashboardRecentSales sales={data.recentSales} />
+      </div>
 
-        {/* Right Column: Recent Daily Sales */}
-        <div>
-          <DashboardRecentSales sales={data.recentSales} />
-        </div>
+      {/* Operational Margin Alerts & Capacity Bottlenecks */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 items-start">
+        <DashboardTopAlerts alerts={data.topAlerts} />
+        <DashboardLowestCapacity menus={data.lowestCapacityMenus} />
       </div>
     </div>
   );
