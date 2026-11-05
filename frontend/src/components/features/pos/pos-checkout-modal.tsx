@@ -168,7 +168,7 @@ export function PosCheckoutModal({ isOpen, onClose, cartItems, onSuccess }: PosC
             type="button"
             onClick={onClose}
             disabled={checkoutMutation.isPending}
-            className="px-4 py-2.5 text-sm font-bold text-slate-600 hover:text-slate-800 hover:bg-slate-200/60 rounded-xl transition-colors cursor-pointer"
+            className="px-4 py-2.5 text-sm font-bold text-stone-600 hover:text-stone-800 hover:bg-stone-200/60 rounded-full transition-colors cursor-pointer"
           >
             Batal
           </button>
@@ -177,7 +177,7 @@ export function PosCheckoutModal({ isOpen, onClose, cartItems, onSuccess }: PosC
             type="button"
             onClick={handleProcessCheckout}
             disabled={checkoutMutation.isPending || isCashInsufficient}
-            className="flex items-center gap-2 px-5 py-2.5 text-sm font-bold text-white bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 disabled:opacity-50 disabled:cursor-not-allowed rounded-xl shadow-xs shadow-emerald-700/20 transition-all cursor-pointer"
+            className="flex items-center gap-2 px-6 py-2.5 text-sm font-extrabold text-white bg-[#f27238] hover:bg-[#e06129] active:bg-orange-700 disabled:opacity-50 disabled:cursor-not-allowed rounded-full shadow-md shadow-orange-500/20 transition-all cursor-pointer"
           >
             {checkoutMutation.isPending ? (
               <>

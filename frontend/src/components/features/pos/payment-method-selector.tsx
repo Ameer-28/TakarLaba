@@ -18,11 +18,11 @@ export function PaymentMethodSelector({ value, onChange }: PaymentMethodSelector
           onClick={() => onChange("CASH")}
           className={`flex flex-col items-center justify-center p-3 rounded-2xl border transition-all cursor-pointer ${
             value === "CASH"
-              ? "bg-emerald-50 border-emerald-500 text-emerald-800 font-bold shadow-xs"
-              : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50"
+              ? "bg-orange-50 border-[#f27238] text-orange-950 font-bold shadow-xs"
+              : "bg-white border-stone-200 text-stone-600 hover:bg-stone-50"
           }`}
         >
-          <Banknote className="w-5 h-5 mb-1 text-emerald-600" />
+          <Banknote className="w-5 h-5 mb-1 text-[#f27238]" />
           <span className="text-xs">Tunai</span>
         </button>
 
@@ -31,8 +31,8 @@ export function PaymentMethodSelector({ value, onChange }: PaymentMethodSelector
           onClick={() => onChange("QRIS")}
           className={`flex flex-col items-center justify-center p-3 rounded-2xl border transition-all cursor-pointer ${
             value === "QRIS"
-              ? "bg-emerald-50 border-emerald-500 text-emerald-800 font-bold shadow-xs"
-              : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50"
+              ? "bg-orange-50 border-[#f27238] text-orange-950 font-bold shadow-xs"
+              : "bg-white border-stone-200 text-stone-600 hover:bg-stone-50"
           }`}
         >
           <QrCode className="w-5 h-5 mb-1 text-sky-600" />
@@ -44,8 +44,8 @@ export function PaymentMethodSelector({ value, onChange }: PaymentMethodSelector
           onClick={() => onChange("TRANSFER")}
           className={`flex flex-col items-center justify-center p-3 rounded-2xl border transition-all cursor-pointer ${
             value === "TRANSFER"
-              ? "bg-emerald-50 border-emerald-500 text-emerald-800 font-bold shadow-xs"
-              : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50"
+              ? "bg-orange-50 border-[#f27238] text-orange-950 font-bold shadow-xs"
+              : "bg-white border-stone-200 text-stone-600 hover:bg-stone-50"
           }`}
         >
           <ArrowRightLeft className="w-5 h-5 mb-1 text-purple-600" />

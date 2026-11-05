@@ -117,46 +117,48 @@ export function PosPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2">
-            <div className="p-2 bg-emerald-50 text-emerald-700 rounded-xl">
+          <div className="flex items-center gap-2.5">
+            <div className="p-2.5 bg-orange-50 text-[#f27238] rounded-2xl border border-orange-100/80 shadow-2xs">
               <Store className="w-5 h-5" />
             </div>
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
-              Kasir (POS) Atomik
-            </h1>
+            <div>
+              <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+                Kasir (POS) Atomik
+              </h1>
+            </div>
           </div>
-          <p className="text-sm text-slate-600 mt-1">
+          <p className="text-sm text-stone-600 mt-1">
             Penjualan langsung dengan pemotongan stok First-Expired, First-Out (FEFO) otomatis.
           </p>
         </div>
 
         {/* Keyboard Shortcuts Hint Bar */}
-        <div className="hidden md:flex items-center gap-2 text-xs text-slate-500 bg-white px-3.5 py-2 rounded-2xl border border-slate-200/80 shadow-2xs">
-          <Keyboard className="w-3.5 h-3.5 text-slate-400" />
-          <span className="font-semibold text-slate-700">Pintasan:</span>
+        <div className="hidden md:flex items-center gap-2 text-xs text-stone-500 bg-white px-4 py-2.5 rounded-full border border-stone-200/80 shadow-2xs">
+          <Keyboard className="w-3.5 h-3.5 text-stone-400" />
+          <span className="font-bold text-slate-800">Pintasan:</span>
           <span className="flex items-center gap-1">
-            <kbd className="px-1.5 py-0.5 text-[10px] font-mono bg-slate-50 border border-slate-200 rounded shadow-2xs font-bold text-slate-600">
+            <kbd className="px-1.5 py-0.5 text-[10px] font-mono bg-stone-50 border border-stone-200 rounded shadow-2xs font-bold text-stone-600">
               F1 / /
             </kbd>
             <span>Cari</span>
           </span>
-          <span className="text-slate-300">•</span>
+          <span className="text-stone-300">•</span>
           <span className="flex items-center gap-1">
-            <kbd className="px-1.5 py-0.5 text-[10px] font-mono bg-slate-50 border border-slate-200 rounded shadow-2xs font-bold text-slate-600">
+            <kbd className="px-1.5 py-0.5 text-[10px] font-mono bg-stone-50 border border-stone-200 rounded shadow-2xs font-bold text-stone-600">
               F2
             </kbd>
             <span>Bayar</span>
           </span>
-          <span className="text-slate-300">•</span>
+          <span className="text-stone-300">•</span>
           <span className="flex items-center gap-1">
-            <kbd className="px-1.5 py-0.5 text-[10px] font-mono bg-slate-50 border border-slate-200 rounded shadow-2xs font-bold text-slate-600">
+            <kbd className="px-1.5 py-0.5 text-[10px] font-mono bg-stone-50 border border-stone-200 rounded shadow-2xs font-bold text-stone-600">
               F4
             </kbd>
             <span>Kosongkan</span>
           </span>
-          <span className="text-slate-300">•</span>
+          <span className="text-stone-300">•</span>
           <span className="flex items-center gap-1">
-            <kbd className="px-1.5 py-0.5 text-[10px] font-mono bg-slate-50 border border-slate-200 rounded shadow-2xs font-bold text-slate-600">
+            <kbd className="px-1.5 py-0.5 text-[10px] font-mono bg-stone-50 border border-stone-200 rounded shadow-2xs font-bold text-stone-600">
               Esc
             </kbd>
             <span>Batal</span>
@@ -176,6 +178,8 @@ export function PosPage() {
             selectedCategory={selectedCategory}
             onSelectCategory={setSelectedCategory}
             onAddToCart={handleAddToCart}
+            onIncrement={handleIncrement}
+            onDecrement={handleDecrement}
             isPending={isPending}
             isError={isError}
             onRefetch={refetch}
@@ -199,19 +203,19 @@ export function PosPage() {
       {/* Mobile Floating Bottom Bar (< lg) */}
       {cartState.items.length > 0 && (
         <div className="lg:hidden fixed bottom-4 left-4 right-4 z-40 animate-in slide-in-from-bottom duration-200">
-          <div className="bg-slate-900 text-white p-3.5 rounded-2xl shadow-xl flex items-center justify-between border border-slate-800">
+          <div className="bg-slate-900 text-white p-3.5 rounded-3xl shadow-xl flex items-center justify-between border border-slate-800">
             <div
               onClick={() => setIsMobileDrawerOpen(true)}
               className="flex items-center gap-3 cursor-pointer select-none"
             >
-              <div className="relative p-2 bg-slate-800 text-emerald-400 rounded-xl">
+              <div className="relative p-2 bg-slate-800 text-orange-400 rounded-2xl">
                 <ShoppingCart className="w-5 h-5" />
-                <span className="absolute -top-1.5 -right-1.5 px-1.5 py-0.5 text-[10px] font-black bg-emerald-600 text-white rounded-full">
+                <span className="absolute -top-1.5 -right-1.5 px-1.5 py-0.5 text-[10px] font-black bg-[#f27238] text-white rounded-full">
                   {totalQty}
                 </span>
               </div>
               <div>
-                <span className="text-[11px] text-slate-400 block font-medium">Total Pesanan</span>
+                <span className="text-[11px] text-stone-400 block font-medium">Total Pesanan</span>
                 <span className="text-base font-black tabular-nums text-white">
                   {formatRupiah(totalAmount)}
                 </span>
@@ -221,7 +225,7 @@ export function PosPage() {
             <button
               type="button"
               onClick={handleOpenCheckout}
-              className="flex items-center gap-1.5 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer"
+              className="flex items-center gap-1.5 px-4.5 py-2.5 bg-[#f27238] hover:bg-[#e06129] active:bg-orange-700 text-white rounded-full text-xs font-bold transition-all shadow-xs cursor-pointer"
             >
               <span>Bayar</span>
               <ArrowRight className="w-3.5 h-3.5" />

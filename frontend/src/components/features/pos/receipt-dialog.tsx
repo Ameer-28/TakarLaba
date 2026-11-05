@@ -37,12 +37,12 @@ export function ReceiptDialog({ isOpen, onClose, sale, cashReceived }: ReceiptDi
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-200">
       <div className="bg-white w-full max-w-sm rounded-3xl shadow-2xl border border-slate-100 overflow-hidden flex flex-col max-h-[90vh]">
         {/* Top Success Banner */}
-        <div className="bg-emerald-600 p-4 text-white text-center print:hidden">
-          <div className="w-10 h-10 rounded-full bg-emerald-500/80 mx-auto flex items-center justify-center mb-2">
+        <div className="bg-[#f27238] p-4 text-white text-center print:hidden">
+          <div className="w-10 h-10 rounded-full bg-white/20 mx-auto flex items-center justify-center mb-2">
             <CheckCircle2 className="w-6 h-6 text-white" />
           </div>
           <h3 className="font-extrabold text-base">Transaksi Berhasil</h3>
-          <p className="text-xs text-emerald-100 mt-0.5">
+          <p className="text-xs text-orange-100 mt-0.5">
             Stok batch FEFO telah berhasil dipotong otomatis
           </p>
         </div>
@@ -137,20 +137,20 @@ export function ReceiptDialog({ isOpen, onClose, sale, cashReceived }: ReceiptDi
         </div>
 
         {/* Modal Buttons (Hidden when printing) */}
-        <div className="p-4 bg-white border-t border-slate-100 flex items-center justify-between gap-2 print:hidden">
+        <div className="p-4 bg-white border-t border-stone-100 flex items-center justify-between gap-2.5 print:hidden">
           <button
             type="button"
             onClick={handlePrint}
-            className="flex-1 flex items-center justify-center gap-1.5 py-2.5 px-3 text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors cursor-pointer"
+            className="flex-1 flex items-center justify-center gap-1.5 py-2.5 px-3 text-xs font-bold text-stone-700 bg-stone-100 hover:bg-stone-200 rounded-full transition-colors cursor-pointer"
           >
-            <Printer className="w-4 h-4 text-slate-600" />
+            <Printer className="w-4 h-4 text-stone-600" />
             <span>Cetak Struk</span>
           </button>
 
           <button
             type="button"
             onClick={onClose}
-            className="flex-1 flex items-center justify-center gap-1.5 py-2.5 px-3 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 rounded-xl shadow-xs shadow-emerald-700/20 transition-all cursor-pointer"
+            className="flex-1 flex items-center justify-center gap-1.5 py-2.5 px-3 text-xs font-bold text-white bg-[#f27238] hover:bg-[#e06129] active:bg-orange-700 rounded-full shadow-md shadow-orange-500/20 transition-all cursor-pointer"
           >
             <Plus className="w-4 h-4" />
             <span>Transaksi Baru</span>
