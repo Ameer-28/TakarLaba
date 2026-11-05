@@ -28,7 +28,7 @@ export function DashboardSalesTrendChart({ salesLast7Days = [] }: DashboardSales
   );
 
   return (
-    <div className="p-5 sm:p-6 rounded-2xl bg-white border border-slate-200/80 shadow-2xs flex flex-col justify-between h-full space-y-4">
+    <div className="p-5 sm:p-6 rounded-2xl bg-white border border-slate-200/80 shadow-xs space-y-4">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
         <div className="flex items-center gap-3">
@@ -58,7 +58,7 @@ export function DashboardSalesTrendChart({ salesLast7Days = [] }: DashboardSales
       </div>
 
       {salesLast7Days.length === 0 ? (
-        <div className="py-12 text-center space-y-2 flex-1 flex flex-col items-center justify-center">
+        <div className="py-12 text-center space-y-2 flex flex-col items-center justify-center">
           <div className="w-10 h-10 mx-auto rounded-full bg-slate-50 flex items-center justify-center text-slate-400">
             <Layers className="w-5 h-5" />
           </div>
@@ -68,9 +68,9 @@ export function DashboardSalesTrendChart({ salesLast7Days = [] }: DashboardSales
           </p>
         </div>
       ) : (
-        <div className="space-y-4 flex-1 flex flex-col justify-between">
-          {/* Responsive SVG / Column Bar Chart */}
-          <div className="min-h-[220px] sm:min-h-[240px] flex-1 pt-6 pb-2 flex items-end justify-between gap-2 sm:gap-4 px-2 sm:px-4 bg-slate-50/50 rounded-xl border border-slate-100">
+        <div className="space-y-4">
+          {/* Responsive Column Bar Chart with explicit height to prevent collapse */}
+          <div className="h-44 sm:h-52 w-full pt-6 pb-2 flex items-end justify-between gap-2 sm:gap-6 px-3 sm:px-6 bg-slate-50/60 rounded-xl border border-slate-100">
             {salesLast7Days.map((day, idx) => {
               const numericOmzet = Number.parseFloat(day.omzet) || 0;
               const heightPercent = Math.max(Math.round((numericOmzet / maxOmzet) * 100), 4);
@@ -89,9 +89,9 @@ export function DashboardSalesTrendChart({ salesLast7Days = [] }: DashboardSales
                 >
                   {/* Floating tooltip on hover */}
                   {isHovered && (
-                    <div className="absolute -top-12 z-20 px-2.5 py-1.5 rounded-lg bg-slate-900 text-white text-[11px] shadow-lg whitespace-nowrap animate-in fade-in zoom-in-95 pointer-events-none">
-                      <div className="font-semibold">{day.label}</div>
-                      <div className="text-emerald-300 font-bold tabular-nums">
+                    <div className="absolute -top-12 z-30 px-2.5 py-1.5 rounded-xl bg-slate-900 text-white text-[11px] shadow-xl whitespace-nowrap animate-in fade-in zoom-in-95 pointer-events-none">
+                      <div className="font-bold">{day.label}</div>
+                      <div className="text-emerald-400 font-bold tabular-nums">
                         {formatRupiah(numericOmzet)}
                       </div>
                       <div className="text-slate-300 text-[10px]">
@@ -100,13 +100,13 @@ export function DashboardSalesTrendChart({ salesLast7Days = [] }: DashboardSales
                     </div>
                   )}
 
-                  {/* Top value label for highest/active */}
+                  {/* Top value label */}
                   <span
-                    className={`text-[10px] tabular-nums font-semibold mb-1 transition-opacity ${
+                    className={`text-[10px] tabular-nums font-bold mb-1 transition-opacity ${
                       numericOmzet > 0
                         ? isHovered || isToday
-                          ? "text-emerald-700 font-bold opacity-100"
-                          : "text-slate-400 opacity-80"
+                          ? "text-emerald-700 font-extrabold opacity-100"
+                          : "text-slate-500 opacity-80"
                         : "text-transparent"
                     }`}
                   >
@@ -119,32 +119,34 @@ export function DashboardSalesTrendChart({ salesLast7Days = [] }: DashboardSales
                           : ""}
                   </span>
 
-                  {/* Bar column */}
-                  <div className="w-full max-w-[42px] bg-slate-200/60 rounded-t-lg overflow-hidden flex flex-col justify-end h-full">
-                    <div
-                      style={{ height: `${heightPercent}%` }}
-                      className={`w-full rounded-t-lg transition-all duration-300 ${
-                        isToday
-                          ? "bg-gradient-to-t from-emerald-600 to-emerald-400 shadow-sm"
-                          : isHovered
-                            ? "bg-emerald-500"
-                            : numericOmzet > 0
-                              ? "bg-emerald-600/80 hover:bg-emerald-500"
-                              : "bg-slate-300/40"
-                      }`}
-                    />
+                  {/* Bar column: full height container with inner percentage height */}
+                  <div className="w-full flex-1 flex flex-col justify-end items-center max-w-[52px] sm:max-w-[72px]">
+                    <div className="w-full h-full bg-slate-200/60 rounded-t-xl overflow-hidden flex flex-col justify-end p-0.5">
+                      <div
+                        style={{ height: `${heightPercent}%` }}
+                        className={`w-full rounded-t-lg transition-all duration-300 ${
+                          isToday
+                            ? "bg-gradient-to-t from-emerald-600 to-emerald-400 shadow-sm"
+                            : isHovered
+                              ? "bg-emerald-500"
+                              : numericOmzet > 0
+                                ? "bg-emerald-600/85 hover:bg-emerald-500"
+                                : "bg-slate-300/40"
+                        }`}
+                      />
+                    </div>
                   </div>
 
                   {/* Bottom labels: day name & date */}
                   <div className="mt-2 text-center">
                     <span
-                      className={`block text-[11px] font-bold ${
+                      className={`block text-xs font-bold ${
                         isToday ? "text-emerald-700" : "text-slate-700"
                       }`}
                     >
                       {day.dayName}
                     </span>
-                    <span className="block text-[10px] text-slate-600 tabular-nums">
+                    <span className="block text-[10px] text-slate-500 tabular-nums font-medium">
                       {day.label.split(" ")[0]}
                     </span>
                   </div>
@@ -155,19 +157,19 @@ export function DashboardSalesTrendChart({ salesLast7Days = [] }: DashboardSales
 
           {/* Quick Metrics Footer */}
           <div className="grid grid-cols-3 gap-2 pt-2 border-t border-slate-100 text-center">
-            <div className="p-2 rounded-lg bg-slate-50">
+            <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-100">
               <span className="block text-[11px] text-slate-500">Rata-rata Harian</span>
               <span className="text-xs sm:text-sm font-bold text-slate-800 tabular-nums">
                 {formatRupiah(totalOmzet / 7)}
               </span>
             </div>
-            <div className="p-2 rounded-lg bg-slate-50">
+            <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-100">
               <span className="block text-[11px] text-slate-500">Total Porsi</span>
               <span className="text-xs sm:text-sm font-bold text-emerald-700 tabular-nums">
                 {totalPortions} porsi
               </span>
             </div>
-            <div className="p-2 rounded-lg bg-slate-50">
+            <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-100">
               <span className="block text-[11px] text-slate-500">Total Struk</span>
               <span className="text-xs sm:text-sm font-bold text-slate-800 tabular-nums">
                 {totalTransactions} transaksi
@@ -179,3 +181,5 @@ export function DashboardSalesTrendChart({ salesLast7Days = [] }: DashboardSales
     </div>
   );
 }
+
+export default DashboardSalesTrendChart;
