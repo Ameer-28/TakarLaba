@@ -1,5 +1,6 @@
 import { Award, UtensilsCrossed } from "lucide-react";
 import { formatRupiah } from "@/lib/format";
+import { formatPosMenuName } from "@/components/features/pos/pos-utils";
 
 export interface TopMenuItem {
   menuId: string;
@@ -29,7 +30,7 @@ export function DashboardTopMenus({ topMenus = [] }: DashboardTopMenusProps) {
   };
 
   return (
-    <div className="p-5 sm:p-6 rounded-2xl bg-white border border-slate-200/80 shadow-2xs flex flex-col justify-between h-full space-y-4">
+    <div className="p-5 sm:p-6 rounded-2xl bg-white border border-slate-200/80 shadow-xs space-y-4">
       {/* Header */}
       <div className="flex items-center justify-between pb-3 border-b border-slate-100">
         <div className="flex items-center gap-3">
@@ -56,7 +57,7 @@ export function DashboardTopMenus({ topMenus = [] }: DashboardTopMenusProps) {
           </p>
         </div>
       ) : (
-        <div className="space-y-3 flex-1 flex flex-col justify-between">
+        <div className="space-y-2.5">
           {topMenus.map((menu, idx) => {
             const rank = idx + 1;
             const percentOfTop = Math.round((menu.totalQty / maxQty) * 100);
@@ -76,7 +77,7 @@ export function DashboardTopMenus({ topMenus = [] }: DashboardTopMenusProps) {
                       {rank}
                     </span>
                     <span className="text-sm font-bold text-slate-800 truncate">
-                      {menu.menuName}
+                      {formatPosMenuName(menu.menuName)}
                     </span>
                   </div>
 

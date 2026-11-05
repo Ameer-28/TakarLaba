@@ -5,6 +5,7 @@ import {
   calculateCashChange,
   isBeverageMenu,
   getDefaultTemperature,
+  formatPosMenuName,
 } from "./pos-utils";
 
 describe("calculateQuickCashOptions", () => {
@@ -79,5 +80,18 @@ describe("isBeverageMenu & getDefaultTemperature", () => {
     expect(getDefaultTemperature("Manual Brew V60")).toBe("HOT");
     expect(getDefaultTemperature("Es Kopi Susu")).toBe("ICE");
     expect(getDefaultTemperature("Americano")).toBe("ICE");
+  });
+});
+
+describe("formatPosMenuName", () => {
+  it("strips leading 'Es ' from menu names for POS display", () => {
+    expect(formatPosMenuName("Es Kopi Susu Aren")).toBe("Kopi Susu Aren");
+    expect(formatPosMenuName("Es Teh Manis")).toBe("Teh Manis");
+    expect(formatPosMenuName("es matcha latte")).toBe("matcha latte");
+  });
+
+  it("preserves names that do not start with 'Es '", () => {
+    expect(formatPosMenuName("Americano")).toBe("Americano");
+    expect(formatPosMenuName("Croissant")).toBe("Croissant");
   });
 });

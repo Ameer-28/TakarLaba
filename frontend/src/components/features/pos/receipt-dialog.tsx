@@ -2,7 +2,7 @@ import { Printer, CheckCircle2, Plus } from "lucide-react";
 import type { SaleDetail } from "../../../api/hooks/use-sales.js";
 import { formatRupiah } from "../../../lib/format.js";
 import { useSettings } from "../../../api/hooks/use-settings.js";
-import { formatPaymentMethodLabel } from "./pos-utils.js";
+import { formatPaymentMethodLabel, formatPosMenuName } from "./pos-utils.js";
 import type { CartItem } from "./types.js";
 
 interface ReceiptDialogProps {
@@ -108,7 +108,7 @@ export function ReceiptDialog({
                 return (
                   <div key={item.id} className="space-y-0.5 text-xs">
                     <div className="font-bold text-slate-900">
-                      {item.menuNameSnapshot}
+                      {formatPosMenuName(item.menuNameSnapshot)}
                       {tempSuffix}
                     </div>
                     <div className="flex justify-between text-slate-500 tabular-nums">

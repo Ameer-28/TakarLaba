@@ -13,6 +13,7 @@ import {
 import type { CartItem, PosOrderType } from "./types.js";
 import { formatRupiah } from "../../../lib/format.js";
 import { getCartTotalQty, getCartTotalAmount } from "./cart-reducer.js";
+import { formatPosMenuName } from "./pos-utils.js";
 
 interface PosCartPanelProps {
   items: CartItem[];
@@ -150,7 +151,7 @@ export function PosCartPanel({
                 <div key={itemKey} className="py-3 first:pt-0 last:pb-0 space-y-2">
                   <div className="flex items-start gap-3">
                     {/* Item Thumbnail */}
-                    <div className="w-11 h-11 rounded-2xl bg-orange-50/80 border border-orange-100 flex items-center justify-center shrink-0">
+                    <div className="w-11 h-11 rounded-2xl bg-slate-100 border border-[#CCD0CF] flex items-center justify-center shrink-0">
                       {getItemMiniIcon(item.name, item.category)}
                     </div>
 
@@ -159,7 +160,7 @@ export function PosCartPanel({
                       <div className="flex items-start justify-between gap-1">
                         <div className="flex items-center gap-1.5 flex-wrap min-w-0">
                           <h5 className="font-bold text-slate-900 text-sm line-clamp-1">
-                            {item.name}
+                            {formatPosMenuName(item.name)}
                           </h5>
                           {item.temperature === "ICE" && (
                             <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-black bg-sky-50 text-sky-700 border border-sky-200/80 shrink-0">

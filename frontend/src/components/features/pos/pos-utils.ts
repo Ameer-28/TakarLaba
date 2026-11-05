@@ -116,3 +116,11 @@ export function getDefaultTemperature(name: string): "ICE" | "HOT" {
   }
   return "ICE";
 }
+
+/**
+ * Strips leading "Es " from beverage menu names for POS display,
+ * because POS includes an explicit Dingin / Panas selector.
+ */
+export function formatPosMenuName(name: string): string {
+  return name.replace(/^Es\s+/i, "").trim();
+}

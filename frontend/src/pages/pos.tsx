@@ -15,6 +15,7 @@ import { PosCartPanel } from "../components/features/pos/pos-cart-panel.js";
 import { PosCheckoutModal } from "../components/features/pos/pos-checkout-modal.js";
 import { ReceiptDialog } from "../components/features/pos/receipt-dialog.js";
 import { usePosShortcuts } from "../components/features/pos/use-pos-shortcuts.js";
+import { formatPosMenuName } from "../components/features/pos/pos-utils.js";
 import { formatRupiah } from "../lib/format.js";
 
 export function PosPage() {
@@ -86,7 +87,7 @@ export function PosPage() {
       type: "ADD_ITEM",
       payload: {
         menuId: menu.id,
-        name: menu.name,
+        name: formatPosMenuName(menu.name),
         category: menu.category,
         sellingPrice: parseFloat(menu.sellingPrice),
         temperature,

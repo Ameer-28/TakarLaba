@@ -107,7 +107,7 @@ export function DashboardPage() {
       </div>
 
       {/* Top Menus & Recent Daily Sales (Side-by-Side below the Trend Chart) */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 items-stretch">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 items-start">
         <DashboardTopMenus topMenus={data.topMenus} />
         <DashboardRecentSales sales={data.recentSales} />
       </div>

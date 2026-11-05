@@ -5,7 +5,6 @@ import {
   Minus,
   UtensilsCrossed,
   AlertCircle,
-  ShoppingBag,
   Coffee,
   CupSoda,
   Utensils,
@@ -14,7 +13,7 @@ import {
 import type { PosMenuItem } from "../../../api/hooks/use-pos-menus.js";
 import { formatRupiah } from "../../../lib/format.js";
 import type { CartItem, DrinkTemperature } from "./types.js";
-import { isBeverageMenu, getDefaultTemperature } from "./pos-utils.js";
+import { isBeverageMenu, getDefaultTemperature, formatPosMenuName } from "./pos-utils.js";
 
 interface PosMenuGridProps {
   menus: PosMenuItem[];
@@ -221,6 +220,7 @@ export function PosMenuGrid({
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {filteredMenus.map((menu) => {
+            const displayName = formatPosMenuName(menu.name);
             const isDrink = isBeverageMenu(menu.name, menu.category);
             const temperature = isDrink
               ? (selectedTemperatures[menu.id] ?? getDefaultTemperature(menu.name))
@@ -239,21 +239,16 @@ export function PosMenuGrid({
             return (
               <div
                 key={menu.id}
-                onClick={() => {
-                  if (isSellable) {
-                    onAddToCart(menu, temperature);
-                  }
-                }}
-                className={`group relative bg-white rounded-3xl border p-4.5 transition-all flex flex-col justify-between select-none ${
+                className={`group relative bg-white rounded-3xl border p-4 sm:p-4.5 transition-all flex flex-col justify-between select-none ${
                   isSellable
-                    ? "border-[#CCD0CF] hover:border-[#253745] hover:shadow-md cursor-pointer active:scale-[0.99]"
-                    : "border-[#CCD0CF] bg-[#CCD0CF]/20 opacity-65 cursor-not-allowed"
+                    ? "border-[#CCD0CF] hover:border-[#253745] hover:shadow-md"
+                    : "border-[#CCD0CF] bg-[#CCD0CF]/20 opacity-65"
                 }`}
               >
-                {/* Card Top: Thumbnail + Info */}
-                <div className="flex items-start gap-3.5">
+                {/* Card Top: Thumbnail + Info (Matching Reference Layout) */}
+                <div className="flex items-start gap-3.5 sm:gap-4">
                   {/* Left Thumbnail Box */}
-                  <div className="w-20 h-20 sm:w-22 sm:h-22 rounded-2xl bg-[#CCD0CF]/30 border border-[#CCD0CF] flex items-center justify-center shrink-0 relative overflow-hidden group-hover:scale-105 transition-transform">
+                  <div className="w-20 h-20 sm:w-22 sm:h-22 rounded-2xl bg-slate-50 border border-[#CCD0CF]/60 flex items-center justify-center shrink-0 relative overflow-hidden group-hover:scale-105 transition-transform p-2">
                     {getMenuIcon(menu.name, menu.category)}
                     {totalMenuInCartQty > 0 && (
                       <span className="absolute top-1.5 right-1.5 px-1.5 py-0.5 text-[10px] font-black bg-[#11212D] text-white rounded-full shadow-2xs">
@@ -263,67 +258,56 @@ export function PosMenuGrid({
                   </div>
 
                   {/* Right Details */}
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-start justify-between gap-1">
-                      <h4 className="font-extrabold text-[#06141B] text-base leading-snug line-clamp-1 group-hover:text-[#253745] transition-colors">
-                        {menu.name}
+                  <div className="min-w-0 flex-1 space-y-1">
+                    {/* Top Row: Menu Name (Left) & Price (Right) */}
+                    <div className="flex items-baseline justify-between gap-2">
+                      <h4 className="font-extrabold text-[#06141B] text-base leading-snug truncate group-hover:text-[#253745] transition-colors">
+                        {displayName}
                       </h4>
+                      <span className="text-sm sm:text-base font-black text-[#11212D] tabular-nums whitespace-nowrap shrink-0">
+                        {formatRupiah(menu.sellingPrice)}
+                      </span>
                     </div>
 
-                    <div className="text-base font-black text-[#11212D] tabular-nums mt-0.5">
-                      {formatRupiah(menu.sellingPrice)}
-                    </div>
-
-                    <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
-                      {menu.category && (
-                        <span className="inline-block px-2 py-0.5 text-[10px] font-bold bg-[#CCD0CF]/40 text-[#11212D] rounded-full">
-                          {menu.category}
-                        </span>
-                      )}
-
+                    {/* Subtitle / Description: Category & Stock info */}
+                    <p className="text-xs text-[#4A5C6A] line-clamp-2 leading-relaxed">
+                      {menu.category ? `${menu.category} · ` : ""}
                       {menu.capacity === 0 ? (
-                        <span className="text-[10px] font-bold text-rose-700 bg-rose-50 px-2 py-0.5 rounded-full border border-rose-200/60">
-                          Habis
-                        </span>
+                        <span className="text-rose-600 font-semibold">Stok habis</span>
                       ) : menu.capacity <= 10 ? (
-                        <span className="text-[10px] font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200/60 tabular-nums">
-                          Sisa {menu.capacity}
+                        <span className="text-amber-700 font-semibold">
+                          Sisa {menu.capacity} porsi
+                          {menu.bottleneckIngredientName
+                            ? ` (dibatasi ${menu.bottleneckIngredientName})`
+                            : ""}
                         </span>
                       ) : (
-                        <span className="text-[10px] font-semibold text-[#4A5C6A] tabular-nums">
-                          Sisa {menu.capacity}
-                        </span>
+                        <span>Sisa {menu.capacity} porsi</span>
                       )}
-                    </div>
+                    </p>
 
-                    {menu.bottleneckIngredientName && menu.capacity <= 10 && (
-                      <p className="mt-1 text-[10px] text-[#4A5C6A] truncate">
-                        Dibatasi: {menu.bottleneckIngredientName}
-                      </p>
-                    )}
-
-                    {/* Beverage Temperature Selector (Dingin vs Panas) */}
+                    {/* Beverage Temperature Selector: Dingin vs Panas */}
                     {isDrink && (
                       <div
-                        className="flex items-center gap-2 mt-2 pt-2 border-t border-[#CCD0CF]/60"
+                        className="flex items-center gap-2 pt-1"
                         onClick={(e) => e.stopPropagation()}
                       >
-                        <span className="text-[10px] font-bold text-[#4A5C6A]">Pilihan:</span>
-                        <div className="inline-flex items-center p-0.5 bg-[#CCD0CF]/30 rounded-full border border-[#CCD0CF] select-none">
+                        <span className="text-xs font-semibold text-[#4A5C6A]">Suhu</span>
+                        <div className="inline-flex items-center p-0.5 bg-slate-100 rounded-full border border-[#CCD0CF]/60 select-none">
                           <button
                             type="button"
                             onClick={(e) => {
                               e.stopPropagation();
                               setSelectedTemperatures((prev) => ({ ...prev, [menu.id]: "ICE" }));
                             }}
-                            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold transition-all cursor-pointer ${
+                            className={`inline-flex items-center px-3 py-0.5 rounded-full text-xs font-bold transition-all cursor-pointer ${
                               temperature === "ICE"
                                 ? "bg-[#11212D] text-white shadow-2xs"
                                 : "text-[#4A5C6A] hover:text-[#06141B]"
                             }`}
-                            title="Pilihan Dingin (Ice)"
+                            title="Pilihan Dingin"
                           >
-                            <span>Dingin</span>
+                            Dingin
                           </button>
                           <button
                             type="button"
@@ -331,14 +315,14 @@ export function PosMenuGrid({
                               e.stopPropagation();
                               setSelectedTemperatures((prev) => ({ ...prev, [menu.id]: "HOT" }));
                             }}
-                            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold transition-all cursor-pointer ${
+                            className={`inline-flex items-center px-3 py-0.5 rounded-full text-xs font-bold transition-all cursor-pointer ${
                               temperature === "HOT"
                                 ? "bg-[#11212D] text-white shadow-2xs"
                                 : "text-[#4A5C6A] hover:text-[#06141B]"
                             }`}
-                            title="Pilihan Panas (Hot)"
+                            title="Pilihan Panas"
                           >
-                            <span>Panas</span>
+                            Panas
                           </button>
                         </div>
                       </div>
@@ -346,73 +330,61 @@ export function PosMenuGrid({
                   </div>
                 </div>
 
-                {/* Card Bottom: Stepper / Action Controls */}
-                <div className="mt-4 pt-3 border-t border-[#CCD0CF]/60 flex items-center justify-between gap-2">
-                  {isSellable ? (
-                    inCartQty > 0 ? (
-                      <div className="w-full flex items-center justify-between">
-                        {/* Inline Stepper matching Purr'Coffee */}
-                        <div
-                          className="flex items-center gap-2 bg-[#CCD0CF]/30 rounded-full px-2.5 py-1 border border-[#CCD0CF]"
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              onDecrement?.(menu.id, temperature);
-                            }}
-                            className="w-5 h-5 rounded-full bg-white text-[#11212D] hover:text-rose-600 flex items-center justify-center shadow-2xs text-xs font-bold cursor-pointer transition-colors"
-                            title="Kurang 1"
-                          >
-                            <Minus className="w-3 h-3" />
-                          </button>
-                          <span className="tabular-nums font-black text-xs text-[#06141B] px-1 select-none">
-                            {inCartQty}
-                          </span>
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              onIncrement?.(menu.id, temperature);
-                            }}
-                            className="w-5 h-5 rounded-full bg-[#11212D] text-white hover:bg-[#253745] flex items-center justify-center shadow-2xs text-xs font-bold cursor-pointer transition-colors"
-                            title="Tambah 1"
-                          >
-                            <Plus className="w-3 h-3" />
-                          </button>
-                        </div>
-
-                        {/* Solid Added to Cart Pill */}
-                        <span className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-full bg-[#11212D] text-white shadow-2xs">
-                          <ShoppingBag className="w-3 h-3" />
-                          <span>
-                            {isDrink
-                              ? temperature === "ICE"
-                                ? "Dingin"
-                                : "Panas"
-                              : "Di Keranjang"}
-                          </span>
-                        </span>
-                      </div>
-                    ) : (
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
+                {/* Card Bottom: Stepper on Left, Action Button on Right (Matching Reference) */}
+                <div className="mt-3.5 pt-3 border-t border-[#CCD0CF]/60 flex items-center justify-between gap-3">
+                  {/* Left Stepper: [-] qty [+] */}
+                  <div
+                    className="inline-flex items-center gap-2 bg-slate-100/90 rounded-full px-2.5 py-1 border border-[#CCD0CF]/60 select-none"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <button
+                      type="button"
+                      disabled={!isSellable || inCartQty === 0}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onDecrement?.(menu.id, temperature);
+                      }}
+                      className="w-5 h-5 rounded-full bg-white text-[#11212D] hover:text-rose-600 disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center shadow-2xs text-xs font-bold cursor-pointer transition-colors"
+                      title="Kurang 1"
+                    >
+                      <Minus className="w-3 h-3" />
+                    </button>
+                    <span className="tabular-nums font-black text-xs text-[#06141B] min-w-[18px] text-center">
+                      {inCartQty}
+                    </span>
+                    <button
+                      type="button"
+                      disabled={!isSellable}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (inCartQty === 0) {
                           onAddToCart(menu, temperature);
-                        }}
-                        className="w-full flex items-center justify-center gap-1.5 px-4 py-2 text-xs font-bold text-[#11212D] hover:text-white bg-[#CCD0CF]/40 hover:bg-[#11212D] border border-[#CCD0CF] rounded-full transition-all cursor-pointer shadow-2xs"
-                      >
-                        <Plus className="w-3.5 h-3.5" />
-                        <span>
-                          Tambah{" "}
-                          {isDrink ? (temperature === "ICE" ? "Dingin" : "Panas") : "ke Keranjang"}
-                        </span>
-                      </button>
-                    )
+                        } else {
+                          onIncrement?.(menu.id, temperature);
+                        }
+                      }}
+                      className="w-5 h-5 rounded-full bg-white text-[#11212D] hover:bg-[#11212D] hover:text-white disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center shadow-2xs text-xs font-bold cursor-pointer transition-colors"
+                      title="Tambah 1"
+                    >
+                      <Plus className="w-3 h-3" />
+                    </button>
+                  </div>
+
+                  {/* Right Action Button: Always "Tambah ke Keranjang" */}
+                  {isSellable ? (
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onAddToCart(menu, temperature);
+                      }}
+                      className="inline-flex items-center justify-center gap-1.5 px-4 py-2 text-xs sm:text-sm font-bold text-white bg-[#11212D] hover:bg-[#253745] active:bg-[#06141B] rounded-full shadow-xs transition-all cursor-pointer active:scale-95 whitespace-nowrap ml-auto"
+                    >
+                      <Plus className="w-3.5 h-3.5" />
+                      <span>Tambah ke Keranjang</span>
+                    </button>
                   ) : (
-                    <span className="text-[11px] font-bold text-rose-700 bg-rose-50 px-3 py-1 rounded-full border border-rose-200/60 ml-auto">
+                    <span className="text-xs font-bold text-rose-700 bg-rose-50 px-3.5 py-1.5 rounded-full border border-rose-200/60 ml-auto">
                       Stok Habis
                     </span>
                   )}
@@ -425,3 +397,5 @@ export function PosMenuGrid({
     </div>
   );
 }
+
+export default PosMenuGrid;
