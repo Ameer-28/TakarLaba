@@ -30,15 +30,16 @@ export function DashboardPage() {
         </div>
         {/* Full-width 7-day trend chart skeleton */}
         <div className="h-72 bg-slate-100 rounded-2xl" />
-        {/* Top menus & recent sales side-by-side skeleton */}
+        {/* Analytics & Operations 2-column skeleton */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-          <div className="h-72 bg-slate-100 rounded-2xl" />
-          <div className="h-72 bg-slate-100 rounded-2xl" />
-        </div>
-        {/* Alerts & capacity bottlenecks skeleton */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-          <div className="h-64 bg-slate-100 rounded-2xl" />
-          <div className="h-64 bg-slate-100 rounded-2xl" />
+          <div className="space-y-5">
+            <div className="h-72 bg-slate-100 rounded-2xl" />
+            <div className="h-64 bg-slate-100 rounded-2xl" />
+          </div>
+          <div className="space-y-5">
+            <div className="h-72 bg-slate-100 rounded-2xl" />
+            <div className="h-64 bg-slate-100 rounded-2xl" />
+          </div>
         </div>
       </div>
     );
@@ -106,16 +107,19 @@ export function DashboardPage() {
         <DashboardSalesTrendChart salesLast7Days={data.salesLast7Days} />
       </div>
 
-      {/* Top Menus & Recent Daily Sales (Side-by-Side below the Trend Chart) */}
+      {/* Analytics & Operations 2-Column Responsive Layout (Kapasitas Porsi Menu Terendah Dinaikkan) */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 items-start">
-        <DashboardTopMenus topMenus={data.topMenus} />
-        <DashboardRecentSales sales={data.recentSales} />
-      </div>
+        {/* Left Column: Menu Terlaris & Penjualan Terakhir */}
+        <div className="space-y-5">
+          <DashboardTopMenus topMenus={data.topMenus} />
+          <DashboardRecentSales sales={data.recentSales} />
+        </div>
 
-      {/* Operational Margin Alerts & Capacity Bottlenecks */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 items-start">
-        <DashboardTopAlerts alerts={data.topAlerts} />
-        <DashboardLowestCapacity menus={data.lowestCapacityMenus} />
+        {/* Right Column: Kapasitas Porsi Terendah (Naik ke Atas) & Peringatan Margin */}
+        <div className="space-y-5">
+          <DashboardLowestCapacity menus={data.lowestCapacityMenus} />
+          <DashboardTopAlerts alerts={data.topAlerts} />
+        </div>
       </div>
     </div>
   );

@@ -180,8 +180,8 @@ export function PosPage() {
           </div>
         </div>
 
-        {/* Right Column: Desktop Cart Panel (1 col on lg, sticky) */}
-        <div className="hidden lg:block lg:col-span-1 sticky top-6">
+        {/* Right Column: Desktop Cart Panel (1 col on lg, sticky full-height) */}
+        <div className="hidden lg:block lg:col-span-1 sticky top-6 self-start h-[calc(100vh-5rem)]">
           <PosCartPanel
             items={cartState.items}
             onIncrement={handleIncrement}

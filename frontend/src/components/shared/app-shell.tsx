@@ -155,6 +155,9 @@ export function AppShell() {
           })}
         </nav>
 
+        {/* Demo Mode Information Widget (Sidebar) */}
+        <DemoBanner isCollapsed={isCollapsed} />
+
         {/* User Profile & Logout */}
         {!isCollapsed ? (
           <div className="p-4 border-t border-[#CCD0CF] bg-[#CCD0CF]/20">
@@ -266,7 +269,6 @@ export function AppShell() {
           isCollapsed ? "lg:pl-20" : "lg:pl-64"
         }`}
       >
-        <DemoBanner />
         <div className="flex-1 p-4 sm:p-6 lg:p-8 pb-24 lg:pb-8 max-w-7xl w-full mx-auto">
           <ErrorBoundary>
             <Outlet />
