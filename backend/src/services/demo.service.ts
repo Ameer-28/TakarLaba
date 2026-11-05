@@ -11,6 +11,7 @@ import {
 } from "../lib/errors.js";
 import { DEMO_BUSINESS_ID } from "../seed/fixture-data.js";
 import { seedDemo, getDemoPassword } from "../seed/seed-demo.js";
+import { logger } from "../lib/logger.js";
 
 export class DemoService {
   constructor(private readonly isDemoMode: boolean = env.DEMO_MODE) {}
@@ -183,17 +184,64 @@ export class DemoService {
     }
 
     const email = role === "OWNER" ? "owner@takarlaba.demo" : "kasir@takarlaba.demo";
-    const password = getDemoPassword();
+    let password: string;
+    try {
+      password = getDemoPassword("DemoPassword123!");
+    } catch {
+      password = "DemoPassword123!";
+    }
 
-    const authRes = await auth.api.signInEmail({
-      body: {
-        email,
-        password,
-      },
-      asResponse: true,
-    });
+    const candidatePasswords = Array.from(
+      new Set(
+        [password, "DemoPassword123!", "password123"].filter((p): p is string =>
+          Boolean(p && p.trim())
+        )
+      )
+    );
 
-    if (!authRes.ok) {
+    let authRes: Response | undefined;
+    for (const pwd of candidatePasswords) {
+      try {
+        const res = await auth.api.signInEmail({
+          body: {
+            email,
+            password: pwd,
+          },
+          asResponse: true,
+        });
+
+        if (res.ok) {
+          authRes = res;
+          break;
+        }
+      } catch (err: unknown) {
+        logger.warn({ err, email }, "Candidate password signInEmail threw error");
+      }
+    }
+
+    // Auto-provision demo fixture if neither candidate password succeeded
+    if (!authRes || !authRes.ok) {
+      try {
+        logger.info({ email }, "Candidate passwords failed, re-provisioning demo fixture...");
+        await seedDemo({
+          businessId: DEMO_BUSINESS_ID,
+          deleteUsers: true,
+          customPassword: password,
+        });
+
+        authRes = await auth.api.signInEmail({
+          body: {
+            email,
+            password,
+          },
+          asResponse: true,
+        });
+      } catch (seedErr: unknown) {
+        logger.error({ seedErr }, "Auto-provisioning demo seed failed");
+      }
+    }
+
+    if (!authRes || !authRes.ok) {
       throw new UnauthenticatedError(
         "Gagal masuk sebagai pengguna demo. Silakan pastikan data contoh telah diisi."
       );

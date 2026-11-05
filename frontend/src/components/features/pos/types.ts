@@ -1,5 +1,7 @@
 import type { PaymentMethod } from "../../../api/hooks/use-sales.js";
 
+export type PosOrderType = "DINE_IN" | "TAKE_AWAY" | "DELIVERY";
+
 export interface CartItem {
   menuId: string;
   name: string;

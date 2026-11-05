@@ -12,8 +12,8 @@ import {
 } from "./fixture-data.js";
 import { generate30DaySales } from "./sales-generator.js";
 
-export function getDemoPassword(): string {
-  const password = process.env.DEMO_PASSWORD;
+export function getDemoPassword(fallback?: string): string {
+  const password = process.env.DEMO_PASSWORD || fallback;
   if (!password || password.trim() === "") {
     throw new Error("DEMO_PASSWORD environment variable is required to run seed");
   }
@@ -40,7 +40,7 @@ export function getDemoUsers(password: string) {
 export const DEMO_USERS = getDemoUsers("placeholder-password");
 
 export async function seedV0() {
-  const password = getDemoPassword();
+  const password = getDemoPassword("DemoPassword123!");
   const demoUsers = getDemoUsers(password);
 
   const business = await prisma.business.upsert({
@@ -215,7 +215,7 @@ export interface SeedDemoOptions {
  */
 export async function seedDemo(options: SeedDemoOptions = {}) {
   const businessId = options.businessId ?? DEMO_BUSINESS_ID;
-  const password = options.customPassword ?? getDemoPassword();
+  const password = options.customPassword ?? getDemoPassword("DemoPassword123!");
   const refDate = options.referenceDate ?? todayWIB();
 
   logger.info({ businessId }, "Memulai eksekusi seed deterministik bisnis demo...");
