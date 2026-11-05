@@ -1,4 +1,23 @@
-import { Search, Plus, CheckCircle2, AlertTriangle, AlertCircle, BookOpen } from "lucide-react";
+import {
+  Search,
+  Plus,
+  PlusCircle,
+  CheckCircle2,
+  AlertTriangle,
+  AlertCircle,
+  BookOpen,
+  Coffee,
+  Utensils,
+  CupSoda,
+  LayoutGrid,
+  Tag,
+  Layers,
+  SlidersHorizontal,
+  ToggleRight,
+  ToggleLeft,
+  RotateCcw,
+} from "lucide-react";
+import { DropdownNavigation, type NavItem } from "@/components/ui/dropdown-navigation";
 
 export type MarginFilterType = "ALL" | "AMAN" | "WASPADA" | "BAHAYA" | "INCOMPLETE_OR_NO_RECIPE";
 
@@ -27,141 +46,235 @@ export function MenuFiltersBar({
   onMarginFilterChange,
   onOpenCreate,
 }: MenuFiltersBarProps) {
+  const hasActiveFilters =
+    Boolean(search) ||
+    selectedCategory !== "ALL" ||
+    activeFilter !== "ALL" ||
+    marginFilter !== "ALL";
+
+  const handleResetFilters = () => {
+    onSearchChange("");
+    onSelectCategory("ALL");
+    onActiveFilterChange("ALL");
+    onMarginFilterChange("ALL");
+  };
+
+  const navItems: NavItem[] = [
+    {
+      id: "kategori",
+      label: selectedCategory === "ALL" ? "Kategori" : `Kategori: ${selectedCategory}`,
+      active: selectedCategory !== "ALL",
+      subMenus: [
+        {
+          title: "Pilihan Kategori Menu",
+          items: [
+            {
+              label: "Semua Kategori",
+              description: "Tampilkan seluruh menu makanan dan minuman",
+              icon: LayoutGrid,
+              active: selectedCategory === "ALL",
+              onClick: () => onSelectCategory("ALL"),
+            },
+            ...availableCategories.map((cat) => {
+              let Icon = Tag;
+              let desc = `Daftar menu untuk kategori ${cat}`;
+              const lower = cat.toLowerCase();
+              if (lower.includes("kopi") && !lower.includes("non")) {
+                Icon = Coffee;
+                desc = "Minuman olahan espresso, latte, & racikan kopi";
+              } else if (
+                lower.includes("makan") ||
+                lower.includes("food") ||
+                lower.includes("snack") ||
+                lower.includes("roti") ||
+                lower.includes("pastry")
+              ) {
+                Icon = Utensils;
+                desc = "Makanan berat, camilan, & hidangan penutup";
+              } else if (
+                lower.includes("non") ||
+                lower.includes("teh") ||
+                lower.includes("drink") ||
+                lower.includes("minum") ||
+                lower.includes("juice") ||
+                lower.includes("jus")
+              ) {
+                Icon = CupSoda;
+                desc = "Aneka teh, cokelat, susu, & minuman segar";
+              }
+              return {
+                label: cat,
+                description: desc,
+                icon: Icon,
+                active: selectedCategory === cat,
+                onClick: () => onSelectCategory(cat),
+              };
+            }),
+          ],
+        },
+      ],
+    },
+    {
+      id: "margin",
+      label:
+        marginFilter === "ALL"
+          ? "Status Margin"
+          : marginFilter === "AMAN"
+            ? "Margin: Aman"
+            : marginFilter === "WASPADA"
+              ? "Margin: Waspada"
+              : marginFilter === "BAHAYA"
+                ? "Margin: Bahaya"
+                : "Margin: Perlu Resep",
+      active: marginFilter !== "ALL",
+      subMenus: [
+        {
+          title: "Kesehatan Margin & HPP",
+          items: [
+            {
+              label: "Semua Margin",
+              description: "Tampilkan seluruh status kesehatan keuntungan menu",
+              icon: Layers,
+              active: marginFilter === "ALL",
+              onClick: () => onMarginFilterChange("ALL"),
+            },
+            {
+              label: "Aman",
+              description: "Margin laba sehat di atas batas target keuntungan",
+              icon: CheckCircle2,
+              active: marginFilter === "AMAN",
+              onClick: () => onMarginFilterChange("AMAN"),
+            },
+            {
+              label: "Waspada",
+              description: "Margin tipis mendekati batas kritis modal HPP bahan",
+              icon: AlertTriangle,
+              active: marginFilter === "WASPADA",
+              onClick: () => onMarginFilterChange("WASPADA"),
+            },
+            {
+              label: "Bahaya",
+              description: "Margin sangat rendah atau rugi di bawah modal pokok",
+              icon: AlertCircle,
+              active: marginFilter === "BAHAYA",
+              onClick: () => onMarginFilterChange("BAHAYA"),
+            },
+            {
+              label: "Perlu Resep / Belum Lengkap",
+              description: "Menu belum diisi resep bahan baku atau racikan kosong",
+              icon: BookOpen,
+              active: marginFilter === "INCOMPLETE_OR_NO_RECIPE",
+              onClick: () => onMarginFilterChange("INCOMPLETE_OR_NO_RECIPE"),
+            },
+          ],
+        },
+      ],
+    },
+    {
+      id: "status",
+      label:
+        activeFilter === "ALL"
+          ? "Semua Status"
+          : activeFilter === "ACTIVE"
+            ? "Hanya Aktif"
+            : "Hanya Nonaktif",
+      active: activeFilter !== "ALL",
+      subMenus: [
+        {
+          title: "Ketersediaan Menu",
+          items: [
+            {
+              label: "Semua Status",
+              description: "Tampilkan seluruh menu baik yang aktif maupun nonaktif",
+              icon: SlidersHorizontal,
+              active: activeFilter === "ALL",
+              onClick: () => onActiveFilterChange("ALL"),
+            },
+            {
+              label: "Hanya Aktif",
+              description: "Menu aktif yang siap dijual di kasir POS",
+              icon: ToggleRight,
+              active: activeFilter === "ACTIVE",
+              onClick: () => onActiveFilterChange("ACTIVE"),
+            },
+            {
+              label: "Hanya Nonaktif",
+              description: "Menu yang sedang dinonaktifkan atau diarsipkan",
+              icon: ToggleLeft,
+              active: activeFilter === "INACTIVE",
+              onClick: () => onActiveFilterChange("INACTIVE"),
+            },
+          ],
+        },
+      ],
+    },
+    {
+      id: "tambah-menu",
+      label: "Tambah Menu",
+      isPrimary: true,
+      icon: Plus,
+      onClick: onOpenCreate,
+      align: "right",
+      subMenus: [
+        {
+          title: "Aksi Katalog Menu",
+          items: [
+            {
+              label: "Tambah Menu Baru",
+              description: "Buat menu makanan/minuman baru & tentukan harga jual",
+              icon: PlusCircle,
+              onClick: onOpenCreate,
+            },
+          ],
+        },
+      ],
+    },
+  ];
+
   return (
-    <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs space-y-4">
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+    <div className="bg-white p-3.5 sm:p-4 rounded-2xl border border-slate-200/80 shadow-xs space-y-3">
+      <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3">
         {/* Search bar */}
-        <div className="relative flex-1">
+        <div className="relative flex-1 min-w-[220px]">
           <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
           <input
             type="text"
             value={search}
             onChange={(e) => onSearchChange(e.target.value)}
             placeholder="Cari nama menu atau kategori..."
-            className="w-full pl-10 pr-4 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-hidden focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 transition-all placeholder:text-slate-400"
+            className="w-full pl-10 pr-9 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-hidden focus:ring-2 focus:ring-[#253745]/20 focus:border-[#253745] transition-all placeholder:text-slate-400"
           />
-        </div>
-
-        <div className="flex items-center gap-2">
-          {/* Status Filter */}
-          <select
-            value={activeFilter}
-            onChange={(e) => onActiveFilterChange(e.target.value as "ALL" | "ACTIVE" | "INACTIVE")}
-            className="px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl text-slate-700 font-medium focus:outline-hidden focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 transition-all cursor-pointer"
-          >
-            <option value="ALL">Semua Status</option>
-            <option value="ACTIVE">Hanya Aktif</option>
-            <option value="INACTIVE">Hanya Nonaktif</option>
-          </select>
-
-          {/* Add Menu Button */}
-          <button
-            type="button"
-            onClick={onOpenCreate}
-            className="flex items-center justify-center gap-2 px-4 py-2 text-sm font-bold text-white bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 rounded-xl shadow-xs shadow-emerald-700/20 transition-all cursor-pointer whitespace-nowrap"
-          >
-            <Plus className="w-4 h-4" />
-            <span>Tambah Menu</span>
-          </button>
-        </div>
-      </div>
-
-      {/* Filter Pills: Categories & Margin Safety */}
-      <div className="space-y-2 pt-2 border-t border-slate-100">
-        {/* Category Filter Pills */}
-        <div className="flex flex-wrap items-center gap-1.5">
-          <span className="text-xs font-semibold text-slate-400 mr-1">Kategori:</span>
-          <button
-            type="button"
-            onClick={() => onSelectCategory("ALL")}
-            className={`px-3 py-1 text-xs rounded-lg transition-colors font-semibold cursor-pointer ${
-              selectedCategory === "ALL"
-                ? "bg-emerald-600 text-white"
-                : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-            }`}
-          >
-            Semua
-          </button>
-          {availableCategories.map((cat) => (
+          {search && (
             <button
-              key={cat}
               type="button"
-              onClick={() => onSelectCategory(cat)}
-              className={`px-3 py-1 text-xs rounded-lg transition-colors font-semibold cursor-pointer ${
-                selectedCategory === cat
-                  ? "bg-emerald-600 text-white"
-                  : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-              }`}
+              onClick={() => onSearchChange("")}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-0.5 rounded cursor-pointer"
+              title="Hapus pencarian"
             >
-              {cat}
+              &times;
             </button>
-          ))}
+          )}
         </div>
 
-        {/* Margin Status Filter Pills */}
-        <div className="flex flex-wrap items-center gap-1.5 pt-1">
-          <span className="text-xs font-semibold text-slate-400 mr-1">Status Margin:</span>
-          <button
-            type="button"
-            onClick={() => onMarginFilterChange("ALL")}
-            className={`px-3 py-1 text-xs rounded-lg transition-colors font-semibold cursor-pointer ${
-              marginFilter === "ALL"
-                ? "bg-slate-800 text-white"
-                : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-            }`}
-          >
-            Semua Margin
-          </button>
-          <button
-            type="button"
-            onClick={() => onMarginFilterChange("AMAN")}
-            className={`inline-flex items-center gap-1 px-3 py-1 text-xs rounded-lg transition-colors font-semibold cursor-pointer ${
-              marginFilter === "AMAN"
-                ? "bg-emerald-600 text-white"
-                : "bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200/50"
-            }`}
-          >
-            <CheckCircle2 className="w-3 h-3" />
-            <span>Aman</span>
-          </button>
-          <button
-            type="button"
-            onClick={() => onMarginFilterChange("WASPADA")}
-            className={`inline-flex items-center gap-1 px-3 py-1 text-xs rounded-lg transition-colors font-semibold cursor-pointer ${
-              marginFilter === "WASPADA"
-                ? "bg-amber-600 text-white"
-                : "bg-amber-50 text-amber-700 hover:bg-amber-100 border border-amber-200/50"
-            }`}
-          >
-            <AlertTriangle className="w-3 h-3" />
-            <span>Waspada</span>
-          </button>
-          <button
-            type="button"
-            onClick={() => onMarginFilterChange("BAHAYA")}
-            className={`inline-flex items-center gap-1 px-3 py-1 text-xs rounded-lg transition-colors font-semibold cursor-pointer ${
-              marginFilter === "BAHAYA"
-                ? "bg-rose-600 text-white"
-                : "bg-rose-50 text-rose-700 hover:bg-rose-100 border border-rose-200/50"
-            }`}
-          >
-            <AlertCircle className="w-3 h-3" />
-            <span>Bahaya</span>
-          </button>
-          <button
-            type="button"
-            onClick={() => onMarginFilterChange("INCOMPLETE_OR_NO_RECIPE")}
-            className={`inline-flex items-center gap-1 px-3 py-1 text-xs rounded-lg transition-colors font-semibold cursor-pointer ${
-              marginFilter === "INCOMPLETE_OR_NO_RECIPE"
-                ? "bg-sky-700 text-white"
-                : "bg-sky-50 text-sky-700 hover:bg-sky-100 border border-sky-200/50"
-            }`}
-          >
-            <BookOpen className="w-3 h-3" />
-            <span>Perlu Resep / Belum Lengkap</span>
-          </button>
+        {/* Navigation Dropdown with Kategori, Status Margin, Semua Status, and Tambah Menu */}
+        <div className="flex flex-wrap items-center gap-2">
+          <DropdownNavigation navItems={navItems} />
+
+          {hasActiveFilters && (
+            <button
+              type="button"
+              onClick={handleResetFilters}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-slate-500 hover:text-rose-600 hover:bg-rose-50 border border-slate-200 hover:border-rose-200 rounded-full transition-all cursor-pointer"
+              title="Reset semua filter"
+            >
+              <RotateCcw className="w-3.5 h-3.5" />
+              <span>Reset</span>
+            </button>
+          )}
         </div>
       </div>
     </div>
   );
 }
+
+export default MenuFiltersBar;
