@@ -3,6 +3,7 @@ import { Store, ShoppingCart, ArrowRight, X, Keyboard } from "lucide-react";
 import { toast } from "sonner";
 import { usePosMenus, type PosMenuItem } from "../api/hooks/use-pos-menus.js";
 import type { SaleDetail } from "../api/hooks/use-sales.js";
+import type { CartItem, DrinkTemperature } from "../components/features/pos/types.js";
 import {
   cartReducer,
   initialCartState,
@@ -26,6 +27,7 @@ export function PosPage() {
   const [isReceiptModalOpen, setIsReceiptModalOpen] = useState(false);
   const [completedSale, setCompletedSale] = useState<SaleDetail | null>(null);
   const [completedCashReceived, setCompletedCashReceived] = useState<number>(0);
+  const [completedCartItems, setCompletedCartItems] = useState<CartItem[]>([]);
 
   // Mobile bottom drawer toggle
   const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false);
@@ -70,7 +72,7 @@ export function PosPage() {
     hasCartItems: cartState.items.length > 0,
   });
 
-  const handleAddToCart = (menu: PosMenuItem) => {
+  const handleAddToCart = (menu: PosMenuItem, temperature?: DrinkTemperature) => {
     if (menu.capacity <= 0) {
       toast.error(`Menu "${menu.name}" sedang habis stok`);
       return;
@@ -87,23 +89,30 @@ export function PosPage() {
         name: menu.name,
         category: menu.category,
         sellingPrice: parseFloat(menu.sellingPrice),
+        temperature,
       },
     });
   };
 
-  const handleIncrement = (menuId: string) => {
-    dispatch({ type: "INCREMENT_QTY", payload: { menuId } });
+  const handleIncrement = (cartKeyOrMenuId: string, temperature?: DrinkTemperature) => {
+    const key = temperature ? `${cartKeyOrMenuId}-${temperature}` : cartKeyOrMenuId;
+    dispatch({ type: "INCREMENT_QTY", payload: { cartKey: key, menuId: cartKeyOrMenuId } });
   };
 
-  const handleDecrement = (menuId: string) => {
-    dispatch({ type: "DECREMENT_QTY", payload: { menuId } });
+  const handleDecrement = (cartKeyOrMenuId: string, temperature?: DrinkTemperature) => {
+    const key = temperature ? `${cartKeyOrMenuId}-${temperature}` : cartKeyOrMenuId;
+    dispatch({ type: "DECREMENT_QTY", payload: { cartKey: key, menuId: cartKeyOrMenuId } });
   };
 
-  const handleRemove = (menuId: string) => {
-    dispatch({ type: "REMOVE_ITEM", payload: { menuId } });
+  const handleRemove = (cartKeyOrMenuId: string) => {
+    dispatch({
+      type: "REMOVE_ITEM",
+      payload: { cartKey: cartKeyOrMenuId, menuId: cartKeyOrMenuId },
+    });
   };
 
   const handleCheckoutSuccess = (sale: SaleDetail, cashReceived: number) => {
+    setCompletedCartItems([...cartState.items]);
     dispatch({ type: "CLEAR_CART" });
     setIsCheckoutModalOpen(false);
     setCompletedSale(sale);
@@ -277,6 +286,7 @@ export function PosPage() {
         onClose={() => setIsReceiptModalOpen(false)}
         sale={completedSale}
         cashReceived={completedCashReceived}
+        cartItems={completedCartItems}
       />
     </div>
   );

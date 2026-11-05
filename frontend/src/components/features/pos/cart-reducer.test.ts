@@ -191,4 +191,105 @@ describe("POS Shopping Cart Reducer (T-042 — FR-POS-01)", () => {
     expect(getCartTotalQty(items)).toBe(5);
     expect(getCartTotalAmount(items)).toBe(84000);
   });
+
+  describe("Beverage Temperature Options (Dingin vs Panas)", () => {
+    it("distinguishes ICE and HOT variants for the same drink", () => {
+      let state = cartReducer(initialCartState, {
+        type: "ADD_ITEM",
+        payload: {
+          menuId: "menu-kopi",
+          name: "Americano",
+          category: "Coffee",
+          sellingPrice: 18000,
+          temperature: "ICE",
+        },
+      });
+
+      state = cartReducer(state, {
+        type: "ADD_ITEM",
+        payload: {
+          menuId: "menu-kopi",
+          name: "Americano",
+          category: "Coffee",
+          sellingPrice: 18000,
+          temperature: "HOT",
+        },
+      });
+
+      expect(state.items).toHaveLength(2);
+      expect(state.items[0]?.temperature).toBe("ICE");
+      expect(state.items[0]?.qty).toBe(1);
+      expect(state.items[1]?.temperature).toBe("HOT");
+      expect(state.items[1]?.qty).toBe(1);
+
+      // Adding ICE again increments only the ICE variant
+      state = cartReducer(state, {
+        type: "ADD_ITEM",
+        payload: {
+          menuId: "menu-kopi",
+          name: "Americano",
+          category: "Coffee",
+          sellingPrice: 18000,
+          temperature: "ICE",
+        },
+      });
+
+      expect(state.items).toHaveLength(2);
+      expect(state.items[0]?.qty).toBe(2);
+      expect(state.items[1]?.qty).toBe(1);
+
+      expect(getCartTotalQty(state.items)).toBe(3);
+      expect(getCartTotalAmount(state.items)).toBe(54000);
+    });
+
+    it("increments and decrements specific temperature variant using cartKey", () => {
+      let state = cartReducer(initialCartState, {
+        type: "ADD_ITEM",
+        payload: {
+          menuId: "menu-teh",
+          name: "Teh Manis",
+          category: "Minuman",
+          sellingPrice: 6000,
+          temperature: "ICE",
+        },
+      });
+
+      state = cartReducer(state, {
+        type: "ADD_ITEM",
+        payload: {
+          menuId: "menu-teh",
+          name: "Teh Manis",
+          category: "Minuman",
+          sellingPrice: 6000,
+          temperature: "HOT",
+        },
+      });
+
+      // Increment HOT variant
+      state = cartReducer(state, {
+        type: "INCREMENT_QTY",
+        payload: { cartKey: "menu-teh-HOT" },
+      });
+
+      expect(state.items.find((i) => i.temperature === "HOT")?.qty).toBe(2);
+      expect(state.items.find((i) => i.temperature === "ICE")?.qty).toBe(1);
+
+      // Decrement HOT variant
+      state = cartReducer(state, {
+        type: "DECREMENT_QTY",
+        payload: { cartKey: "menu-teh-HOT" },
+      });
+
+      expect(state.items.find((i) => i.temperature === "HOT")?.qty).toBe(1);
+
+      // Remove ICE variant
+      state = cartReducer(state, {
+        type: "REMOVE_ITEM",
+        payload: { cartKey: "menu-teh-ICE" },
+      });
+
+      expect(state.items).toHaveLength(1);
+      expect(state.items[0]?.temperature).toBe("HOT");
+    });
+  });
 });

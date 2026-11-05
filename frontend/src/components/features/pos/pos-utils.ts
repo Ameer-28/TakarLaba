@@ -40,3 +40,79 @@ export function calculateCashChange(totalAmount: number, cashReceived: number) {
   const shortage = isInsufficient ? totalAmount - cashReceived : 0;
   return { isInsufficient, change, shortage };
 }
+
+export function isBeverageMenu(name: string, category: string | null): boolean {
+  const cat = category?.toLowerCase().trim() ?? "";
+  if (
+    cat === "makanan" ||
+    cat === "food" ||
+    cat === "snack" ||
+    cat === "snacks" ||
+    cat === "pastry" ||
+    cat === "dessert" ||
+    cat === "desserts"
+  ) {
+    return false;
+  }
+
+  if (
+    cat === "minuman" ||
+    cat === "beverage" ||
+    cat === "beverages" ||
+    cat === "drink" ||
+    cat === "drinks" ||
+    cat === "coffee" ||
+    cat === "non coffee" ||
+    cat === "tea"
+  ) {
+    return true;
+  }
+
+  const text = name.toLowerCase();
+  if (
+    text.startsWith("roti ") ||
+    text.startsWith("nasi ") ||
+    text.startsWith("mie ") ||
+    text.includes("burger") ||
+    text.includes("croissant") ||
+    text.includes("cake") ||
+    text.includes("sandwich")
+  ) {
+    return false;
+  }
+
+  return (
+    text.includes("kopi") ||
+    text.includes("coffee") ||
+    text.includes("espresso") ||
+    text.includes("latte") ||
+    text.includes("cappuccino") ||
+    text.includes("v60") ||
+    text.includes("americano") ||
+    text.includes("teh") ||
+    text.includes("tea") ||
+    text.includes("jus") ||
+    text.includes("juice") ||
+    text.includes("soda") ||
+    text.includes("minuman") ||
+    text.includes("drink") ||
+    text.includes("boba") ||
+    text.includes("matcha") ||
+    text.includes("es ") ||
+    text.endsWith(" ice") ||
+    text.includes("iced")
+  );
+}
+
+export function getDefaultTemperature(name: string): "ICE" | "HOT" {
+  const text = name.toLowerCase();
+  if (
+    text.includes("panas") ||
+    text.includes("hot") ||
+    text.includes("hangat") ||
+    text.includes("v60")
+  ) {
+    return "HOT";
+  }
+  return "ICE";
+}
