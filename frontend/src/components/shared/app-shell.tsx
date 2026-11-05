@@ -269,7 +269,13 @@ export function AppShell() {
           isCollapsed ? "lg:pl-20" : "lg:pl-64"
         }`}
       >
-        <div className="flex-1 p-4 sm:p-6 lg:p-8 pb-24 lg:pb-8 max-w-7xl w-full mx-auto">
+        <div
+          className={`flex-1 ${
+            location.pathname === "/pos"
+              ? "w-full min-h-screen flex flex-col p-0 pb-20 lg:pb-0"
+              : "p-4 sm:p-6 lg:p-8 pb-24 lg:pb-8 max-w-7xl w-full mx-auto"
+          }`}
+        >
           <ErrorBoundary>
             <Outlet />
           </ErrorBoundary>

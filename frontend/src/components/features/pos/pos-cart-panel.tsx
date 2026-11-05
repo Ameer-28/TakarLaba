@@ -61,7 +61,7 @@ export function PosCartPanel({
   const totalAmount = getCartTotalAmount(items);
 
   return (
-    <div className="bg-white rounded-3xl border border-[#CCD0CF] shadow-xs flex flex-col h-full overflow-hidden">
+    <div className="bg-white flex flex-col h-full overflow-hidden">
       {/* Header */}
       <div className="p-4 sm:p-5 border-b border-[#CCD0CF] flex items-center justify-between shrink-0">
         <div>
