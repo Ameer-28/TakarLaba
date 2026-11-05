@@ -47,7 +47,7 @@
 
 @layer base {
   :root {
-    --background: 200 16% 96%;
+    --background: 0 0% 100%;
     --foreground: 200 64% 7%;
 
     --card: 0 0% 100%;
@@ -141,7 +141,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 
 input[type="date"]::-webkit-calendar-picker-indicator:hover {
   opacity: 1;
-  background-color: #f0f4f5;
+  background-color: #f1f5f9;
 }
 
 input[type="date"]:hover {
