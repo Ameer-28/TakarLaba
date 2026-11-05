@@ -47,33 +47,33 @@
 
 @layer base {
   :root {
-    --background: 30 38% 97%;
-    --foreground: 222.2 25% 15%;
+    --background: 200 16% 96%;
+    --foreground: 200 64% 7%;
 
     --card: 0 0% 100%;
-    --card-foreground: 222.2 25% 15%;
+    --card-foreground: 200 64% 7%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 25% 15%;
+    --popover-foreground: 200 64% 7%;
 
-    --primary: 21 88% 58%;
+    --primary: 206 45% 12%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 30 35% 95%;
-    --secondary-foreground: 222.2 25% 15%;
+    --secondary: 165 4% 81%;
+    --secondary-foreground: 206 45% 12%;
 
-    --muted: 30 25% 94%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --muted: 191 10% 88%;
+    --muted-foreground: 206 18% 35%;
 
-    --accent: 30 40% 94%;
-    --accent-foreground: 222.2 25% 15%;
+    --accent: 206 30% 21%;
+    --accent-foreground: 0 0% 100%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 30 20% 90%;
-    --input: 30 20% 90%;
-    --ring: 21 88% 58%;
+    --border: 165 4% 81%;
+    --input: 165 4% 81%;
+    --ring: 206 30% 21%;
 
     --success: 142.1 76.2% 36.3%;
     --success-foreground: 0 0% 100%;
@@ -97,7 +97,7 @@ select {
   appearance: none;
   -webkit-appearance: none;
   -moz-appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23f27238' stroke-width='2.5'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E") !important;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23253745' stroke-width='2.5'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E") !important;
   background-repeat: no-repeat !important;
   background-position: right 0.75rem center !important;
   background-size: 1rem 1rem !important;
@@ -108,13 +108,13 @@ select {
 }
 
 select:hover {
-  border-color: #fbd5c0;
+  border-color: #9ba8ab;
 }
 
 select:focus {
   outline: none;
-  border-color: #f27238 !important;
-  box-shadow: 0 0 0 3px rgba(242, 114, 56, 0.15) !important;
+  border-color: #253745 !important;
+  box-shadow: 0 0 0 3px rgba(37, 55, 69, 0.15) !important;
 }
 
 /* Custom modern styling for date inputs */
@@ -133,7 +133,7 @@ input[type="date"] {
 input[type="date"]::-webkit-calendar-picker-indicator {
   cursor: pointer;
   opacity: 0.85;
-  filter: invert(53%) sepia(85%) saturate(2250%) hue-rotate(345deg) brightness(98%) contrast(92%);
+  filter: invert(19%) sepia(21%) saturate(1100%) hue-rotate(167deg) brightness(94%) contrast(90%);
   transition: all 0.2s ease;
   padding: 4px;
   border-radius: 6px;
@@ -141,17 +141,17 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 
 input[type="date"]::-webkit-calendar-picker-indicator:hover {
   opacity: 1;
-  background-color: #fff7ed;
+  background-color: #f0f4f5;
 }
 
 input[type="date"]:hover {
-  border-color: #fbd5c0;
+  border-color: #9ba8ab;
 }
 
 input[type="date"]:focus {
   outline: none;
-  border-color: #f27238 !important;
-  box-shadow: 0 0 0 3px rgba(242, 114, 56, 0.15) !important;
+  border-color: #253745 !important;
+  box-shadow: 0 0 0 3px rgba(37, 55, 69, 0.15) !important;
 }
 
 @media print {

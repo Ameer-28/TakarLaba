@@ -200,14 +200,14 @@ export function PosPage() {
               onClick={() => setIsMobileDrawerOpen(true)}
               className="flex items-center gap-3 cursor-pointer select-none"
             >
-              <div className="relative p-2 bg-slate-800 text-orange-400 rounded-2xl">
+              <div className="relative p-2 bg-slate-800 text-[#CCD0CF] rounded-2xl">
                 <ShoppingCart className="w-5 h-5" />
-                <span className="absolute -top-1.5 -right-1.5 px-1.5 py-0.5 text-[10px] font-black bg-[#f27238] text-white rounded-full">
+                <span className="absolute -top-1.5 -right-1.5 px-1.5 py-0.5 text-[10px] font-black bg-[#253745] text-[#CCD0CF] rounded-full border border-[#4A5C6A]">
                   {totalQty}
                 </span>
               </div>
               <div>
-                <span className="text-[11px] text-stone-400 block font-medium">Total Pesanan</span>
+                <span className="text-[11px] text-[#9BA8AB] block font-medium">Total Pesanan</span>
                 <span className="text-base font-black tabular-nums text-white">
                   {formatRupiah(totalAmount)}
                 </span>
@@ -217,7 +217,7 @@ export function PosPage() {
             <button
               type="button"
               onClick={handleOpenCheckout}
-              className="flex items-center gap-1.5 px-4.5 py-2.5 bg-[#f27238] hover:bg-[#e06129] active:bg-orange-700 text-white rounded-full text-xs font-bold transition-all shadow-xs cursor-pointer"
+              className="flex items-center gap-1.5 px-4.5 py-2.5 bg-[#11212D] hover:bg-[#253745] active:bg-[#06141B] text-[#CCD0CF] border border-[#253745] rounded-full text-xs font-bold transition-all shadow-xs cursor-pointer"
             >
               <span>Bayar</span>
               <ArrowRight className="w-3.5 h-3.5" />

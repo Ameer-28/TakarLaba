@@ -139,7 +139,7 @@ export function PurchaseLineItem({
             type="date"
             min={todayStr}
             {...register(`items.${index}.expiryDate`)}
-            className="w-full px-2.5 py-1.5 rounded-xl border border-stone-200/90 hover:border-orange-200 text-xs font-mono bg-white focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-[#f27238] transition-all"
+            className="w-full px-2.5 py-1.5 rounded-xl border border-[#CCD0CF] hover:border-[#9BA8AB] text-xs font-mono bg-white focus:outline-none focus:ring-2 focus:ring-[#253745]/20 focus:border-[#253745] transition-all"
           />
         </div>
       </div>

@@ -54,16 +54,16 @@ export function AppShell() {
   };
 
   return (
-    <div className="min-h-screen bg-[#faf6f2] flex flex-col lg:flex-row">
+    <div className="min-h-screen bg-[#F0F4F5] flex flex-col lg:flex-row">
       {/* Desktop Sidebar (lg: min 1024px) */}
       <aside
-        className={`hidden lg:flex lg:flex-col lg:fixed lg:inset-y-0 lg:border-r lg:border-stone-200/80 lg:bg-white lg:z-30 transition-all duration-300 ease-in-out ${
+        className={`hidden lg:flex lg:flex-col lg:fixed lg:inset-y-0 lg:border-r lg:border-[#CCD0CF] lg:bg-white lg:z-30 transition-all duration-300 ease-in-out ${
           isCollapsed ? "lg:w-20" : "lg:w-64"
         }`}
       >
         {/* Brand Header */}
         <div
-          className={`flex items-center border-b border-stone-200/80 h-16 transition-all duration-300 ${
+          className={`flex items-center border-b border-[#CCD0CF] h-16 transition-all duration-300 ${
             isCollapsed ? "justify-center px-2" : "justify-between px-5"
           }`}
         >
@@ -74,7 +74,7 @@ export function AppShell() {
               aria-label="Lebarkan sidebar"
               aria-expanded={false}
               title="Lebarkan sidebar"
-              className="inline-flex items-center justify-center w-10 h-10 rounded-2xl bg-orange-50 text-[#f27238] hover:bg-[#f27238] hover:text-white border border-orange-200/80 transition-all cursor-pointer shadow-2xs group"
+              className="inline-flex items-center justify-center w-10 h-10 rounded-2xl bg-[#CCD0CF]/40 text-[#11212D] hover:bg-[#11212D] hover:text-white border border-[#CCD0CF] transition-all cursor-pointer shadow-2xs group"
             >
               <PanelLeftOpen className="w-5 h-5 transition-transform group-hover:scale-110" />
             </button>
@@ -84,15 +84,15 @@ export function AppShell() {
                 <Link
                   to="/dashboard"
                   title="TakarLaba Beranda"
-                  className="inline-flex items-center justify-center w-9 h-9 rounded-2xl bg-[#f27238] text-white shadow-xs shrink-0 hover:bg-[#e05f24] transition-colors"
+                  className="inline-flex items-center justify-center w-9 h-9 rounded-2xl bg-[#11212D] text-[#CCD0CF] shadow-xs shrink-0 hover:bg-[#253745] transition-colors"
                 >
                   <ShieldCheck className="w-5 h-5" />
                 </Link>
                 <div className="min-w-0 truncate">
-                  <span className="font-extrabold text-base tracking-tight text-slate-900 block leading-tight">
+                  <span className="font-extrabold text-base tracking-tight text-[#06141B] block leading-tight">
                     TakarLaba
                   </span>
-                  <span className="text-[10px] font-semibold text-orange-700 tracking-wide uppercase truncate block">
+                  <span className="text-[10px] font-semibold text-[#4A5C6A] tracking-wide uppercase truncate block">
                     Margin Guard &bull; UMKM
                   </span>
                 </div>
@@ -104,7 +104,7 @@ export function AppShell() {
                 aria-label="Ciutkan sidebar"
                 aria-expanded={true}
                 title="Ciutkan sidebar"
-                className="p-1.5 rounded-xl text-stone-400 hover:text-[#f27238] hover:bg-orange-50 transition-colors cursor-pointer shrink-0"
+                className="p-1.5 rounded-xl text-[#4A5C6A] hover:text-[#06141B] hover:bg-[#CCD0CF]/40 transition-colors cursor-pointer shrink-0"
               >
                 <PanelLeftClose className="w-5 h-5" />
               </button>
@@ -133,20 +133,20 @@ export function AppShell() {
                     : "gap-3 px-3.5 py-2.5 text-sm font-medium"
                 } ${
                   isActive
-                    ? "bg-orange-50 text-orange-950 font-bold shadow-2xs border border-orange-200/60"
-                    : "text-stone-600 hover:text-stone-900 hover:bg-stone-50"
+                    ? "bg-[#11212D] text-white font-bold shadow-xs border border-[#11212D]"
+                    : "text-[#4A5C6A] hover:text-[#06141B] hover:bg-[#CCD0CF]/30"
                 }`}
                 aria-current={isActive ? "page" : undefined}
               >
                 <Icon
                   className={`w-5 h-5 flex-shrink-0 ${
-                    isActive ? "text-[#f27238]" : "text-stone-400 group-hover:text-stone-600"
+                    isActive ? "text-[#CCD0CF]" : "text-[#4A5C6A] group-hover:text-[#253745]"
                   }`}
                 />
                 {!isCollapsed ? (
                   <span className="truncate">{item.label}</span>
                 ) : (
-                  <div className="absolute left-full ml-3 px-2.5 py-1 bg-stone-900 text-white text-xs font-medium rounded-lg whitespace-nowrap shadow-lg opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity z-50">
+                  <div className="absolute left-full ml-3 px-2.5 py-1 bg-[#06141B] text-white text-xs font-medium rounded-lg whitespace-nowrap shadow-lg opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity z-50">
                     {item.label}
                   </div>
                 )}
@@ -157,25 +157,25 @@ export function AppShell() {
 
         {/* User Profile & Logout */}
         {!isCollapsed ? (
-          <div className="p-4 border-t border-stone-200/80 bg-[#faf6f2]/60">
+          <div className="p-4 border-t border-[#CCD0CF] bg-[#CCD0CF]/20">
             <div className="flex items-center gap-3 mb-3">
-              <div className="w-9 h-9 rounded-full bg-orange-100 border border-orange-200 text-[#f27238] font-black flex items-center justify-center text-xs shrink-0 shadow-2xs">
+              <div className="w-9 h-9 rounded-full bg-[#11212D] border border-[#253745] text-[#CCD0CF] font-black flex items-center justify-center text-xs shrink-0 shadow-2xs">
                 {userName.slice(0, 2).toUpperCase()}
               </div>
               <div className="min-w-0 flex-1">
                 <div className="flex items-center justify-between gap-1">
-                  <p className="text-sm font-bold text-slate-900 truncate">{userName}</p>
+                  <p className="text-sm font-bold text-[#06141B] truncate">{userName}</p>
                   <span
                     className={`inline-flex items-center px-1.5 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider ${
                       userRole === "OWNER"
-                        ? "bg-orange-100 text-orange-800 border border-orange-200/80"
-                        : "bg-stone-100 text-stone-700 border border-stone-200"
+                        ? "bg-[#253745] text-[#CCD0CF] border border-[#4A5C6A]/40"
+                        : "bg-[#CCD0CF] text-[#11212D] border border-[#9BA8AB]"
                     }`}
                   >
                     {userRole === "OWNER" ? "Pemilik" : "Kasir"}
                   </span>
                 </div>
-                <p className="text-xs text-stone-500 truncate">{userEmail}</p>
+                <p className="text-xs text-[#4A5C6A] truncate">{userEmail}</p>
               </div>
             </div>
 
@@ -183,24 +183,24 @@ export function AppShell() {
               type="button"
               onClick={handleLogout}
               disabled={isLoggingOut}
-              className="w-full flex items-center justify-center gap-2 px-3 py-2 text-xs font-semibold text-stone-600 hover:text-rose-700 hover:bg-rose-50 border border-stone-200/80 hover:border-rose-200 rounded-xl transition-colors disabled:opacity-60 cursor-pointer"
+              className="w-full flex items-center justify-center gap-2 px-3 py-2 text-xs font-semibold text-[#4A5C6A] hover:text-rose-700 hover:bg-rose-50 border border-[#CCD0CF] hover:border-rose-200 rounded-xl transition-colors disabled:opacity-60 cursor-pointer"
             >
               {isLoggingOut ? (
                 <Loader2 className="w-4 h-4 animate-spin text-rose-600" />
               ) : (
-                <LogOut className="w-4 h-4 text-stone-500 hover:text-rose-600" />
+                <LogOut className="w-4 h-4 text-[#4A5C6A] hover:text-rose-600" />
               )}
               <span>Keluar Akun</span>
             </button>
           </div>
         ) : (
-          <div className="p-3 border-t border-stone-200/80 bg-[#faf6f2]/60 flex flex-col items-center gap-3">
+          <div className="p-3 border-t border-[#CCD0CF] bg-[#CCD0CF]/20 flex flex-col items-center gap-3">
             <div
               title={`${userName} (${userRole === "OWNER" ? "Pemilik" : "Kasir"})`}
-              className="w-10 h-10 rounded-full bg-orange-100 border border-orange-200 text-[#f27238] font-black flex items-center justify-center text-xs shrink-0 shadow-2xs relative group cursor-default"
+              className="w-10 h-10 rounded-full bg-[#11212D] border border-[#253745] text-[#CCD0CF] font-black flex items-center justify-center text-xs shrink-0 shadow-2xs relative group cursor-default"
             >
               {userName.slice(0, 2).toUpperCase()}
-              <div className="absolute left-full ml-3 px-2.5 py-1 bg-stone-900 text-white text-xs font-medium rounded-lg whitespace-nowrap shadow-lg opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity z-50">
+              <div className="absolute left-full ml-3 px-2.5 py-1 bg-[#06141B] text-white text-xs font-medium rounded-lg whitespace-nowrap shadow-lg opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity z-50">
                 <span className="font-bold">{userName}</span> (
                 {userRole === "OWNER" ? "Pemilik" : "Kasir"})
               </div>
@@ -212,14 +212,14 @@ export function AppShell() {
               disabled={isLoggingOut}
               title="Keluar Akun"
               aria-label="Keluar Akun"
-              className="w-10 h-10 flex items-center justify-center text-stone-500 hover:text-rose-700 hover:bg-rose-50 border border-stone-200/80 hover:border-rose-200 rounded-xl transition-colors disabled:opacity-60 cursor-pointer relative group"
+              className="w-10 h-10 flex items-center justify-center text-[#4A5C6A] hover:text-rose-700 hover:bg-rose-50 border border-[#CCD0CF] hover:border-rose-200 rounded-xl transition-colors disabled:opacity-60 cursor-pointer relative group"
             >
               {isLoggingOut ? (
                 <Loader2 className="w-4 h-4 animate-spin text-rose-600" />
               ) : (
-                <LogOut className="w-4 h-4 text-stone-500 group-hover:text-rose-600" />
+                <LogOut className="w-4 h-4 text-[#4A5C6A] group-hover:text-rose-600" />
               )}
-              <div className="absolute left-full ml-3 px-2.5 py-1 bg-stone-900 text-white text-xs font-medium rounded-lg whitespace-nowrap shadow-lg opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity z-50">
+              <div className="absolute left-full ml-3 px-2.5 py-1 bg-[#06141B] text-white text-xs font-medium rounded-lg whitespace-nowrap shadow-lg opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity z-50">
                 Keluar Akun
               </div>
             </button>
@@ -228,17 +228,17 @@ export function AppShell() {
       </aside>
 
       {/* Mobile Top Header (hidden on desktop) */}
-      <header className="lg:hidden sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-stone-200/80 px-4 h-14 flex items-center justify-between shadow-2xs">
+      <header className="lg:hidden sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-[#CCD0CF] px-4 h-14 flex items-center justify-between shadow-2xs">
         <div className="flex items-center gap-2">
-          <div className="inline-flex items-center justify-center w-7 h-7 rounded-xl bg-[#f27238] text-white">
+          <div className="inline-flex items-center justify-center w-7 h-7 rounded-xl bg-[#11212D] text-[#CCD0CF]">
             <ShieldCheck className="w-4 h-4" />
           </div>
-          <span className="font-extrabold text-base text-slate-900 tracking-tight">TakarLaba</span>
+          <span className="font-extrabold text-base text-[#06141B] tracking-tight">TakarLaba</span>
           <span
             className={`ml-1 text-[10px] font-bold px-1.5 py-0.5 rounded-full ${
               userRole === "OWNER"
-                ? "bg-orange-100 text-orange-800 border border-orange-200"
-                : "bg-stone-100 text-stone-800"
+                ? "bg-[#253745] text-[#CCD0CF] border border-[#4A5C6A]/30"
+                : "bg-[#CCD0CF] text-[#11212D]"
             }`}
           >
             {userRole === "OWNER" ? "Pemilik" : "Kasir"}
@@ -250,7 +250,7 @@ export function AppShell() {
           onClick={handleLogout}
           disabled={isLoggingOut}
           title="Keluar Akun"
-          className="p-1.5 text-stone-500 hover:text-rose-600 rounded-xl hover:bg-stone-100 transition-colors cursor-pointer"
+          className="p-1.5 text-[#4A5C6A] hover:text-rose-600 rounded-xl hover:bg-slate-100 transition-colors cursor-pointer"
         >
           {isLoggingOut ? (
             <Loader2 className="w-4 h-4 animate-spin text-rose-600" />
@@ -262,7 +262,7 @@ export function AppShell() {
 
       {/* Main Content Area */}
       <main
-        className={`flex-1 min-h-screen flex flex-col bg-[#faf6f2] transition-all duration-300 ease-in-out ${
+        className={`flex-1 min-h-screen flex flex-col bg-[#F0F4F5] transition-all duration-300 ease-in-out ${
           isCollapsed ? "lg:pl-20" : "lg:pl-64"
         }`}
       >
@@ -276,7 +276,7 @@ export function AppShell() {
 
       {/* Mobile Bottom Navigation (fixed on mobile 360px up to 1023px) */}
       <nav
-        className="lg:hidden fixed bottom-0 inset-x-0 z-40 bg-white/95 backdrop-blur-md border-t border-stone-200/80 px-2 py-1.5 flex justify-around items-center shadow-lg"
+        className="lg:hidden fixed bottom-0 inset-x-0 z-40 bg-white/95 backdrop-blur-md border-t border-[#CCD0CF] px-2 py-1.5 flex justify-around items-center shadow-lg"
         aria-label="Navigasi Bawah Mobile"
       >
         {allowedNavItems.slice(0, 5).map((item) => {
@@ -287,12 +287,12 @@ export function AppShell() {
               key={item.path}
               to={item.path}
               className={`flex flex-col items-center justify-center min-w-[56px] py-1 px-1 rounded-xl text-[10px] font-medium transition-colors ${
-                isActive ? "text-[#f27238] font-extrabold" : "text-stone-500 hover:text-stone-900"
+                isActive ? "text-[#11212D] font-extrabold" : "text-[#4A5C6A] hover:text-[#06141B]"
               }`}
               aria-current={isActive ? "page" : undefined}
             >
               <Icon
-                className={`w-5 h-5 mb-0.5 ${isActive ? "text-[#f27238]" : "text-stone-400"}`}
+                className={`w-5 h-5 mb-0.5 ${isActive ? "text-[#11212D]" : "text-[#9BA8AB]"}`}
               />
               <span className="truncate max-w-[64px]">{item.label.split(" ")[0]}</span>
             </Link>

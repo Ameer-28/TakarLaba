@@ -62,22 +62,22 @@ export function PurchaseHistory({ onOpenCreate }: PurchaseHistoryProps) {
           </div>
 
           <div className="flex items-center gap-1.5">
-            <div className="flex items-center gap-2 bg-white border border-stone-200/90 hover:border-orange-200 rounded-2xl px-3 py-1.5 text-xs text-stone-700 shadow-2xs transition-colors">
-              <Calendar className="w-4 h-4 text-[#f27238] shrink-0" />
+            <div className="flex items-center gap-2 bg-white border border-[#CCD0CF] hover:border-[#9BA8AB] rounded-2xl px-3 py-1.5 text-xs text-[#06141B] shadow-2xs transition-colors">
+              <Calendar className="w-4 h-4 text-[#253745] shrink-0" />
               <div className="flex items-center gap-1.5 font-medium">
                 <input
                   type="date"
                   value={startDate}
                   onChange={(e) => setStartDate(e.target.value)}
-                  className="bg-stone-50 hover:bg-stone-100/80 border border-stone-200/70 rounded-xl px-2.5 py-1 text-xs text-stone-800 font-medium focus:ring-2 focus:ring-orange-500/20 focus:border-[#f27238] transition-all cursor-pointer"
+                  className="bg-slate-50 hover:bg-slate-100/80 border border-[#CCD0CF] rounded-xl px-2.5 py-1 text-xs text-[#06141B] font-medium focus:ring-2 focus:ring-[#253745]/20 focus:border-[#253745] transition-all cursor-pointer"
                   title="Tanggal Mulai"
                 />
-                <span className="text-stone-400 text-xs font-bold">s/d</span>
+                <span className="text-[#4A5C6A] text-xs font-bold">s/d</span>
                 <input
                   type="date"
                   value={endDate}
                   onChange={(e) => setEndDate(e.target.value)}
-                  className="bg-stone-50 hover:bg-stone-100/80 border border-stone-200/70 rounded-xl px-2.5 py-1 text-xs text-stone-800 font-medium focus:ring-2 focus:ring-orange-500/20 focus:border-[#f27238] transition-all cursor-pointer"
+                  className="bg-slate-50 hover:bg-slate-100/80 border border-[#CCD0CF] rounded-xl px-2.5 py-1 text-xs text-[#06141B] font-medium focus:ring-2 focus:ring-[#253745]/20 focus:border-[#253745] transition-all cursor-pointer"
                   title="Tanggal Selesai"
                 />
               </div>

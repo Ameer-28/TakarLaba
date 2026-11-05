@@ -85,11 +85,11 @@ export function LoginPage() {
   if (isSessionPending) {
     return (
       <div
-        className="min-h-screen flex flex-col items-center justify-center bg-slate-50 text-slate-600 gap-3"
+        className="min-h-screen flex flex-col items-center justify-center bg-[#F0F4F5] text-[#4A5C6A] gap-3"
         role="status"
         aria-live="polite"
       >
-        <Loader2 className="w-8 h-8 animate-spin text-emerald-600" />
+        <Loader2 className="w-8 h-8 animate-spin text-[#11212D]" />
         <p className="text-sm font-medium">Memuat data sesi...</p>
       </div>
     );
@@ -98,35 +98,35 @@ export function LoginPage() {
   const isAnySubmitting = isSubmitting || isDemoSubmitting !== null;
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-[#F0F4F5] flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <div className="flex justify-center">
-          <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-emerald-600 text-white shadow-md shadow-emerald-500/20">
+          <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-[#11212D] text-[#CCD0CF] shadow-md shadow-[#11212D]/20">
             <ShieldCheck className="w-7 h-7" />
           </div>
         </div>
-        <h2 className="mt-4 text-center text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
+        <h2 className="mt-4 text-center text-2xl font-bold tracking-tight text-[#06141B] sm:text-3xl">
           Masuk ke TakarLaba
         </h2>
-        <p className="mt-2 text-center text-sm text-slate-600">
+        <p className="mt-2 text-center text-sm text-[#4A5C6A]">
           Asisten Penjaga Margin & Anti-Waste untuk UMKM Kuliner
         </p>
       </div>
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-white py-8 px-6 shadow-sm border border-slate-200 rounded-2xl sm:px-10">
+        <div className="bg-white py-8 px-6 shadow-sm border border-[#CCD0CF] rounded-2xl sm:px-10">
           <LoginForm
             onSubmit={onSubmit}
             authError={authError}
             isAnySubmitting={isAnySubmitting}
             isSubmitting={isSubmitting}
           />
-          <div className="mt-4 pt-4 border-t border-slate-100 text-center">
-            <p className="text-xs text-slate-500">
+          <div className="mt-4 pt-4 border-t border-[#CCD0CF]/60 text-center">
+            <p className="text-xs text-[#4A5C6A]">
               Belum punya akun usaha?{" "}
               <Link
                 to="/register"
-                className="font-bold text-emerald-600 hover:text-emerald-700 hover:underline transition"
+                className="font-bold text-[#11212D] hover:text-[#253745] hover:underline transition"
               >
                 Daftar Bisnis Baru
               </Link>

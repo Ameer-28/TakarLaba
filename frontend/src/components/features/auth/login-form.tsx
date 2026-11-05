@@ -54,10 +54,10 @@ export function LoginForm({ onSubmit, authError, isAnySubmitting, isSubmitting }
               disabled={isAnySubmitting}
               aria-invalid={errors.email ? "true" : "false"}
               aria-describedby={errors.email ? "email-error" : undefined}
-              className={`block w-full pl-10 pr-3 py-2.5 sm:text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-colors ${
+              className={`block w-full pl-10 pr-3 py-2.5 sm:text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#253745]/20 transition-colors ${
                 errors.email
                   ? "border-rose-300 text-rose-900 focus:border-rose-500 focus:ring-rose-500"
-                  : "border-slate-300 text-slate-900 focus:border-emerald-500"
+                  : "border-[#CCD0CF] text-[#06141B] focus:border-[#253745]"
               }`}
               placeholder="nama@usaha.id"
               {...register("email")}
@@ -85,10 +85,10 @@ export function LoginForm({ onSubmit, authError, isAnySubmitting, isSubmitting }
               disabled={isAnySubmitting}
               aria-invalid={errors.password ? "true" : "false"}
               aria-describedby={errors.password ? "password-error" : undefined}
-              className={`block w-full pl-10 pr-3 py-2.5 sm:text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-colors ${
+              className={`block w-full pl-10 pr-3 py-2.5 sm:text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#253745]/20 transition-colors ${
                 errors.password
                   ? "border-rose-300 text-rose-900 focus:border-rose-500 focus:ring-rose-500"
-                  : "border-slate-300 text-slate-900 focus:border-emerald-500"
+                  : "border-[#CCD0CF] text-[#06141B] focus:border-[#253745]"
               }`}
               placeholder="••••••••"
               {...register("password")}
@@ -105,7 +105,7 @@ export function LoginForm({ onSubmit, authError, isAnySubmitting, isSubmitting }
           <button
             type="submit"
             disabled={isAnySubmitting}
-            className="w-full flex justify-center items-center py-2.5 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-emerald-600 hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 disabled:opacity-60 disabled:cursor-not-allowed transition-all"
+            className="w-full flex justify-center items-center py-2.5 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-[#11212D] hover:bg-[#253745] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#253745] disabled:opacity-60 disabled:cursor-not-allowed transition-all"
           >
             {isSubmitting ? (
               <>
