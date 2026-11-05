@@ -218,7 +218,7 @@ export function PosMenuGrid({
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1 2xl:grid-cols-2 gap-4">
           {filteredMenus.map((menu) => {
             const displayName = formatPosMenuName(menu.name);
             const isDrink = isBeverageMenu(menu.name, menu.category);
@@ -239,7 +239,7 @@ export function PosMenuGrid({
             return (
               <div
                 key={menu.id}
-                className={`group relative bg-white rounded-3xl border p-4 sm:p-4.5 transition-all flex flex-col justify-between select-none ${
+                className={`group relative bg-white rounded-3xl border p-4 sm:p-4.5 transition-all flex flex-col justify-between select-none min-w-0 ${
                   isSellable
                     ? "border-[#CCD0CF] hover:border-[#253745] hover:shadow-md"
                     : "border-[#CCD0CF] bg-[#CCD0CF]/20 opacity-65"
@@ -378,7 +378,7 @@ export function PosMenuGrid({
                         e.stopPropagation();
                         onAddToCart(menu, temperature);
                       }}
-                      className="inline-flex items-center justify-center gap-1.5 px-4 py-2 text-xs sm:text-sm font-bold text-white bg-[#11212D] hover:bg-[#253745] active:bg-[#06141B] rounded-full shadow-xs transition-all cursor-pointer active:scale-95 whitespace-nowrap ml-auto"
+                      className="inline-flex items-center justify-center gap-1.5 px-3 sm:px-4 py-2 text-xs sm:text-sm font-bold text-white bg-[#11212D] hover:bg-[#253745] active:bg-[#06141B] rounded-full shadow-xs transition-all cursor-pointer active:scale-95 whitespace-nowrap shrink-0 ml-auto"
                     >
                       <Plus className="w-3.5 h-3.5" />
                       <span>Tambah ke Keranjang</span>
