@@ -1,7 +1,8 @@
 import { useState } from "react";
-import { Receipt, RefreshCw } from "lucide-react";
+import { Receipt, RefreshCw, Download } from "lucide-react";
 import { useSalesList, type SaleDetail, type PaymentMethod } from "../api/hooks/use-sales.js";
 import { useSession } from "../lib/auth-client.js";
+import { downloadCsv } from "../lib/export.js";
 import { SaleKpiCards } from "../components/features/sales/sale-kpi-cards.js";
 import { SaleFiltersBar } from "../components/features/sales/sale-filters-bar.js";
 import { SaleDetailModal } from "../components/features/sales/sale-detail-modal.js";
@@ -17,6 +18,7 @@ export function SalesPage() {
   const [endDate, setEndDate] = useState("");
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod | "ALL">("ALL");
   const [page, setPage] = useState(1);
+  const [isExporting, setIsExporting] = useState(false);
   const limit = 20;
 
   const [selectedSale, setSelectedSale] = useState<SaleDetail | null>(null);
@@ -70,6 +72,17 @@ export function SalesPage() {
     setPage(1);
   };
 
+  const handleExportCsv = async () => {
+    setIsExporting(true);
+    const params = new URLSearchParams();
+    if (startDate) params.set("startDate", startDate);
+    if (endDate) params.set("endDate", endDate);
+    params.set("status", "ALL");
+    const query = params.toString() ? `?${params.toString()}` : "";
+    await downloadCsv(`/export/sales.csv${query}`, "penjualan.csv");
+    setIsExporting(false);
+  };
+
   return (
     <div className="space-y-6">
       {/* Top Header */}
@@ -82,15 +95,30 @@ export function SalesPage() {
             Daftar seluruh transaksi kasir dan detail alokasi stok batch FEFO.
           </p>
         </div>
-        <button
-          type="button"
-          onClick={() => refetch()}
-          disabled={isFetching}
-          className="inline-flex items-center gap-2 self-start sm:self-auto px-4 py-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-bold shadow-2xs transition-all disabled:opacity-50 cursor-pointer"
-        >
-          <RefreshCw className={`w-3.5 h-3.5 ${isFetching ? "animate-spin text-amber-600" : ""}`} />
-          <span>Muat Ulang</span>
-        </button>
+        <div className="flex items-center gap-2 self-start sm:self-auto">
+          {isOwner && (
+            <button
+              type="button"
+              onClick={handleExportCsv}
+              disabled={isExporting}
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-emerald-300 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 text-xs font-bold shadow-2xs transition-all disabled:opacity-50 cursor-pointer"
+            >
+              <Download className={`w-3.5 h-3.5 ${isExporting ? "animate-bounce" : ""}`} />
+              <span>{isExporting ? "Mengunduh..." : "Ekspor CSV"}</span>
+            </button>
+          )}
+          <button
+            type="button"
+            onClick={() => refetch()}
+            disabled={isFetching}
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-bold shadow-2xs transition-all disabled:opacity-50 cursor-pointer"
+          >
+            <RefreshCw
+              className={`w-3.5 h-3.5 ${isFetching ? "animate-spin text-amber-600" : ""}`}
+            />
+            <span>Muat Ulang</span>
+          </button>
+        </div>
       </div>
 
       {/* KPI Cards Overview */}
