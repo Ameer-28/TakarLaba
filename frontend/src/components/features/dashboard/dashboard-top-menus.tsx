@@ -29,7 +29,7 @@ export function DashboardTopMenus({ topMenus = [] }: DashboardTopMenusProps) {
   };
 
   return (
-    <div className="p-5 sm:p-6 rounded-2xl bg-white border border-slate-200/80 shadow-2xs space-y-4">
+    <div className="p-5 sm:p-6 rounded-2xl bg-white border border-slate-200/80 shadow-2xs flex flex-col justify-between h-full space-y-4">
       {/* Header */}
       <div className="flex items-center justify-between pb-3 border-b border-slate-100">
         <div className="flex items-center gap-3">
@@ -46,7 +46,7 @@ export function DashboardTopMenus({ topMenus = [] }: DashboardTopMenusProps) {
       </div>
 
       {topMenus.length === 0 ? (
-        <div className="py-10 text-center space-y-2">
+        <div className="py-12 text-center space-y-2 flex-1 flex flex-col items-center justify-center">
           <div className="w-10 h-10 mx-auto rounded-full bg-slate-50 flex items-center justify-center text-slate-400">
             <UtensilsCrossed className="w-5 h-5" />
           </div>
@@ -56,7 +56,7 @@ export function DashboardTopMenus({ topMenus = [] }: DashboardTopMenusProps) {
           </p>
         </div>
       ) : (
-        <div className="space-y-3">
+        <div className="space-y-3 flex-1 flex flex-col justify-between">
           {topMenus.map((menu, idx) => {
             const rank = idx + 1;
             const percentOfTop = Math.round((menu.totalQty / maxQty) * 100);
