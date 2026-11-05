@@ -145,7 +145,6 @@ export interface CalendarProps {
 export const Calendar = ({
   allowClear = true,
   compact = false,
-  horizontalLayout = true,
   popoverAlignment = "start",
   value,
   onChange,
@@ -156,9 +155,13 @@ export const Calendar = ({
   className,
 }: CalendarProps) => {
   const [isOpen, setIsOpen] = useState<boolean>(false);
-  const [currentDate, setCurrentDate] = useState<Date>(() => value?.start || new Date());
+  const [currentMonth, setCurrentMonth] = useState<Date>(() => value?.start || new Date());
   const [hoverDate, setHoverDate] = useState<Date | null>(null);
   const [isSelecting, setIsSelecting] = useState<boolean>(false);
+
+  // Draft range selection while popover is open
+  const [draftStart, setDraftStart] = useState<Date | null>(() => value?.start || null);
+  const [draftEnd, setDraftEnd] = useState<Date | null>(() => value?.end || null);
 
   // Manual inputs inside popover
   const [startDateInput, setStartDateInput] = useState<string>(() =>
@@ -187,28 +190,36 @@ export const Calendar = ({
     return () => window.removeEventListener("resize", handleClose);
   }, []);
 
+  // Sync draft state whenever popover opens or value changes
   useEffect(() => {
-    if (value?.start) {
-      setStartDateInput(formatToYMD(value.start));
-      setCurrentDate(value.start);
-    } else {
-      setStartDateInput("");
-    }
-    if (value?.end) {
-      setEndDateInput(formatToYMD(value.end));
-    } else {
-      setEndDateInput("");
-    }
-  }, [value, isOpen]);
+    if (isOpen) {
+      setDraftStart(value?.start || null);
+      setDraftEnd(value?.end || null);
+      setIsSelecting(false);
+      setHoverDate(null);
 
-  const prevMonth = () => setCurrentDate((prev) => subMonths(prev, 1));
-  const nextMonth = () => setCurrentDate((prev) => addMonths(prev, 1));
+      if (value?.start) {
+        setStartDateInput(formatToYMD(value.start));
+        setCurrentMonth(value.start);
+      } else {
+        setStartDateInput("");
+      }
+      if (value?.end) {
+        setEndDateInput(formatToYMD(value.end));
+      } else {
+        setEndDateInput("");
+      }
+    }
+  }, [isOpen, value]);
+
+  const prevMonth = () => setCurrentMonth((prev) => subMonths(prev, 1));
+  const nextMonth = () => setCurrentMonth((prev) => addMonths(prev, 1));
 
   // Compute days for current month view
   const daysArray = useMemo(() => {
     const days: Date[] = [];
-    const firstDayOfMonth = startOfMonth(currentDate);
-    const lastDayOfMonth = endOfMonth(currentDate);
+    const firstDayOfMonth = startOfMonth(currentMonth);
+    const lastDayOfMonth = endOfMonth(currentMonth);
     let day = startOfWeek(firstDayOfMonth, { weekStartsOn: 1 });
     const end = endOfWeek(lastDayOfMonth, { weekStartsOn: 1 });
 
@@ -217,35 +228,63 @@ export const Calendar = ({
       day = addDays(day, 1);
     }
     return days;
-  }, [currentDate]);
+  }, [currentMonth]);
 
   const handleDateClick = (day: Date) => {
-    if (!value?.start || (value.start && value.end)) {
+    if (!draftStart || (draftStart && draftEnd) || !isSelecting) {
       // First click: start new range
-      onChange({ start: startOfDay(day), end: null });
+      setDraftStart(day);
+      setDraftEnd(null);
       setStartDateInput(formatToYMD(day));
       setEndDateInput("");
       setHoverDate(day);
       setIsSelecting(true);
-    } else if (isSelecting) {
+    } else {
       // Second click: finish range
-      if (day >= value.start) {
-        onChange({ start: value.start, end: endOfDay(day) });
-        setEndDateInput(formatToYMD(day));
-      } else {
-        onChange({ start: startOfDay(day), end: endOfDay(value.start) });
-        setStartDateInput(formatToYMD(day));
-        setEndDateInput(formatToYMD(value.start));
+      let finalStart = draftStart;
+      let finalEnd = day;
+
+      if (day < draftStart) {
+        finalStart = day;
+        finalEnd = draftStart;
       }
+
+      setDraftStart(finalStart);
+      setDraftEnd(finalEnd);
+      setStartDateInput(formatToYMD(finalStart));
+      setEndDateInput(formatToYMD(finalEnd));
       setIsSelecting(false);
       setHoverDate(null);
+
+      // Commit selection!
+      onChange({
+        start: startOfDay(finalStart),
+        end: endOfDay(finalEnd),
+      });
       setIsOpen(false);
     }
   };
 
   const handleMouseEnter = (day: Date) => {
-    if (value?.start && isSelecting) {
+    if (draftStart && isSelecting) {
       setHoverDate(day);
+    }
+  };
+
+  const handleManualStartChange = (val: string) => {
+    setStartDateInput(val);
+    const parsed = parseYMD(val);
+    if (parsed) {
+      setDraftStart(parsed);
+      setCurrentMonth(parsed);
+    }
+  };
+
+  const handleManualEndChange = (val: string) => {
+    setEndDateInput(val);
+    const parsed = parseYMD(val);
+    if (parsed) {
+      setDraftEnd(parsed);
     }
   };
 
@@ -254,32 +293,44 @@ export const Calendar = ({
     const parsedEnd = parseYMD(endDateInput);
 
     if (parsedStart && parsedEnd) {
-      if (parsedStart <= parsedEnd) {
-        onChange({ start: startOfDay(parsedStart), end: endOfDay(parsedEnd) });
-      } else {
-        onChange({ start: startOfDay(parsedEnd), end: endOfDay(parsedStart) });
-      }
+      const start = parsedStart <= parsedEnd ? parsedStart : parsedEnd;
+      const end = parsedStart <= parsedEnd ? parsedEnd : parsedStart;
+      setDraftStart(start);
+      setDraftEnd(end);
+      onChange({ start: startOfDay(start), end: endOfDay(end) });
       setIsOpen(false);
     } else if (parsedStart) {
+      setDraftStart(parsedStart);
+      setDraftEnd(parsedStart);
       onChange({ start: startOfDay(parsedStart), end: endOfDay(parsedStart) });
+      setIsOpen(false);
+    } else if (draftStart && draftEnd) {
+      onChange({ start: startOfDay(draftStart), end: endOfDay(draftEnd) });
+      setIsOpen(false);
+    } else if (draftStart) {
+      onChange({ start: startOfDay(draftStart), end: endOfDay(draftStart) });
       setIsOpen(false);
     }
   };
 
   const handleSelectPreset = (preset: PresetItem) => {
-    onChange({ start: preset.start, end: preset.end });
+    setDraftStart(preset.start);
+    setDraftEnd(preset.end);
     setStartDateInput(formatToYMD(preset.start));
     setEndDateInput(formatToYMD(preset.end));
+    onChange({ start: startOfDay(preset.start), end: endOfDay(preset.end) });
     setIsOpen(false);
   };
 
   const handleClear = (e: React.MouseEvent) => {
     e.stopPropagation();
-    onChange(null);
+    setDraftStart(null);
+    setDraftEnd(null);
     setStartDateInput("");
     setEndDateInput("");
     setIsSelecting(false);
     setHoverDate(null);
+    onChange(null);
   };
 
   // Label display
@@ -309,7 +360,7 @@ export const Calendar = ({
               ? "border-[#11212D] ring-2 ring-[#253745]/20 text-[#06141B]"
               : "border-[#CCD0CF] hover:border-[#9BA8AB] text-[#06141B]",
             compact ? "w-[180px]" : "min-w-[210px] sm:min-w-[240px]",
-            allowClear && value?.start && "pr-8"
+            allowClear && Boolean(value?.start || value?.end) && "pr-8"
           )}
         >
           <CalendarIcon className="w-4 h-4 text-[#253745] shrink-0" />
@@ -343,28 +394,29 @@ export const Calendar = ({
           aria-label="Pemilih Rentang Tanggal"
           className={twMerge(
             clsx(
-              "absolute z-50 top-12 bg-white rounded-2xl border border-[#CCD0CF] shadow-xl p-4 animate-in fade-in zoom-in-95 duration-150 select-none",
-              horizontalLayout ? "w-auto max-w-[560px]" : "w-[300px]",
+              "absolute z-50 top-12 bg-white rounded-2xl border border-[#CCD0CF] shadow-xl p-4 animate-in fade-in zoom-in-95 duration-150 select-none box-border",
+              "w-[calc(100vw-2rem)] max-w-[480px] sm:w-[480px]",
               popoverAlignment === "start" && "left-0",
               popoverAlignment === "center" && "left-1/2 -translate-x-1/2",
               popoverAlignment === "end" && "right-0"
             )
           )}
         >
-          <div className={clsx(horizontalLayout && "flex flex-col md:flex-row gap-4")}>
+          {/* Top Section: Presets (left) + Calendar (right) */}
+          <div className="flex flex-col sm:flex-row gap-4">
             {/* Left Sidebar: Quick Presets */}
             {presets && Object.keys(presets).length > 0 && (
-              <div className="w-full md:w-36 shrink-0 md:border-r border-[#CCD0CF]/60 md:pr-3 space-y-1 pb-3 md:pb-0 border-b md:border-b-0">
+              <div className="w-full sm:w-32 shrink-0 sm:border-r border-[#CCD0CF]/60 sm:pr-3 space-y-1 pb-3 sm:pb-0 border-b sm:border-b-0">
                 <span className="text-[10px] font-bold text-[#4A5C6A] uppercase tracking-wider block px-2 mb-1.5">
                   Pilihan Cepat
                 </span>
-                <div className="grid grid-cols-2 md:grid-cols-1 gap-1">
+                <div className="grid grid-cols-2 sm:grid-cols-1 gap-1">
                   {Object.entries(presets).map(([key, item]) => {
                     const isSelected =
-                      value?.start &&
-                      value?.end &&
-                      isSameDay(value.start, item.start) &&
-                      isSameDay(value.end, item.end);
+                      draftStart &&
+                      draftEnd &&
+                      isSameDay(draftStart, item.start) &&
+                      isSameDay(draftEnd, item.end);
 
                     return (
                       <button
@@ -387,11 +439,11 @@ export const Calendar = ({
             )}
 
             {/* Main Area: Calendar Grid */}
-            <div className="flex-1 min-w-[260px]">
+            <div className="flex-1 min-w-0">
               {/* Month & Year Navigation Header */}
               <div className="flex items-center justify-between mb-3 px-1">
                 <h3 className="text-sm font-bold text-[#06141B]">
-                  {MONTH_NAMES_FULL[currentDate.getMonth()]} {currentDate.getFullYear()}
+                  {MONTH_NAMES_FULL[currentMonth.getMonth()]} {currentMonth.getFullYear()}
                 </h3>
                 <div className="flex items-center gap-1">
                   <button
@@ -427,18 +479,17 @@ export const Calendar = ({
               {/* Days Grid */}
               <div className="grid grid-cols-7 gap-y-1">
                 {daysArray.map((day) => {
-                  const isCurrentMonth = isSameMonth(day, currentDate);
-                  const isStart = value?.start && isSameDay(day, value.start);
-                  const isEnd = value?.end && isSameDay(day, value.end);
+                  const isCurrentMonth = isSameMonth(day, currentMonth);
+                  const isStart = draftStart && isSameDay(day, draftStart);
+                  const isEnd = draftEnd && isSameDay(day, draftEnd);
                   const currentHover = hoverDate && isSelecting && isSameDay(day, hoverDate);
 
-                  // Range calculation
+                  // Active range calculation
+                  const activeRangeEnd = draftEnd || (isSelecting ? hoverDate : null);
                   const isInRange =
-                    value?.start &&
-                    ((value.end && isWithinInterval(day, { start: value.start, end: value.end })) ||
-                      (hoverDate &&
-                        isSelecting &&
-                        isWithinInterval(day, { start: value.start, end: hoverDate })));
+                    draftStart &&
+                    activeRangeEnd &&
+                    isWithinInterval(day, { start: draftStart, end: activeRangeEnd });
 
                   const isAllowed =
                     (!minValue || day >= minValue) && (!maxValue || day <= maxValue);
@@ -451,8 +502,21 @@ export const Calendar = ({
                       className={clsx(
                         "h-8 flex items-center justify-center text-xs transition-colors relative",
                         isInRange && !isStart && !isEnd && "bg-[#CCD0CF]/40",
-                        isStart && isInRange && value?.end && "rounded-l-lg bg-[#CCD0CF]/40",
-                        isEnd && isInRange && value?.start && "rounded-r-lg bg-[#CCD0CF]/40",
+                        isStart &&
+                          isInRange &&
+                          activeRangeEnd &&
+                          !isSameDay(draftStart, activeRangeEnd) &&
+                          "rounded-l-lg bg-[#CCD0CF]/40",
+                        isEnd &&
+                          isInRange &&
+                          draftStart &&
+                          !isSameDay(draftStart, draftEnd) &&
+                          "rounded-r-lg bg-[#CCD0CF]/40",
+                        currentHover &&
+                          isSelecting &&
+                          draftStart &&
+                          !isSameDay(draftStart, hoverDate) &&
+                          "rounded-r-lg bg-[#CCD0CF]/40",
                         isAllowed ? "cursor-pointer" : "cursor-not-allowed opacity-30"
                       )}
                     >
@@ -480,40 +544,40 @@ export const Calendar = ({
                   );
                 })}
               </div>
+            </div>
+          </div>
 
-              {/* Bottom Row: Manual Date Inputs & Apply Button */}
-              <div className="mt-4 pt-3 border-t border-[#CCD0CF]/60 flex flex-col sm:flex-row items-center justify-between gap-2">
-                <div className="flex items-center gap-1.5 w-full sm:w-auto">
-                  <div className="flex items-center gap-1">
-                    <span className="text-[10px] font-bold text-[#4A5C6A]">Dari:</span>
-                    <input
-                      type="date"
-                      value={startDateInput}
-                      onChange={(e) => setStartDateInput(e.target.value)}
-                      className="px-2 py-1 text-xs border border-[#CCD0CF] rounded-lg bg-white text-[#06141B] font-medium focus:outline-none focus:border-[#253745]"
-                    />
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <span className="text-[10px] font-bold text-[#4A5C6A]">S/d:</span>
-                    <input
-                      type="date"
-                      value={endDateInput}
-                      onChange={(e) => setEndDateInput(e.target.value)}
-                      className="px-2 py-1 text-xs border border-[#CCD0CF] rounded-lg bg-white text-[#06141B] font-medium focus:outline-none focus:border-[#253745]"
-                    />
-                  </div>
-                </div>
-
-                <button
-                  type="button"
-                  onClick={handleApplyManual}
-                  className="w-full sm:w-auto inline-flex items-center justify-center gap-1 px-3 py-1 rounded-lg bg-[#11212D] hover:bg-[#253745] text-white text-xs font-bold transition-colors cursor-pointer shadow-2xs"
-                >
-                  <span>Terapkan</span>
-                  <span className="text-xs">&crarr;</span>
-                </button>
+          {/* Full Width Bottom Row: Manual Date Inputs & Apply Button (Never overflows!) */}
+          <div className="mt-3.5 pt-3 border-t border-[#CCD0CF]/60 flex flex-wrap items-center justify-between gap-2.5">
+            <div className="flex flex-wrap items-center gap-2">
+              <div className="flex items-center gap-1">
+                <span className="text-[10px] font-bold text-[#4A5C6A]">Dari:</span>
+                <input
+                  type="date"
+                  value={startDateInput}
+                  onChange={(e) => handleManualStartChange(e.target.value)}
+                  className="w-[124px] px-2 py-1 text-xs border border-[#CCD0CF] rounded-lg bg-white text-[#06141B] font-medium focus:outline-none focus:border-[#253745] tabular-nums"
+                />
+              </div>
+              <div className="flex items-center gap-1">
+                <span className="text-[10px] font-bold text-[#4A5C6A]">S/d:</span>
+                <input
+                  type="date"
+                  value={endDateInput}
+                  onChange={(e) => handleManualEndChange(e.target.value)}
+                  className="w-[124px] px-2 py-1 text-xs border border-[#CCD0CF] rounded-lg bg-white text-[#06141B] font-medium focus:outline-none focus:border-[#253745] tabular-nums"
+                />
               </div>
             </div>
+
+            <button
+              type="button"
+              onClick={handleApplyManual}
+              className="shrink-0 inline-flex items-center justify-center gap-1 px-3.5 py-1.5 rounded-lg bg-[#11212D] hover:bg-[#253745] active:bg-[#06141B] text-white text-xs font-bold transition-colors cursor-pointer shadow-2xs ml-auto"
+            >
+              <span>Terapkan</span>
+              <span className="text-xs">&crarr;</span>
+            </button>
           </div>
         </div>
       )}
