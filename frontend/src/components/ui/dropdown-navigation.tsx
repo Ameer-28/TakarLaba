@@ -37,8 +37,8 @@ export interface DropdownNavigationProps {
 export function DropdownNavigation({ navItems, className }: DropdownNavigationProps) {
   const [openMenu, setOpenMenu] = useState<string | null>(null);
   const [isHover, setIsHover] = useState<string | number | null>(null);
+  const [alignRightMap, setAlignRightMap] = useState<Record<string, boolean>>({});
   const containerRef = useRef<HTMLDivElement>(null);
-  const closeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Close when clicking outside
   useClickOutside(containerRef, () => {
@@ -56,23 +56,23 @@ export function DropdownNavigation({ navItems, className }: DropdownNavigationPr
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
 
-  const clearCloseTimeout = () => {
-    if (closeTimeoutRef.current) {
-      clearTimeout(closeTimeoutRef.current);
-      closeTimeoutRef.current = null;
+  const handleButtonClick = (navItem: NavItem, e: React.MouseEvent<HTMLButtonElement>) => {
+    if (navItem.onClick) {
+      navItem.onClick();
     }
-  };
-
-  const handleHover = (menuLabel: string) => {
-    clearCloseTimeout();
-    setOpenMenu(menuLabel);
-  };
-
-  const handleLeave = () => {
-    clearCloseTimeout();
-    closeTimeoutRef.current = setTimeout(() => {
-      setOpenMenu(null);
-    }, 150);
+    if (navItem.subMenus && navItem.subMenus.length > 0) {
+      const isOpening = openMenu !== navItem.label;
+      if (isOpening) {
+        const rect = e.currentTarget.getBoundingClientRect();
+        const spaceOnRight = window.innerWidth - rect.left;
+        const shouldAlignRight =
+          navItem.align === "right" || spaceOnRight < 340 || rect.right > window.innerWidth / 2;
+        setAlignRightMap((prev) => ({ ...prev, [navItem.label]: shouldAlignRight }));
+        setOpenMenu(navItem.label);
+      } else {
+        setOpenMenu(null);
+      }
+    }
   };
 
   return (
@@ -82,28 +82,13 @@ export function DropdownNavigation({ navItems, className }: DropdownNavigationPr
           const isOpen = openMenu === navItem.label;
           const isItemHovered = isHover === navItem.id;
           const Icon = navItem.icon;
+          const isRightAligned = navItem.align === "right" || Boolean(alignRightMap[navItem.label]);
 
           return (
-            <li
-              key={navItem.id}
-              className="relative"
-              onMouseEnter={() => {
-                if (navItem.subMenus && navItem.subMenus.length > 0) {
-                  handleHover(navItem.label);
-                }
-              }}
-              onMouseLeave={handleLeave}
-            >
+            <li key={navItem.id} className="relative">
               <button
                 type="button"
-                onClick={() => {
-                  if (navItem.onClick) {
-                    navItem.onClick();
-                  }
-                  if (navItem.subMenus && navItem.subMenus.length > 0) {
-                    setOpenMenu(isOpen ? null : navItem.label);
-                  }
-                }}
+                onClick={(e) => handleButtonClick(navItem, e)}
                 onMouseEnter={() => setIsHover(navItem.id)}
                 onMouseLeave={() => setIsHover(null)}
                 className={clsx(
@@ -166,15 +151,16 @@ export function DropdownNavigation({ navItems, className }: DropdownNavigationPr
                 <div
                   className={clsx(
                     "w-auto absolute top-full pt-2 z-50",
-                    navItem.align === "right" ? "right-0" : "left-0"
+                    isRightAligned ? "right-0" : "left-0"
                   )}
-                  onMouseEnter={clearCloseTimeout}
-                  onMouseLeave={handleLeave}
                 >
-                  <div className="bg-white border border-[#CCD0CF] p-4 w-max max-w-[calc(100vw-2.5rem)] sm:max-w-xl rounded-2xl shadow-xl animate-in fade-in-0 zoom-in-95 duration-150">
-                    <div className="w-fit shrink-0 flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-8 overflow-hidden">
+                  <div className="bg-white border border-[#CCD0CF] p-3 sm:p-4 w-max max-w-[calc(100vw-1.5rem)] sm:max-w-xl max-h-[calc(100vh-10rem)] overflow-y-auto rounded-2xl shadow-xl animate-in fade-in-0 zoom-in-95 duration-150">
+                    <div className="w-fit shrink-0 flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-8">
                       {navItem.subMenus.map((sub) => (
-                        <div className="w-full min-w-[220px] max-w-[320px]" key={sub.title}>
+                        <div
+                          className="w-full min-w-[200px] sm:min-w-[220px] max-w-[320px]"
+                          key={sub.title}
+                        >
                           <h3 className="mb-3 text-[11px] font-bold uppercase tracking-wider text-slate-400">
                             {sub.title}
                           </h3>

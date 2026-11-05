@@ -382,7 +382,7 @@ export const Calendar = ({
           className={twMerge(
             clsx(
               "absolute z-50 top-12 bg-white rounded-2xl border border-[#CCD0CF] shadow-xl p-4 animate-in fade-in zoom-in-95 duration-150 select-none box-border",
-              "w-[calc(100vw-2rem)] max-w-[480px] sm:w-[480px]",
+              "w-[calc(100vw-2rem)] max-w-[480px] max-h-[calc(100vh-6rem)] overflow-y-auto sm:w-[480px]",
               popoverAlignment === "start" && "left-0",
               popoverAlignment === "center" && "left-1/2 -translate-x-1/2",
               popoverAlignment === "end" && "right-0"

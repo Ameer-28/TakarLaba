@@ -265,14 +265,14 @@ export function AppShell() {
 
       {/* Main Content Area */}
       <main
-        className={`flex-1 min-h-screen flex flex-col bg-white transition-all duration-300 ease-in-out ${
+        className={`flex-1 min-h-screen min-w-0 max-w-full flex flex-col bg-white overflow-x-clip transition-all duration-300 ease-in-out ${
           isCollapsed ? "lg:pl-20" : "lg:pl-64"
         }`}
       >
         <div
-          className={`flex-1 ${
+          className={`flex-1 min-w-0 ${
             location.pathname === "/pos"
-              ? "w-full min-h-screen flex flex-col p-0 pb-20 lg:pb-0"
+              ? "w-full flex flex-col p-0 pb-20 lg:pb-0"
               : "p-4 sm:p-6 lg:p-8 pb-24 lg:pb-8 max-w-7xl w-full mx-auto"
           }`}
         >

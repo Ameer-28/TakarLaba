@@ -125,7 +125,7 @@ export function PosPage() {
   return (
     <div className="flex-1 flex flex-col lg:flex-row min-h-screen w-full">
       {/* Left Column: Menu Catalog Grid */}
-      <div className="flex-1 min-w-0 p-4 sm:p-6 lg:p-8 space-y-6 overflow-y-auto">
+      <div className="flex-1 min-w-0 p-4 sm:p-6 lg:p-8 pb-36 lg:pb-8 space-y-6 overflow-y-auto lg:h-screen">
         <PosMenuGrid
           menus={menus}
           cartItems={cartState.items}
@@ -179,7 +179,7 @@ export function PosPage() {
       </div>
 
       {/* Right Column: Dedicated Full-Height Cart Panel (Matching Purr'Coffee) */}
-      <aside className="hidden lg:flex w-80 xl:w-96 shrink-0 h-screen sticky top-0 bg-white border-l border-[#CCD0CF] flex-col z-10">
+      <aside className="hidden lg:flex w-72 xl:w-80 2xl:w-96 shrink-0 h-screen sticky top-0 bg-white border-l border-[#CCD0CF] flex-col z-10">
         <PosCartPanel
           items={cartState.items}
           onIncrement={handleIncrement}
@@ -190,39 +190,38 @@ export function PosPage() {
         />
       </aside>
 
-      {/* Mobile Floating Bottom Bar (< lg) */}
-      {cartState.items.length > 0 && (
-        <div className="lg:hidden fixed bottom-4 left-4 right-4 z-40 animate-in slide-in-from-bottom duration-200">
-          <div className="bg-slate-900 text-white p-3.5 rounded-3xl shadow-xl flex items-center justify-between border border-slate-800">
-            <div
-              onClick={() => setIsMobileDrawerOpen(true)}
-              className="flex items-center gap-3 cursor-pointer select-none"
-            >
-              <div className="relative p-2 bg-slate-800 text-[#CCD0CF] rounded-2xl">
-                <ShoppingCart className="w-5 h-5" />
-                <span className="absolute -top-1.5 -right-1.5 px-1.5 py-0.5 text-[10px] font-black bg-[#253745] text-[#CCD0CF] rounded-full border border-[#4A5C6A]">
+      {/* Mobile Floating Bottom Bar (< lg: safely placed above the bottom navigation bar at bottom-16) */}
+      <div className="lg:hidden fixed bottom-16 left-3 right-3 sm:left-6 sm:right-6 z-40 animate-in slide-in-from-bottom duration-200">
+        <button
+          type="button"
+          onClick={() => setIsMobileDrawerOpen(true)}
+          className="w-full bg-[#11212D] text-white p-3 sm:p-3.5 rounded-2xl shadow-xl flex items-center justify-between border border-[#253745] cursor-pointer hover:bg-[#253745] active:scale-[0.99] transition-all"
+        >
+          <div className="flex items-center gap-2.5 sm:gap-3">
+            <div className="relative p-2 bg-[#253745] text-[#CCD0CF] rounded-xl">
+              <ShoppingCart className="w-4 h-4 sm:w-5 sm:h-5" />
+              {totalQty > 0 && (
+                <span className="absolute -top-1.5 -right-1.5 px-1.5 py-0.5 text-[9px] font-black bg-emerald-500 text-white rounded-full">
                   {totalQty}
                 </span>
-              </div>
-              <div>
-                <span className="text-[11px] text-[#9BA8AB] block font-medium">Total Pesanan</span>
-                <span className="text-base font-black tabular-nums text-white">
-                  {formatRupiah(totalAmount)}
-                </span>
-              </div>
+              )}
             </div>
-
-            <button
-              type="button"
-              onClick={handleOpenCheckout}
-              className="flex items-center gap-1.5 px-4.5 py-2.5 bg-[#11212D] hover:bg-[#253745] active:bg-[#06141B] text-[#CCD0CF] border border-[#253745] rounded-full text-xs font-bold transition-all shadow-xs cursor-pointer"
-            >
-              <span>Bayar</span>
-              <ArrowRight className="w-3.5 h-3.5" />
-            </button>
+            <div className="text-left">
+              <span className="text-[10px] sm:text-[11px] text-[#9BA8AB] block font-medium">
+                {totalQty > 0 ? `${totalQty} item pesanan` : "Keranjang Belanja"}
+              </span>
+              <span className="text-sm sm:text-base font-black tabular-nums text-white">
+                {formatRupiah(totalAmount)}
+              </span>
+            </div>
           </div>
-        </div>
-      )}
+
+          <div className="flex items-center gap-1.5 px-3 py-1.5 sm:px-4 sm:py-2 bg-white/10 hover:bg-white/20 text-[#CCD0CF] rounded-full text-xs font-bold transition-all shadow-xs">
+            <span>{totalQty > 0 ? "Bayar" : "Buka"}</span>
+            <ArrowRight className="w-3.5 h-3.5" />
+          </div>
+        </button>
+      </div>
 
       {/* Mobile Drawer Backdrop & Panel (< lg) */}
       {isMobileDrawerOpen && (
