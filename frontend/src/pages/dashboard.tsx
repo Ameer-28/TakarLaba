@@ -98,18 +98,22 @@ export function DashboardPage() {
       {/* New business onboarding banner */}
       {data.isNewBusiness && <DashboardEmptyState />}
 
-      {/* Main Analytics Grid: Left 7 cols, Right 5 cols without disjoint row gaps */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
-        {/* Left Column: 7-Day Trend, Margin Alerts & Capacity Bottlenecks */}
-        <div className="lg:col-span-7 space-y-5">
-          <DashboardSalesTrendChart salesLast7Days={data.salesLast7Days} />
+      {/* Top Analytics: 7-Day Sales Trend & Top Menus (Equal Size 50-50 side-by-side) */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 items-stretch">
+        <DashboardSalesTrendChart salesLast7Days={data.salesLast7Days} />
+        <DashboardTopMenus topMenus={data.topMenus} />
+      </div>
+
+      {/* Operational Alerts, Capacity & Recent Daily Sales */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 items-start">
+        {/* Left Column: Margin Alerts & Capacity Bottlenecks */}
+        <div className="space-y-5">
           <DashboardTopAlerts alerts={data.topAlerts} />
           <DashboardLowestCapacity menus={data.lowestCapacityMenus} />
         </div>
 
-        {/* Right Column: Top Menus & Recent Daily Sales */}
-        <div className="lg:col-span-5 space-y-5">
-          <DashboardTopMenus topMenus={data.topMenus} />
+        {/* Right Column: Recent Daily Sales */}
+        <div>
           <DashboardRecentSales sales={data.recentSales} />
         </div>
       </div>
