@@ -70,7 +70,8 @@ export function LoginPage() {
       });
 
       toast.success(`Berhasil masuk sebagai Demo ${role === "owner" ? "Owner" : "Kasir"}`);
-      navigate(role === "owner" ? "/dashboard" : "/pos", { replace: true });
+      const targetPath = role === "owner" ? "/dashboard" : "/pos";
+      window.location.href = targetPath;
     } catch (err: unknown) {
       const fallbackMsg =
         err instanceof Error ? err.message : "Gagal terhubung ke layanan otentikasi demo.";

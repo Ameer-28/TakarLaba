@@ -4,6 +4,8 @@ import { env } from "../config/env.js";
 
 const trustedOrigins = new Set([
   new URL(env.FRONTEND_URL).origin,
+  "https://takar-laba.vercel.app",
+  "https://takarlaba.vercel.app",
   ...(env.NODE_ENV === "development"
     ? [
         "http://localhost:5173",
