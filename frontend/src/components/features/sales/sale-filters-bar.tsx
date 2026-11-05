@@ -1,8 +1,9 @@
 import { useMemo } from "react";
-import { Search, Filter, X } from "lucide-react";
+import { Search, X, CreditCard, Banknote, QrCode, ArrowRightLeft, RotateCcw } from "lucide-react";
 import type { PaymentMethod } from "../../../api/hooks/use-sales.js";
 import { Calendar as DateRangePicker, type RangeValue } from "../../ui/calendar.js";
 import { parseYMD, formatToYMD } from "../../ui/calendar-utils.js";
+import { DropdownNavigation, type NavItem } from "../../ui/dropdown-navigation.js";
 
 interface SaleFiltersBarProps {
   search: string;
@@ -45,82 +46,117 @@ export function SaleFiltersBar({
 
   const hasActiveFilters = Boolean(search || startDate || endDate || paymentMethod !== "ALL");
 
+  const paymentNavItems: NavItem[] = [
+    {
+      id: "payment-method",
+      label:
+        paymentMethod === "ALL"
+          ? "Metode Pembayaran"
+          : paymentMethod === "CASH"
+            ? "Bayar: Tunai"
+            : paymentMethod === "QRIS"
+              ? "Bayar: QRIS"
+              : "Bayar: Transfer",
+      active: paymentMethod !== "ALL",
+      align: "right",
+      subMenus: [
+        {
+          title: "Pilih Metode Pembayaran",
+          items: [
+            {
+              label: "Semua Bayar",
+              description: "Tampilkan seluruh metode pembayaran transaksi",
+              icon: CreditCard,
+              active: paymentMethod === "ALL",
+              onClick: () => onPaymentMethodChange("ALL"),
+            },
+            {
+              label: "Tunai (Cash)",
+              description: "Pembayaran langsung menggunakan uang tunai fisik",
+              icon: Banknote,
+              active: paymentMethod === "CASH",
+              onClick: () => onPaymentMethodChange("CASH"),
+            },
+            {
+              label: "QRIS",
+              description: "Pembayaran digital instan via kode QRIS",
+              icon: QrCode,
+              active: paymentMethod === "QRIS",
+              onClick: () => onPaymentMethodChange("QRIS"),
+            },
+            {
+              label: "Transfer Bank",
+              description: "Pembayaran transfer antar bank atau rekening bisnis",
+              icon: ArrowRightLeft,
+              active: paymentMethod === "TRANSFER",
+              onClick: () => onPaymentMethodChange("TRANSFER"),
+            },
+          ],
+        },
+      ],
+    },
+  ];
+
   return (
-    <div className="bg-white p-4 rounded-2xl border border-[#CCD0CF] shadow-2xs space-y-3">
-      {/* Search & Payment Method Row */}
-      <div className="flex flex-col sm:flex-row gap-3">
+    <div className="bg-white p-3.5 sm:p-4 rounded-2xl border border-[#CCD0CF] shadow-xs space-y-3">
+      <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3">
         {/* Search Input */}
-        <div className="relative flex-1">
+        <div className="relative flex-1 min-w-[220px]">
           <Search className="w-4 h-4 text-[#4A5C6A] absolute left-3.5 top-1/2 -translate-y-1/2" />
           <input
             type="text"
             placeholder="Cari no. struk atau nama menu..."
             value={search}
             onChange={(e) => onSearchChange(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-[#CCD0CF] text-xs text-[#06141B] placeholder:text-[#4A5C6A] focus:outline-hidden focus:border-[#253745] focus:ring-1 focus:ring-[#253745]/20 transition-all bg-white"
+            className="w-full pl-10 pr-9 py-2 text-sm rounded-xl border border-[#CCD0CF] text-[#06141B] placeholder:text-[#4A5C6A] focus:outline-hidden focus:border-[#253745] focus:ring-1 focus:ring-[#253745]/20 transition-all bg-slate-50/50"
           />
           {search && (
             <button
               type="button"
               onClick={() => onSearchChange("")}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-[#4A5C6A] hover:text-[#06141B] cursor-pointer"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-[#4A5C6A] hover:text-[#06141B] cursor-pointer p-0.5"
+              title="Hapus pencarian"
             >
               <X className="w-3.5 h-3.5" />
             </button>
           )}
         </div>
 
-        {/* Payment Method Selector */}
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0">
-          {(
-            [
-              { id: "ALL", label: "Semua Bayar" },
-              { id: "CASH", label: "Tunai" },
-              { id: "QRIS", label: "QRIS" },
-              { id: "TRANSFER", label: "Transfer" },
-            ] as const
-          ).map((pm) => (
+        {/* Filter Controls Row: Periode Transaksi & Metode Pembayaran & Reset (Sejajar) */}
+        <div className="flex flex-wrap items-center gap-2 sm:gap-2.5">
+          {/* Periode Transaksi Date Range Picker */}
+          <div className="flex items-center gap-1.5">
+            <span className="text-xs font-semibold text-[#4A5C6A] whitespace-nowrap hidden sm:inline-block">
+              Periode:
+            </span>
+            <DateRangePicker
+              value={rangeValue}
+              onChange={handleRangeChange}
+              allowClear
+              placeholder="Pilih Periode Transaksi"
+              popoverAlignment="end"
+            />
+          </div>
+
+          {/* Payment Method Dropdown Navigation */}
+          <DropdownNavigation navItems={paymentNavItems} />
+
+          {/* Reset Filter Button */}
+          {hasActiveFilters && (
             <button
-              key={pm.id}
               type="button"
-              onClick={() => onPaymentMethodChange(pm.id)}
-              className={`px-3 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
-                paymentMethod === pm.id
-                  ? "bg-[#11212D] text-white shadow-2xs"
-                  : "bg-slate-100 hover:bg-[#CCD0CF]/30 text-[#4A5C6A] hover:text-[#06141B]"
-              }`}
+              onClick={onReset}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-slate-500 hover:text-rose-600 hover:bg-rose-50 border border-slate-200 hover:border-rose-200 rounded-full transition-all cursor-pointer whitespace-nowrap"
+              title="Reset semua filter transaksi"
             >
-              {pm.label}
+              <RotateCcw className="w-3.5 h-3.5" />
+              <span>Reset</span>
             </button>
-          ))}
+          )}
         </div>
-      </div>
-
-      {/* Date Range Picker & Filter Actions Row */}
-      <div className="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-[#CCD0CF]/60 text-xs">
-        <div className="flex items-center gap-2">
-          <span className="text-[11px] font-bold text-[#4A5C6A] hidden sm:inline-block">
-            Periode Transaksi:
-          </span>
-          <DateRangePicker
-            value={rangeValue}
-            onChange={handleRangeChange}
-            allowClear
-            placeholder="Pilih Rentang Tanggal"
-            popoverAlignment="start"
-          />
-        </div>
-
-        {hasActiveFilters && (
-          <button
-            type="button"
-            onClick={onReset}
-            className="inline-flex items-center gap-1 text-[11px] font-bold text-rose-600 hover:text-rose-700 px-2.5 py-1.5 rounded-lg hover:bg-rose-50 transition-colors cursor-pointer"
-          >
-            <Filter className="w-3 h-3" /> Reset Semua Filter
-          </button>
-        )}
       </div>
     </div>
   );
 }
+
+export default SaleFiltersBar;
