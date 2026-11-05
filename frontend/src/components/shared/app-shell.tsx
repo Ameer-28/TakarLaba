@@ -193,8 +193,8 @@ export function AppShell() {
                 onClick={toggleCollapse}
                 aria-label="Ciutkan sidebar"
                 aria-expanded={true}
-                title="Ciutkan sidebar"
-                className="p-1.5 rounded-xl text-stone-400 hover:text-stone-800 hover:bg-stone-100 transition-colors cursor-pointer shrink-0"
+                title="Ciutkan sidebar (minimize)"
+                className="p-2 rounded-xl text-stone-500 hover:text-[#f27238] hover:bg-orange-50 border border-stone-200/80 hover:border-orange-200 transition-colors cursor-pointer shrink-0 shadow-2xs"
               >
                 <PanelLeftClose className="w-5 h-5" />
               </button>
@@ -245,23 +245,25 @@ export function AppShell() {
           })}
 
           {/* Quick Collapse/Expand Toggle at bottom of navigation */}
-          <div className="pt-2 border-t border-stone-200/60 mt-3">
+          <div className="pt-3 border-t border-stone-200/60 mt-3">
             <button
               type="button"
               onClick={toggleCollapse}
               aria-label={isCollapsed ? "Lebarkan menu" : "Ciutkan menu"}
               aria-expanded={!isCollapsed}
               title={isCollapsed ? "Lebarkan menu" : "Ciutkan menu"}
-              className={`flex items-center rounded-2xl text-xs font-semibold text-stone-500 hover:text-stone-900 hover:bg-stone-100 transition-all cursor-pointer ${
-                isCollapsed ? "justify-center w-11 h-11 mx-auto" : "w-full gap-3 px-3.5 py-2.5"
+              className={`flex items-center rounded-2xl text-xs font-bold transition-all cursor-pointer border ${
+                isCollapsed
+                  ? "justify-center w-11 h-11 mx-auto bg-stone-50 hover:bg-orange-50 text-stone-600 hover:text-[#f27238] border-stone-200/80 hover:border-orange-200"
+                  : "w-full gap-3 px-3.5 py-2.5 bg-stone-50/80 hover:bg-orange-50 text-stone-600 hover:text-orange-950 border-stone-200/80 hover:border-orange-200 shadow-2xs"
               }`}
             >
               {isCollapsed ? (
-                <PanelLeftOpen className="w-5 h-5 text-stone-400 hover:text-[#f27238]" />
+                <PanelLeftOpen className="w-5 h-5 text-stone-500 hover:text-[#f27238]" />
               ) : (
                 <>
-                  <PanelLeftClose className="w-5 h-5 flex-shrink-0 text-stone-400" />
-                  <span className="truncate">Ciutkan Menu</span>
+                  <PanelLeftClose className="w-5 h-5 flex-shrink-0 text-stone-500 hover:text-[#f27238]" />
+                  <span className="truncate">Ciutkan Menu (Minimize)</span>
                 </>
               )}
             </button>
