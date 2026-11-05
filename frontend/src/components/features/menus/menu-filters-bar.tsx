@@ -1,7 +1,6 @@
 import {
   Search,
   Plus,
-  PlusCircle,
   CheckCircle2,
   AlertTriangle,
   AlertCircle,
@@ -208,27 +207,6 @@ export function MenuFiltersBar({
         },
       ],
     },
-    {
-      id: "tambah-menu",
-      label: "Tambah Menu",
-      isPrimary: true,
-      icon: Plus,
-      onClick: onOpenCreate,
-      align: "right",
-      subMenus: [
-        {
-          title: "Aksi Katalog Menu",
-          items: [
-            {
-              label: "Tambah Menu Baru",
-              description: "Buat menu makanan/minuman baru & tentukan harga jual",
-              icon: PlusCircle,
-              onClick: onOpenCreate,
-            },
-          ],
-        },
-      ],
-    },
   ];
 
   return (
@@ -256,9 +234,19 @@ export function MenuFiltersBar({
           )}
         </div>
 
-        {/* Navigation Dropdown with Kategori, Status Margin, Semua Status, and Tambah Menu */}
+        {/* Navigation Dropdown & Standalone Create Menu Button */}
         <div className="flex flex-wrap items-center gap-2">
           <DropdownNavigation navItems={navItems} />
+
+          {/* Standalone Direct Action: Tambah Menu */}
+          <button
+            type="button"
+            onClick={onOpenCreate}
+            className="inline-flex items-center justify-center gap-1.5 px-4 py-2 text-xs sm:text-sm font-bold text-white bg-[#11212D] hover:bg-[#253745] active:bg-[#06141B] rounded-full shadow-xs transition-all duration-200 cursor-pointer active:scale-95 shrink-0 select-none"
+          >
+            <Plus className="w-4 h-4 text-white" />
+            <span>Tambah Menu</span>
+          </button>
 
           {hasActiveFilters && (
             <button
