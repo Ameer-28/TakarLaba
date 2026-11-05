@@ -153,6 +153,54 @@ export const MONTH_NAMES_FULL = [
   "Desember",
 ];
 
+// --- Responsive Popover Boundary Clamping ---
+export interface PopoverPositionOptions {
+  triggerRect: { left: number; right: number; width: number };
+  screenWidth: number;
+  alignment?: "start" | "center" | "end";
+  padding?: number;
+  maxWidth?: number;
+  minWidth?: number;
+}
+
+export interface PopoverPositionResult {
+  relativeLeft: number;
+  width: number;
+  viewportLeft: number;
+  viewportRight: number;
+}
+
+export function calculatePopoverPosition({
+  triggerRect,
+  screenWidth,
+  alignment = "start",
+  padding = 12,
+  maxWidth = 480,
+  minWidth = 280,
+}: PopoverPositionOptions): PopoverPositionResult {
+  const popoverW = Math.min(maxWidth, Math.max(minWidth, screenWidth - padding * 2));
+
+  let preferredViewportLeft: number;
+  if (alignment === "end") {
+    preferredViewportLeft = triggerRect.right - popoverW;
+  } else if (alignment === "center") {
+    preferredViewportLeft = triggerRect.left + (triggerRect.width - popoverW) / 2;
+  } else {
+    preferredViewportLeft = triggerRect.left;
+  }
+
+  const maxViewportLeft = Math.max(padding, screenWidth - popoverW - padding);
+  const clampedViewportLeft = Math.min(Math.max(padding, preferredViewportLeft), maxViewportLeft);
+  const relativeLeft = clampedViewportLeft - triggerRect.left;
+
+  return {
+    relativeLeft: Math.round(relativeLeft),
+    width: Math.round(popoverW),
+    viewportLeft: Math.round(clampedViewportLeft),
+    viewportRight: Math.round(clampedViewportLeft + popoverW),
+  };
+}
+
 export function formatDateRange(start: Date, end: Date): string {
   const sameDay = isSameDay(start, end);
   const startDay = start.getDate();

@@ -16,6 +16,7 @@ import {
   formatToYMD,
   parseYMD,
   defaultPresets,
+  calculatePopoverPosition,
 } from "./calendar-utils";
 
 describe("Calendar Utilities", () => {
@@ -117,5 +118,74 @@ describe("Calendar Utilities", () => {
 
     expect(defaultPresets.today?.text).toBe("Hari Ini");
     expect(defaultPresets.last7days?.text).toBe("7 Hari Terakhir");
+  });
+
+  describe("calculatePopoverPosition boundary clamping", () => {
+    it("prevents left-overflow when trigger is on left side with alignment=end (Image 1 bug)", () => {
+      // Tablet screen width 768px, trigger on the left at x=70px, width=200px (right=270px)
+      const pos = calculatePopoverPosition({
+        triggerRect: { left: 70, right: 270, width: 200 },
+        screenWidth: 768,
+        alignment: "end",
+        padding: 12,
+        maxWidth: 480,
+      });
+
+      // Without clamping, 270 - 480 = -210px (cut off).
+      // With clamping, viewportLeft must be clamped to at least padding (12px)!
+      expect(pos.viewportLeft).toBeGreaterThanOrEqual(12);
+      expect(pos.viewportRight).toBeLessThanOrEqual(768 - 12);
+      expect(pos.width).toBe(480);
+      expect(pos.relativeLeft).toBe(12 - 70); // -58px
+    });
+
+    it("prevents both left and right overflow on narrow mobile screen (Image 2 bug)", () => {
+      // Narrow mobile screen width 360px, trigger at left=20px, width=200px (right=220px)
+      const pos = calculatePopoverPosition({
+        triggerRect: { left: 20, right: 220, width: 200 },
+        screenWidth: 360,
+        alignment: "end",
+        padding: 12,
+        maxWidth: 480,
+        minWidth: 280,
+      });
+
+      // On 360px screen, width should adapt to 360 - 24 = 336px
+      expect(pos.width).toBe(336);
+      expect(pos.viewportLeft).toBe(12);
+      expect(pos.viewportRight).toBe(348); // 360 - 12
+    });
+
+    it("prevents right-overflow when trigger is on far right edge with alignment=start", () => {
+      // Desktop screen width 1200px, trigger at left=1050px, width=150px
+      const pos = calculatePopoverPosition({
+        triggerRect: { left: 1050, right: 1200, width: 150 },
+        screenWidth: 1200,
+        alignment: "start",
+        padding: 12,
+        maxWidth: 480,
+      });
+
+      // Without clamping, 1050 + 480 = 1530px (cut off on right).
+      // With clamping, viewportRight must not exceed 1200 - 12 = 1188px
+      expect(pos.viewportRight).toBeLessThanOrEqual(1188);
+      expect(pos.viewportLeft).toBe(1200 - 480 - 12); // 708px
+      expect(pos.relativeLeft).toBe(708 - 1050); // -342px
+    });
+
+    it("centers popover correctly and clamps if overflowing", () => {
+      const pos = calculatePopoverPosition({
+        triggerRect: { left: 500, right: 700, width: 200 },
+        screenWidth: 1200,
+        alignment: "center",
+        padding: 12,
+        maxWidth: 480,
+      });
+
+      // Center: 500 + (200 - 480) / 2 = 360px
+      expect(pos.viewportLeft).toBe(360);
+      expect(pos.viewportRight).toBe(360 + 480);
+      expect(pos.relativeLeft).toBe(360 - 500);
+    });
   });
 });

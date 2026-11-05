@@ -134,7 +134,7 @@ export function SaleFiltersBar({
               onChange={handleRangeChange}
               allowClear
               placeholder="Pilih Periode Transaksi"
-              popoverAlignment="end"
+              popoverAlignment="start"
             />
           </div>
 

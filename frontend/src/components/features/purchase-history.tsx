@@ -90,7 +90,7 @@ export function PurchaseHistory({ onOpenCreate }: PurchaseHistoryProps) {
               onChange={handleRangeChange}
               allowClear
               placeholder="Pilih Periode Pengadaan"
-              popoverAlignment="end"
+              popoverAlignment="start"
             />
 
             {hasFilter && (
