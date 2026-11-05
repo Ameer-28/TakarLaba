@@ -61,9 +61,9 @@ export function PosCartPanel({
   const totalAmount = getCartTotalAmount(items);
 
   return (
-    <div className="bg-white rounded-3xl border border-[#CCD0CF] shadow-[0_2px_12px_-2px_rgba(0,0,0,0.03)] flex flex-col h-full overflow-hidden">
+    <div className="bg-white rounded-3xl border border-[#CCD0CF] shadow-xs flex flex-col h-full overflow-hidden">
       {/* Header */}
-      <div className="p-4 sm:p-5 border-b border-[#CCD0CF] flex items-center justify-between">
+      <div className="p-4 sm:p-5 border-b border-[#CCD0CF] flex items-center justify-between shrink-0">
         <div>
           <h3 className="font-extrabold text-[#06141B] text-base sm:text-lg tracking-tight">
             Keranjang
@@ -89,7 +89,7 @@ export function PosCartPanel({
       </div>
 
       {/* Order Type Selector Pills (Matching Purr'Coffee) */}
-      <div className="p-3 bg-slate-50/50 border-b border-[#CCD0CF]">
+      <div className="p-3 bg-slate-50/50 border-b border-[#CCD0CF] shrink-0">
         <div className="grid grid-cols-3 gap-1.5 p-1 bg-[#CCD0CF]/30 rounded-full border border-[#CCD0CF]">
           <button
             type="button"
@@ -127,10 +127,10 @@ export function PosCartPanel({
         </div>
       </div>
 
-      {/* Cart Items List */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-3 min-h-[240px] max-h-[420px]">
+      {/* Cart Items List: flex-1 min-h-0 fills the entire remaining vertical height */}
+      <div className="flex-1 min-h-0 overflow-y-auto p-4 space-y-3">
         {items.length === 0 ? (
-          <div className="h-full flex flex-col items-center justify-center text-center p-6 text-[#4A5C6A] space-y-2.5">
+          <div className="h-full flex-1 min-h-0 flex flex-col items-center justify-center text-center p-6 text-[#4A5C6A] space-y-2.5 my-auto">
             <div className="w-14 h-14 rounded-3xl bg-[#CCD0CF]/30 flex items-center justify-center text-[#253745] border border-[#CCD0CF] shadow-2xs">
               <ShoppingCart className="w-7 h-7" />
             </div>
@@ -140,7 +140,7 @@ export function PosCartPanel({
             </p>
           </div>
         ) : (
-          <div className="divide-y divide-stone-100">
+          <div className="divide-y divide-slate-100">
             {items.map((item) => {
               const lineTotal = item.qty * item.sellingPrice;
               const itemKey =
@@ -159,7 +159,7 @@ export function PosCartPanel({
                     <div className="min-w-0 flex-1">
                       <div className="flex items-start justify-between gap-1">
                         <div className="flex items-center gap-1.5 flex-wrap min-w-0">
-                          <h5 className="font-bold text-slate-900 text-sm line-clamp-1">
+                          <h5 className="font-extrabold text-[#06141B] text-sm line-clamp-1">
                             {formatPosMenuName(item.name)}
                           </h5>
                           {item.temperature === "ICE" && (
@@ -176,48 +176,51 @@ export function PosCartPanel({
                         <button
                           type="button"
                           onClick={() => onRemove(itemKey)}
-                          className="p-1 text-stone-300 hover:text-rose-600 transition-colors cursor-pointer"
+                          className="p-1 text-[#9BA8AB] hover:text-rose-600 transition-colors cursor-pointer"
                           title="Hapus item"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
                         </button>
                       </div>
 
-                      <div className="flex items-center justify-between mt-0.5">
-                        <span className="text-xs text-stone-400 tabular-nums">
-                          {formatRupiah(item.sellingPrice)} &times; {item.qty}
-                        </span>
-                        <span className="text-xs font-black text-slate-900 tabular-nums">
-                          {formatRupiah(lineTotal)}
-                        </span>
+                      {/* Line Total & Stepper (Matching Purr'Coffee Layout) */}
+                      <div className="flex items-center justify-between mt-2 pt-0.5">
+                        <div className="flex flex-col">
+                          <span className="text-xs font-black text-[#11212D] tabular-nums">
+                            {formatRupiah(lineTotal)}
+                          </span>
+                          {item.qty > 1 && (
+                            <span className="text-[10px] text-[#4A5C6A] tabular-nums font-medium">
+                              {formatRupiah(item.sellingPrice)} / porsi
+                            </span>
+                          )}
+                        </div>
+
+                        {/* Quantity Stepper Bar */}
+                        <div className="flex items-center gap-1.5 bg-slate-100/90 rounded-full px-2 py-0.5 border border-[#CCD0CF]/60 select-none">
+                          <button
+                            type="button"
+                            onClick={() => onDecrement(itemKey)}
+                            className="w-5 h-5 flex items-center justify-center text-slate-700 hover:text-rose-600 hover:bg-white rounded-full transition-colors cursor-pointer shadow-2xs text-xs font-bold"
+                            title="Kurangi kuantitas"
+                          >
+                            <Minus className="w-2.5 h-2.5" />
+                          </button>
+
+                          <span className="text-xs font-black text-[#06141B] px-1 tabular-nums min-w-[16px] text-center select-none">
+                            {item.qty}
+                          </span>
+
+                          <button
+                            type="button"
+                            onClick={() => onIncrement(itemKey)}
+                            className="w-5 h-5 flex items-center justify-center bg-[#11212D] hover:bg-[#253745] text-white rounded-full transition-colors cursor-pointer shadow-2xs text-xs font-bold"
+                            title="Tambah kuantitas"
+                          >
+                            <Plus className="w-2.5 h-2.5" />
+                          </button>
+                        </div>
                       </div>
-                    </div>
-                  </div>
-
-                  {/* Quantity Stepper Bar */}
-                  <div className="flex items-center justify-end">
-                    <div className="flex items-center gap-1.5 bg-stone-100 rounded-full px-2 py-0.5 border border-stone-200/80">
-                      <button
-                        type="button"
-                        onClick={() => onDecrement(itemKey)}
-                        className="w-5 h-5 flex items-center justify-center text-stone-600 hover:text-rose-600 hover:bg-white rounded-full transition-colors cursor-pointer shadow-2xs"
-                        title="Kurangi kuantitas"
-                      >
-                        <Minus className="w-2.5 h-2.5" />
-                      </button>
-
-                      <span className="text-xs font-black text-slate-900 px-1.5 tabular-nums min-w-[20px] text-center select-none">
-                        {item.qty}
-                      </span>
-
-                      <button
-                        type="button"
-                        onClick={() => onIncrement(itemKey)}
-                        className="w-5 h-5 flex items-center justify-center bg-[#11212D] hover:bg-[#253745] text-white rounded-full transition-colors cursor-pointer shadow-2xs"
-                        title="Tambah kuantitas"
-                      >
-                        <Plus className="w-2.5 h-2.5" />
-                      </button>
                     </div>
                   </div>
                 </div>
@@ -227,8 +230,8 @@ export function PosCartPanel({
         )}
       </div>
 
-      {/* Bill Summary & Primary CTA (Matching Purr'Coffee) */}
-      <div className="p-4 sm:p-5 border-t border-[#CCD0CF] bg-slate-50/50 space-y-3">
+      {/* Bill Summary & Primary CTA (Pinned at the bottom) */}
+      <div className="p-4 sm:p-5 border-t border-[#CCD0CF] bg-slate-50/50 space-y-3 shrink-0">
         <div className="space-y-1.5 text-xs text-[#4A5C6A]">
           <div className="flex justify-between items-center">
             <span>Item Pesanan</span>
@@ -270,3 +273,5 @@ export function PosCartPanel({
     </div>
   );
 }
+
+export default PosCartPanel;
