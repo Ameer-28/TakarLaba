@@ -1,4 +1,4 @@
-import { X, Loader2, Calendar, Trash2 } from "lucide-react";
+import { X, Loader2, Calendar, Trash2, SlidersHorizontal } from "lucide-react";
 import type { IngredientStockSummary, StockBatchItem } from "@/api/hooks/use-inventory";
 import { formatNumber, formatRupiah, formatDate } from "@/lib/format";
 import { STATUS_BADGES } from "./types";
@@ -10,6 +10,7 @@ interface InventoryBatchModalProps {
   isPending: boolean;
   isOwner: boolean;
   onRecordWaste?: (batch: StockBatchItem) => void;
+  onRecordAdjustment?: (batch: StockBatchItem) => void;
 }
 
 export function InventoryBatchModal({
@@ -19,6 +20,7 @@ export function InventoryBatchModal({
   isPending,
   isOwner,
   onRecordWaste,
+  onRecordAdjustment,
 }: InventoryBatchModalProps) {
   if (!ingredient) return null;
 
@@ -100,15 +102,29 @@ export function InventoryBatchModal({
                             {formatRupiah(costNum, true)} / {batch.baseUnit.toLowerCase()}
                           </span>
                         )}
-                        {isOwner && remainingNum > 0 && onRecordWaste && (
-                          <button
-                            type="button"
-                            onClick={() => onRecordWaste(batch)}
-                            className="inline-flex items-center gap-1 text-[11px] font-semibold text-rose-600 hover:text-rose-700 hover:underline mt-1 cursor-pointer"
-                          >
-                            <Trash2 className="w-3 h-3" />
-                            <span>Catat Terbuang</span>
-                          </button>
+                        {isOwner && (
+                          <div className="flex items-center justify-end gap-2.5 mt-1">
+                            {onRecordAdjustment && (
+                              <button
+                                type="button"
+                                onClick={() => onRecordAdjustment(batch)}
+                                className="inline-flex items-center gap-1 text-[11px] font-semibold text-sky-600 hover:text-sky-700 hover:underline cursor-pointer"
+                              >
+                                <SlidersHorizontal className="w-3 h-3" />
+                                <span>Opname</span>
+                              </button>
+                            )}
+                            {remainingNum > 0 && onRecordWaste && (
+                              <button
+                                type="button"
+                                onClick={() => onRecordWaste(batch)}
+                                className="inline-flex items-center gap-1 text-[11px] font-semibold text-rose-600 hover:text-rose-700 hover:underline cursor-pointer"
+                              >
+                                <Trash2 className="w-3 h-3" />
+                                <span>Catat Terbuang</span>
+                              </button>
+                            )}
+                          </div>
                         )}
                       </div>
                     </div>

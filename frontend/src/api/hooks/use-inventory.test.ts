@@ -124,4 +124,60 @@ describe("Inventory API client integration", () => {
       expect.objectContaining({ credentials: "same-origin" })
     );
   });
+
+  it("sends POST /api/stock/adjustments to record stock opname adjustment", async () => {
+    const mockResponse = {
+      movementId: "mov-adj-1",
+      batchId: "batch-1",
+      ingredientId: "ing-1",
+      ingredientName: "Susu UHT",
+      baseUnit: "ML",
+      previousQtyBase: "5000.000",
+      actualQtyBase: "4500.000",
+      deltaQtyBase: "-500.000",
+      diffValue: "-9000.00",
+      reason: "Koreksi susut",
+      createdAt: "2026-11-05T08:00:00.000Z",
+    };
+
+    globalThis.fetch = vi.fn().mockResolvedValueOnce({
+      status: 201,
+      text: vi.fn().mockResolvedValueOnce(JSON.stringify({ ok: true, data: mockResponse })),
+    } as unknown as Response);
+
+    const result = await apiClient("/stock/adjustments", {
+      method: "POST",
+      body: JSON.stringify({
+        batchId: "batch-1",
+        actualQty: 4500,
+        reason: "Koreksi susut",
+      }),
+    });
+
+    expect(result).toEqual(mockResponse);
+    expect(globalThis.fetch).toHaveBeenCalledWith(
+      expect.stringContaining("/api/stock/adjustments"),
+      expect.objectContaining({
+        method: "POST",
+        credentials: "same-origin",
+      })
+    );
+  });
+
+  it("sends GET /api/inventory/adjustments to fetch adjustment history", async () => {
+    globalThis.fetch = vi.fn().mockResolvedValueOnce({
+      status: 200,
+      text: vi.fn().mockResolvedValueOnce(JSON.stringify({ ok: true, data: [] })),
+    } as unknown as Response);
+
+    const result = await apiClient("/inventory/adjustments", {
+      params: { limit: 20, skip: 0 },
+    });
+
+    expect(result).toEqual([]);
+    expect(globalThis.fetch).toHaveBeenCalledWith(
+      expect.stringContaining("/api/inventory/adjustments?limit=20&skip=0"),
+      expect.objectContaining({ credentials: "same-origin" })
+    );
+  });
 });

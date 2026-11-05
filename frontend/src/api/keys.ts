@@ -54,6 +54,10 @@ export const queryKeys = {
       filter
         ? ([...queryKeys.inventory.all, "waste", filter] as const)
         : ([...queryKeys.inventory.all, "waste"] as const),
+    adjustments: (filter?: Record<string, unknown>) =>
+      filter
+        ? ([...queryKeys.inventory.all, "adjustments", filter] as const)
+        : ([...queryKeys.inventory.all, "adjustments"] as const),
   },
   settings: {
     all: ["settings"] as const,

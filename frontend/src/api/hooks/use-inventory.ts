@@ -128,3 +128,69 @@ export function useWasteHistory(filter?: { limit?: number; skip?: number }) {
       }),
   });
 }
+
+export interface RecordAdjustmentInput {
+  batchId: string;
+  actualQty: number | string;
+  unit?: string;
+  reason: string;
+  adjustmentDate?: string;
+}
+
+export interface AdjustmentRecordResponse {
+  movementId: string;
+  batchId: string;
+  ingredientId: string;
+  ingredientName: string;
+  baseUnit: string;
+  previousQtyBase: string;
+  actualQtyBase: string;
+  deltaQtyBase: string;
+  diffValue: string;
+  reason: string;
+  createdAt: string;
+}
+
+export interface AdjustmentHistoryItem {
+  id: string;
+  ingredientId: string;
+  ingredientName: string;
+  baseUnit: string;
+  batchId: string | null;
+  deltaQtyBase: string;
+  costPerBase: string;
+  diffValue: string;
+  reason: string;
+  createdAt: string;
+  createdByName?: string | null;
+  expiryDate?: string | null;
+}
+
+export function useRecordAdjustment() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (input: RecordAdjustmentInput) =>
+      apiClient<AdjustmentRecordResponse>("/stock/adjustments", {
+        method: "POST",
+        body: JSON.stringify(input),
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.inventory.all });
+      queryClient.invalidateQueries({ queryKey: queryKeys.ingredients.all });
+      queryClient.invalidateQueries({ queryKey: queryKeys.dashboard.all });
+      queryClient.invalidateQueries({ queryKey: queryKeys.analytics.all });
+      queryClient.invalidateQueries({ queryKey: queryKeys.menus.all });
+    },
+  });
+}
+
+export function useAdjustmentHistory(filter?: { limit?: number; skip?: number }) {
+  return useQuery({
+    queryKey: queryKeys.inventory.adjustments(filter as Record<string, unknown> | undefined),
+    queryFn: () =>
+      apiClient<AdjustmentHistoryItem[]>("/inventory/adjustments", {
+        params: filter as Record<string, string | number | boolean | undefined>,
+      }),
+  });
+}

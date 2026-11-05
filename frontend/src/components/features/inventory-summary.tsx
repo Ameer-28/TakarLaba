@@ -11,6 +11,7 @@ import { InventoryMetricsHeader } from "./inventory/inventory-metrics-header";
 import { InventoryBatchModal } from "./inventory/inventory-batch-modal";
 import { InventoryItemCard } from "./inventory/inventory-item-card";
 import { WasteRecordModal } from "./inventory/waste-record-modal";
+import { StockAdjustmentModal } from "./inventory/stock-adjustment-modal";
 
 interface InventorySummaryProps {
   onOpenPurchase?: () => void;
@@ -39,6 +40,8 @@ export function InventorySummary({
   const [selectedIngredient, setSelectedIngredient] = useState<IngredientStockSummary | null>(null);
   const [wasteModalBatch, setWasteModalBatch] = useState<StockBatchItem | null>(null);
   const [isWasteModalOpen, setIsWasteModalOpen] = useState(false);
+  const [adjustmentModalBatch, setAdjustmentModalBatch] = useState<StockBatchItem | null>(null);
+  const [isAdjustmentModalOpen, setIsAdjustmentModalOpen] = useState(false);
 
   const { data: summaries = [], isPending, isError, error, refetch } = useInventorySummary(3);
 
@@ -199,6 +202,10 @@ export function InventorySummary({
           setWasteModalBatch(batch);
           setIsWasteModalOpen(true);
         }}
+        onRecordAdjustment={(batch) => {
+          setAdjustmentModalBatch(batch);
+          setIsAdjustmentModalOpen(true);
+        }}
       />
 
       <WasteRecordModal
@@ -208,6 +215,16 @@ export function InventorySummary({
           setWasteModalBatch(null);
         }}
         initialBatch={wasteModalBatch}
+        onSuccess={() => refetch()}
+      />
+
+      <StockAdjustmentModal
+        isOpen={isAdjustmentModalOpen}
+        onClose={() => {
+          setIsAdjustmentModalOpen(false);
+          setAdjustmentModalBatch(null);
+        }}
+        initialBatch={adjustmentModalBatch}
         onSuccess={() => refetch()}
       />
     </div>
