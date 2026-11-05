@@ -5,7 +5,7 @@ import {
   getInitialSidebarCollapsed,
   saveSidebarCollapsed,
   filterNavItemsByRole,
-} from "./app-shell";
+} from "./app-shell-nav";
 
 describe("AppShell Sidebar State & Navigation (BR-NAV)", () => {
   describe("Sidebar Collapse State Persistence", () => {
