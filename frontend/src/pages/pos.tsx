@@ -123,45 +123,10 @@ export function PosPage() {
 
   return (
     <div className="space-y-4 pb-20 lg:pb-0">
-      {/* Keyboard Shortcuts Hint Bar (Top-Right) */}
-      <div className="hidden md:flex items-center justify-end">
-        <div className="flex items-center gap-2 text-xs text-stone-500 bg-white px-3.5 py-1.5 rounded-full border border-stone-200/80 shadow-2xs">
-          <Keyboard className="w-3.5 h-3.5 text-stone-400" />
-          <span className="font-bold text-slate-800">Pintasan:</span>
-          <span className="flex items-center gap-1">
-            <kbd className="px-1.5 py-0.5 text-[10px] font-mono bg-stone-50 border border-stone-200 rounded shadow-2xs font-bold text-stone-600">
-              F1 / /
-            </kbd>
-            <span>Cari</span>
-          </span>
-          <span className="text-stone-300">•</span>
-          <span className="flex items-center gap-1">
-            <kbd className="px-1.5 py-0.5 text-[10px] font-mono bg-stone-50 border border-stone-200 rounded shadow-2xs font-bold text-stone-600">
-              F2
-            </kbd>
-            <span>Bayar</span>
-          </span>
-          <span className="text-stone-300">•</span>
-          <span className="flex items-center gap-1">
-            <kbd className="px-1.5 py-0.5 text-[10px] font-mono bg-stone-50 border border-stone-200 rounded shadow-2xs font-bold text-stone-600">
-              F4
-            </kbd>
-            <span>Kosongkan</span>
-          </span>
-          <span className="text-stone-300">•</span>
-          <span className="flex items-center gap-1">
-            <kbd className="px-1.5 py-0.5 text-[10px] font-mono bg-stone-50 border border-stone-200 rounded shadow-2xs font-bold text-stone-600">
-              Esc
-            </kbd>
-            <span>Batal</span>
-          </span>
-        </div>
-      </div>
-
       {/* Main Grid: Catalog on left, Cart panel on right */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
         {/* Left Column: Menu Catalog Grid (2 cols on lg) */}
-        <div className="lg:col-span-2">
+        <div className="lg:col-span-2 space-y-4">
           <PosMenuGrid
             menus={menus}
             cartItems={cartState.items}
@@ -177,6 +142,41 @@ export function PosPage() {
             onRefetch={refetch}
             searchInputRef={searchInputRef}
           />
+
+          {/* Keyboard Shortcuts Hint Bar (Bawah Katalog) */}
+          <div className="hidden md:flex items-center justify-center pt-3">
+            <div className="inline-flex items-center gap-2 text-xs text-stone-500 bg-white/90 px-4 py-2 rounded-full border border-stone-200/80 shadow-2xs">
+              <Keyboard className="w-3.5 h-3.5 text-stone-400" />
+              <span className="font-bold text-slate-800">Pintasan:</span>
+              <span className="flex items-center gap-1">
+                <kbd className="px-1.5 py-0.5 text-[10px] font-mono bg-stone-50 border border-stone-200 rounded shadow-2xs font-bold text-stone-600">
+                  F1 / /
+                </kbd>
+                <span>Cari</span>
+              </span>
+              <span className="text-stone-300">•</span>
+              <span className="flex items-center gap-1">
+                <kbd className="px-1.5 py-0.5 text-[10px] font-mono bg-stone-50 border border-stone-200 rounded shadow-2xs font-bold text-stone-600">
+                  F2
+                </kbd>
+                <span>Bayar</span>
+              </span>
+              <span className="text-stone-300">•</span>
+              <span className="flex items-center gap-1">
+                <kbd className="px-1.5 py-0.5 text-[10px] font-mono bg-stone-50 border border-stone-200 rounded shadow-2xs font-bold text-stone-600">
+                  F4
+                </kbd>
+                <span>Kosongkan</span>
+              </span>
+              <span className="text-stone-300">•</span>
+              <span className="flex items-center gap-1">
+                <kbd className="px-1.5 py-0.5 text-[10px] font-mono bg-stone-50 border border-stone-200 rounded shadow-2xs font-bold text-stone-600">
+                  Esc
+                </kbd>
+                <span>Batal</span>
+              </span>
+            </div>
+          </div>
         </div>
 
         {/* Right Column: Desktop Cart Panel (1 col on lg, sticky) */}
