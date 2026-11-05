@@ -15,6 +15,7 @@ interface PosMenuGridProps {
   isPending: boolean;
   isError: boolean;
   onRefetch: () => void;
+  searchInputRef?: React.RefObject<HTMLInputElement | null>;
 }
 
 export function PosMenuGrid({
@@ -28,6 +29,7 @@ export function PosMenuGrid({
   isPending,
   isError,
   onRefetch,
+  searchInputRef,
 }: PosMenuGridProps) {
   // Categories present in catalog
   const availableCategories = useMemo(() => {
@@ -75,12 +77,18 @@ export function PosMenuGrid({
         <div className="relative">
           <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
           <input
+            ref={searchInputRef}
             type="text"
             value={search}
             onChange={(e) => onSearchChange(e.target.value)}
             placeholder="Cari menu pesanan..."
-            className="w-full pl-10 pr-4 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-hidden focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 transition-all placeholder:text-slate-400"
+            className="w-full pl-10 pr-20 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-hidden focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 transition-all placeholder:text-slate-400"
           />
+          <div className="absolute right-3 top-1/2 -translate-y-1/2 hidden sm:flex items-center gap-1 select-none pointer-events-none">
+            <kbd className="px-1.5 py-0.5 text-[10px] font-mono font-semibold text-slate-400 bg-white border border-slate-200 rounded-md shadow-2xs">
+              F1 / /
+            </kbd>
+          </div>
         </div>
 
         {/* Category Pills */}

@@ -115,7 +115,7 @@ Aturan: hanya satu tugas `[/]` per agent pada satu waktu.
 - [x] **T-203** (P2) [FE] Header keamanan/CSP di `vercel.json`
 - [ ] **T-204** (P2) [BE+FE] Stock adjustment (opname)
 - [ ] **T-205** (P2) [BE] Refactor duplikasi + laporan coverage; target `domain/` ≥ 85%
-- [ ] **T-206** (P2) [FE] Pintasan keyboard POS
+- [x] **T-206** (P2) [FE] Pintasan keyboard POS
 - [ ] **T-207** (P2) [OPS] Ekstrak skema Zod bersama ke paket workspace (mengurangi drift FE↔BE)
 
 ---
@@ -149,6 +149,7 @@ Aturan: hanya satu tugas `[/]` per agent pada satu waktu.
 
 | Tanggal    | Agent/Orang | Ringkasan                                                                                                                                                                                                                                                                                                             | Tugas terkait              |
 | ---------- | ----------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------- |
+| 2026-11-05 | Agent       | Selesai T-206: Pintasan keyboard POS (F1// fokus cari menu, F2 buka bayar checkout, F4 kosongkan keranjang, Esc tutup modal/batal), hook murni usePosShortcuts & handler handlePosKeyDown, indikator visual kbd pada katalog & keranjang, hint bar desktop, serta 11 unit tests                                      | T-206                      |
 | 2026-11-05 | Agent       | Selesai T-203: Header keamanan edge & Content Security Policy (CSP) di frontend/vercel.json (default-src 'self', frame-ancestors 'none', HSTS 2 tahun, nosniff, anti-clickjacking DENY, Referrer-Policy, Permissions-Policy), dokumentasi di docs/security-audit-report.md, serta unit test vercel-headers.test.ts | T-203                      |
 | 2026-11-05 | Agent       | Selesai T-201: Ekspor CSV penjualan & stok (FR-RPT-01, P2), generator RFC 4180 dengan UTF-8 BOM dan proteksi injeksi formula spreadsheet, endpoint GET /api/export/sales.csv & /api/export/stock.csv (OWNER only, Rule 7), utilitas unduh frontend downloadCsv, tombol ekspor di halaman penjualan & stok bahan, dokumentasi docs/api.md, serta unit/HTTP tests | T-201                      |
 | 2026-11-04 | Agent       | Selesai T-200: Fitur Waste Radar anti-waste (FR-WST-01, P2), kalkulasi nilai risiko Rp batch mendekati/lewat kedaluwarsa, identifikasi menu terkait, formula harga lantai promo & batas diskon aman (domain/waste-radar.ts), endpoint GET /api/analytics/waste-radar (OWNER only), UI panel WasteRadarPanel di halaman stok bahan, dokumentasi docs/api.md, serta unit/HTTP tests | T-200                      |

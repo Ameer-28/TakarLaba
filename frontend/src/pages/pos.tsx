@@ -1,5 +1,5 @@
-import { useState, useReducer } from "react";
-import { Store, ShoppingCart, ArrowRight, X } from "lucide-react";
+import { useState, useReducer, useRef } from "react";
+import { Store, ShoppingCart, ArrowRight, X, Keyboard } from "lucide-react";
 import { toast } from "sonner";
 import { usePosMenus, type PosMenuItem } from "../api/hooks/use-pos-menus.js";
 import type { SaleDetail } from "../api/hooks/use-sales.js";
@@ -13,6 +13,7 @@ import { PosMenuGrid } from "../components/features/pos/pos-menu-grid.js";
 import { PosCartPanel } from "../components/features/pos/pos-cart-panel.js";
 import { PosCheckoutModal } from "../components/features/pos/pos-checkout-modal.js";
 import { ReceiptDialog } from "../components/features/pos/receipt-dialog.js";
+import { usePosShortcuts } from "../components/features/pos/use-pos-shortcuts.js";
 import { formatRupiah } from "../lib/format.js";
 
 export function PosPage() {
@@ -29,10 +30,45 @@ export function PosPage() {
   // Mobile bottom drawer toggle
   const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false);
 
+  const searchInputRef = useRef<HTMLInputElement>(null);
+
   const { data: menus = [], isPending, isError, refetch } = usePosMenus();
 
   const totalQty = getCartTotalQty(cartState.items);
   const totalAmount = getCartTotalAmount(cartState.items);
+
+  const handleOpenCheckout = () => {
+    if (cartState.items.length === 0) {
+      toast.error("Keranjang belanja masih kosong");
+      return;
+    }
+    setIsMobileDrawerOpen(false);
+    setIsCheckoutModalOpen(true);
+  };
+
+  const handleClear = () => {
+    dispatch({ type: "CLEAR_CART" });
+  };
+
+  usePosShortcuts({
+    onSearchFocus: () => {
+      searchInputRef.current?.focus();
+      searchInputRef.current?.select();
+    },
+    onOpenCheckout: handleOpenCheckout,
+    onClearCart: () => {
+      if (cartState.items.length === 0) return;
+      handleClear();
+      toast.info("Keranjang pesanan telah dikosongkan");
+    },
+    onCloseModals: () => {
+      setIsCheckoutModalOpen(false);
+      setIsReceiptModalOpen(false);
+      setIsMobileDrawerOpen(false);
+    },
+    isModalOpen: isCheckoutModalOpen || isReceiptModalOpen || isMobileDrawerOpen,
+    hasCartItems: cartState.items.length > 0,
+  });
 
   const handleAddToCart = (menu: PosMenuItem) => {
     if (menu.capacity <= 0) {
@@ -67,19 +103,6 @@ export function PosPage() {
     dispatch({ type: "REMOVE_ITEM", payload: { menuId } });
   };
 
-  const handleClear = () => {
-    dispatch({ type: "CLEAR_CART" });
-  };
-
-  const handleOpenCheckout = () => {
-    if (cartState.items.length === 0) {
-      toast.error("Keranjang belanja masih kosong");
-      return;
-    }
-    setIsMobileDrawerOpen(false);
-    setIsCheckoutModalOpen(true);
-  };
-
   const handleCheckoutSuccess = (sale: SaleDetail, cashReceived: number) => {
     dispatch({ type: "CLEAR_CART" });
     setIsCheckoutModalOpen(false);
@@ -106,6 +129,39 @@ export function PosPage() {
             Penjualan langsung dengan pemotongan stok First-Expired, First-Out (FEFO) otomatis.
           </p>
         </div>
+
+        {/* Keyboard Shortcuts Hint Bar */}
+        <div className="hidden md:flex items-center gap-2 text-xs text-slate-500 bg-white px-3.5 py-2 rounded-2xl border border-slate-200/80 shadow-2xs">
+          <Keyboard className="w-3.5 h-3.5 text-slate-400" />
+          <span className="font-semibold text-slate-700">Pintasan:</span>
+          <span className="flex items-center gap-1">
+            <kbd className="px-1.5 py-0.5 text-[10px] font-mono bg-slate-50 border border-slate-200 rounded shadow-2xs font-bold text-slate-600">
+              F1 / /
+            </kbd>
+            <span>Cari</span>
+          </span>
+          <span className="text-slate-300">•</span>
+          <span className="flex items-center gap-1">
+            <kbd className="px-1.5 py-0.5 text-[10px] font-mono bg-slate-50 border border-slate-200 rounded shadow-2xs font-bold text-slate-600">
+              F2
+            </kbd>
+            <span>Bayar</span>
+          </span>
+          <span className="text-slate-300">•</span>
+          <span className="flex items-center gap-1">
+            <kbd className="px-1.5 py-0.5 text-[10px] font-mono bg-slate-50 border border-slate-200 rounded shadow-2xs font-bold text-slate-600">
+              F4
+            </kbd>
+            <span>Kosongkan</span>
+          </span>
+          <span className="text-slate-300">•</span>
+          <span className="flex items-center gap-1">
+            <kbd className="px-1.5 py-0.5 text-[10px] font-mono bg-slate-50 border border-slate-200 rounded shadow-2xs font-bold text-slate-600">
+              Esc
+            </kbd>
+            <span>Batal</span>
+          </span>
+        </div>
       </div>
 
       {/* Main Grid: Catalog on left, Cart panel on right */}
@@ -123,6 +179,7 @@ export function PosPage() {
             isPending={isPending}
             isError={isError}
             onRefetch={refetch}
+            searchInputRef={searchInputRef}
           />
         </div>
 
