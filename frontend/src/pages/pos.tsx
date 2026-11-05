@@ -123,75 +123,72 @@ export function PosPage() {
   };
 
   return (
-    <div className="space-y-4 pb-20 lg:pb-0">
-      {/* Main Grid: Catalog on left, Cart panel on right */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
-        {/* Left Column: Menu Catalog Grid (2 cols on lg) */}
-        <div className="lg:col-span-2 space-y-4">
-          <PosMenuGrid
-            menus={menus}
-            cartItems={cartState.items}
-            search={search}
-            onSearchChange={setSearch}
-            selectedCategory={selectedCategory}
-            onSelectCategory={setSelectedCategory}
-            onAddToCart={handleAddToCart}
-            onIncrement={handleIncrement}
-            onDecrement={handleDecrement}
-            isPending={isPending}
-            isError={isError}
-            onRefetch={refetch}
-            searchInputRef={searchInputRef}
-          />
+    <div className="flex-1 flex flex-col lg:flex-row min-h-screen w-full">
+      {/* Left Column: Menu Catalog Grid */}
+      <div className="flex-1 min-w-0 p-4 sm:p-6 lg:p-8 space-y-6 overflow-y-auto">
+        <PosMenuGrid
+          menus={menus}
+          cartItems={cartState.items}
+          search={search}
+          onSearchChange={setSearch}
+          selectedCategory={selectedCategory}
+          onSelectCategory={setSelectedCategory}
+          onAddToCart={handleAddToCart}
+          onIncrement={handleIncrement}
+          onDecrement={handleDecrement}
+          isPending={isPending}
+          isError={isError}
+          onRefetch={refetch}
+          searchInputRef={searchInputRef}
+        />
 
-          {/* Keyboard Shortcuts Hint Bar (Bawah Katalog) */}
-          <div className="hidden md:flex items-center justify-center pt-3">
-            <div className="inline-flex items-center gap-2 text-xs text-stone-500 bg-white/90 px-4 py-2 rounded-full border border-stone-200/80 shadow-2xs">
-              <Keyboard className="w-3.5 h-3.5 text-stone-400" />
-              <span className="font-bold text-slate-800">Pintasan:</span>
-              <span className="flex items-center gap-1">
-                <kbd className="px-1.5 py-0.5 text-[10px] font-mono bg-stone-50 border border-stone-200 rounded shadow-2xs font-bold text-stone-600">
-                  F1 / /
-                </kbd>
-                <span>Cari</span>
-              </span>
-              <span className="text-stone-300">•</span>
-              <span className="flex items-center gap-1">
-                <kbd className="px-1.5 py-0.5 text-[10px] font-mono bg-stone-50 border border-stone-200 rounded shadow-2xs font-bold text-stone-600">
-                  F2
-                </kbd>
-                <span>Bayar</span>
-              </span>
-              <span className="text-stone-300">•</span>
-              <span className="flex items-center gap-1">
-                <kbd className="px-1.5 py-0.5 text-[10px] font-mono bg-stone-50 border border-stone-200 rounded shadow-2xs font-bold text-stone-600">
-                  F4
-                </kbd>
-                <span>Kosongkan</span>
-              </span>
-              <span className="text-stone-300">•</span>
-              <span className="flex items-center gap-1">
-                <kbd className="px-1.5 py-0.5 text-[10px] font-mono bg-stone-50 border border-stone-200 rounded shadow-2xs font-bold text-stone-600">
-                  Esc
-                </kbd>
-                <span>Batal</span>
-              </span>
-            </div>
+        {/* Keyboard Shortcuts Hint Bar (Bawah Katalog) */}
+        <div className="hidden md:flex items-center justify-center pt-3">
+          <div className="inline-flex items-center gap-2 text-xs text-stone-500 bg-white/90 px-4 py-2 rounded-full border border-stone-200/80 shadow-2xs">
+            <Keyboard className="w-3.5 h-3.5 text-stone-400" />
+            <span className="font-bold text-slate-800">Pintasan:</span>
+            <span className="flex items-center gap-1">
+              <kbd className="px-1.5 py-0.5 text-[10px] font-mono bg-stone-50 border border-stone-200 rounded shadow-2xs font-bold text-stone-600">
+                F1 / /
+              </kbd>
+              <span>Cari</span>
+            </span>
+            <span className="text-stone-300">•</span>
+            <span className="flex items-center gap-1">
+              <kbd className="px-1.5 py-0.5 text-[10px] font-mono bg-stone-50 border border-stone-200 rounded shadow-2xs font-bold text-stone-600">
+                F2
+              </kbd>
+              <span>Bayar</span>
+            </span>
+            <span className="text-stone-300">•</span>
+            <span className="flex items-center gap-1">
+              <kbd className="px-1.5 py-0.5 text-[10px] font-mono bg-stone-50 border border-stone-200 rounded shadow-2xs font-bold text-stone-600">
+                F4
+              </kbd>
+              <span>Kosongkan</span>
+            </span>
+            <span className="text-stone-300">•</span>
+            <span className="flex items-center gap-1">
+              <kbd className="px-1.5 py-0.5 text-[10px] font-mono bg-stone-50 border border-stone-200 rounded shadow-2xs font-bold text-stone-600">
+                Esc
+              </kbd>
+              <span>Batal</span>
+            </span>
           </div>
         </div>
-
-        {/* Right Column: Desktop Cart Panel (1 col on lg, sticky full-height) */}
-        <div className="hidden lg:block lg:col-span-1 sticky top-6 self-start h-[calc(100vh-5rem)]">
-          <PosCartPanel
-            items={cartState.items}
-            onIncrement={handleIncrement}
-            onDecrement={handleDecrement}
-            onRemove={handleRemove}
-            onClear={handleClear}
-            onCheckout={handleOpenCheckout}
-          />
-        </div>
       </div>
+
+      {/* Right Column: Dedicated Full-Height Cart Panel (Matching Purr'Coffee) */}
+      <aside className="hidden lg:flex w-80 xl:w-96 shrink-0 h-screen sticky top-0 bg-white border-l border-[#CCD0CF] flex-col z-10">
+        <PosCartPanel
+          items={cartState.items}
+          onIncrement={handleIncrement}
+          onDecrement={handleDecrement}
+          onRemove={handleRemove}
+          onClear={handleClear}
+          onCheckout={handleOpenCheckout}
+        />
+      </aside>
 
       {/* Mobile Floating Bottom Bar (< lg) */}
       {cartState.items.length > 0 && (
