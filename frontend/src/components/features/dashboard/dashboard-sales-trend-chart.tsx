@@ -28,7 +28,7 @@ export function DashboardSalesTrendChart({ salesLast7Days = [] }: DashboardSales
   );
 
   return (
-    <div className="p-5 sm:p-6 rounded-2xl bg-white border border-slate-200/80 shadow-2xs space-y-5">
+    <div className="p-5 rounded-2xl bg-white border border-slate-200/80 shadow-2xs space-y-4">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
         <div className="flex items-center gap-3">
@@ -58,7 +58,7 @@ export function DashboardSalesTrendChart({ salesLast7Days = [] }: DashboardSales
       </div>
 
       {salesLast7Days.length === 0 ? (
-        <div className="py-12 text-center space-y-2">
+        <div className="py-10 text-center space-y-2">
           <div className="w-10 h-10 mx-auto rounded-full bg-slate-50 flex items-center justify-center text-slate-400">
             <Layers className="w-5 h-5" />
           </div>
@@ -68,9 +68,9 @@ export function DashboardSalesTrendChart({ salesLast7Days = [] }: DashboardSales
           </p>
         </div>
       ) : (
-        <div className="space-y-4">
+        <div className="space-y-3.5">
           {/* Responsive SVG / Column Bar Chart */}
-          <div className="h-52 pt-6 pb-2 flex items-end justify-between gap-2 sm:gap-4 px-2 sm:px-4 bg-slate-50/50 rounded-xl border border-slate-100">
+          <div className="h-44 pt-5 pb-2 flex items-end justify-between gap-2 sm:gap-4 px-2 sm:px-4 bg-slate-50/50 rounded-xl border border-slate-100">
             {salesLast7Days.map((day, idx) => {
               const numericOmzet = Number.parseFloat(day.omzet) || 0;
               const heightPercent = Math.max(Math.round((numericOmzet / maxOmzet) * 100), 4);

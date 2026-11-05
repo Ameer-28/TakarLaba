@@ -9,8 +9,6 @@ import {
   Utensils,
   CupSoda,
   Cake,
-  Snowflake,
-  Flame,
 } from "lucide-react";
 import type { CartItem, PosOrderType } from "./types.js";
 import { formatRupiah } from "../../../lib/format.js";
@@ -164,14 +162,12 @@ export function PosCartPanel({
                             {item.name}
                           </h5>
                           {item.temperature === "ICE" && (
-                            <span className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded-full text-[9px] font-black bg-sky-50 text-sky-700 border border-sky-200/80 shrink-0">
-                              <Snowflake className="w-2.5 h-2.5 text-sky-500" />
+                            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-black bg-sky-50 text-sky-700 border border-sky-200/80 shrink-0">
                               Dingin
                             </span>
                           )}
                           {item.temperature === "HOT" && (
-                            <span className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded-full text-[9px] font-black bg-amber-50 text-amber-800 border border-amber-200/80 shrink-0">
-                              <Flame className="w-2.5 h-2.5 text-amber-500" />
+                            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-black bg-amber-50 text-amber-800 border border-amber-200/80 shrink-0">
                               Panas
                             </span>
                           )}

@@ -11,8 +11,6 @@ import {
   CupSoda,
   Utensils,
   Cake,
-  Snowflake,
-  Flame,
 } from "lucide-react";
 import type { PosMenuItem } from "../../../api/hooks/use-pos-menus.js";
 import { formatRupiah } from "../../../lib/format.js";
@@ -337,14 +335,13 @@ export function PosMenuGrid({
                               e.stopPropagation();
                               setSelectedTemperatures((prev) => ({ ...prev, [menu.id]: "ICE" }));
                             }}
-                            className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold transition-all cursor-pointer ${
+                            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold transition-all cursor-pointer ${
                               temperature === "ICE"
                                 ? "bg-slate-900 text-white shadow-2xs"
                                 : "text-stone-600 hover:text-stone-900"
                             }`}
                             title="Pilihan Dingin (Ice)"
                           >
-                            <Snowflake className="w-3 h-3 text-sky-400" />
                             <span>Dingin</span>
                           </button>
                           <button
@@ -353,14 +350,13 @@ export function PosMenuGrid({
                               e.stopPropagation();
                               setSelectedTemperatures((prev) => ({ ...prev, [menu.id]: "HOT" }));
                             }}
-                            className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold transition-all cursor-pointer ${
+                            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold transition-all cursor-pointer ${
                               temperature === "HOT"
                                 ? "bg-slate-900 text-white shadow-2xs"
                                 : "text-stone-600 hover:text-stone-900"
                             }`}
                             title="Pilihan Panas (Hot)"
                           >
-                            <Flame className="w-3 h-3 text-amber-400" />
                             <span>Panas</span>
                           </button>
                         </div>
