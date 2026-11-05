@@ -99,3 +99,29 @@ export function useCreatePurchase() {
     },
   });
 }
+
+export interface VoidPurchasePayload {
+  id: string;
+  reason: string;
+}
+
+export function useVoidPurchase() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, reason }: VoidPurchasePayload) =>
+      apiClient<PurchaseRecord>(`/purchases/${id}/void`, {
+        method: "POST",
+        body: JSON.stringify({ reason }),
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.purchases.all });
+      queryClient.invalidateQueries({ queryKey: queryKeys.ingredients.all });
+      queryClient.invalidateQueries({ queryKey: queryKeys.inventory.all });
+      queryClient.invalidateQueries({ queryKey: queryKeys.alerts.all });
+      queryClient.invalidateQueries({ queryKey: queryKeys.dashboard.all });
+      queryClient.invalidateQueries({ queryKey: queryKeys.analytics.all });
+      queryClient.invalidateQueries({ queryKey: queryKeys.menus.all });
+    },
+  });
+}

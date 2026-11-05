@@ -3,11 +3,18 @@ import { dashboardRepository, DashboardRepository } from "../repositories/dashbo
 import { menuRepository, MenuRepository } from "../repositories/menu.repo.js";
 import { settingsRepository, SettingsRepository } from "../repositories/settings.repo.js";
 import { overheadRepository, OverheadRepository } from "../repositories/overhead.repo.js";
+import { inventoryRepository, InventoryRepository } from "../repositories/inventory.repo.js";
 import { calculateMenuCapacity } from "../domain/capacity.js";
 import {
   calculateMenuEngineering,
   type MenuItemEngineeringInput,
 } from "../domain/menu-engineering.js";
+import {
+  buildWasteRadar,
+  type ExpiringBatchInput,
+  type RelatedMenuCostInput,
+  type WasteRadarResultDTO,
+} from "../domain/waste-radar.js";
 import { calculateRawNeeded } from "../domain/units.js";
 import { isExpired, todayWIB, endOfTodayWIB } from "../lib/date.js";
 import {
@@ -24,7 +31,8 @@ export class AnalyticsService {
     private readonly dashboardRepo: DashboardRepository = dashboardRepository,
     private readonly menuRepo: MenuRepository = menuRepository,
     private readonly settingsRepo: SettingsRepository = settingsRepository,
-    private readonly overheadRepo: OverheadRepository = overheadRepository
+    private readonly overheadRepo: OverheadRepository = overheadRepository,
+    private readonly inventoryRepo: InventoryRepository = inventoryRepository
   ) {}
 
   /**
@@ -190,6 +198,98 @@ export class AnalyticsService {
     });
 
     return toMenuEngineeringDto(result);
+  }
+
+  /**
+   * Retrieves Waste Radar analytics (FR-WST-01, P2):
+   * Expiring/expired batches within warnDays, financial risk value (Rp),
+   * and linked active menus with safe promotional floor prices & max discounts.
+   */
+  async getWasteRadar(businessId: string, customDays?: number): Promise<WasteRadarResultDTO> {
+    const business = await this.settingsRepo.findById(businessId);
+    const warnDays = customDays ?? business?.expiryWarnDays ?? 7;
+    const wastePromoMinMargin = business?.wastePromoMinMargin
+      ? new Decimal(business.wastePromoMinMargin.toString())
+      : new Decimal(10);
+    const priceRoundingStep = business?.priceRoundingStep ?? 500;
+    const expectedPortions = business?.expectedMonthlyPortions ?? 1300;
+
+    const asOf = todayWIB();
+    const maxExpiryDate = new Date(asOf);
+    maxExpiryDate.setDate(maxExpiryDate.getDate() + warnDays);
+    maxExpiryDate.setHours(23, 59, 59, 999);
+
+    const [expiringBatches, menus, overheadSum] = await Promise.all([
+      this.inventoryRepo.findExpiringBatchesWithIngredient(businessId, maxExpiryDate),
+      this.dashboardRepo.getActiveMenusWithRecipes(businessId),
+      this.overheadRepo.sumActiveMonthlyOverhead(businessId),
+    ]);
+
+    const overheadPerPortion =
+      expectedPortions > 0
+        ? new Decimal(overheadSum.toString()).dividedBy(expectedPortions)
+        : new Decimal(0);
+
+    const allIngredientIds = Array.from(
+      new Set(menus.flatMap((m) => m.recipeItems.map((r) => r.ingredientId)))
+    );
+
+    const costMap = await this.menuRepo.getLatestCostPerBaseMap(businessId, allIngredientIds);
+
+    const ingredientMenuMap = new Map<string, RelatedMenuCostInput[]>();
+
+    for (const menu of menus) {
+      let isCostComplete = true;
+      let hppBahan = new Decimal(0);
+
+      for (const item of menu.recipeItems) {
+        const cost = costMap.get(item.ingredientId);
+        if (cost === undefined || cost === null) {
+          isCostComplete = false;
+        } else {
+          const rawNeeded = calculateRawNeeded(
+            item.qtyUsableBase.toString(),
+            item.ingredient.yieldPercent.toString()
+          );
+          hppBahan = hppBahan.plus(rawNeeded.times(cost));
+        }
+      }
+
+      if (isCostComplete) {
+        const hppPenuh = hppBahan.plus(overheadPerPortion);
+        const relatedInput: RelatedMenuCostInput = {
+          menuId: menu.id,
+          menuName: menu.name,
+          category: menu.category,
+          sellingPrice: menu.sellingPrice.toString(),
+          hppPenuh,
+        };
+
+        for (const item of menu.recipeItems) {
+          const list = ingredientMenuMap.get(item.ingredientId) ?? [];
+          list.push(relatedInput);
+          ingredientMenuMap.set(item.ingredientId, list);
+        }
+      }
+    }
+
+    const batchInputs: ExpiringBatchInput[] = expiringBatches.map((b) => ({
+      batchId: b.id,
+      ingredientId: b.ingredientId,
+      ingredientName: b.ingredient.name,
+      category: b.ingredient.category,
+      remainingQtyBase: b.remainingQtyBase.toString(),
+      unit: b.ingredient.baseUnit,
+      costPerBase: b.costPerBase.toString(),
+      expiryDate: b.expiryDate!,
+    }));
+
+    return buildWasteRadar(batchInputs, ingredientMenuMap, {
+      warnDays,
+      wastePromoMinMarginPercent: wastePromoMinMargin,
+      priceRoundingStep,
+      referenceDate: asOf,
+    });
   }
 }
 

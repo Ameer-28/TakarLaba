@@ -3,6 +3,7 @@ import { Link, Outlet, useLocation, useNavigate } from "react-router";
 import { signOut, useSession, type UserRole } from "@/lib/auth-client";
 import { toast } from "sonner";
 import { DemoBanner } from "@/components/shared/demo-banner";
+import { ErrorBoundary } from "@/components/shared/error-boundary";
 import {
   LayoutDashboard,
   Store,
@@ -215,7 +216,9 @@ export function AppShell() {
       <main className="flex-1 lg:pl-64 min-h-screen flex flex-col">
         <DemoBanner />
         <div className="flex-1 p-4 sm:p-6 lg:p-8 pb-24 lg:pb-8 max-w-7xl w-full mx-auto">
-          <Outlet />
+          <ErrorBoundary>
+            <Outlet />
+          </ErrorBoundary>
         </div>
       </main>
 

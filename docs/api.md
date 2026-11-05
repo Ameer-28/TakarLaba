@@ -348,6 +348,63 @@ Mengambil rincian satu nota pembelian lengkap dengan item batch yang dihasilkan.
 - **Params:** `id` (string UUID / CUID pembelian)
 - **Response 200 OK:** Objek nota pembelian tunggal.
 
+#### POST `/api/purchases/:id/void`
+Membatalkan (void) satu nota pembelian dan membalikkan persediaan stok batch yang dihasilkan secara atomik dalam satu transaksi database (`FR-PUR-02`). Pembatalan hanya diizinkan apabila seluruh stok batch yang dihasilkan dari nota tersebut **belum terpakai sama sekali** (`remainingQtyBase == initialQtyBase`). Jika ada batch yang telah terpotong (melalui penjualan kasir atau pencatatan waste), pembatalan ditolak dengan status 409 Conflict.
+
+Setelah pembatalan berhasil:
+- Stok sisa pada batch terkait dinolkan (`remainingQtyBase = 0.000`).
+- Dibuat pergerakan stok penyesuaian `StockMovement(ADJUSTMENT)` bertanda negatif dengan referensi `PURCHASE_VOID`.
+- Field `note` nota pembelian ditandai `[DIBATALKAN: <alasan>]`.
+- Biaya pengganti (*replacement cost*) bahan baku otomatis kembali ke batch sebelum nota ini.
+- Peringatan margin (*Price Shock Alerts*) pada seluruh menu dievaluasi ulang secara otomatis.
+
+- **Metode:** `POST`
+- **Autentikasi:** Wajib sesi aktif role `OWNER` (role `CASHIER` menerima `403 FORBIDDEN`).
+- **Params:** `id` (string CUID nota pembelian)
+- **Request Body:**
+  ```json
+  {
+    "reason": "Salah input faktur belanja dan salah supplier"
+  }
+  ```
+  - `reason` (wajib, string 3..255 karakter): Alasan pembatalan nota belanja.
+- **Validasi Bisnis:**
+  - `400 VALIDATION_ERROR`: Jika alasan pembatalan kurang dari 3 karakter.
+  - `403 FORBIDDEN`: Jika pemanggil bukan role `OWNER`.
+  - `404 NOT_FOUND`: Jika nota pembelian tidak ditemukan dalam bisnis.
+  - `409 CONFLICT`: Jika nota pembelian sudah dibatalkan sebelumnya, atau jika ada bahan dari nota ini yang sudah terpakai.
+- **Response 200 OK:**
+  ```json
+  {
+    "ok": true,
+    "data": {
+      "id": "purch_clx123",
+      "businessId": "biz_demo_123",
+      "supplierName": "Toko Bahan Sejahtera",
+      "purchasedAt": "2026-11-04T08:00:00.000Z",
+      "note": "[DIBATALKAN: Salah input faktur belanja dan salah supplier] Pembelian mingguan",
+      "totalAmount": "180000.00",
+      "createdById": "user_owner_1",
+      "createdAt": "2026-11-04T08:00:00.000Z",
+      "batches": [
+        {
+          "id": "batch_cuid_1",
+          "ingredientId": "ing_kopi_123",
+          "remainingQtyBase": "0.000",
+          "initialQtyBase": "1000.000",
+          "costPerBase": "180.000000",
+          "ingredient": {
+            "id": "ing_kopi_123",
+            "name": "Biji Kopi Arabika",
+            "baseUnit": "G",
+            "category": "MAIN"
+          }
+        }
+      ]
+    }
+  }
+  ```
+
 ---
 
 ### 3.4 Persediaan & Stok Batch FEFO (`/api/inventory`)
@@ -502,6 +559,75 @@ Mengambil riwayat pencatatan bahan baku terbuang dan nilai kerugian finansialnya
         "wastedValue": "36000.00",
         "reason": "Susu asam dan basi karena kulkas mati",
         "createdAt": "2026-11-04T05:00:00.000Z",
+        "createdByName": "Owner Demo",
+        "expiryDate": "2026-11-06T00:00:00.000Z"
+      }
+    ]
+  }
+  ```
+
+#### POST `/api/inventory/adjustments` (alias: `/api/stock/adjustments`) (T-204)
+Mencatat hasil penyesuaian stok opname fisik pada batch bahan baku tertentu secara atomik. Mengubah nilai `remainingQtyBase` pada batch menjadi `actualQtyBase`, mencatat audit `StockMovement(ADJUSTMENT)` dengan delta kuantitas (`actualQtyBase - previousQtyBase`), serta menghitung nilai selisih finansialnya (surplus atau susut).
+
+- **Metode:** `POST`
+- **Autentikasi:** Wajib sesi aktif role `OWNER` (role `CASHIER` menerima `403 FORBIDDEN`).
+- **Request Body:**
+  ```json
+  {
+    "batchId": "cuid_batch_123",
+    "actualQty": 4500,
+    "unit": "ML",
+    "reason": "Koreksi susut penyimpanan opname mingguan"
+  }
+  ```
+  - `batchId`: string wajib.
+  - `actualQty`: angka non-negatif ($\ge 0$).
+  - `unit`: opsional (konversi otomatis ke base unit jika berbeda).
+  - `reason`: string 3..255 karakter.
+- **Response 201 Created:**
+  ```json
+  {
+    "ok": true,
+    "data": {
+      "movementId": "mov_adj_123",
+      "batchId": "cuid_batch_123",
+      "ingredientId": "ing_susu_123",
+      "ingredientName": "Susu UHT",
+      "baseUnit": "ML",
+      "previousQtyBase": "5000.000",
+      "actualQtyBase": "4500.000",
+      "deltaQtyBase": "-500.000",
+      "diffValue": "-9000.00",
+      "reason": "Koreksi susut penyimpanan opname mingguan",
+      "createdAt": "2026-11-05T08:00:00.000Z"
+    }
+  }
+  ```
+
+#### GET `/api/inventory/adjustments` (alias: `/api/stock/adjustments`) (T-204)
+Mengambil riwayat penyesuaian stok opname fisik beserta nilai deviasi kuantitas dan finansialnya.
+
+- **Metode:** `GET`
+- **Autentikasi:** Wajib sesi aktif role `OWNER`.
+- **Query Params:**
+  - `limit` (opsional, integer 1..100, default: 50)
+  - `skip` (opsional, integer $\ge 0$, default: 0)
+- **Response 200 OK:**
+  ```json
+  {
+    "ok": true,
+    "data": [
+      {
+        "id": "mov_adj_123",
+        "ingredientId": "ing_susu_123",
+        "ingredientName": "Susu UHT",
+        "baseUnit": "ML",
+        "batchId": "cuid_batch_123",
+        "deltaQtyBase": "-500.000",
+        "costPerBase": "18.000000",
+        "diffValue": "-9000.00",
+        "reason": "Koreksi susut penyimpanan opname mingguan",
+        "createdAt": "2026-11-05T08:00:00.000Z",
         "createdByName": "Owner Demo",
         "expiryDate": "2026-11-06T00:00:00.000Z"
       }
@@ -1333,7 +1459,7 @@ Menandai peringatan telah ditinjau pemilik usaha (mengubah status dari `OPEN` ke
 - **Autentikasi:** Wajib sesi aktif role `OWNER`.
 - **Response 200 OK:** Mengembalikan objek alert dengan `status: "ACKNOWLEDGED"`.
 
-### 3.10 Dashboard & Ringkasan Bisnis (T-053 — AC: FR-DASH-01)
+### 3.9 Dashboard & Ringkasan Bisnis (T-053 — AC: FR-DASH-01)
 
 #### GET `/api/dashboard/summary`
 Mengambil metrik ringkasan harian (omzet hari ini WIB, transaksi, estimasi laba kotor setelah HPP aktual & alokasi overhead, nilai rupiah bahan kedaluwarsa ≤ N hari, jumlah stok rendah), 5 peringatan margin teratas, 5 menu dengan estimasi kapasitas porsi terendah beserta bahan pembatasnya (bottleneck), dan transaksi penjualan terkini.
@@ -1400,6 +1526,32 @@ Mengambil metrik ringkasan harian (omzet hari ini WIB, transaksi, estimasi laba 
           "paymentMethod": "QRIS",
           "cashierName": "Kasir 1",
           "itemCount": 2
+        }
+      ],
+      "salesLast7Days": [
+        {
+          "date": "2026-10-25",
+          "dayName": "Min",
+          "label": "25 Okt",
+          "omzet": "120000.00",
+          "portionCount": 6,
+          "transactionCount": 4
+        },
+        {
+          "date": "2026-10-31",
+          "dayName": "Sab",
+          "label": "31 Okt",
+          "omzet": "150000.00",
+          "portionCount": 8,
+          "transactionCount": 5
+        }
+      ],
+      "topMenus": [
+        {
+          "menuId": "menu-cuid",
+          "menuName": "Es Kopi Susu Aren",
+          "totalQty": 24,
+          "totalRevenue": "432000.00"
         }
       ],
       "isNewBusiness": false
@@ -1702,6 +1854,223 @@ Menghitung matriks Menu Engineering Kasavana & Smith (4 kuadran: Star, Plowhorse
     "error": {
       "code": "UNAUTHENTICATED",
       "message": "Autentikasi diperlukan. Sesi tidak valid atau telah berakhir."
+    }
+  }
+  ```
+
+#### GET `/api/analytics/waste-radar`
+Memindai stok batch bahan baku yang mendekati batas kedaluwarsa atau telah kedaluwarsa (FR-WST-01, P2), menghitung nilai risiko kerugian (Rp), serta merekomendasikan menu terkait yang dapat dipromosikan beserta batas harga lantai promo dan batas diskon aman tanpa merugi.
+
+- **Metode:** `GET`
+- **Autentikasi:** Sesi aktif role `OWNER` (peran `CASHIER` menerima 403 Forbidden sesuai Rule 7)
+- **Header:** `Cookie: takarlaba_session=...`
+- **Query Params:**
+  - `days` (opsional, integer): Rentang hari pemantauan ke depan (default `business.expiryWarnDays`, min 1, max 60).
+- **Rumus Bisnis (FR-WST-01):**
+  - Nilai Risiko: $\text{Sisa Stok Batch} \times \text{Cost per Base}$
+  - Harga Lantai Promo: $\lceil \text{HPP Penuh} / (1 - \text{wastePromoMinMargin} / 100) / \text{step} \rceil \times \text{step}$
+  - Batas Diskon Aman: $\max(0, \text{Harga Jual Normal} - \text{Harga Lantai Promo})$
+- **Response 200 OK:**
+  ```json
+  {
+    "ok": true,
+    "data": {
+      "summary": {
+        "totalRiskValue": "170000.00",
+        "totalExpiringBatches": 2,
+        "totalImpactedMenus": 3,
+        "warnDays": 7,
+        "wastePromoMinMarginPercent": "10.00"
+      },
+      "items": [
+        {
+          "batchId": "cuid-batch-1",
+          "ingredientId": "cuid-ing-1",
+          "ingredientName": "Susu Segar UHT",
+          "category": "Dairy",
+          "remainingQty": "5.000",
+          "unit": "L",
+          "costPerBase": "18000.00",
+          "expiryDate": "2026-11-06",
+          "daysUntilExpiry": 2,
+          "status": "EXPIRING_SOON",
+          "riskValue": "90000.00",
+          "relatedMenus": [
+            {
+              "menuId": "cuid-menu-1",
+              "menuName": "Cafe Latte",
+              "category": "Minuman",
+              "sellingPrice": "22000.00",
+              "hppPenuh": "11000.00",
+              "currentMarginPercent": "50.00",
+              "promoFloorPrice": "12500.00",
+              "maxDiscountAmount": "9500.00",
+              "maxDiscountPercent": "43.18",
+              "promoMarginPercent": "12.00"
+            }
+          ]
+        }
+      ]
+    }
+  }
+  ```
+- **Response 403 Forbidden (CASHIER):**
+  ```json
+  {
+    "ok": false,
+    "error": {
+      "code": "FORBIDDEN",
+      "message": "Akses ditolak. Fitur ini memerlukan salah satu hak akses: OWNER."
+    }
+  }
+  ```
+- **Response 401 Unauthorized:**
+  ```json
+  {
+    "ok": false,
+    "error": {
+      "code": "UNAUTHENTICATED",
+      "message": "Autentikasi diperlukan. Sesi tidak valid atau telah berakhir."
+    }
+  }
+  ```
+
+---
+
+### 3.12 Registrasi & Onboarding Pemilik Baru (`/api/register`)
+
+#### POST `/api/register`
+Mendaftarkan pemilik bisnis baru beserta workspace usaha kulinernya secara atomik (FR-AUTH-04). Endpoint publik ini membuat entitas `Business` dengan pengaturan operasional default (target margin 50%, expiryWarnDays 3 hari, priceRoundingStep 500, expectedMonthlyPortions 1.000 porsi), mendaftarkan kredensial pengguna ke Better Auth sebagai akun ber-role `OWNER`, menetapkan cookie sesi autentikasi (`Set-Cookie`), dan mengembalikan profil pengguna serta workspace.
+
+- **Metode:** `POST`
+- **Autentikasi:** Publik (tanpa sesi)
+- **Header:** `Origin: <FRONTEND_URL>`, `Content-Type: application/json`
+- **Request Body:**
+  ```json
+  {
+    "name": "Budi Santoso",
+    "businessName": "Kopi Mantap Jiwa",
+    "email": "budi@kopimantap.id",
+    "password": "Password123!"
+  }
+  ```
+- **Response 201 Created:**
+  ```json
+  {
+    "ok": true,
+    "data": {
+      "user": {
+        "id": "cuid-user-123",
+        "name": "Budi Santoso",
+        "email": "budi@kopimantap.id",
+        "role": "OWNER",
+        "businessId": "cuid-biz-123",
+        "isActive": true
+      },
+      "business": {
+        "id": "cuid-biz-123",
+        "name": "Kopi Mantap Jiwa",
+        "isDemo": false,
+        "targetMarginDefault": "50.00",
+        "expectedMonthlyPortions": 1000,
+        "priceRoundingStep": 500,
+        "expiryWarnDays": 3
+      }
+    }
+  }
+  ```
+- **Response 400 Bad Request (Validasi Gagal):**
+  ```json
+  {
+    "ok": false,
+    "error": {
+      "code": "VALIDATION_ERROR",
+      "message": "Validasi input gagal",
+      "fieldErrors": {
+        "password": ["Kata sandi minimal 8 karakter"]
+      }
+    }
+  }
+  ```
+- **Response 409 Conflict (Email Sudah Terdaftar):**
+  ```json
+  {
+    "ok": false,
+    "error": {
+      "code": "CONFLICT",
+      "message": "Email sudah terdaftar. Silakan gunakan email lain atau masuk."
+    }
+  }
+  ```
+
+### 3.13 Ekspor Data CSV (`/api/export`) (T-201 — AC: FR-RPT-01)
+
+Endpoint untuk mengunduh laporan penjualan dan status persediaan stok dalam format CSV (RFC 4180) dengan prefix Byte Order Mark UTF-8 (`\uFEFF`) agar terbaca sempurna di Microsoft Excel (Windows & macOS) dan perlindungan mitigasi injeksi formula spreadsheet (sel yang diawali `=`, `+`, `-`, atau `@` di-escape dengan tanda kutip tunggal `'`).
+
+#### GET `/api/export/sales.csv`
+Mengunduh laporan riwayat transaksi penjualan beserta rincian item terjual, omzet, HPP bahan aktual, alokasi overhead, dan estimasi laba kotor.
+
+- **Metode:** `GET`
+- **Autentikasi:** Sesi aktif role `OWNER` (role `CASHIER` menerima `403 FORBIDDEN` guna menjaga kerahasiaan biaya bisnis sesuai Aturan 7).
+- **Header Respons:**
+  - `Content-Type: text/csv; charset=utf-8`
+  - `Content-Disposition: attachment; filename="laporan-penjualan-YYYYMMDD.csv"`
+- **Query Params:**
+  - `startDate` (opsional, format `YYYY-MM-DD`): Batas awal tanggal penjualan (`soldAt >= startDateT00:00:00.000Z`).
+  - `endDate` (opsional, format `YYYY-MM-DD`): Batas akhir tanggal penjualan (`soldAt <= endDateT23:59:59.999Z`).
+  - `status` (opsional, enum: `"ALL"`, `"COMPLETED"`, `"VOIDED"`, default: `"ALL"`): Filter status transaksi.
+- **Kolom CSV:**
+  1. `Nomor Faktur`
+  2. `Tanggal & Waktu (WIB)`
+  3. `Status` (`SELESAI` / `DIBATALKAN`)
+  4. `Kasir`
+  5. `Metode Pembayaran` (`Tunai` / `QRIS` / `Transfer Bank`)
+  6. `Rincian Menu & Porsi`
+  7. `Total Omzet (Rp)` (2 desimal)
+  8. `Total HPP Bahan (Rp)` (2 desimal)
+  9. `Total Alokasi Overhead (Rp)` (2 desimal)
+  10. `Estimasi Laba Kotor (Rp)` (2 desimal)
+  11. `Alasan Void`
+- **Response 403 Forbidden (CASHIER):**
+  ```json
+  {
+    "ok": false,
+    "error": {
+      "code": "FORBIDDEN",
+      "message": "Akses ditolak. Fitur ini memerlukan salah satu hak akses: OWNER."
+    }
+  }
+  ```
+
+#### GET `/api/export/stock.csv`
+Mengunduh laporan valuasi stok bahan baku per batch FEFO beserta status ketersediaan dan indikator kedaluwarsa.
+
+- **Metode:** `GET`
+- **Autentikasi:** Sesi aktif role `OWNER` (role `CASHIER` menerima `403 FORBIDDEN`).
+- **Header Respons:**
+  - `Content-Type: text/csv; charset=utf-8`
+  - `Content-Disposition: attachment; filename="laporan-stok-YYYYMMDD.csv"`
+- **Kolom CSV:**
+  1. `Kode / ID Bahan`
+  2. `Nama Bahan Baku`
+  3. `Kategori`
+  4. `Satuan Dasar`
+  5. `Total Stok` (3 desimal)
+  6. `Stok Minimum` (3 desimal)
+  7. `Status Stok` (`Stok Rendah` / `Aman`)
+  8. `Biaya per Satuan (Rp)` (2 desimal)
+  9. `Total Valuasi Stok (Rp)` (2 desimal)
+  10. `Jumlah Batch`
+  11. `Batch Terdekat Kedaluwarsa` (format `YYYY-MM-DD` atau `-`)
+  12. `Hari Menuju Kedaluwarsa`
+  13. `Status Kedaluwarsa` (`Kedaluwarsa` / `Segera Kedaluwarsa` / `Aman` / `Tanpa Kedaluwarsa`)
+- **Response 403 Forbidden (CASHIER):**
+  ```json
+  {
+    "ok": false,
+    "error": {
+      "code": "FORBIDDEN",
+      "message": "Akses ditolak. Fitur ini memerlukan salah satu hak akses: OWNER."
     }
   }
   ```

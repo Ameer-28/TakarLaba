@@ -265,6 +265,38 @@ export class DashboardRepository {
       saleCount,
     };
   }
+
+  /**
+   * Retrieves completed sales with items in a given date range for charts and trend analytics
+   */
+  async getSalesForDateRange(businessId: string, startDate: Date, endDate: Date) {
+    return prisma.sale.findMany({
+      where: {
+        businessId,
+        status: "COMPLETED",
+        soldAt: {
+          gte: startDate,
+          lte: endDate,
+        },
+      },
+      select: {
+        id: true,
+        soldAt: true,
+        totalAmount: true,
+        items: {
+          select: {
+            menuId: true,
+            menuNameSnapshot: true,
+            qty: true,
+            unitPrice: true,
+          },
+        },
+      },
+      orderBy: {
+        soldAt: "asc",
+      },
+    });
+  }
 }
 
 export const dashboardRepository = new DashboardRepository();

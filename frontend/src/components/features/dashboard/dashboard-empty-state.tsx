@@ -17,6 +17,16 @@ export function DashboardEmptyState() {
           sebelum margin bocor, dan mencegah pemborosan stok dengan sistem FEFO. Ikuti 3 langkah
           mudah di bawah ini:
         </p>
+        <div className="pt-2">
+          <Link
+            to="/onboarding"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-600 text-white text-xs font-bold hover:bg-emerald-700 shadow-2xs transition"
+          >
+            <Sparkles className="w-3.5 h-3.5" />
+            Mulai Panduan Cepat (Wizard 3 Langkah)
+            <ArrowRight className="w-3.5 h-3.5" />
+          </Link>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

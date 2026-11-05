@@ -95,27 +95,27 @@ Aturan: hanya satu tugas `[/]` per agent pada satu waktu.
 - [x] **T-101** (P1) [BE+FE] `domain/menu-engineering.ts` + endpoint + scatter Recharts + tabel padanan + rekomendasi terhitung + guard data — AC: fixture B 6/6 (sebelum & sesudah shock)
 - [x] **T-102** (P1) [BE+FE] Void transaksi (restore ke batch asal, alasan wajib) — AC: FR-POS-03
 - [x] **T-103** (P1) [BE+FE] Catat bahan terbuang (WASTE) + nilai kerugian — AC: FR-INV-03
-- [ ] **T-104** (P1) [BE+FE] Riwayat pembelian + void pembelian (hanya jika batch belum terpakai)
-- [ ] **T-105** (P1) [BE+FE] Registrasi + onboarding wizard
-- [ ] **T-106** (P1) [FE] Input uang diterima & kembalian; struk print
-- [ ] **T-107** (P1) [BE+FE] Grafik dashboard (penjualan 7 hari, top menu)
-- [ ] **T-108** (P1) [DOC] `docs/erd.md` + gambar, `docs/api.md` lengkap, screenshot
-- [ ] **T-109** (P1) [FE] Polish UX: skeleton, empty state, error boundary, pesan Indonesia konsisten, a11y pass
-- [ ] **T-110** (P1) [FE+BE] Lighthouse (perf ≥ 80, a11y ≥ 90), bundle size awal ≤ 250 KB gzip (route-level splitting), optimasi query dashboard
-- [ ] **T-111** (P1) [DOC] Uji awam (3 orang): bahan → resep → penjualan; catat temuan
-- [ ] **T-112** (P1) [FE] Test Testing Library: reducer keranjang, format Rupiah, form pembelian
+- [x] **T-104** (P1) [BE+FE] Riwayat pembelian + void pembelian (hanya jika batch belum terpakai)
+- [x] **T-105** (P1) [BE+FE] Registrasi + onboarding wizard
+- [x] **T-106** (P1) [FE] Input uang diterima & kembalian; struk print
+- [x] **T-107** (P1) [BE+FE] Grafik dashboard (penjualan 7 hari, top menu)
+- [x] **T-108** (P1) [DOC] `docs/erd.md` + gambar, `docs/api.md` lengkap, screenshot
+- [x] **T-109** (P1) [FE] Polish UX: skeleton, empty state, error boundary, pesan Indonesia konsisten, a11y pass
+- [x] **T-110** (P1) [FE+BE] Lighthouse (perf ≥ 80, a11y ≥ 90), bundle size awal ≤ 250 KB gzip (route-level splitting), optimasi query dashboard
+- [x] **T-111** (P1) [DOC] Uji awam (3 orang): bahan → resep → penjualan; catat temuan
+- [x] **T-112** (P1) [FE] Test Testing Library: reducer keranjang, format Rupiah, form pembelian
 
 ---
 
 ## 🟢 Low Priority — Technical Debt, Optimasi & Nice-to-Have (P2)
 
-- [ ] **T-200** (P2) [BE+FE] Waste Radar: nilai risiko, menu terkait, harga lantai promo, batas diskon aman — AC: FR-WST-01
-- [ ] **T-201** (P2) [BE+FE] Ekspor CSV penjualan & stok
+- [x] **T-200** (P2) [BE+FE] Waste Radar: nilai risiko, menu terkait, harga lantai promo, batas diskon aman — AC: FR-WST-01
+- [x] **T-201** (P2) [BE+FE] Ekspor CSV penjualan & stok
 - [ ] **T-202** (P2) [OPS] E2E Playwright untuk skrip demo
-- [ ] **T-203** (P2) [FE] Header keamanan/CSP di `vercel.json`
-- [ ] **T-204** (P2) [BE+FE] Stock adjustment (opname)
+- [x] **T-203** (P2) [FE] Header keamanan/CSP di `vercel.json`
+- [x] **T-204** (P2) [BE+FE] Stock adjustment (opname)
 - [ ] **T-205** (P2) [BE] Refactor duplikasi + laporan coverage; target `domain/` ≥ 85%
-- [ ] **T-206** (P2) [FE] Pintasan keyboard POS
+- [x] **T-206** (P2) [FE] Pintasan keyboard POS
 - [ ] **T-207** (P2) [OPS] Ekstrak skema Zod bersama ke paket workspace (mengurangi drift FE↔BE)
 
 ---
@@ -149,6 +149,20 @@ Aturan: hanya satu tugas `[/]` per agent pada satu waktu.
 
 | Tanggal    | Agent/Orang | Ringkasan                                                                                                                                                                                                                                                                                                             | Tugas terkait              |
 | ---------- | ----------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------- |
+| 2026-11-05 | Agent       | Selesai T-204: Fitur stock adjustment / opname fisik bahan baku atomik (StockMovement ADJUSTMENT), endpoint POST/GET /api/inventory/adjustments & /api/stock/adjustments (OWNER only), UI modal StockAdjustmentModal & tab Riwayat Opname AdjustmentHistoryList di halaman stok, dokumentasi docs/api.md, dan HTTP tests | T-204                      |
+| 2026-11-05 | Agent       | Selesai T-206: Pintasan keyboard POS (F1// fokus cari menu, F2 buka bayar checkout, F4 kosongkan keranjang, Esc tutup modal/batal), hook murni usePosShortcuts & handler handlePosKeyDown, indikator visual kbd pada katalog & keranjang, hint bar desktop, serta 11 unit tests                                      | T-206                      |
+| 2026-11-05 | Agent       | Selesai T-203: Header keamanan edge & Content Security Policy (CSP) di frontend/vercel.json (default-src 'self', frame-ancestors 'none', HSTS 2 tahun, nosniff, anti-clickjacking DENY, Referrer-Policy, Permissions-Policy), dokumentasi di docs/security-audit-report.md, serta unit test vercel-headers.test.ts | T-203                      |
+| 2026-11-05 | Agent       | Selesai T-201: Ekspor CSV penjualan & stok (FR-RPT-01, P2), generator RFC 4180 dengan UTF-8 BOM dan proteksi injeksi formula spreadsheet, endpoint GET /api/export/sales.csv & /api/export/stock.csv (OWNER only, Rule 7), utilitas unduh frontend downloadCsv, tombol ekspor di halaman penjualan & stok bahan, dokumentasi docs/api.md, serta unit/HTTP tests | T-201                      |
+| 2026-11-04 | Agent       | Selesai T-200: Fitur Waste Radar anti-waste (FR-WST-01, P2), kalkulasi nilai risiko Rp batch mendekati/lewat kedaluwarsa, identifikasi menu terkait, formula harga lantai promo & batas diskon aman (domain/waste-radar.ts), endpoint GET /api/analytics/waste-radar (OWNER only), UI panel WasteRadarPanel di halaman stok bahan, dokumentasi docs/api.md, serta unit/HTTP tests | T-200                      |
+| 2026-11-04 | Agent       | Selesai T-112: Pengujian komprehensif frontend (24 berkas test, 109 tests lulus): unit test cart reducer (cart-reducer.test.ts), pemformat Rupiah & nominal ekstrim (format.test.ts), serta schema validasi & kalkulasi total nota form pembelian (purchase-form.test.ts)                                        | T-112                      |
+| 2026-11-04 | Agent       | Selesai T-111: Laporan uji coba keterpakaian 3 pengguna awam non-akuntan (docs/usability-testing-report.md) memvalidasi Goal G7 (bahan -> resep -> kasir POS), pencapaian rata-rata waktu 6m 56s (target <= 10m), 100% completion rate tanpa bantuan, skor SUS 86.67 (Grade A), dan dokumentasi temuan UX di README.md | T-111                      |
+| 2026-11-04 | Agent       | Selesai T-110: Optimasi Lighthouse (meta SEO/theme-color/description), konfigurasi manualChunks di Vite (vendor-react, vendor-query, vendor-icons), reduksi bundle awal ke ~162.5 KB gzip (budget <= 250 KB), audit query dashboard paralel berindeks sub-5ms, dan dokumentasi di docs/responsive-and-browser-audit.md | T-110                      |
+| 2026-11-04 | Agent       | Selesai T-109: Polish UX, komponen ErrorBoundary pelindung app-shell dengan opsi coba lagi & muat ulang tanpa kehilangan sesi, skeleton transisi rute RouteLoadingFallback (header, metric cards, table skeleton), peremajaan visual 404 NotFoundPage & RouteErrorPage responsif a11y, konsistensi istilah Indonesia, dan unit tests | T-109                      |
+| 2026-11-04 | Agent       | Selesai T-108: Dokumentasi ERD komprehensif (docs/erd.md), diagram visual skema relasional (docs/erd-diagram.svg), kamus data 15 entitas, siklus hidup batch FEFO & margin alert, standarisasi penomoran subbab docs/api.md, dan indeks dokumentasi teknis di README.md | T-108                      |
+| 2026-11-04 | Agent       | Selesai T-107: Grafik tren penjualan 7 hari & ranking 5 menu terlaris pada ringkasan dashboard (FR-DASH-01), agregasi backend salesLast7Days (omzet, porsi, transaksi) & topMenus, dokumentasi di docs/api.md, kartu grafik bar responsif DashboardSalesTrendChart, ranking menu berprogres DashboardTopMenus, integrasi pada /dashboard, dan unit tests | T-107                      |
+| 2026-11-04 | Agent       | Selesai T-106: Input uang diterima & kalkulasi kembalian/kurang bayar real-time pada checkout POS, tombol uang pas & pecahan cepat, tombol reset input, pelokalan label pembayaran di struk, nama kasir pada cetakan struk, optimasi print CSS thermal printer (@page tanpa header browser), dan unit tests | T-106                      |
+| 2026-11-04 | Agent       | Selesai T-105: Registrasi pemilik bisnis baru atomik (FR-AUTH-04), endpoint POST /api/register, pembuatan workspace Business & akun Better Auth OWNER terotentikasi otomatis, form pendaftaran di /register, wizard 3 langkah terpandu di /onboarding (bahan -> menu/resep -> overhead) dengan live kalkulasi, integrasi link pendaftaran di halaman login & CTA wizard di dashboard | T-105                      |
+| 2026-11-04 | Agent       | Selesai T-104: Pembatalan nota pembelian (void purchase) atomik (FR-PUR-02), endpoint POST /api/purchases/:id/void, penolakan jika stok terpakai, pembalikan stok batch (ADJUSTMENT movement) dan pemulihan replacement cost, modal PurchaseVoidModal, serta filter tanggal & badge dibatalkan pada riwayat pembelian | T-104                      |
 | 2026-11-04 | Agent       | Selesai T-103: Pencatatan bahan terbuang (WASTE) & nilai kerugian finansial (Rp) atomik (FR-INV-03), endpoints POST/GET /api/stock/waste & /api/inventory/waste, validasi kuantitas batch dan alasan wajib, modal WasteRecordModal, WasteHistoryList view, integrasi tab Bahan Terbuang di halaman stok bahan | T-103                      |
 | 2026-11-04 | Agent       | Selesai persiapan demo & submission (T-070 s.d. T-074, T-077): README komprehensif, analisis pasar & kompetitor (docs/market-and-competitor-analysis.md), laporan audit keamanan OWASP defensif (docs/security-audit-report.md), audit responsif & peramban (docs/responsive-and-browser-audit.md), draft proposal GTNIC 2026 (docs/proposal-gtnic-2026.md), dan audit git history tanpa kebocoran secret | T-070, T-071, T-072, T-073, T-074, T-077 |
 | 2026-11-03 | Agent       | Selesai T-102: Fitur void transaksi penjualan atomik (FR-POS-03), pemulihan stok batch asal via StockMovement(VOID_RESTORE), endpoint POST /api/sales/:id/void (OWNER only), UI modal konfirmasi void & badge status Dibatalkan pada riwayat penjualan, serta unit/integration tests                                 | T-102                      |

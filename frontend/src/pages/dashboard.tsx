@@ -2,6 +2,8 @@ import { RefreshCw, AlertCircle } from "lucide-react";
 import { useSession } from "@/lib/auth-client";
 import { useDashboardSummary } from "@/api/hooks/use-dashboard";
 import { DashboardKpiGrid } from "@/components/features/dashboard/dashboard-kpi-grid";
+import { DashboardSalesTrendChart } from "@/components/features/dashboard/dashboard-sales-trend-chart";
+import { DashboardTopMenus } from "@/components/features/dashboard/dashboard-top-menus";
 import { DashboardTopAlerts } from "@/components/features/dashboard/dashboard-top-alerts";
 import { DashboardLowestCapacity } from "@/components/features/dashboard/dashboard-lowest-capacity";
 import { DashboardRecentSales } from "@/components/features/dashboard/dashboard-recent-sales";
@@ -96,7 +98,17 @@ export function DashboardPage() {
       {/* New business onboarding banner */}
       {data.isNewBusiness && <DashboardEmptyState />}
 
-      {/* Main Content Grid */}
+      {/* 7-Day Sales Trend & Top Menus */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        <div className="lg:col-span-7">
+          <DashboardSalesTrendChart salesLast7Days={data.salesLast7Days} />
+        </div>
+        <div className="lg:col-span-5">
+          <DashboardTopMenus topMenus={data.topMenus} />
+        </div>
+      </div>
+
+      {/* Alerts, Capacity & Recent Sales Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         {/* Left Column: Top Alerts & Capacity */}
         <div className="lg:col-span-7 space-y-6">

@@ -7,10 +7,14 @@ import {
   inventoryBatchesQuerySchema,
   recordWasteSchema,
   wasteQuerySchema,
+  recordAdjustmentSchema,
+  adjustmentQuerySchema,
   type StockSummaryQuery,
   type InventoryBatchesQuery,
   type RecordWasteInput,
   type WasteQuery,
+  type RecordAdjustmentInput,
+  type AdjustmentQuery,
 } from "../validation/inventory.schema.js";
 import type { Role } from "../types/express.js";
 
@@ -95,6 +99,45 @@ inventoryRouter.get(
     const skip = query?.skip ?? 0;
 
     const history = await inventoryService.getWasteHistory(ctx.businessId, {
+      take: limit,
+      skip,
+    });
+
+    res.json({ ok: true, data: history });
+  }
+);
+
+// 5. POST /api/inventory/adjustments & POST /api/stock/adjustments (T-204)
+// Records stock opname adjustment for a batch. OWNER only.
+inventoryRouter.post(
+  ["/inventory/adjustments", "/stock/adjustments"],
+  requireAuth,
+  requireRole(["OWNER"]),
+  validate(recordAdjustmentSchema),
+  async (req, res) => {
+    const ctx = requireCtx(req);
+    const body = (req.valid?.body ?? req.body) as RecordAdjustmentInput;
+
+    const result = await inventoryService.recordAdjustment(ctx.businessId, ctx.userId, body);
+
+    res.status(201).json({ ok: true, data: result });
+  }
+);
+
+// 6. GET /api/inventory/adjustments & GET /api/stock/adjustments (T-204)
+// Retrieves stock opname adjustment history. OWNER only.
+inventoryRouter.get(
+  ["/inventory/adjustments", "/stock/adjustments"],
+  requireAuth,
+  requireRole(["OWNER"]),
+  validate(adjustmentQuerySchema, "query"),
+  async (req, res) => {
+    const ctx = requireCtx(req);
+    const query = req.valid?.query as AdjustmentQuery;
+    const limit = query?.limit ?? 50;
+    const skip = query?.skip ?? 0;
+
+    const history = await inventoryService.getAdjustmentHistory(ctx.businessId, {
       take: limit,
       skip,
     });

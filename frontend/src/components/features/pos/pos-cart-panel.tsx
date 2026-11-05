@@ -43,9 +43,12 @@ export function PosCartPanel({
           <button
             type="button"
             onClick={onClear}
-            className="text-xs font-bold text-slate-400 hover:text-rose-600 transition-colors cursor-pointer px-2 py-1 rounded-lg hover:bg-rose-50"
+            className="text-xs font-bold text-slate-400 hover:text-rose-600 transition-colors cursor-pointer px-2 py-1 rounded-lg hover:bg-rose-50 flex items-center gap-1"
           >
-            Kosongkan
+            <span>Kosongkan</span>
+            <kbd className="hidden sm:inline-block px-1 py-0.5 text-[9px] font-mono text-slate-400 bg-slate-100 border border-slate-200 rounded">
+              F4
+            </kbd>
           </button>
         )}
       </div>
@@ -139,7 +142,10 @@ export function PosCartPanel({
             className="w-full flex items-center justify-center gap-2 py-3 px-4 text-sm font-bold text-white bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 rounded-xl shadow-xs shadow-emerald-700/20 transition-all cursor-pointer"
           >
             <span>Bayar Pesanan</span>
-            <ArrowRight className="w-4 h-4" />
+            <kbd className="hidden sm:inline-block px-1.5 py-0.5 text-[10px] font-mono bg-emerald-700/80 text-emerald-100 rounded border border-emerald-500/30">
+              F2
+            </kbd>
+            <ArrowRight className="w-4 h-4 ml-0.5" />
           </button>
         </div>
       )}

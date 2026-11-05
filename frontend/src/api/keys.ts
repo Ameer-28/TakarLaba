@@ -54,6 +54,10 @@ export const queryKeys = {
       filter
         ? ([...queryKeys.inventory.all, "waste", filter] as const)
         : ([...queryKeys.inventory.all, "waste"] as const),
+    adjustments: (filter?: Record<string, unknown>) =>
+      filter
+        ? ([...queryKeys.inventory.all, "adjustments", filter] as const)
+        : ([...queryKeys.inventory.all, "adjustments"] as const),
   },
   settings: {
     all: ["settings"] as const,
@@ -83,5 +87,6 @@ export const queryKeys = {
     capacity: () => [...queryKeys.analytics.all, "capacity"] as const,
     menuEngineering: (days?: number) =>
       [...queryKeys.analytics.all, "menu-engineering", days ?? 30] as const,
+    wasteRadar: (days?: number) => [...queryKeys.analytics.all, "waste-radar", days] as const,
   },
 };

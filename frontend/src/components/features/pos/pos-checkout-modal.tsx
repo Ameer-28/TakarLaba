@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { X, AlertCircle, Loader2 } from "lucide-react";
 import type { CartItem } from "./types.js";
 import {
@@ -38,6 +38,20 @@ export function PosCheckoutModal({ isOpen, onClose, cartItems, onSuccess }: PosC
   const isCashInsufficient = paymentMethod === "CASH" && cashReceived < totalAmount;
 
   const quickCashOptions = useMemo(() => calculateQuickCashOptions(totalAmount), [totalAmount]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && !checkoutMutation.isPending) {
+        e.preventDefault();
+        onClose();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isOpen, onClose, checkoutMutation.isPending]);
 
   if (!isOpen) return null;
 

@@ -68,4 +68,31 @@ describe("Purchase API client integration", () => {
       expect.objectContaining({ credentials: "same-origin" })
     );
   });
+
+  it("sends POST /api/purchases/:id/void to void a purchase", async () => {
+    const mockResponse = {
+      id: "purch-123",
+      note: "[DIBATALKAN: Salah input nota]",
+      batches: [],
+    };
+
+    globalThis.fetch = vi.fn().mockResolvedValueOnce({
+      status: 200,
+      text: vi.fn().mockResolvedValueOnce(JSON.stringify({ ok: true, data: mockResponse })),
+    } as unknown as Response);
+
+    const result = await apiClient("/purchases/purch-123/void", {
+      method: "POST",
+      body: JSON.stringify({ reason: "Salah input nota" }),
+    });
+
+    expect(result).toEqual(mockResponse);
+    expect(globalThis.fetch).toHaveBeenCalledWith(
+      "/api/purchases/purch-123/void",
+      expect.objectContaining({
+        method: "POST",
+        body: JSON.stringify({ reason: "Salah input nota" }),
+      })
+    );
+  });
 });

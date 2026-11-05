@@ -1,11 +1,24 @@
 import { useState, useMemo } from "react";
-import { Plus, Receipt, Layers, Trash2, Boxes } from "lucide-react";
+import {
+  Plus,
+  Receipt,
+  Layers,
+  Trash2,
+  Boxes,
+  AlertTriangle,
+  Download,
+  SlidersHorizontal,
+} from "lucide-react";
 import { useIngredients } from "@/api/hooks/use-ingredients";
 import { PurchaseHistory } from "@/components/features/purchase-history";
 import { InventorySummary } from "@/components/features/inventory-summary";
 import { WasteHistoryList } from "@/components/features/inventory/waste-history-list";
 import { WasteRecordModal } from "@/components/features/inventory/waste-record-modal";
+import { WasteRadarPanel } from "@/components/features/inventory/waste-radar-panel";
+import { StockAdjustmentModal } from "@/components/features/inventory/stock-adjustment-modal";
+import { AdjustmentHistoryList } from "@/components/features/inventory/adjustment-history-list";
 import { useSession } from "@/lib/auth-client";
+import { downloadCsv } from "@/lib/export";
 import {
   IngredientCatalogView,
   IngredientModals,
@@ -16,14 +29,24 @@ export function IngredientsPage() {
   const { data: session } = useSession();
   const isOwner = session?.user?.role !== "CASHIER";
 
-  const [activeTab, setActiveTab] = useState<"catalog" | "stock" | "history" | "waste">("catalog");
+  const [activeTab, setActiveTab] = useState<
+    "catalog" | "stock" | "history" | "waste" | "adjustments" | "radar"
+  >("catalog");
   const [searchTerm, setSearchTerm] = useState("");
   const [categoryFilter, setCategoryFilter] = useState<string>("ALL");
   const [statusFilter, setStatusFilter] = useState<"ALL" | "ACTIVE" | "INACTIVE">("ACTIVE");
   const [isWasteModalOpen, setIsWasteModalOpen] = useState(false);
+  const [isAdjustmentModalOpen, setIsAdjustmentModalOpen] = useState(false);
+  const [isExportingStock, setIsExportingStock] = useState(false);
 
   const { data: ingredients = [], isPending, isError, error, refetch } = useIngredients();
   const actions = useIngredientActions();
+
+  const handleExportStockCsv = async () => {
+    setIsExportingStock(true);
+    await downloadCsv("/export/stock.csv", "stok-bahan.csv");
+    setIsExportingStock(false);
+  };
 
   const filtered = useMemo(() => {
     return ingredients.filter((item) => {
@@ -46,7 +69,26 @@ export function IngredientsPage() {
             Pantau ketersediaan batch FEFO, kelola konversi satuan, dan catat nota belanja.
           </p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
+          {isOwner && (
+            <button
+              onClick={handleExportStockCsv}
+              disabled={isExportingStock}
+              className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-3.5 py-2.5 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 text-xs sm:text-sm font-semibold shadow-2xs transition-colors cursor-pointer disabled:opacity-50"
+            >
+              <Download className={`w-4 h-4 ${isExportingStock ? "animate-bounce" : ""}`} />
+              <span>{isExportingStock ? "Mengunduh..." : "Ekspor CSV"}</span>
+            </button>
+          )}
+          {isOwner && (
+            <button
+              onClick={() => setIsAdjustmentModalOpen(true)}
+              className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-3.5 py-2.5 rounded-xl border border-sky-300 bg-sky-50 hover:bg-sky-100 text-sky-800 text-xs sm:text-sm font-semibold shadow-2xs transition-colors cursor-pointer"
+            >
+              <SlidersHorizontal className="w-4 h-4 text-sky-600" />
+              <span>Opname Stok</span>
+            </button>
+          )}
           {isOwner && (
             <button
               onClick={() => setIsWasteModalOpen(true)}
@@ -120,9 +162,37 @@ export function IngredientsPage() {
             <span>Bahan Terbuang (Waste)</span>
           </button>
         )}
+        {isOwner && (
+          <button
+            onClick={() => setActiveTab("adjustments")}
+            className={`flex items-center gap-2 py-3 px-4 border-b-2 font-semibold text-xs sm:text-sm transition-colors whitespace-nowrap ${
+              activeTab === "adjustments"
+                ? "border-sky-600 text-sky-600"
+                : "border-transparent text-slate-500 hover:text-slate-800"
+            }`}
+          >
+            <SlidersHorizontal className="w-4 h-4" />
+            <span>Riwayat Opname</span>
+          </button>
+        )}
+        {isOwner && (
+          <button
+            onClick={() => setActiveTab("radar")}
+            className={`flex items-center gap-2 py-3 px-4 border-b-2 font-semibold text-xs sm:text-sm transition-colors whitespace-nowrap ${
+              activeTab === "radar"
+                ? "border-amber-600 text-amber-600"
+                : "border-transparent text-slate-500 hover:text-slate-800"
+            }`}
+          >
+            <AlertTriangle className="w-4 h-4" />
+            <span>Waste Radar</span>
+          </button>
+        )}
       </div>
 
-      {activeTab === "history" ? (
+      {activeTab === "radar" ? (
+        <WasteRadarPanel />
+      ) : activeTab === "history" ? (
         <PurchaseHistory onOpenCreate={() => actions.setIsCreateOpen(true)} />
       ) : activeTab === "stock" ? (
         <InventorySummary
@@ -132,6 +202,8 @@ export function IngredientsPage() {
         />
       ) : activeTab === "waste" ? (
         <WasteHistoryList onOpenRecordModal={() => setIsWasteModalOpen(true)} />
+      ) : activeTab === "adjustments" ? (
+        <AdjustmentHistoryList onOpenAdjustmentModal={() => setIsAdjustmentModalOpen(true)} />
       ) : (
         <IngredientCatalogView
           ingredients={ingredients}
@@ -181,6 +253,12 @@ export function IngredientsPage() {
       <WasteRecordModal
         isOpen={isWasteModalOpen}
         onClose={() => setIsWasteModalOpen(false)}
+        onSuccess={() => refetch()}
+      />
+
+      <StockAdjustmentModal
+        isOpen={isAdjustmentModalOpen}
+        onClose={() => setIsAdjustmentModalOpen(false)}
         onSuccess={() => refetch()}
       />
     </div>

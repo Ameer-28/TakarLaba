@@ -22,6 +22,7 @@ vi.mock("../../src/repositories/dashboard.repo.js", () => ({
     getActiveIngredientsWithBatches: vi.fn(),
     getActiveMenusWithRecipes: vi.fn(),
     getCounts: vi.fn(),
+    getSalesForDateRange: vi.fn(),
   },
   DashboardRepository: vi.fn(),
 }));
@@ -82,6 +83,7 @@ describe("Dashboard Routes (T-053 — AC: FR-DASH-01)", () => {
     vi.clearAllMocks();
     vi.useFakeTimers({ shouldAdvanceTime: true });
     vi.setSystemTime(new Date("2026-10-31T12:00:00.000Z"));
+    vi.mocked(dashboardRepository.getSalesForDateRange).mockResolvedValue([]);
   });
 
   afterEach(() => {
@@ -388,5 +390,89 @@ describe("Dashboard Routes (T-053 — AC: FR-DASH-01)", () => {
     expect(data.topAlerts).toEqual([]);
     expect(data.recentSales).toEqual([]);
     expect(data.isNewBusiness).toBe(true);
+  });
+
+  it("computes 7-day sales trend and top menus correctly (T-107)", async () => {
+    vi.mocked(auth.api.getSession).mockResolvedValueOnce(ownerSession);
+
+    vi.mocked(dashboardRepository.getBusinessSettings).mockResolvedValueOnce({
+      id: mockBusinessId,
+      name: "Kopi Takar Laba",
+      targetMarginDefault: new Decimal("50.00"),
+      expiryWarnDays: 3,
+      priceRoundingStep: 500,
+    });
+
+    vi.mocked(dashboardRepository.getTodaySalesAggregate).mockResolvedValueOnce({
+      _sum: {
+        totalAmount: new Decimal("100000"),
+        totalIngredientCost: new Decimal("40000"),
+        totalOverhead: new Decimal("10000"),
+      },
+      _count: { id: 5 },
+    });
+
+    vi.mocked(dashboardRepository.getRecentSales).mockResolvedValueOnce([]);
+    vi.mocked(dashboardRepository.getOpenAlertCount).mockResolvedValueOnce(0);
+    vi.mocked(dashboardRepository.getTopAlerts).mockResolvedValueOnce([]);
+    vi.mocked(dashboardRepository.getExpiringBatches).mockResolvedValueOnce([]);
+    vi.mocked(dashboardRepository.getActiveIngredientsWithBatches).mockResolvedValueOnce([]);
+    vi.mocked(dashboardRepository.getActiveMenusWithRecipes).mockResolvedValueOnce([]);
+    vi.mocked(dashboardRepository.getCounts).mockResolvedValueOnce({
+      menuCount: 5,
+      ingredientCount: 10,
+      saleCount: 50,
+    });
+
+    // Mock sales across 7 days
+    vi.mocked(dashboardRepository.getSalesForDateRange).mockResolvedValueOnce([
+      {
+        id: "sale-1",
+        soldAt: new Date("2026-10-31T10:00:00.000Z"),
+        totalAmount: new Decimal("36000.00"),
+        items: [
+          {
+            menuId: "menu-kopi",
+            menuNameSnapshot: "Es Kopi Susu Aren",
+            qty: 2,
+            unitPrice: new Decimal("18000.00"),
+          },
+        ],
+      },
+      {
+        id: "sale-2",
+        soldAt: new Date("2026-10-30T14:00:00.000Z"),
+        totalAmount: new Decimal("15000.00"),
+        items: [
+          {
+            menuId: "menu-americano",
+            menuNameSnapshot: "Americano",
+            qty: 1,
+            unitPrice: new Decimal("15000.00"),
+          },
+        ],
+      },
+    ] as never);
+
+    const res = await request(app).get("/api/dashboard/summary");
+
+    expect(res.status).toBe(200);
+    expect(res.body.ok).toBe(true);
+    expect(res.body.data.salesLast7Days).toHaveLength(7);
+
+    // Verify top menus contains Es Kopi Susu Aren and Americano
+    expect(res.body.data.topMenus).toHaveLength(2);
+    expect(res.body.data.topMenus[0]).toEqual({
+      menuId: "menu-kopi",
+      menuName: "Es Kopi Susu Aren",
+      totalQty: 2,
+      totalRevenue: "36000.00",
+    });
+    expect(res.body.data.topMenus[1]).toEqual({
+      menuId: "menu-americano",
+      menuName: "Americano",
+      totalQty: 1,
+      totalRevenue: "15000.00",
+    });
   });
 });

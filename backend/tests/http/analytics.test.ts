@@ -42,11 +42,19 @@ vi.mock("../../src/repositories/overhead.repo.js", () => ({
   OverheadRepository: vi.fn(),
 }));
 
+vi.mock("../../src/repositories/inventory.repo.js", () => ({
+  inventoryRepository: {
+    findExpiringBatchesWithIngredient: vi.fn(),
+  },
+  InventoryRepository: vi.fn(),
+}));
+
 import { auth } from "../../src/lib/auth.js";
 import { dashboardRepository } from "../../src/repositories/dashboard.repo.js";
 import { menuRepository } from "../../src/repositories/menu.repo.js";
 import { settingsRepository } from "../../src/repositories/settings.repo.js";
 import { overheadRepository } from "../../src/repositories/overhead.repo.js";
+import { inventoryRepository } from "../../src/repositories/inventory.repo.js";
 
 describe("Analytics Endpoints (GET /api/analytics/capacity) (BR-08, FR-CAP-01)", () => {
   const app = createApp();
@@ -385,6 +393,123 @@ describe("Analytics Endpoints (GET /api/analytics/capacity) (BR-08, FR-CAP-01)",
       expect(data.totalTransactions).toBe(100);
       expect(data.totalClassifiedPortions).toBe(310);
       expect(data.classifiedMenus).toHaveLength(4);
+    });
+  });
+
+  describe("GET /api/analytics/waste-radar (FR-WST-01)", () => {
+    it("returns 401 when unauthenticated", async () => {
+      vi.mocked(auth.api.getSession).mockResolvedValue(null as never);
+
+      const res = await request(app).get("/api/analytics/waste-radar");
+      expect(res.status).toBe(401);
+      expect(res.body.ok).toBe(false);
+      expect(res.body.error.code).toBe("UNAUTHENTICATED");
+    });
+
+    it("returns 403 when user has CASHIER role (Rule 7, OWNER only)", async () => {
+      vi.mocked(auth.api.getSession).mockResolvedValue(cashierSession as never);
+
+      const res = await request(app).get("/api/analytics/waste-radar");
+      expect(res.status).toBe(403);
+      expect(res.body.ok).toBe(false);
+      expect(res.body.error.code).toBe("FORBIDDEN");
+    });
+
+    it("returns 400 when query days is invalid (e.g. > 60 or < 1)", async () => {
+      vi.mocked(auth.api.getSession).mockResolvedValue(ownerSession as never);
+
+      const res = await request(app).get("/api/analytics/waste-radar?days=99");
+      expect(res.status).toBe(400);
+      expect(res.body.ok).toBe(false);
+      expect(res.body.error.code).toBe("VALIDATION_ERROR");
+    });
+
+    it("returns 200 with waste radar summary and item breakdowns for OWNER", async () => {
+      vi.mocked(auth.api.getSession).mockResolvedValue(ownerSession as never);
+
+      vi.mocked(settingsRepository.findById).mockResolvedValue({
+        id: mockBusinessId,
+        name: "Kedai Kopi Demo",
+        expiryWarnDays: 7,
+        wastePromoMinMargin: new Decimal("10.00"),
+        priceRoundingStep: 500,
+        expectedMonthlyPortions: 1000,
+      } as never);
+
+      vi.mocked(overheadRepository.sumActiveMonthlyOverhead).mockResolvedValue(
+        new Decimal("1000000")
+      ); // 1.000 ovh per portion
+
+      vi.mocked(inventoryRepository.findExpiringBatchesWithIngredient).mockResolvedValue([
+        {
+          id: "batch-exp-1",
+          ingredientId: "ing-1",
+          ingredient: {
+            id: "ing-1",
+            name: "Susu Segar UHT",
+            category: "Dairy",
+            baseUnit: "ML",
+          },
+          remainingQtyBase: new Decimal("2000"), // 2000 ML
+          costPerBase: new Decimal("20"), // Rp20 / ML -> 40.000 risk
+          expiryDate: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000), // 2 days from now
+          receivedAt: new Date(),
+        },
+      ] as never);
+
+      vi.mocked(dashboardRepository.getActiveMenusWithRecipes).mockResolvedValue([
+        {
+          id: "menu-kopi-susu",
+          name: "Es Kopi Susu",
+          category: "Minuman",
+          sellingPrice: new Decimal("18000"),
+          recipeItems: [
+            {
+              ingredientId: "ing-1",
+              qtyUsableBase: new Decimal("200"), // 200 ML
+              ingredient: {
+                id: "ing-1",
+                name: "Susu Segar UHT",
+                baseUnit: "ML",
+                yieldPercent: new Decimal(100),
+              },
+            },
+          ],
+        },
+      ] as never);
+
+      vi.mocked(menuRepository.getLatestCostPerBaseMap).mockResolvedValue(
+        new Map([["ing-1", new Decimal("20")]]) // 200 ML * 20 = 4.000 + 1.000 ovh = 5.000 HPP Penuh
+      );
+
+      const res = await request(app).get("/api/analytics/waste-radar?days=7");
+      expect(res.status).toBe(200);
+      expect(res.body.ok).toBe(true);
+
+      const data = res.body.data;
+      expect(data.summary.totalRiskValue).toBe("40000.00");
+      expect(data.summary.totalExpiringBatches).toBe(1);
+      expect(data.summary.totalImpactedMenus).toBe(1);
+      expect(data.summary.warnDays).toBe(7);
+      expect(data.summary.wastePromoMinMarginPercent).toBe("10.00");
+
+      expect(data.items).toHaveLength(1);
+      const batch = data.items[0];
+      expect(batch.batchId).toBe("batch-exp-1");
+      expect(batch.ingredientName).toBe("Susu Segar UHT");
+      expect(batch.remainingQty).toBe("2000.000");
+      expect(batch.riskValue).toBe("40000.00");
+      expect(batch.status).toBe("EXPIRING_SOON");
+
+      expect(batch.relatedMenus).toHaveLength(1);
+      const menu = batch.relatedMenus[0];
+      expect(menu.menuName).toBe("Es Kopi Susu");
+      expect(menu.sellingPrice).toBe("18000.00");
+      expect(menu.hppPenuh).toBe("5000.00");
+      // rawFloor = 5.000 / 0.90 = 5.555,55... -> ceil to 500 = 6.000
+      expect(menu.promoFloorPrice).toBe("6000.00");
+      // maxDiscount = 18.000 - 6.000 = 12.000
+      expect(menu.maxDiscountAmount).toBe("12000.00");
     });
   });
 });

@@ -24,7 +24,15 @@ describe("Frontend Format Utilities", () => {
     it("handles null, undefined, and invalid inputs gracefully", () => {
       expect(formatRupiah(null)).toBe("Rp0");
       expect(formatRupiah(undefined)).toBe("Rp0");
+      expect(formatRupiah("")).toBe("Rp0");
       expect(formatRupiah("invalid")).toBe("Rp0");
+      expect(formatRupiah(NaN)).toBe("Rp0");
+      expect(formatRupiah(Infinity)).toBe("Rp0");
+    });
+
+    it("formats large amounts and negative values properly", () => {
+      expect(formatRupiah(1000000000)).toMatch(/Rp\s?1\.000\.000\.000/);
+      expect(formatRupiah(-15000)).toMatch(/-Rp\s?15\.000/);
     });
   });
 

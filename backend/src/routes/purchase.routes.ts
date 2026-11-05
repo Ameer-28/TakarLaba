@@ -5,8 +5,10 @@ import { validate } from "../middleware/validate.js";
 import {
   createPurchaseSchema,
   queryPurchaseSchema,
+  voidPurchaseSchema,
   type CreatePurchaseInput,
   type QueryPurchaseInput,
+  type VoidPurchaseInput,
 } from "../validation/purchase.schema.js";
 
 export const purchaseRouter = Router();
@@ -65,3 +67,23 @@ purchaseRouter.get("/purchases/:id", requireAuth, requireRole(["OWNER"]), async 
   const purchase = await purchaseService.getPurchaseById(ctx.businessId, id);
   res.json({ ok: true, data: purchase });
 });
+
+// 4. POST /api/purchases/:id/void - Void a purchase and reverse batch stock (OWNER only, FR-PUR-02)
+purchaseRouter.post(
+  "/purchases/:id/void",
+  requireAuth,
+  requireRole(["OWNER"]),
+  validate(voidPurchaseSchema),
+  async (req, res) => {
+    const ctx = requireCtx(req);
+    const id = req.params.id as string;
+    const { reason } = req.valid as VoidPurchaseInput;
+    const voidedPurchase = await purchaseService.voidPurchase(
+      ctx.businessId,
+      ctx.userId,
+      id,
+      reason
+    );
+    res.json({ ok: true, data: voidedPurchase });
+  }
+);
