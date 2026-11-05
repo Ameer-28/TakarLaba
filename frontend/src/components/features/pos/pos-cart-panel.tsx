@@ -9,6 +9,8 @@ import {
   Utensils,
   CupSoda,
   Cake,
+  Snowflake,
+  Flame,
 } from "lucide-react";
 import type { CartItem, PosOrderType } from "./types.js";
 import { formatRupiah } from "../../../lib/format.js";
@@ -142,9 +144,12 @@ export function PosCartPanel({
           <div className="divide-y divide-stone-100">
             {items.map((item) => {
               const lineTotal = item.qty * item.sellingPrice;
+              const itemKey =
+                item.cartKey ??
+                (item.temperature ? `${item.menuId}-${item.temperature}` : item.menuId);
 
               return (
-                <div key={item.menuId} className="py-3 first:pt-0 last:pb-0 space-y-2">
+                <div key={itemKey} className="py-3 first:pt-0 last:pb-0 space-y-2">
                   <div className="flex items-start gap-3">
                     {/* Item Thumbnail */}
                     <div className="w-11 h-11 rounded-2xl bg-orange-50/80 border border-orange-100 flex items-center justify-center shrink-0">
@@ -154,12 +159,26 @@ export function PosCartPanel({
                     {/* Item Details */}
                     <div className="min-w-0 flex-1">
                       <div className="flex items-start justify-between gap-1">
-                        <h5 className="font-bold text-slate-900 text-sm line-clamp-1">
-                          {item.name}
-                        </h5>
+                        <div className="flex items-center gap-1.5 flex-wrap min-w-0">
+                          <h5 className="font-bold text-slate-900 text-sm line-clamp-1">
+                            {item.name}
+                          </h5>
+                          {item.temperature === "ICE" && (
+                            <span className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded-full text-[9px] font-black bg-sky-50 text-sky-700 border border-sky-200/80 shrink-0">
+                              <Snowflake className="w-2.5 h-2.5 text-sky-500" />
+                              Dingin
+                            </span>
+                          )}
+                          {item.temperature === "HOT" && (
+                            <span className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded-full text-[9px] font-black bg-amber-50 text-amber-800 border border-amber-200/80 shrink-0">
+                              <Flame className="w-2.5 h-2.5 text-amber-500" />
+                              Panas
+                            </span>
+                          )}
+                        </div>
                         <button
                           type="button"
-                          onClick={() => onRemove(item.menuId)}
+                          onClick={() => onRemove(itemKey)}
                           className="p-1 text-stone-300 hover:text-rose-600 transition-colors cursor-pointer"
                           title="Hapus item"
                         >
@@ -183,7 +202,7 @@ export function PosCartPanel({
                     <div className="flex items-center gap-1.5 bg-stone-100 rounded-full px-2 py-0.5 border border-stone-200/80">
                       <button
                         type="button"
-                        onClick={() => onDecrement(item.menuId)}
+                        onClick={() => onDecrement(itemKey)}
                         className="w-5 h-5 flex items-center justify-center text-stone-600 hover:text-rose-600 hover:bg-white rounded-full transition-colors cursor-pointer shadow-2xs"
                         title="Kurangi kuantitas"
                       >
@@ -196,7 +215,7 @@ export function PosCartPanel({
 
                       <button
                         type="button"
-                        onClick={() => onIncrement(item.menuId)}
+                        onClick={() => onIncrement(itemKey)}
                         className="w-5 h-5 flex items-center justify-center bg-[#f27238] hover:bg-[#e06129] text-white rounded-full transition-colors cursor-pointer shadow-2xs"
                         title="Tambah kuantitas"
                       >

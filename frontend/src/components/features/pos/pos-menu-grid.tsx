@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useState, useMemo } from "react";
 import {
   Search,
   Plus,
@@ -11,10 +11,13 @@ import {
   CupSoda,
   Utensils,
   Cake,
+  Snowflake,
+  Flame,
 } from "lucide-react";
 import type { PosMenuItem } from "../../../api/hooks/use-pos-menus.js";
 import { formatRupiah } from "../../../lib/format.js";
-import type { CartItem } from "./types.js";
+import type { CartItem, DrinkTemperature } from "./types.js";
+import { isBeverageMenu, getDefaultTemperature } from "./pos-utils.js";
 
 interface PosMenuGridProps {
   menus: PosMenuItem[];
@@ -23,9 +26,9 @@ interface PosMenuGridProps {
   onSearchChange: (val: string) => void;
   selectedCategory: string;
   onSelectCategory: (val: string) => void;
-  onAddToCart: (menu: PosMenuItem) => void;
-  onIncrement?: (menuId: string) => void;
-  onDecrement?: (menuId: string) => void;
+  onAddToCart: (menu: PosMenuItem, temperature?: DrinkTemperature) => void;
+  onIncrement?: (menuId: string, temperature?: DrinkTemperature) => void;
+  onDecrement?: (menuId: string, temperature?: DrinkTemperature) => void;
   isPending: boolean;
   isError: boolean;
   onRefetch: () => void;
@@ -88,6 +91,11 @@ export function PosMenuGrid({
   onRefetch,
   searchInputRef,
 }: PosMenuGridProps) {
+  // Selected temperature for beverages (menuId -> "ICE" | "HOT")
+  const [selectedTemperatures, setSelectedTemperatures] = useState<
+    Record<string, DrinkTemperature>
+  >({});
+
   // Categories present in catalog
   const availableCategories = useMemo(() => {
     const set = new Set<string>();
@@ -96,15 +104,6 @@ export function PosMenuGrid({
     });
     return Array.from(set);
   }, [menus]);
-
-  // Cart quantity map by menuId
-  const cartQtyMap = useMemo(() => {
-    const map = new Map<string, number>();
-    for (const item of cartItems) {
-      map.set(item.menuId, item.qty);
-    }
-    return map;
-  }, [cartItems]);
 
   // Filtered menu list
   const filteredMenus = useMemo(() => {
@@ -243,7 +242,19 @@ export function PosMenuGrid({
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {filteredMenus.map((menu) => {
-            const inCartQty = cartQtyMap.get(menu.id) ?? 0;
+            const isDrink = isBeverageMenu(menu.name, menu.category);
+            const temperature = isDrink
+              ? (selectedTemperatures[menu.id] ?? getDefaultTemperature(menu.name))
+              : undefined;
+
+            const currentVariantCartItem = cartItems.find(
+              (it) => it.menuId === menu.id && (isDrink ? it.temperature === temperature : true)
+            );
+            const inCartQty = currentVariantCartItem?.qty ?? 0;
+            const totalMenuInCartQty = cartItems
+              .filter((it) => it.menuId === menu.id)
+              .reduce((sum, it) => sum + it.qty, 0);
+
             const isSellable = menu.hasRecipe && menu.capacity > 0;
 
             return (
@@ -251,7 +262,7 @@ export function PosMenuGrid({
                 key={menu.id}
                 onClick={() => {
                   if (isSellable) {
-                    onAddToCart(menu);
+                    onAddToCart(menu, temperature);
                   }
                 }}
                 className={`group relative bg-white rounded-3xl border p-4.5 transition-all flex flex-col justify-between select-none ${
@@ -265,9 +276,9 @@ export function PosMenuGrid({
                   {/* Left Thumbnail Box */}
                   <div className="w-20 h-20 sm:w-22 sm:h-22 rounded-2xl bg-orange-50/80 border border-orange-100/70 flex items-center justify-center shrink-0 relative overflow-hidden group-hover:scale-105 transition-transform">
                     {getMenuIcon(menu.name, menu.category)}
-                    {inCartQty > 0 && (
+                    {totalMenuInCartQty > 0 && (
                       <span className="absolute top-1.5 right-1.5 px-1.5 py-0.5 text-[10px] font-black bg-[#f27238] text-white rounded-full shadow-2xs">
-                        {inCartQty}
+                        {totalMenuInCartQty}
                       </span>
                     )}
                   </div>
@@ -311,6 +322,50 @@ export function PosMenuGrid({
                         Dibatasi: {menu.bottleneckIngredientName}
                       </p>
                     )}
+
+                    {/* Beverage Temperature Selector (Dingin vs Panas) */}
+                    {isDrink && (
+                      <div
+                        className="flex items-center gap-2 mt-2 pt-2 border-t border-stone-100"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <span className="text-[10px] font-bold text-stone-500">Pilihan:</span>
+                        <div className="inline-flex items-center p-0.5 bg-stone-100 rounded-full border border-stone-200/70 select-none">
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSelectedTemperatures((prev) => ({ ...prev, [menu.id]: "ICE" }));
+                            }}
+                            className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold transition-all cursor-pointer ${
+                              temperature === "ICE"
+                                ? "bg-slate-900 text-white shadow-2xs"
+                                : "text-stone-600 hover:text-stone-900"
+                            }`}
+                            title="Pilihan Dingin (Ice)"
+                          >
+                            <Snowflake className="w-3 h-3 text-sky-400" />
+                            <span>Dingin</span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSelectedTemperatures((prev) => ({ ...prev, [menu.id]: "HOT" }));
+                            }}
+                            className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold transition-all cursor-pointer ${
+                              temperature === "HOT"
+                                ? "bg-slate-900 text-white shadow-2xs"
+                                : "text-stone-600 hover:text-stone-900"
+                            }`}
+                            title="Pilihan Panas (Hot)"
+                          >
+                            <Flame className="w-3 h-3 text-amber-400" />
+                            <span>Panas</span>
+                          </button>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
 
@@ -328,7 +383,7 @@ export function PosMenuGrid({
                             type="button"
                             onClick={(e) => {
                               e.stopPropagation();
-                              onDecrement?.(menu.id);
+                              onDecrement?.(menu.id, temperature);
                             }}
                             className="w-5 h-5 rounded-full bg-white text-stone-700 hover:text-rose-600 flex items-center justify-center shadow-2xs text-xs font-bold cursor-pointer transition-colors"
                             title="Kurang 1"
@@ -342,7 +397,7 @@ export function PosMenuGrid({
                             type="button"
                             onClick={(e) => {
                               e.stopPropagation();
-                              onIncrement?.(menu.id);
+                              onIncrement?.(menu.id, temperature);
                             }}
                             className="w-5 h-5 rounded-full bg-[#f27238] text-white hover:bg-[#e06129] flex items-center justify-center shadow-2xs text-xs font-bold cursor-pointer transition-colors"
                             title="Tambah 1"
@@ -354,7 +409,13 @@ export function PosMenuGrid({
                         {/* Solid Added to Cart Pill */}
                         <span className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-full bg-[#f27238] text-white shadow-2xs">
                           <ShoppingBag className="w-3 h-3" />
-                          <span>Di Keranjang</span>
+                          <span>
+                            {isDrink
+                              ? temperature === "ICE"
+                                ? "Dingin"
+                                : "Panas"
+                              : "Di Keranjang"}
+                          </span>
                         </span>
                       </div>
                     ) : (
@@ -362,12 +423,15 @@ export function PosMenuGrid({
                         type="button"
                         onClick={(e) => {
                           e.stopPropagation();
-                          onAddToCart(menu);
+                          onAddToCart(menu, temperature);
                         }}
                         className="w-full flex items-center justify-center gap-1.5 px-4 py-2 text-xs font-bold text-[#f27238] hover:text-white bg-orange-50 hover:bg-[#f27238] border border-orange-200/80 rounded-full transition-all cursor-pointer shadow-2xs"
                       >
                         <Plus className="w-3.5 h-3.5" />
-                        <span>Tambah ke Keranjang</span>
+                        <span>
+                          Tambah{" "}
+                          {isDrink ? (temperature === "ICE" ? "Dingin" : "Panas") : "ke Keranjang"}
+                        </span>
                       </button>
                     )
                   ) : (

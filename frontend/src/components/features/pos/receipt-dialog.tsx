@@ -3,15 +3,23 @@ import type { SaleDetail } from "../../../api/hooks/use-sales.js";
 import { formatRupiah } from "../../../lib/format.js";
 import { useSettings } from "../../../api/hooks/use-settings.js";
 import { formatPaymentMethodLabel } from "./pos-utils.js";
+import type { CartItem } from "./types.js";
 
 interface ReceiptDialogProps {
   isOpen: boolean;
   onClose: () => void;
   sale: SaleDetail | null;
   cashReceived: number;
+  cartItems?: CartItem[];
 }
 
-export function ReceiptDialog({ isOpen, onClose, sale, cashReceived }: ReceiptDialogProps) {
+export function ReceiptDialog({
+  isOpen,
+  onClose,
+  sale,
+  cashReceived,
+  cartItems,
+}: ReceiptDialogProps) {
   const { data: settings } = useSettings();
 
   if (!isOpen || !sale) return null;
@@ -90,10 +98,19 @@ export function ReceiptDialog({ isOpen, onClose, sale, cashReceived }: ReceiptDi
               {sale.items.map((item) => {
                 const unitPriceNum = parseFloat(item.unitPrice);
                 const lineTotal = item.qty * unitPriceNum;
+                const matchingCart = cartItems?.find((c) => c.menuId === item.menuId);
+                const tempSuffix = matchingCart?.temperature
+                  ? matchingCart.temperature === "ICE"
+                    ? " (Dingin)"
+                    : " (Panas)"
+                  : "";
 
                 return (
                   <div key={item.id} className="space-y-0.5 text-xs">
-                    <div className="font-bold text-slate-900">{item.menuNameSnapshot}</div>
+                    <div className="font-bold text-slate-900">
+                      {item.menuNameSnapshot}
+                      {tempSuffix}
+                    </div>
                     <div className="flex justify-between text-slate-500 tabular-nums">
                       <span>
                         {item.qty} x {formatRupiah(unitPriceNum)}

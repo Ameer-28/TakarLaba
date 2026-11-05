@@ -1,4 +1,4 @@
-import type { CartState, CartAction, CartItem } from "./types.js";
+import type { CartState, CartAction, CartItem, DrinkTemperature } from "./types.js";
 
 export const initialCartState: CartState = {
   items: [],
@@ -7,11 +7,31 @@ export const initialCartState: CartState = {
 export const MAX_CART_ITEMS = 50;
 export const MAX_ITEM_QTY = 999;
 
+export function getCartItemKey(menuId: string, temperature?: DrinkTemperature): string {
+  return temperature ? `${menuId}-${temperature}` : menuId;
+}
+
+function matchesCartTarget(item: CartItem, target: { cartKey?: string; menuId?: string }): boolean {
+  if (target.cartKey) {
+    const itemKey = item.cartKey ?? getCartItemKey(item.menuId, item.temperature);
+    return itemKey === target.cartKey;
+  }
+  if (target.menuId) {
+    return item.menuId === target.menuId;
+  }
+  return false;
+}
+
 export function cartReducer(state: CartState, action: CartAction): CartState {
   switch (action.type) {
     case "ADD_ITEM": {
-      const { menuId, name, category, sellingPrice } = action.payload;
-      const existingIndex = state.items.findIndex((item) => item.menuId === menuId);
+      const { menuId, name, category, sellingPrice, temperature } = action.payload;
+      const targetKey = action.payload.cartKey ?? getCartItemKey(menuId, temperature);
+
+      const existingIndex = state.items.findIndex((item) => {
+        const itemKey = item.cartKey ?? getCartItemKey(item.menuId, item.temperature);
+        return itemKey === targetKey;
+      });
 
       if (existingIndex >= 0) {
         // Increment quantity of existing item
@@ -33,6 +53,8 @@ export function cartReducer(state: CartState, action: CartAction): CartState {
         category,
         sellingPrice,
         qty: 1,
+        ...(temperature ? { temperature, cartKey: targetKey } : {}),
+        ...(action.payload.cartKey ? { cartKey: action.payload.cartKey } : {}),
       };
 
       return {
@@ -45,7 +67,7 @@ export function cartReducer(state: CartState, action: CartAction): CartState {
       return {
         ...state,
         items: state.items.map((item) => {
-          if (item.menuId === action.payload.menuId) {
+          if (matchesCartTarget(item, action.payload)) {
             return {
               ...item,
               qty: Math.min(item.qty + 1, MAX_ITEM_QTY),
@@ -57,21 +79,21 @@ export function cartReducer(state: CartState, action: CartAction): CartState {
     }
 
     case "DECREMENT_QTY": {
-      const targetItem = state.items.find((item) => item.menuId === action.payload.menuId);
+      const targetItem = state.items.find((item) => matchesCartTarget(item, action.payload));
       if (!targetItem) return state;
 
       if (targetItem.qty <= 1) {
         // Remove item if decremented below 1
         return {
           ...state,
-          items: state.items.filter((item) => item.menuId !== action.payload.menuId),
+          items: state.items.filter((item) => !matchesCartTarget(item, action.payload)),
         };
       }
 
       return {
         ...state,
         items: state.items.map((item) => {
-          if (item.menuId === action.payload.menuId) {
+          if (matchesCartTarget(item, action.payload)) {
             return {
               ...item,
               qty: item.qty - 1,
@@ -83,11 +105,11 @@ export function cartReducer(state: CartState, action: CartAction): CartState {
     }
 
     case "UPDATE_QTY": {
-      const { menuId, qty } = action.payload;
+      const { qty } = action.payload;
       if (qty <= 0) {
         return {
           ...state,
-          items: state.items.filter((item) => item.menuId !== menuId),
+          items: state.items.filter((item) => !matchesCartTarget(item, action.payload)),
         };
       }
 
@@ -95,7 +117,7 @@ export function cartReducer(state: CartState, action: CartAction): CartState {
       return {
         ...state,
         items: state.items.map((item) => {
-          if (item.menuId === menuId) {
+          if (matchesCartTarget(item, action.payload)) {
             return {
               ...item,
               qty: clampedQty,
@@ -109,7 +131,7 @@ export function cartReducer(state: CartState, action: CartAction): CartState {
     case "REMOVE_ITEM": {
       return {
         ...state,
-        items: state.items.filter((item) => item.menuId !== action.payload.menuId),
+        items: state.items.filter((item) => !matchesCartTarget(item, action.payload)),
       };
     }
 
