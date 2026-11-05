@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import clsx from "clsx";
 import { twMerge } from "tailwind-merge";
 import { useClickOutside } from "./use-click-outside";
@@ -24,6 +24,7 @@ import {
   formatToYMD,
   parseYMD,
   MONTH_NAMES_FULL,
+  calculatePopoverPosition,
 } from "./calendar-utils";
 
 export type { RangeValue, PresetItem, PresetsMap };
@@ -172,6 +173,7 @@ export const Calendar = ({
   );
 
   const containerRef = useRef<HTMLDivElement | null>(null);
+  const [popoverStyle, setPopoverStyle] = useState<React.CSSProperties>({});
 
   useClickOutside(containerRef, () => {
     setIsOpen(false);
@@ -179,16 +181,52 @@ export const Calendar = ({
     setHoverDate(null);
   });
 
-  useEffect(() => {
-    const handleClose = () => {
-      setIsOpen(false);
-      setIsSelecting(false);
-      setHoverDate(null);
-    };
+  // Dynamic boundary-safe popover positioning
+  const updatePosition = useCallback(() => {
+    if (!containerRef.current) return;
+    const triggerRect = containerRef.current.getBoundingClientRect();
+    const pos = calculatePopoverPosition({
+      triggerRect,
+      screenWidth: window.innerWidth,
+      alignment: popoverAlignment,
+      padding: 12,
+      maxWidth: 480,
+      minWidth: 280,
+    });
 
-    window.addEventListener("resize", handleClose);
-    return () => window.removeEventListener("resize", handleClose);
-  }, []);
+    setPopoverStyle({
+      left: `${pos.relativeLeft}px`,
+      width: `${pos.width}px`,
+      maxWidth: `calc(100vw - 24px)`,
+    });
+  }, [popoverAlignment]);
+
+  // Re-calculate position on open, scroll, or resize
+  useEffect(() => {
+    if (!isOpen) return;
+    updatePosition();
+    window.addEventListener("resize", updatePosition);
+    window.addEventListener("scroll", updatePosition, true);
+    return () => {
+      window.removeEventListener("resize", updatePosition);
+      window.removeEventListener("scroll", updatePosition, true);
+    };
+  }, [isOpen, updatePosition]);
+
+  // Close on Escape key
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setIsOpen(false);
+        setIsSelecting(false);
+        setHoverDate(null);
+      }
+    };
+    if (isOpen) {
+      window.addEventListener("keydown", handleKeyDown);
+      return () => window.removeEventListener("keydown", handleKeyDown);
+    }
+  }, [isOpen]);
 
   // Sync draft state whenever popover opens or value changes
   useEffect(() => {
@@ -379,13 +417,11 @@ export const Calendar = ({
         <div
           role="dialog"
           aria-label="Pemilih Rentang Tanggal"
+          style={popoverStyle}
           className={twMerge(
             clsx(
-              "absolute z-50 top-12 bg-white rounded-2xl border border-[#CCD0CF] shadow-xl p-4 animate-in fade-in zoom-in-95 duration-150 select-none box-border",
-              "w-[calc(100vw-2rem)] max-w-[480px] max-h-[calc(100vh-6rem)] overflow-y-auto sm:w-[480px]",
-              popoverAlignment === "start" && "left-0",
-              popoverAlignment === "center" && "left-1/2 -translate-x-1/2",
-              popoverAlignment === "end" && "right-0"
+              "absolute z-50 top-12 bg-white rounded-2xl border border-[#CCD0CF] shadow-xl p-3.5 sm:p-4 animate-in fade-in zoom-in-95 duration-150 select-none box-border",
+              "max-h-[calc(100vh-6rem)] overflow-y-auto"
             )
           )}
         >
@@ -535,9 +571,9 @@ export const Calendar = ({
           </div>
 
           {/* Full Width Bottom Row: Manual Date Inputs */}
-          <div className="mt-3.5 pt-3 border-t border-[#CCD0CF]/60 flex items-center justify-between sm:justify-start gap-4">
-            <div className="flex items-center gap-1.5">
-              <span className="text-[10px] font-bold text-[#4A5C6A]">Dari:</span>
+          <div className="mt-3.5 pt-3 border-t border-[#CCD0CF]/60 flex flex-wrap sm:flex-nowrap items-center justify-between sm:justify-start gap-2.5 sm:gap-4">
+            <div className="flex items-center gap-1.5 flex-1 min-w-[130px]">
+              <span className="text-[10px] font-bold text-[#4A5C6A] shrink-0">Dari:</span>
               <input
                 type="date"
                 value={startDateInput}
@@ -545,11 +581,11 @@ export const Calendar = ({
                 onKeyDown={(e) => {
                   if (e.key === "Enter") setIsOpen(false);
                 }}
-                className="w-[124px] px-2 py-1 text-xs border border-[#CCD0CF] rounded-lg bg-white text-[#06141B] font-medium focus:outline-none focus:border-[#253745] tabular-nums"
+                className="w-full px-2 py-1 text-xs border border-[#CCD0CF] rounded-lg bg-white text-[#06141B] font-medium focus:outline-none focus:border-[#253745] tabular-nums"
               />
             </div>
-            <div className="flex items-center gap-1.5">
-              <span className="text-[10px] font-bold text-[#4A5C6A]">S/d:</span>
+            <div className="flex items-center gap-1.5 flex-1 min-w-[130px]">
+              <span className="text-[10px] font-bold text-[#4A5C6A] shrink-0">S/d:</span>
               <input
                 type="date"
                 value={endDateInput}
@@ -557,7 +593,7 @@ export const Calendar = ({
                 onKeyDown={(e) => {
                   if (e.key === "Enter") setIsOpen(false);
                 }}
-                className="w-[124px] px-2 py-1 text-xs border border-[#CCD0CF] rounded-lg bg-white text-[#06141B] font-medium focus:outline-none focus:border-[#253745] tabular-nums"
+                className="w-full px-2 py-1 text-xs border border-[#CCD0CF] rounded-lg bg-white text-[#06141B] font-medium focus:outline-none focus:border-[#253745] tabular-nums"
               />
             </div>
           </div>
