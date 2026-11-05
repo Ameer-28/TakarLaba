@@ -13,6 +13,7 @@ import { posRouter } from "./pos.routes.js";
 import { demoRouter } from "./demo.routes.js";
 import { analyticsRouter } from "./analytics.routes.js";
 import { registrationRouter } from "./registration.routes.js";
+import { exportRouter } from "./export.routes.js";
 
 export const apiRouter = Router();
 
@@ -30,3 +31,4 @@ apiRouter.use(dashboardRouter);
 apiRouter.use(posRouter);
 apiRouter.use(demoRouter);
 apiRouter.use(analyticsRouter);
+apiRouter.use(exportRouter);

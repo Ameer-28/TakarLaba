@@ -1934,6 +1934,78 @@ Mendaftarkan pemilik bisnis baru beserta workspace usaha kulinernya secara atomi
   }
   ```
 
+### 3.13 Ekspor Data CSV (`/api/export`) (T-201 — AC: FR-RPT-01)
+
+Endpoint untuk mengunduh laporan penjualan dan status persediaan stok dalam format CSV (RFC 4180) dengan prefix Byte Order Mark UTF-8 (`\uFEFF`) agar terbaca sempurna di Microsoft Excel (Windows & macOS) dan perlindungan mitigasi injeksi formula spreadsheet (sel yang diawali `=`, `+`, `-`, atau `@` di-escape dengan tanda kutip tunggal `'`).
+
+#### GET `/api/export/sales.csv`
+Mengunduh laporan riwayat transaksi penjualan beserta rincian item terjual, omzet, HPP bahan aktual, alokasi overhead, dan estimasi laba kotor.
+
+- **Metode:** `GET`
+- **Autentikasi:** Sesi aktif role `OWNER` (role `CASHIER` menerima `403 FORBIDDEN` guna menjaga kerahasiaan biaya bisnis sesuai Aturan 7).
+- **Header Respons:**
+  - `Content-Type: text/csv; charset=utf-8`
+  - `Content-Disposition: attachment; filename="laporan-penjualan-YYYYMMDD.csv"`
+- **Query Params:**
+  - `startDate` (opsional, format `YYYY-MM-DD`): Batas awal tanggal penjualan (`soldAt >= startDateT00:00:00.000Z`).
+  - `endDate` (opsional, format `YYYY-MM-DD`): Batas akhir tanggal penjualan (`soldAt <= endDateT23:59:59.999Z`).
+  - `status` (opsional, enum: `"ALL"`, `"COMPLETED"`, `"VOIDED"`, default: `"ALL"`): Filter status transaksi.
+- **Kolom CSV:**
+  1. `Nomor Faktur`
+  2. `Tanggal & Waktu (WIB)`
+  3. `Status` (`SELESAI` / `DIBATALKAN`)
+  4. `Kasir`
+  5. `Metode Pembayaran` (`Tunai` / `QRIS` / `Transfer Bank`)
+  6. `Rincian Menu & Porsi`
+  7. `Total Omzet (Rp)` (2 desimal)
+  8. `Total HPP Bahan (Rp)` (2 desimal)
+  9. `Total Alokasi Overhead (Rp)` (2 desimal)
+  10. `Estimasi Laba Kotor (Rp)` (2 desimal)
+  11. `Alasan Void`
+- **Response 403 Forbidden (CASHIER):**
+  ```json
+  {
+    "ok": false,
+    "error": {
+      "code": "FORBIDDEN",
+      "message": "Akses ditolak. Fitur ini memerlukan salah satu hak akses: OWNER."
+    }
+  }
+  ```
+
+#### GET `/api/export/stock.csv`
+Mengunduh laporan valuasi stok bahan baku per batch FEFO beserta status ketersediaan dan indikator kedaluwarsa.
+
+- **Metode:** `GET`
+- **Autentikasi:** Sesi aktif role `OWNER` (role `CASHIER` menerima `403 FORBIDDEN`).
+- **Header Respons:**
+  - `Content-Type: text/csv; charset=utf-8`
+  - `Content-Disposition: attachment; filename="laporan-stok-YYYYMMDD.csv"`
+- **Kolom CSV:**
+  1. `Kode / ID Bahan`
+  2. `Nama Bahan Baku`
+  3. `Kategori`
+  4. `Satuan Dasar`
+  5. `Total Stok` (3 desimal)
+  6. `Stok Minimum` (3 desimal)
+  7. `Status Stok` (`Stok Rendah` / `Aman`)
+  8. `Biaya per Satuan (Rp)` (2 desimal)
+  9. `Total Valuasi Stok (Rp)` (2 desimal)
+  10. `Jumlah Batch`
+  11. `Batch Terdekat Kedaluwarsa` (format `YYYY-MM-DD` atau `-`)
+  12. `Hari Menuju Kedaluwarsa`
+  13. `Status Kedaluwarsa` (`Kedaluwarsa` / `Segera Kedaluwarsa` / `Aman` / `Tanpa Kedaluwarsa`)
+- **Response 403 Forbidden (CASHIER):**
+  ```json
+  {
+    "ok": false,
+    "error": {
+      "code": "FORBIDDEN",
+      "message": "Akses ditolak. Fitur ini memerlukan salah satu hak akses: OWNER."
+    }
+  }
+  ```
+
 ---
 
 ## 4. Kontrak Direncanakan (Roadmap Fitur)
