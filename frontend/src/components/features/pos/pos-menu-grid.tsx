@@ -6,7 +6,6 @@ import {
   UtensilsCrossed,
   AlertCircle,
   ShoppingBag,
-  SlidersHorizontal,
   Coffee,
   CupSoda,
   Utensils,
@@ -127,40 +126,22 @@ export function PosMenuGrid({
     <div className="space-y-4">
       {/* Search and Category Filter Bar */}
       <div className="space-y-3">
-        {/* Rounded-full Search Bar with Filter Button */}
-        <div className="flex items-center gap-2.5">
-          <div className="relative flex-1">
-            <Search className="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2 text-stone-400" />
-            <input
-              ref={searchInputRef}
-              type="text"
-              value={search}
-              onChange={(e) => onSearchChange(e.target.value)}
-              placeholder="Cari menu pesanan..."
-              className="w-full pl-11 pr-24 py-3 text-sm bg-white border border-stone-200/90 rounded-full focus:outline-hidden focus:ring-2 focus:ring-orange-500/20 focus:border-[#f27238] transition-all placeholder:text-stone-400 shadow-2xs"
-            />
-            <div className="absolute right-3.5 top-1/2 -translate-y-1/2 hidden sm:flex items-center gap-1 select-none pointer-events-none">
-              <kbd className="px-1.5 py-0.5 text-[10px] font-mono font-bold text-stone-400 bg-stone-50 border border-stone-200 rounded shadow-2xs">
-                F1 / /
-              </kbd>
-            </div>
+        {/* Rounded-full Search Bar */}
+        <div className="relative">
+          <Search className="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2 text-stone-400" />
+          <input
+            ref={searchInputRef}
+            type="text"
+            value={search}
+            onChange={(e) => onSearchChange(e.target.value)}
+            placeholder="Cari menu pesanan..."
+            className="w-full pl-11 pr-24 py-3 text-sm bg-white border border-stone-200/90 rounded-full focus:outline-hidden focus:ring-2 focus:ring-orange-500/20 focus:border-[#f27238] transition-all placeholder:text-stone-400 shadow-2xs"
+          />
+          <div className="absolute right-3.5 top-1/2 -translate-y-1/2 hidden sm:flex items-center gap-1 select-none pointer-events-none">
+            <kbd className="px-1.5 py-0.5 text-[10px] font-mono font-bold text-stone-400 bg-stone-50 border border-stone-200 rounded shadow-2xs">
+              F1 / /
+            </kbd>
           </div>
-
-          <button
-            type="button"
-            onClick={() => {
-              if (selectedCategory !== "ALL") {
-                onSelectCategory("ALL");
-              } else if (availableCategories.length > 0 && availableCategories[0]) {
-                onSelectCategory(availableCategories[0]);
-              }
-            }}
-            className="flex items-center gap-1.5 px-4 sm:px-5 py-3 rounded-full bg-[#f27238] hover:bg-[#e06129] active:scale-[0.98] text-white text-xs font-bold shadow-2xs transition-all cursor-pointer shrink-0"
-            title="Saring Kategori Menu"
-          >
-            <SlidersHorizontal className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">Filter</span>
-          </button>
         </div>
 
         {/* Category Pills Navigation */}

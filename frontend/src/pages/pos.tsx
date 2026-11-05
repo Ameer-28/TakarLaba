@@ -1,5 +1,5 @@
 import { useState, useReducer, useRef } from "react";
-import { Store, ShoppingCart, ArrowRight, X, Keyboard } from "lucide-react";
+import { ShoppingCart, ArrowRight, X, Keyboard } from "lucide-react";
 import { toast } from "sonner";
 import { usePosMenus, type PosMenuItem } from "../api/hooks/use-pos-menus.js";
 import type { SaleDetail } from "../api/hooks/use-sales.js";
@@ -122,27 +122,10 @@ export function PosPage() {
   };
 
   return (
-    <div className="space-y-6 pb-20 lg:pb-0">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <div className="flex items-center gap-2.5">
-            <div className="p-2.5 bg-orange-50 text-[#f27238] rounded-2xl border border-orange-100/80 shadow-2xs">
-              <Store className="w-5 h-5" />
-            </div>
-            <div>
-              <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
-                Kasir (POS) Atomik
-              </h1>
-            </div>
-          </div>
-          <p className="text-sm text-stone-600 mt-1">
-            Penjualan langsung dengan pemotongan stok First-Expired, First-Out (FEFO) otomatis.
-          </p>
-        </div>
-
-        {/* Keyboard Shortcuts Hint Bar */}
-        <div className="hidden md:flex items-center gap-2 text-xs text-stone-500 bg-white px-4 py-2.5 rounded-full border border-stone-200/80 shadow-2xs">
+    <div className="space-y-4 pb-20 lg:pb-0">
+      {/* Keyboard Shortcuts Hint Bar (Top-Right) */}
+      <div className="hidden md:flex items-center justify-end">
+        <div className="flex items-center gap-2 text-xs text-stone-500 bg-white px-3.5 py-1.5 rounded-full border border-stone-200/80 shadow-2xs">
           <Keyboard className="w-3.5 h-3.5 text-stone-400" />
           <span className="font-bold text-slate-800">Pintasan:</span>
           <span className="flex items-center gap-1">
