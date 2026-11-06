@@ -1,16 +1,26 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Link, Outlet, useLocation, useNavigate } from "react-router";
 import { signOut, useSession, type UserRole } from "@/lib/auth-client";
 import { toast } from "sonner";
 import { DemoBanner } from "@/components/shared/demo-banner";
 import { ErrorBoundary } from "@/components/shared/error-boundary";
 import { useClickOutside } from "@/components/ui/use-click-outside";
-import { LogOut, ShieldCheck, Loader2, ChevronLeft, ChevronRight, ChevronDown } from "lucide-react";
+import {
+  LogOut,
+  ShieldCheck,
+  Loader2,
+  ChevronLeft,
+  ChevronRight,
+  ChevronDown,
+  Menu,
+  X,
+} from "lucide-react";
 import {
   NAV_ITEMS,
   filterNavItemsByRole,
   getInitialSidebarCollapsed,
   saveSidebarCollapsed,
+  getNavShortLabel,
   type NavItem,
 } from "./app-shell-nav";
 
@@ -21,11 +31,42 @@ export function AppShell() {
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [isIngredientsTreeOpen, setIsIngredientsTreeOpen] = useState(true);
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
+  const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false);
   const profileMenuRef = useRef<HTMLDivElement>(null);
+  const activeNavRef = useRef<HTMLAnchorElement>(null);
 
   useClickOutside(profileMenuRef, () => {
     setIsProfileMenuOpen(false);
   });
+
+  // Close mobile drawer on route change
+  useEffect(() => {
+    setIsMobileDrawerOpen(false);
+  }, [location.pathname, location.search]);
+
+  // Handle Escape key to close mobile drawer
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setIsMobileDrawerOpen(false);
+      }
+    };
+    if (isMobileDrawerOpen) {
+      window.addEventListener("keydown", handleKeyDown);
+      return () => window.removeEventListener("keydown", handleKeyDown);
+    }
+  }, [isMobileDrawerOpen]);
+
+  // Scroll active tab into view in mobile bottom nav bar
+  useEffect(() => {
+    if (activeNavRef.current && typeof activeNavRef.current.scrollIntoView === "function") {
+      activeNavRef.current.scrollIntoView({
+        behavior: "smooth",
+        inline: "center",
+        block: "nearest",
+      });
+    }
+  }, [location.pathname]);
 
   const [isCollapsed, setIsCollapsed] = useState(() => {
     if (typeof window !== "undefined") {
@@ -81,13 +122,14 @@ export function AppShell() {
   };
 
   // Reusable nav item renderer for clean maintenance
-  const renderItem = (item: NavItem) => {
+  const renderItem = (item: NavItem, forceExpanded = false) => {
     const isActive = isCurrentActive(item);
     const Icon = item.icon;
     const hasChildren = Boolean(item.children && item.children.length > 0);
+    const isItemExpanded = forceExpanded ? true : !isCollapsed;
 
     // Tree dropdown for items with children (Bahan Baku & Stok) in expanded mode
-    if (hasChildren && !isCollapsed) {
+    if (hasChildren && isItemExpanded) {
       return (
         <div key={item.path} className="space-y-0.5">
           <button
@@ -233,7 +275,7 @@ export function AppShell() {
     }
 
     // Standard navigation item (Dashboard, POS, Sales, Alerts, etc.)
-    return !isCollapsed ? (
+    return isItemExpanded ? (
       <Link
         key={item.path}
         to={item.path}
@@ -322,7 +364,7 @@ export function AppShell() {
           className="flex-1 overflow-y-auto overflow-x-hidden px-2.5 py-2 space-y-1 scrollbar-none"
           aria-label="Menu Utama"
         >
-          {allowedNavItems.map(renderItem)}
+          {allowedNavItems.map((item) => renderItem(item))}
         </nav>
 
         {/* Demo Mode Information Widget (Sidebar) */}
@@ -410,17 +452,26 @@ export function AppShell() {
       </aside>
 
       {/* Mobile Top Header (hidden on desktop) */}
-      <header className="lg:hidden sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-[#CCD0CF] px-4 h-14 flex items-center justify-between shadow-2xs">
+      <header className="lg:hidden sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-slate-200 px-3 sm:px-4 h-14 flex items-center justify-between shadow-2xs">
         <div className="flex items-center gap-2">
-          <div className="inline-flex items-center justify-center w-7 h-7 rounded-xl bg-[#11212D] text-[#CCD0CF]">
+          <button
+            type="button"
+            onClick={() => setIsMobileDrawerOpen(true)}
+            aria-label="Buka menu navigasi"
+            className="p-1.5 -ml-1 text-slate-700 hover:text-slate-900 rounded-xl hover:bg-slate-100 transition-colors cursor-pointer mr-0.5"
+          >
+            <Menu className="w-5 h-5" />
+          </button>
+
+          <div className="inline-flex items-center justify-center w-7 h-7 rounded-xl bg-slate-900 text-white">
             <ShieldCheck className="w-4 h-4" />
           </div>
-          <span className="font-extrabold text-base text-[#06141B] tracking-tight">TakarLaba</span>
+          <span className="font-extrabold text-base text-slate-900 tracking-tight">TakarLaba</span>
           <span
             className={`ml-1 text-[10px] font-bold px-1.5 py-0.5 rounded-full ${
               userRole === "OWNER"
-                ? "bg-[#253745] text-[#CCD0CF] border border-[#4A5C6A]/30"
-                : "bg-[#CCD0CF] text-[#11212D]"
+                ? "bg-slate-800 text-slate-200 border border-slate-700"
+                : "bg-slate-200 text-slate-800"
             }`}
           >
             {userRole === "OWNER" ? "Pemilik" : "Kasir"}
@@ -432,7 +483,7 @@ export function AppShell() {
           onClick={handleLogout}
           disabled={isLoggingOut}
           title="Keluar Akun"
-          className="p-1.5 text-[#4A5C6A] hover:text-rose-600 rounded-xl hover:bg-slate-100 transition-colors cursor-pointer"
+          className="p-1.5 text-slate-500 hover:text-rose-600 rounded-xl hover:bg-slate-100 transition-colors cursor-pointer"
         >
           {isLoggingOut ? (
             <Loader2 className="w-4 h-4 animate-spin text-rose-600" />
@@ -441,6 +492,86 @@ export function AppShell() {
           )}
         </button>
       </header>
+
+      {/* Mobile / Tablet Navigation Drawer */}
+      {isMobileDrawerOpen && (
+        <div className="lg:hidden fixed inset-0 z-50 flex">
+          {/* Backdrop */}
+          <div
+            className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs transition-opacity"
+            onClick={() => setIsMobileDrawerOpen(false)}
+            aria-hidden="true"
+          />
+
+          {/* Off-canvas panel */}
+          <div className="relative w-72 max-w-[85vw] bg-white h-full shadow-2xl flex flex-col z-10 animate-in slide-in-from-left duration-200">
+            {/* Header */}
+            <div className="p-4 border-b border-slate-100 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-xl bg-slate-900 text-white flex items-center justify-center font-black">
+                  <ShieldCheck className="w-4.5 h-4.5" />
+                </div>
+                <div>
+                  <span className="font-extrabold text-sm text-slate-900 block leading-tight">
+                    TakarLaba
+                  </span>
+                  <span className="text-[10px] text-slate-400 font-semibold tracking-wider uppercase">
+                    {userRole === "OWNER" ? "Pemilik" : "Kasir"}
+                  </span>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsMobileDrawerOpen(false)}
+                aria-label="Tutup menu"
+                className="p-1.5 text-slate-400 hover:text-slate-700 rounded-xl hover:bg-slate-100 transition-colors cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Nav List */}
+            <div className="flex-1 overflow-y-auto p-3 space-y-1 scrollbar-none">
+              {allowedNavItems.map((item) => renderItem(item, true))}
+            </div>
+
+            {/* Demo Banner (if OWNER) */}
+            {userRole === "OWNER" && (
+              <div className="p-3 border-t border-slate-100">
+                <DemoBanner />
+              </div>
+            )}
+
+            {/* User info & Logout */}
+            <div className="p-3 border-t border-slate-100 bg-slate-50/50 flex items-center justify-between">
+              <div className="flex items-center gap-2.5 min-w-0">
+                <div className="w-8 h-8 rounded-xl bg-slate-900 text-white font-bold flex items-center justify-center text-xs shrink-0">
+                  {userName.slice(0, 2).toUpperCase()}
+                </div>
+                <div className="min-w-0">
+                  <p className="text-xs font-bold text-slate-900 truncate">{userName}</p>
+                  <p className="text-[10px] text-slate-400 truncate">
+                    {userEmail || (userRole === "OWNER" ? "Pemilik" : "Kasir")}
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={handleLogout}
+                disabled={isLoggingOut}
+                title="Keluar Akun"
+                className="p-2 text-rose-600 hover:bg-rose-50 rounded-xl transition-colors cursor-pointer"
+              >
+                {isLoggingOut ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <LogOut className="w-4 h-4" />
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Main Content Area */}
       <main
@@ -461,30 +592,37 @@ export function AppShell() {
         </div>
       </main>
 
-      {/* Mobile Bottom Navigation (fixed on mobile 360px up to 1023px) */}
+      {/* Mobile & Tablet Bottom Navigation (fixed on screen widths < 1024px) */}
       <nav
-        className="lg:hidden fixed bottom-0 inset-x-0 z-40 bg-white/95 backdrop-blur-md border-t border-[#CCD0CF] px-2 py-1.5 flex justify-around items-center shadow-lg"
+        className="lg:hidden fixed bottom-0 inset-x-0 z-40 bg-white/95 backdrop-blur-md border-t border-slate-200 px-2 py-1 flex items-center justify-start md:justify-around overflow-x-auto scrollbar-none shadow-lg"
         aria-label="Navigasi Bawah Mobile"
       >
-        {allowedNavItems.slice(0, 5).map((item) => {
-          const isActive = isCurrentActive(item);
-          const Icon = item.icon;
-          return (
-            <Link
-              key={item.path}
-              to={item.path}
-              className={`flex flex-col items-center justify-center min-w-[56px] py-1 px-1 rounded-xl text-[10px] font-medium transition-colors ${
-                isActive ? "text-[#11212D] font-extrabold" : "text-[#4A5C6A] hover:text-[#06141B]"
-              }`}
-              aria-current={isActive ? "page" : undefined}
-            >
-              <Icon
-                className={`w-5 h-5 mb-0.5 ${isActive ? "text-[#11212D]" : "text-[#9BA8AB]"}`}
-              />
-              <span className="truncate max-w-[64px]">{item.label.split(" ")[0]}</span>
-            </Link>
-          );
-        })}
+        <div className="flex items-center justify-start md:justify-around w-full min-w-max md:min-w-0 gap-1 md:gap-1.5">
+          {allowedNavItems.map((item) => {
+            const isActive = isCurrentActive(item);
+            const Icon = item.icon;
+            const shortLabel = getNavShortLabel(item.label);
+
+            return (
+              <Link
+                key={item.path}
+                ref={isActive ? activeNavRef : undefined}
+                to={item.path}
+                className={`flex flex-col items-center justify-center shrink-0 min-w-[58px] md:min-w-0 md:flex-1 py-1 px-1 rounded-xl text-[10px] font-medium transition-colors ${
+                  isActive
+                    ? "text-slate-900 font-extrabold bg-slate-100/90 shadow-2xs"
+                    : "text-slate-500 hover:text-slate-900 hover:bg-slate-50"
+                }`}
+                aria-current={isActive ? "page" : undefined}
+              >
+                <Icon
+                  className={`w-5 h-5 mb-0.5 ${isActive ? "text-slate-900" : "text-slate-400"}`}
+                />
+                <span className="truncate max-w-[62px] text-center">{shortLabel}</span>
+              </Link>
+            );
+          })}
+        </div>
       </nav>
     </div>
   );
