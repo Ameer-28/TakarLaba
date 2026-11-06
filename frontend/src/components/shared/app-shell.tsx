@@ -5,15 +5,7 @@ import { toast } from "sonner";
 import { DemoBanner } from "@/components/shared/demo-banner";
 import { ErrorBoundary } from "@/components/shared/error-boundary";
 import { useClickOutside } from "@/components/ui/use-click-outside";
-import {
-  LogOut,
-  ShieldCheck,
-  Loader2,
-  ChevronLeft,
-  ChevronRight,
-  ChevronDown,
-  Plus,
-} from "lucide-react";
+import { LogOut, ShieldCheck, Loader2, ChevronLeft, ChevronRight, ChevronDown } from "lucide-react";
 import {
   NAV_ITEMS,
   filterNavItemsByRole,
@@ -57,9 +49,6 @@ export function AppShell() {
   const userEmail = session?.user?.email || "";
 
   const allowedNavItems = filterNavItemsByRole(NAV_ITEMS, userRole);
-
-  const mainSectionItems = allowedNavItems.filter((i) => i.section !== "OPERASIONAL");
-  const opsSectionItems = allowedNavItems.filter((i) => i.section === "OPERASIONAL");
 
   const handleLogout = async () => {
     setIsLoggingOut(true);
@@ -105,13 +94,17 @@ export function AppShell() {
             type="button"
             onClick={() => setIsIngredientsTreeOpen((prev) => !prev)}
             className={`w-full flex items-center justify-between px-3 py-2 rounded-2xl text-xs font-semibold transition-all cursor-pointer ${
-              isActive
+              isActive || isIngredientsTreeOpen
                 ? "bg-slate-100/90 text-slate-900 font-bold shadow-2xs"
                 : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
             }`}
           >
             <div className="flex items-center gap-2.5">
-              <Icon className={`w-4 h-4 ${isActive ? "text-slate-900" : "text-slate-400"}`} />
+              <Icon
+                className={`w-4 h-4 ${
+                  isActive || isIngredientsTreeOpen ? "text-slate-900" : "text-slate-400"
+                }`}
+              />
               <span>{item.label}</span>
             </div>
             <ChevronDown
@@ -123,21 +116,47 @@ export function AppShell() {
 
           {/* Tree branch connector lines matching reference */}
           {isIngredientsTreeOpen && (
-            <div className="relative ml-5.5 pl-3 border-l border-slate-200/90 space-y-0.5 py-1 my-0.5">
-              {item.children?.map((child) => {
+            <div className="relative space-y-0">
+              {item.children?.map((child, index) => {
                 const childActive = isChildActive(child.path);
+                const isLast = index === (item.children?.length ?? 0) - 1;
+
                 return (
-                  <Link
-                    key={child.label}
-                    to={child.path}
-                    className={`block px-2.5 py-1.5 rounded-xl text-xs transition-all relative ${
-                      childActive
-                        ? "bg-slate-100 text-slate-900 font-bold"
-                        : "text-slate-500 hover:text-slate-900 hover:bg-slate-50 font-medium"
-                    }`}
-                  >
-                    {child.label}
-                  </Link>
+                  <div key={child.label} className="relative flex items-center h-8.5">
+                    {/* Tree Branch Connector SVG matching reference */}
+                    <svg
+                      className="absolute left-0 top-0 w-8.5 h-full pointer-events-none text-slate-300"
+                      viewBox="0 0 34 34"
+                      fill="none"
+                    >
+                      {!isLast ? (
+                        <path
+                          d="M 20 0 V 34 M 20 7 Q 20 17 30 17 H 34"
+                          stroke="currentColor"
+                          strokeWidth="1.5"
+                          strokeLinecap="round"
+                        />
+                      ) : (
+                        <path
+                          d="M 20 0 V 7 Q 20 17 30 17 H 34"
+                          stroke="currentColor"
+                          strokeWidth="1.5"
+                          strokeLinecap="round"
+                        />
+                      )}
+                    </svg>
+
+                    <Link
+                      to={child.path}
+                      className={`ml-7.5 w-full flex items-center px-3 py-1.5 rounded-xl text-xs transition-all ${
+                        childActive
+                          ? "bg-slate-100/90 text-slate-900 font-bold shadow-2xs"
+                          : "text-slate-500 hover:text-slate-900 hover:bg-slate-50/70 font-medium"
+                      }`}
+                    >
+                      {child.label}
+                    </Link>
+                  </div>
                 );
               })}
             </div>
@@ -163,26 +182,51 @@ export function AppShell() {
           </button>
 
           {/* Flyout Card matching reference */}
-          <div className="absolute left-full ml-3 top-0 bg-white border border-slate-200/90 rounded-2xl shadow-xl p-2 min-w-[155px] opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-all z-50 animate-in fade-in zoom-in-95 duration-150">
-            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider px-2 py-1">
-              {item.label}
-            </p>
-            {item.children?.map((child) => {
-              const childActive = isChildActive(child.path);
-              return (
-                <Link
-                  key={child.label}
-                  to={child.path}
-                  className={`block px-2.5 py-1.5 rounded-xl text-xs transition-all ${
-                    childActive
-                      ? "bg-slate-100 text-slate-900 font-bold"
-                      : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
-                  }`}
-                >
-                  {child.label}
-                </Link>
-              );
-            })}
+          <div className="absolute left-full ml-3 top-0 bg-white border border-slate-200/80 rounded-[22px] shadow-[0_10px_35px_rgba(0,0,0,0.08)] p-2 min-w-[170px] opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-all z-50 animate-in fade-in zoom-in-95 duration-150">
+            <div className="relative space-y-0">
+              {item.children?.map((child, index) => {
+                const childActive = isChildActive(child.path);
+                const isLast = index === (item.children?.length ?? 0) - 1;
+
+                return (
+                  <div key={child.label} className="relative flex items-center h-8.5">
+                    {/* Flyout Tree Branch Line matching reference */}
+                    <svg
+                      className="absolute left-0 top-0 w-6 h-full pointer-events-none text-slate-300"
+                      viewBox="0 0 24 34"
+                      fill="none"
+                    >
+                      {!isLast ? (
+                        <path
+                          d="M 10 0 V 34 M 10 7 Q 10 17 18 17 H 24"
+                          stroke="currentColor"
+                          strokeWidth="1.5"
+                          strokeLinecap="round"
+                        />
+                      ) : (
+                        <path
+                          d="M 10 0 V 7 Q 10 17 18 17 H 24"
+                          stroke="currentColor"
+                          strokeWidth="1.5"
+                          strokeLinecap="round"
+                        />
+                      )}
+                    </svg>
+
+                    <Link
+                      to={child.path}
+                      className={`ml-5.5 w-full flex items-center px-3 py-1.5 rounded-xl text-xs transition-all ${
+                        childActive
+                          ? "bg-slate-100/90 text-slate-900 font-bold shadow-2xs"
+                          : "text-slate-500 hover:text-slate-900 hover:bg-slate-50/70 font-medium"
+                      }`}
+                    >
+                      {child.label}
+                    </Link>
+                  </div>
+                );
+              })}
+            </div>
           </div>
         </div>
       );
@@ -275,52 +319,10 @@ export function AppShell() {
 
         {/* Scrollable Navigation Body */}
         <nav
-          className="flex-1 overflow-y-auto overflow-x-hidden px-2.5 py-2 space-y-3.5 scrollbar-none"
+          className="flex-1 overflow-y-auto overflow-x-hidden px-2.5 py-2 space-y-1 scrollbar-none"
           aria-label="Menu Utama"
         >
-          {/* Section: MAIN */}
-          {mainSectionItems.length > 0 && (
-            <div className="space-y-1">
-              {!isCollapsed ? (
-                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider px-3 pb-1">
-                  MAIN
-                </p>
-              ) : (
-                <p className="text-[9px] font-bold text-slate-400 uppercase tracking-wider text-center pb-1">
-                  MAIN
-                </p>
-              )}
-
-              {mainSectionItems.map(renderItem)}
-            </div>
-          )}
-
-          {/* Section: OPERASIONAL with `+` icon */}
-          {opsSectionItems.length > 0 && (
-            <div className="space-y-1">
-              {!isCollapsed ? (
-                <div className="flex items-center justify-between px-3 pt-2 pb-1">
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                    OPERASIONAL
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => navigate("/menus")}
-                    title="Tambah Menu"
-                    className="p-1 rounded-md text-slate-400 hover:text-slate-800 hover:bg-slate-100 transition-colors cursor-pointer"
-                  >
-                    <Plus className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-              ) : (
-                <p className="text-[9px] font-bold text-slate-400 uppercase tracking-wider text-center pt-2 pb-1">
-                  OPS
-                </p>
-              )}
-
-              {opsSectionItems.map(renderItem)}
-            </div>
-          )}
+          {allowedNavItems.map(renderItem)}
         </nav>
 
         {/* Demo Mode Information Widget (Sidebar) */}
