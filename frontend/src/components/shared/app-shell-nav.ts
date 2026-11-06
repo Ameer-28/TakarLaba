@@ -10,11 +10,18 @@ import {
   Receipt,
 } from "lucide-react";
 
+export interface NavChildItem {
+  label: string;
+  path: string;
+}
+
 export interface NavItem {
   label: string;
   path: string;
   icon: React.ComponentType<{ className?: string }>;
   roles: UserRole[];
+  section?: "MAIN" | "OPERASIONAL";
+  children?: NavChildItem[];
 }
 
 export const NAV_ITEMS: NavItem[] = [
@@ -23,48 +30,61 @@ export const NAV_ITEMS: NavItem[] = [
     path: "/dashboard",
     icon: LayoutDashboard,
     roles: ["OWNER"],
+    section: "MAIN",
+    children: [
+      { label: "Ringkasan", path: "/dashboard" },
+      { label: "Tren Penjualan", path: "/sales" },
+      { label: "Analitik Menu", path: "/analytics" },
+    ],
   },
   {
     label: "Kasir (POS)",
     path: "/pos",
     icon: Store,
     roles: ["OWNER", "CASHIER"],
+    section: "MAIN",
   },
   {
     label: "Riwayat Penjualan",
     path: "/sales",
     icon: Receipt,
     roles: ["OWNER", "CASHIER"],
-  },
-  {
-    label: "Bahan Baku & Stok",
-    path: "/ingredients",
-    icon: Package,
-    roles: ["OWNER"],
-  },
-  {
-    label: "Menu & Costing",
-    path: "/menus",
-    icon: UtensilsCrossed,
-    roles: ["OWNER"],
+    section: "MAIN",
   },
   {
     label: "Peringatan Margin",
     path: "/alerts",
     icon: AlertTriangle,
     roles: ["OWNER"],
+    section: "MAIN",
+  },
+  {
+    label: "Bahan Baku & Stok",
+    path: "/ingredients",
+    icon: Package,
+    roles: ["OWNER"],
+    section: "OPERASIONAL",
+  },
+  {
+    label: "Menu & Costing",
+    path: "/menus",
+    icon: UtensilsCrossed,
+    roles: ["OWNER"],
+    section: "OPERASIONAL",
   },
   {
     label: "Analitik Menu",
     path: "/analytics",
     icon: BarChart3,
     roles: ["OWNER"],
+    section: "OPERASIONAL",
   },
   {
     label: "Pengaturan",
     path: "/settings",
     icon: Settings,
     roles: ["OWNER"],
+    section: "OPERASIONAL",
   },
 ];
 
