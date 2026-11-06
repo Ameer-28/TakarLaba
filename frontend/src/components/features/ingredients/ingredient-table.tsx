@@ -1,4 +1,4 @@
-import { Clock, CheckCircle2, Edit2, Trash2, Scale } from "lucide-react";
+import { Clock, Edit2, Trash2, Scale } from "lucide-react";
 import type { Ingredient } from "@/api/hooks/use-ingredients";
 import { formatNumber } from "@/lib/format";
 import { CATEGORY_MAP } from "./types";
@@ -20,19 +20,19 @@ export function IngredientTable({
   return (
     <div className="space-y-4">
       {/* Desktop Table View */}
-      <div className="hidden md:block bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-xs">
+      <div className="hidden md:block bg-white rounded-2xl border border-slate-200/90 overflow-hidden shadow-xs">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
-            <thead>
-              <tr className="border-b border-slate-200 bg-slate-50/75 text-xs font-bold text-slate-600">
-                <th className="py-3.5 px-4">Nama Bahan</th>
-                <th className="py-3.5 px-4">Kategori</th>
-                <th className="py-3.5 px-4">Satuan Dasar</th>
-                <th className="py-3.5 px-4">Yield (%)</th>
-                <th className="py-3.5 px-4">Batas Min. Stok</th>
-                <th className="py-3.5 px-4">Satuan Beli</th>
-                <th className="py-3.5 px-4">Status</th>
-                <th className="py-3.5 px-4 text-right">Aksi</th>
+            <thead className="bg-slate-50/70 border-b border-slate-200/80">
+              <tr className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
+                <th className="py-3 px-4">Nama Bahan</th>
+                <th className="py-3 px-4">Kategori</th>
+                <th className="py-3 px-4">Satuan Dasar</th>
+                <th className="py-3 px-4">Yield</th>
+                <th className="py-3 px-4">Batas Min. Stok</th>
+                <th className="py-3 px-4">Satuan Beli</th>
+                <th className="py-3 px-4">Status</th>
+                <th className="py-3 px-4 text-right">Aksi</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 text-sm">
@@ -44,57 +44,59 @@ export function IngredientTable({
                 return (
                   <tr
                     key={item.id}
-                    className={`hover:bg-slate-50/60 transition-colors ${!item.isActive ? "bg-slate-50/40 text-slate-400" : ""}`}
+                    className={`hover:bg-slate-50/50 transition-colors ${
+                      !item.isActive ? "bg-slate-50/30 text-slate-400" : ""
+                    }`}
                   >
-                    <td className="py-3.5 px-4 font-semibold text-slate-900">
+                    <td className="py-3 px-4 font-semibold text-slate-900">
                       <div className="flex items-center gap-2">
                         <span>{item.name}</span>
                         {item.isPerishable && (
                           <span
                             title="Mudah rusak / ada batas kedaluwarsa"
-                            className="text-amber-600"
+                            className="text-amber-500"
                           >
                             <Clock className="w-3.5 h-3.5" />
                           </span>
                         )}
                       </div>
                     </td>
-                    <td className="py-3.5 px-4">
+                    <td className="py-3 px-4">
                       <span
-                        className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold border ${catMeta.badgeClass}`}
+                        className={`inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium ${catMeta.badgeClass}`}
                       >
                         {catMeta.label}
                       </span>
                     </td>
-                    <td className="py-3.5 px-4 font-mono font-medium text-slate-700">
+                    <td className="py-3 px-4 text-xs font-medium text-slate-600">
                       {item.baseUnit.toLowerCase()}
                     </td>
-                    <td className="py-3.5 px-4">
-                      <div className="flex items-center gap-1.5 tabular-nums">
-                        <span
-                          className={`font-semibold ${yieldNum < 100 ? "text-amber-600" : "text-emerald-700"}`}
-                        >
-                          {yieldNum}%
+                    <td className="py-3 px-4">
+                      {yieldNum < 100 ? (
+                        <div className="flex items-center gap-1 text-xs tabular-nums font-semibold text-amber-600">
+                          <span>{yieldNum}%</span>
+                          <span className="text-[11px] text-slate-400 font-normal">
+                            (-{100 - yieldNum}%)
+                          </span>
+                        </div>
+                      ) : (
+                        <span className="text-xs tabular-nums text-slate-400 font-medium">
+                          100%
                         </span>
-                        {yieldNum < 100 && (
-                          <span className="text-xs text-slate-400">(susut {100 - yieldNum}%)</span>
-                        )}
-                      </div>
+                      )}
                     </td>
-                    <td className="py-3.5 px-4 tabular-nums font-mono text-slate-700">
+                    <td className="py-3 px-4 tabular-nums text-xs font-medium text-slate-700">
                       {formatNumber(minStockNum)} {item.baseUnit.toLowerCase()}
                     </td>
-                    <td className="py-3.5 px-4">
+                    <td className="py-3 px-4">
                       <div className="flex flex-wrap items-center gap-1.5 max-w-xs">
                         {item.units.length === 0 ? (
-                          <span className="text-xs text-slate-400 italic">
-                            Belum ada satuan beli
-                          </span>
+                          <span className="text-xs text-slate-400 italic">Belum ada</span>
                         ) : (
                           item.units.map((u) => (
                             <span
                               key={u.id}
-                              className="inline-flex items-center px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 text-xs font-mono border border-slate-200"
+                              className="inline-flex items-center px-2 py-0.5 rounded-md bg-slate-50 text-slate-600 text-xs border border-slate-200/60"
                             >
                               1 {u.name} = {formatNumber(Number(u.toBaseFactor))}{" "}
                               {item.baseUnit.toLowerCase()}
@@ -102,43 +104,47 @@ export function IngredientTable({
                           ))
                         )}
                         <button
+                          type="button"
                           onClick={() => onManageUnits(item)}
                           title="Kelola Satuan Beli"
-                          className="text-xs font-semibold text-emerald-600 hover:text-emerald-700 hover:underline inline-flex items-center gap-0.5 ml-1"
+                          className="text-xs font-semibold text-slate-600 hover:text-slate-900 hover:underline inline-flex items-center gap-1 ml-0.5 cursor-pointer"
                         >
-                          <Scale className="w-3 h-3" />
+                          <Scale className="w-3 h-3 text-slate-400" />
                           <span>Kelola</span>
                         </button>
                       </div>
                     </td>
-                    <td className="py-3.5 px-4">
+                    <td className="py-3 px-4">
                       {item.isActive ? (
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                          <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+                        <span className="inline-flex items-center gap-1.5 text-xs font-medium text-slate-700">
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" />
                           <span>Aktif</span>
                         </span>
                       ) : (
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-slate-100 text-slate-500 border border-slate-200">
+                        <span className="inline-flex items-center gap-1.5 text-xs font-medium text-slate-400">
+                          <span className="w-1.5 h-1.5 rounded-full bg-slate-300 shrink-0" />
                           <span>Nonaktif</span>
                         </span>
                       )}
                     </td>
-                    <td className="py-3.5 px-4 text-right">
-                      <div className="flex items-center justify-end gap-1">
+                    <td className="py-3 px-4 text-right">
+                      <div className="flex items-center justify-end gap-0.5">
                         <button
+                          type="button"
                           onClick={() => onEdit(item)}
                           title="Ubah Bahan Baku"
-                          className="p-1.5 rounded-lg text-slate-500 hover:text-slate-800 hover:bg-slate-100 transition-colors"
+                          className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100/80 transition-colors cursor-pointer"
                         >
-                          <Edit2 className="w-4 h-4" />
+                          <Edit2 className="w-3.5 h-3.5" />
                         </button>
                         {item.isActive && (
                           <button
+                            type="button"
                             onClick={() => onDeactivate(item)}
                             title="Nonaktifkan Bahan"
-                            className="p-1.5 rounded-lg text-rose-500 hover:text-rose-700 hover:bg-rose-50 transition-colors"
+                            className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
                           >
-                            <Trash2 className="w-4 h-4" />
+                            <Trash2 className="w-3.5 h-3.5" />
                           </button>
                         )}
                       </div>

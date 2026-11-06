@@ -42,14 +42,14 @@ export type PurchaseUnitFormValues = z.infer<typeof purchaseUnitFormSchema>;
 export const CATEGORY_MAP: Record<IngredientCategory, { label: string; badgeClass: string }> = {
   MAIN: {
     label: "Bahan Utama",
-    badgeClass: "bg-blue-50 text-blue-700 border-blue-200",
+    badgeClass: "bg-sky-50 text-sky-700 border-transparent",
   },
   SUPPORT: {
     label: "Bahan Pendukung",
-    badgeClass: "bg-purple-50 text-purple-700 border-purple-200",
+    badgeClass: "bg-slate-100 text-slate-600 border-transparent",
   },
   PACKAGING: {
     label: "Kemasan",
-    badgeClass: "bg-amber-50 text-amber-700 border-amber-200",
+    badgeClass: "bg-amber-50 text-amber-700 border-transparent",
   },
 };
