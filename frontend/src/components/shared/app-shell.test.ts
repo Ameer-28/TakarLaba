@@ -5,6 +5,7 @@ import {
   getInitialSidebarCollapsed,
   saveSidebarCollapsed,
   filterNavItemsByRole,
+  getNavShortLabel,
 } from "./app-shell-nav";
 
 describe("AppShell Sidebar State & Navigation (BR-NAV)", () => {
@@ -122,6 +123,23 @@ describe("AppShell Sidebar State & Navigation (BR-NAV)", () => {
 
       expect(new Set(paths).size).toBe(NAV_ITEMS.length);
       expect(new Set(labels).size).toBe(NAV_ITEMS.length);
+    });
+
+    it("generates concise short labels for mobile and tablet bottom navigation for all items", () => {
+      const ownerItems = filterNavItemsByRole(NAV_ITEMS, "OWNER");
+      expect(ownerItems).toHaveLength(8);
+
+      const shortLabels = ownerItems.map((item) => getNavShortLabel(item.label));
+      expect(shortLabels).toEqual([
+        "Dashboard",
+        "Kasir",
+        "Riwayat",
+        "Peringatan",
+        "Bahan",
+        "Menu",
+        "Analitik",
+        "Pengaturan",
+      ]);
     });
   });
 });

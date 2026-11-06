@@ -114,3 +114,15 @@ export function saveSidebarCollapsed(collapsed: boolean, storage?: Storage): voi
 export function filterNavItemsByRole(items: NavItem[], role: UserRole): NavItem[] {
   return items.filter((item) => item.roles.includes(role));
 }
+
+export function getNavShortLabel(label: string): string {
+  if (label.startsWith("Dashboard")) return "Dashboard";
+  if (label.startsWith("Kasir")) return "Kasir";
+  if (label.startsWith("Riwayat")) return "Riwayat";
+  if (label.startsWith("Peringatan")) return "Peringatan";
+  if (label.startsWith("Bahan")) return "Bahan";
+  if (label.startsWith("Menu")) return "Menu";
+  if (label.startsWith("Analitik")) return "Analitik";
+  if (label.startsWith("Pengaturan")) return "Pengaturan";
+  return label.split(" ")[0] ?? label;
+}
