@@ -1,14 +1,6 @@
 import type { UserRole } from "@/lib/auth-client";
-import {
-  LayoutDashboard,
-  Store,
-  Package,
-  UtensilsCrossed,
-  AlertTriangle,
-  BarChart3,
-  Settings,
-  Receipt,
-} from "lucide-react";
+import { LayoutDashboard, Store, Package, AlertTriangle, BarChart3, Settings } from "lucide-react";
+import { ReceiptClockIcon, FoodClocheIcon } from "./nav-icons";
 
 export interface NavChildItem {
   label: string;
@@ -42,7 +34,7 @@ export const NAV_ITEMS: NavItem[] = [
   {
     label: "Riwayat Penjualan",
     path: "/sales",
-    icon: Receipt,
+    icon: ReceiptClockIcon,
     roles: ["OWNER", "CASHIER"],
     section: "MAIN",
   },
@@ -71,7 +63,7 @@ export const NAV_ITEMS: NavItem[] = [
   {
     label: "Menu & Costing",
     path: "/menus",
-    icon: UtensilsCrossed,
+    icon: FoodClocheIcon,
     roles: ["OWNER"],
     section: "OPERASIONAL",
   },

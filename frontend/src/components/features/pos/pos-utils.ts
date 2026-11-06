@@ -124,3 +124,99 @@ export function getDefaultTemperature(name: string): "ICE" | "HOT" {
 export function formatPosMenuName(name: string): string {
   return name.replace(/^Es\s+/i, "").trim();
 }
+
+/**
+ * Resolves the appropriate appetizing food/beverage image URL for a menu item.
+ * Maps specific known menus and falls back to category-level culinary photos.
+ */
+export function getMenuImageUrl(name: string, category: string | null): string {
+  const text = `${name} ${category ?? ""}`.toLowerCase();
+
+  // 1. Specific popular menu matches
+  if (
+    text.includes("kopi susu") ||
+    text.includes("aren") ||
+    (text.includes("latte") && !text.includes("matcha")) ||
+    text.includes("cappuccino")
+  ) {
+    return "/images/menus/kopi-susu.jpg";
+  }
+
+  if (
+    text.includes("americano") ||
+    text.includes("black coffee") ||
+    text.includes("espresso") ||
+    text.includes("long black") ||
+    text.includes("tubruk")
+  ) {
+    return "/images/menus/americano.jpg";
+  }
+
+  if (text.includes("matcha")) {
+    return "/images/menus/matcha.jpg";
+  }
+
+  if (
+    text.includes("teh") ||
+    text.includes("tea") ||
+    text.includes("earl grey") ||
+    text.includes("jasmine")
+  ) {
+    return "/images/menus/es-teh.jpg";
+  }
+
+  if (
+    text.includes("roti") ||
+    text.includes("toast") ||
+    text.includes("sandwich") ||
+    text.includes("bakar")
+  ) {
+    return "/images/menus/roti-bakar.jpg";
+  }
+
+  if (
+    text.includes("croissant") ||
+    text.includes("croffle") ||
+    text.includes("danish") ||
+    text.includes("pastry")
+  ) {
+    return "/images/menus/croissant.jpg";
+  }
+
+  // 2. Category / keyword fallbacks
+  if (
+    text.includes("kopi") ||
+    text.includes("coffee") ||
+    text.includes("v60") ||
+    text.includes("manual brew")
+  ) {
+    return "/images/menus/default-coffee.jpg";
+  }
+
+  if (
+    text.includes("jus") ||
+    text.includes("juice") ||
+    text.includes("soda") ||
+    text.includes("minuman") ||
+    text.includes("drink") ||
+    text.includes("boba") ||
+    text.includes("susu") ||
+    text.includes("milk") ||
+    text.includes("mocktail")
+  ) {
+    return "/images/menus/default-drink.jpg";
+  }
+
+  if (
+    text.includes("snack") ||
+    text.includes("cake") ||
+    text.includes("dessert") ||
+    text.includes("kue") ||
+    text.includes("pie") ||
+    text.includes("donat")
+  ) {
+    return "/images/menus/default-pastry.jpg";
+  }
+
+  return "/images/menus/default-food.jpg";
+}
