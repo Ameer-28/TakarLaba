@@ -1,4 +1,4 @@
-import { useState, useRef, useMemo } from "react";
+import { useState, useRef } from "react";
 import { Link, Outlet, useLocation, useNavigate } from "react-router";
 import { signOut, useSession, type UserRole } from "@/lib/auth-client";
 import { toast } from "sonner";
@@ -12,7 +12,6 @@ import {
   ChevronLeft,
   ChevronRight,
   ChevronDown,
-  Search,
   Plus,
 } from "lucide-react";
 import {
@@ -28,8 +27,7 @@ export function AppShell() {
   const location = useLocation();
   const navigate = useNavigate();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [isDashboardTreeOpen, setIsDashboardTreeOpen] = useState(true);
+  const [isIngredientsTreeOpen, setIsIngredientsTreeOpen] = useState(true);
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const profileMenuRef = useRef<HTMLDivElement>(null);
 
@@ -60,18 +58,8 @@ export function AppShell() {
 
   const allowedNavItems = filterNavItemsByRole(NAV_ITEMS, userRole);
 
-  const filteredItems = useMemo(() => {
-    if (!searchQuery.trim()) return allowedNavItems;
-    const q = searchQuery.toLowerCase();
-    return allowedNavItems.filter(
-      (item) =>
-        item.label.toLowerCase().includes(q) ||
-        item.children?.some((c) => c.label.toLowerCase().includes(q))
-    );
-  }, [allowedNavItems, searchQuery]);
-
-  const mainSectionItems = filteredItems.filter((i) => i.section !== "OPERASIONAL");
-  const opsSectionItems = filteredItems.filter((i) => i.section === "OPERASIONAL");
+  const mainSectionItems = allowedNavItems.filter((i) => i.section !== "OPERASIONAL");
+  const opsSectionItems = allowedNavItems.filter((i) => i.section === "OPERASIONAL");
 
   const handleLogout = async () => {
     setIsLoggingOut(true);
@@ -87,9 +75,151 @@ export function AppShell() {
   };
 
   const isCurrentActive = (item: NavItem) => {
-    if (location.pathname === item.path) return true;
-    if (item.children?.some((c) => location.pathname === c.path)) return true;
+    return location.pathname === item.path;
+  };
+
+  const isChildActive = (childPath: string) => {
+    const currentFull = `${location.pathname}${location.search}`;
+    if (currentFull === childPath) return true;
+    if (
+      childPath === "/ingredients?tab=catalog" &&
+      location.pathname === "/ingredients" &&
+      (!location.search || location.search === "?tab=catalog")
+    ) {
+      return true;
+    }
     return false;
+  };
+
+  // Reusable nav item renderer for clean maintenance
+  const renderItem = (item: NavItem) => {
+    const isActive = isCurrentActive(item);
+    const Icon = item.icon;
+    const hasChildren = Boolean(item.children && item.children.length > 0);
+
+    // Tree dropdown for items with children (Bahan Baku & Stok) in expanded mode
+    if (hasChildren && !isCollapsed) {
+      return (
+        <div key={item.path} className="space-y-0.5">
+          <button
+            type="button"
+            onClick={() => setIsIngredientsTreeOpen((prev) => !prev)}
+            className={`w-full flex items-center justify-between px-3 py-2 rounded-2xl text-xs font-semibold transition-all cursor-pointer ${
+              isActive
+                ? "bg-slate-100/90 text-slate-900 font-bold shadow-2xs"
+                : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
+            }`}
+          >
+            <div className="flex items-center gap-2.5">
+              <Icon className={`w-4 h-4 ${isActive ? "text-slate-900" : "text-slate-400"}`} />
+              <span>{item.label}</span>
+            </div>
+            <ChevronDown
+              className={`w-3.5 h-3.5 text-slate-400 transition-transform duration-200 ${
+                isIngredientsTreeOpen ? "rotate-180" : ""
+              }`}
+            />
+          </button>
+
+          {/* Tree branch connector lines matching reference */}
+          {isIngredientsTreeOpen && (
+            <div className="relative ml-5.5 pl-3 border-l border-slate-200/90 space-y-0.5 py-1 my-0.5">
+              {item.children?.map((child) => {
+                const childActive = isChildActive(child.path);
+                return (
+                  <Link
+                    key={child.label}
+                    to={child.path}
+                    className={`block px-2.5 py-1.5 rounded-xl text-xs transition-all relative ${
+                      childActive
+                        ? "bg-slate-100 text-slate-900 font-bold"
+                        : "text-slate-500 hover:text-slate-900 hover:bg-slate-50 font-medium"
+                    }`}
+                  >
+                    {child.label}
+                  </Link>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    // Collapsed mode with flyout card matching reference
+    if (hasChildren && isCollapsed) {
+      return (
+        <div key={item.path} className="relative group flex justify-center">
+          <button
+            type="button"
+            onClick={() => navigate(item.path)}
+            className={`w-10 h-10 rounded-2xl flex items-center justify-center transition-all cursor-pointer ${
+              isActive
+                ? "bg-slate-100 text-slate-900 shadow-2xs font-bold"
+                : "text-slate-400 hover:text-slate-900 hover:bg-slate-50"
+            }`}
+          >
+            <Icon className="w-4.5 h-4.5" />
+          </button>
+
+          {/* Flyout Card matching reference */}
+          <div className="absolute left-full ml-3 top-0 bg-white border border-slate-200/90 rounded-2xl shadow-xl p-2 min-w-[155px] opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-all z-50 animate-in fade-in zoom-in-95 duration-150">
+            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider px-2 py-1">
+              {item.label}
+            </p>
+            {item.children?.map((child) => {
+              const childActive = isChildActive(child.path);
+              return (
+                <Link
+                  key={child.label}
+                  to={child.path}
+                  className={`block px-2.5 py-1.5 rounded-xl text-xs transition-all ${
+                    childActive
+                      ? "bg-slate-100 text-slate-900 font-bold"
+                      : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
+                  }`}
+                >
+                  {child.label}
+                </Link>
+              );
+            })}
+          </div>
+        </div>
+      );
+    }
+
+    // Standard navigation item (Dashboard, POS, Sales, Alerts, etc.)
+    return !isCollapsed ? (
+      <Link
+        key={item.path}
+        to={item.path}
+        className={`flex items-center gap-2.5 px-3 py-2 rounded-2xl text-xs font-semibold transition-all ${
+          isActive
+            ? "bg-slate-100/90 text-slate-900 font-bold shadow-2xs"
+            : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
+        }`}
+      >
+        <Icon className={`w-4 h-4 ${isActive ? "text-slate-900" : "text-slate-400"}`} />
+        <span>{item.label}</span>
+      </Link>
+    ) : (
+      <div key={item.path} className="relative group flex justify-center">
+        <Link
+          to={item.path}
+          title={item.label}
+          className={`w-10 h-10 rounded-2xl flex items-center justify-center transition-all ${
+            isActive
+              ? "bg-slate-100 text-slate-900 shadow-2xs font-bold"
+              : "text-slate-400 hover:text-slate-900 hover:bg-slate-50"
+          }`}
+        >
+          <Icon className="w-4.5 h-4.5" />
+        </Link>
+        <div className="absolute left-full ml-3 px-2.5 py-1 bg-slate-900 text-white text-xs font-medium rounded-xl whitespace-nowrap shadow-lg opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity z-50">
+          {item.label}
+        </div>
+      </div>
+    );
   };
 
   return (
@@ -100,7 +230,7 @@ export function AppShell() {
           isCollapsed ? "w-20" : "w-64"
         }`}
       >
-        {/* Floating Circular Collapse Toggle Button (Exact reference style) */}
+        {/* Floating Circular Collapse Toggle Button */}
         <button
           type="button"
           onClick={toggleCollapse}
@@ -118,7 +248,7 @@ export function AppShell() {
 
         {/* Top Header: Brand Logo */}
         <div
-          className={`pt-4 pb-2 transition-all duration-300 ${
+          className={`pt-5 pb-3 transition-all duration-300 ${
             isCollapsed ? "px-2 flex justify-center" : "px-4 flex items-center justify-between"
           }`}
         >
@@ -143,37 +273,6 @@ export function AppShell() {
           </Link>
         </div>
 
-        {/* Search Bar matching reference */}
-        <div
-          className={`pt-1 pb-1 transition-all ${isCollapsed ? "px-2 flex justify-center" : "px-3"}`}
-        >
-          {!isCollapsed ? (
-            <div className="relative flex items-center bg-slate-50/80 hover:bg-slate-100/70 focus-within:bg-white border border-slate-200/80 focus-within:border-slate-400 rounded-2xl px-3 py-2 transition-all">
-              <Search className="w-3.5 h-3.5 text-slate-400 shrink-0 mr-2" />
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search"
-                className="w-full text-xs bg-transparent border-0 outline-none text-slate-800 placeholder:text-slate-400"
-              />
-              <div className="flex items-center gap-0.5 shrink-0 px-1.5 py-0.5 rounded-md bg-white border border-slate-200/80 text-[10px] text-slate-400 font-mono shadow-2xs">
-                <span>⌘</span>
-                <span>S</span>
-              </div>
-            </div>
-          ) : (
-            <button
-              type="button"
-              onClick={toggleCollapse}
-              title="Cari fitur"
-              className="w-10 h-10 rounded-2xl bg-slate-50 border border-slate-200/70 text-slate-400 hover:text-slate-900 hover:bg-slate-100 flex items-center justify-center transition-all cursor-pointer"
-            >
-              <Search className="w-4 h-4" />
-            </button>
-          )}
-        </div>
-
         {/* Scrollable Navigation Body */}
         <nav
           className="flex-1 overflow-y-auto overflow-x-hidden px-2.5 py-2 space-y-3.5 scrollbar-none"
@@ -192,138 +291,11 @@ export function AppShell() {
                 </p>
               )}
 
-              {mainSectionItems.map((item) => {
-                const isActive = isCurrentActive(item);
-                const Icon = item.icon;
-                const hasChildren = Boolean(item.children && item.children.length > 0);
-
-                // Expandable tree item in expanded mode
-                if (hasChildren && !isCollapsed) {
-                  return (
-                    <div key={item.path} className="space-y-0.5">
-                      <button
-                        type="button"
-                        onClick={() => setIsDashboardTreeOpen((prev) => !prev)}
-                        className={`w-full flex items-center justify-between px-3 py-2 rounded-2xl text-xs font-semibold transition-all cursor-pointer ${
-                          isActive
-                            ? "bg-slate-100/90 text-slate-900 font-bold shadow-2xs"
-                            : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
-                        }`}
-                      >
-                        <div className="flex items-center gap-2.5">
-                          <Icon
-                            className={`w-4 h-4 ${isActive ? "text-slate-900" : "text-slate-400"}`}
-                          />
-                          <span>{item.label}</span>
-                        </div>
-                        <ChevronDown
-                          className={`w-3.5 h-3.5 text-slate-400 transition-transform duration-200 ${
-                            isDashboardTreeOpen ? "rotate-180" : ""
-                          }`}
-                        />
-                      </button>
-
-                      {/* Tree branch connector lines matching reference */}
-                      {isDashboardTreeOpen && (
-                        <div className="relative ml-5.5 pl-3 border-l border-slate-200/90 space-y-0.5 py-1 my-0.5">
-                          {item.children?.map((child) => {
-                            const isChildActive = location.pathname === child.path;
-                            return (
-                              <Link
-                                key={child.label}
-                                to={child.path}
-                                className={`block px-2.5 py-1.5 rounded-xl text-xs transition-all relative ${
-                                  isChildActive
-                                    ? "bg-slate-100 text-slate-900 font-bold"
-                                    : "text-slate-500 hover:text-slate-900 hover:bg-slate-50 font-medium"
-                                }`}
-                              >
-                                {child.label}
-                              </Link>
-                            );
-                          })}
-                        </div>
-                      )}
-                    </div>
-                  );
-                }
-
-                // Collapsed mode with flyout card matching reference
-                if (hasChildren && isCollapsed) {
-                  return (
-                    <div key={item.path} className="relative group flex justify-center">
-                      <button
-                        type="button"
-                        onClick={() => navigate(item.path)}
-                        className={`w-10 h-10 rounded-2xl flex items-center justify-center transition-all cursor-pointer ${
-                          isActive
-                            ? "bg-slate-100 text-slate-900 shadow-2xs font-bold"
-                            : "text-slate-400 hover:text-slate-900 hover:bg-slate-50"
-                        }`}
-                      >
-                        <Icon className="w-4.5 h-4.5" />
-                      </button>
-
-                      {/* Flyout Card matching reference */}
-                      <div className="absolute left-full ml-3 top-0 bg-white border border-slate-200/90 rounded-2xl shadow-xl p-2 min-w-[145px] opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-all z-50 animate-in fade-in zoom-in-95 duration-150">
-                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider px-2 py-1">
-                          {item.label}
-                        </p>
-                        {item.children?.map((child) => (
-                          <Link
-                            key={child.label}
-                            to={child.path}
-                            className={`block px-2.5 py-1.5 rounded-xl text-xs transition-all ${
-                              location.pathname === child.path
-                                ? "bg-slate-100 text-slate-900 font-bold"
-                                : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
-                            }`}
-                          >
-                            {child.label}
-                          </Link>
-                        ))}
-                      </div>
-                    </div>
-                  );
-                }
-
-                // Standard navigation item (POS, Sales, Alerts)
-                return !isCollapsed ? (
-                  <Link
-                    key={item.path}
-                    to={item.path}
-                    className={`flex items-center gap-2.5 px-3 py-2 rounded-2xl text-xs font-semibold transition-all ${
-                      isActive
-                        ? "bg-slate-100/90 text-slate-900 font-bold shadow-2xs"
-                        : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
-                    }`}
-                  >
-                    <Icon className={`w-4 h-4 ${isActive ? "text-slate-900" : "text-slate-400"}`} />
-                    <span>{item.label}</span>
-                  </Link>
-                ) : (
-                  <div key={item.path} className="relative group flex justify-center">
-                    <Link
-                      to={item.path}
-                      title={item.label}
-                      className={`w-10 h-10 rounded-2xl flex items-center justify-center transition-all ${
-                        isActive
-                          ? "bg-slate-100 text-slate-900 shadow-2xs font-bold"
-                          : "text-slate-400 hover:text-slate-900 hover:bg-slate-50"
-                      }`}
-                    >
-                      <Icon className="w-4.5 h-4.5" />
-                    </Link>
-                    <div className="absolute left-full ml-3 px-2.5 py-1 bg-slate-900 text-white text-xs font-medium rounded-xl whitespace-nowrap shadow-lg opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity z-50">
-                      {item.label}
-                    </div>
-                  </div>
-                );
-              })}
+              {mainSectionItems.map(renderItem)}
             </div>
           )}
 
-          {/* Section: OPERASIONAL with `+` icon matching reference */}
+          {/* Section: OPERASIONAL with `+` icon */}
           {opsSectionItems.length > 0 && (
             <div className="space-y-1">
               {!isCollapsed ? (
@@ -346,41 +318,7 @@ export function AppShell() {
                 </p>
               )}
 
-              {opsSectionItems.map((item) => {
-                const isActive = isCurrentActive(item);
-                const Icon = item.icon;
-                return !isCollapsed ? (
-                  <Link
-                    key={item.path}
-                    to={item.path}
-                    className={`flex items-center gap-2.5 px-3 py-2 rounded-2xl text-xs font-semibold transition-all ${
-                      isActive
-                        ? "bg-slate-100/90 text-slate-900 font-bold shadow-2xs"
-                        : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
-                    }`}
-                  >
-                    <Icon className={`w-4 h-4 ${isActive ? "text-slate-900" : "text-slate-400"}`} />
-                    <span>{item.label}</span>
-                  </Link>
-                ) : (
-                  <div key={item.path} className="relative group flex justify-center">
-                    <Link
-                      to={item.path}
-                      title={item.label}
-                      className={`w-10 h-10 rounded-2xl flex items-center justify-center transition-all ${
-                        isActive
-                          ? "bg-slate-100 text-slate-900 shadow-2xs font-bold"
-                          : "text-slate-400 hover:text-slate-900 hover:bg-slate-50"
-                      }`}
-                    >
-                      <Icon className="w-4.5 h-4.5" />
-                    </Link>
-                    <div className="absolute left-full ml-3 px-2.5 py-1 bg-slate-900 text-white text-xs font-medium rounded-xl whitespace-nowrap shadow-lg opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity z-50">
-                      {item.label}
-                    </div>
-                  </div>
-                );
-              })}
+              {opsSectionItems.map(renderItem)}
             </div>
           )}
         </nav>
