@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import { useSearchParams } from "react-router";
 import {
   Plus,
   Receipt,
@@ -29,9 +30,31 @@ export function IngredientsPage() {
   const { data: session } = useSession();
   const isOwner = session?.user?.role !== "CASHIER";
 
-  const [activeTab, setActiveTab] = useState<
-    "catalog" | "stock" | "history" | "waste" | "adjustments" | "radar"
-  >("catalog");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const rawTab = searchParams.get("tab");
+  const activeTab: "catalog" | "stock" | "history" | "waste" | "adjustments" | "radar" =
+    rawTab === "stock" ||
+    rawTab === "history" ||
+    rawTab === "waste" ||
+    rawTab === "adjustments" ||
+    rawTab === "radar"
+      ? rawTab
+      : "catalog";
+
+  const handleTabChange = (
+    tab: "catalog" | "stock" | "history" | "waste" | "adjustments" | "radar"
+  ) => {
+    setSearchParams((prev) => {
+      const next = new URLSearchParams(prev);
+      if (tab === "catalog") {
+        next.delete("tab");
+      } else {
+        next.set("tab", tab);
+      }
+      return next;
+    });
+  };
+
   const [searchTerm, setSearchTerm] = useState("");
   const [categoryFilter, setCategoryFilter] = useState<string>("ALL");
   const [statusFilter, setStatusFilter] = useState<"ALL" | "ACTIVE" | "INACTIVE">("ACTIVE");
@@ -117,7 +140,7 @@ export function IngredientsPage() {
 
       <div className="flex items-center gap-2 border-b border-slate-200 overflow-x-auto">
         <button
-          onClick={() => setActiveTab("catalog")}
+          onClick={() => handleTabChange("catalog")}
           className={`flex items-center gap-2 py-3 px-4 border-b-2 font-semibold text-xs sm:text-sm transition-colors whitespace-nowrap ${
             activeTab === "catalog"
               ? "border-emerald-600 text-emerald-600"
@@ -128,7 +151,7 @@ export function IngredientsPage() {
           <span>Katalog Bahan ({ingredients.length})</span>
         </button>
         <button
-          onClick={() => setActiveTab("stock")}
+          onClick={() => handleTabChange("stock")}
           className={`flex items-center gap-2 py-3 px-4 border-b-2 font-semibold text-xs sm:text-sm transition-colors whitespace-nowrap ${
             activeTab === "stock"
               ? "border-emerald-600 text-emerald-600"
@@ -139,7 +162,7 @@ export function IngredientsPage() {
           <span>Stok &amp; FEFO</span>
         </button>
         <button
-          onClick={() => setActiveTab("history")}
+          onClick={() => handleTabChange("history")}
           className={`flex items-center gap-2 py-3 px-4 border-b-2 font-semibold text-xs sm:text-sm transition-colors whitespace-nowrap ${
             activeTab === "history"
               ? "border-emerald-600 text-emerald-600"
@@ -151,7 +174,7 @@ export function IngredientsPage() {
         </button>
         {isOwner && (
           <button
-            onClick={() => setActiveTab("waste")}
+            onClick={() => handleTabChange("waste")}
             className={`flex items-center gap-2 py-3 px-4 border-b-2 font-semibold text-xs sm:text-sm transition-colors whitespace-nowrap ${
               activeTab === "waste"
                 ? "border-rose-600 text-rose-600"
@@ -164,7 +187,7 @@ export function IngredientsPage() {
         )}
         {isOwner && (
           <button
-            onClick={() => setActiveTab("adjustments")}
+            onClick={() => handleTabChange("adjustments")}
             className={`flex items-center gap-2 py-3 px-4 border-b-2 font-semibold text-xs sm:text-sm transition-colors whitespace-nowrap ${
               activeTab === "adjustments"
                 ? "border-sky-600 text-sky-600"
@@ -177,7 +200,7 @@ export function IngredientsPage() {
         )}
         {isOwner && (
           <button
-            onClick={() => setActiveTab("radar")}
+            onClick={() => handleTabChange("radar")}
             className={`flex items-center gap-2 py-3 px-4 border-b-2 font-semibold text-xs sm:text-sm transition-colors whitespace-nowrap ${
               activeTab === "radar"
                 ? "border-amber-600 text-amber-600"

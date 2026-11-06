@@ -31,11 +31,6 @@ export const NAV_ITEMS: NavItem[] = [
     icon: LayoutDashboard,
     roles: ["OWNER"],
     section: "MAIN",
-    children: [
-      { label: "Ringkasan", path: "/dashboard" },
-      { label: "Tren Penjualan", path: "/sales" },
-      { label: "Analitik Menu", path: "/analytics" },
-    ],
   },
   {
     label: "Kasir (POS)",
@@ -64,6 +59,14 @@ export const NAV_ITEMS: NavItem[] = [
     icon: Package,
     roles: ["OWNER"],
     section: "OPERASIONAL",
+    children: [
+      { label: "Katalog Bahan", path: "/ingredients?tab=catalog" },
+      { label: "Stok & FEFO", path: "/ingredients?tab=stock" },
+      { label: "Riwayat Belanja", path: "/ingredients?tab=history" },
+      { label: "Bahan Terbuang", path: "/ingredients?tab=waste" },
+      { label: "Riwayat Opname", path: "/ingredients?tab=adjustments" },
+      { label: "Waste Radar", path: "/ingredients?tab=radar" },
+    ],
   },
   {
     label: "Menu & Costing",
