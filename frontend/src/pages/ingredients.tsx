@@ -97,42 +97,47 @@ export function IngredientsPage() {
             <button
               onClick={handleExportStockCsv}
               disabled={isExportingStock}
-              className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-3.5 py-2.5 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 text-xs sm:text-sm font-semibold shadow-2xs transition-colors cursor-pointer disabled:opacity-50"
+              className="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold shadow-2xs transition-all cursor-pointer disabled:opacity-50"
+              title="Ekspor data stok ke CSV"
             >
-              <Download className={`w-4 h-4 ${isExportingStock ? "animate-bounce" : ""}`} />
+              <Download className={`w-3.5 h-3.5 ${isExportingStock ? "animate-bounce" : ""}`} />
               <span>{isExportingStock ? "Mengunduh..." : "Ekspor CSV"}</span>
             </button>
           )}
           {isOwner && (
             <button
               onClick={() => setIsAdjustmentModalOpen(true)}
-              className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-3.5 py-2.5 rounded-xl border border-sky-300 bg-sky-50 hover:bg-sky-100 text-sky-800 text-xs sm:text-sm font-semibold shadow-2xs transition-colors cursor-pointer"
+              className="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold shadow-2xs transition-all cursor-pointer"
+              title="Penyesuaian stok fisik (Opname)"
             >
-              <SlidersHorizontal className="w-4 h-4 text-sky-600" />
+              <SlidersHorizontal className="w-3.5 h-3.5 text-slate-500" />
               <span>Opname Stok</span>
             </button>
           )}
           {isOwner && (
             <button
               onClick={() => setIsWasteModalOpen(true)}
-              className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs sm:text-sm font-semibold shadow-xs transition-colors"
+              className="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl border border-slate-200 bg-white hover:bg-rose-50 text-slate-700 hover:text-rose-700 hover:border-rose-200 text-xs font-semibold shadow-2xs transition-all cursor-pointer"
+              title="Catat bahan rusak atau terbuang"
             >
-              <Trash2 className="w-4 h-4" />
+              <Trash2 className="w-3.5 h-3.5 text-rose-500" />
               <span>Catat Terbuang</span>
             </button>
           )}
           <button
             onClick={() => actions.setIsPurchaseModalOpen(true)}
-            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-semibold shadow-xs transition-colors"
+            className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl border border-emerald-200/90 bg-emerald-50/80 hover:bg-emerald-100/90 text-emerald-800 text-xs font-semibold shadow-2xs transition-all cursor-pointer"
+            title="Catat belanja bahan baku baru"
           >
-            <Receipt className="w-4 h-4" />
+            <Receipt className="w-3.5 h-3.5 text-emerald-600" />
             <span>Catat Nota Belanja</span>
           </button>
           <button
             onClick={() => actions.setIsCreateOpen(true)}
-            className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs sm:text-sm font-semibold shadow-xs transition-colors"
+            className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold shadow-xs transition-all cursor-pointer"
+            title="Tambah master bahan baku baru"
           >
-            <Plus className="w-4 h-4" />
+            <Plus className="w-3.5 h-3.5" />
             <span>Tambah Bahan</span>
           </button>
         </div>

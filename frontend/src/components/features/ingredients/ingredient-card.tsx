@@ -1,4 +1,4 @@
-import { Clock, CheckCircle2, Edit2, Trash2, Scale } from "lucide-react";
+import { Clock, Edit2, Trash2, Scale } from "lucide-react";
 import type { Ingredient } from "@/api/hooks/use-ingredients";
 import { formatNumber } from "@/lib/format";
 import { CATEGORY_MAP } from "./types.js";
@@ -38,12 +38,15 @@ export function IngredientCard({ item, onEdit, onManageUnits, onDeactivate }: In
               {catMeta.label}
             </span>
             {item.isActive ? (
-              <span className="inline-flex items-center gap-0.5 text-xs text-emerald-700 font-medium">
-                <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+              <span className="inline-flex items-center gap-1.5 text-xs text-slate-700 font-medium">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" />
                 <span>Aktif</span>
               </span>
             ) : (
-              <span className="text-xs text-slate-400 font-medium">Nonaktif</span>
+              <span className="inline-flex items-center gap-1.5 text-xs text-slate-400 font-medium">
+                <span className="w-1.5 h-1.5 rounded-full bg-slate-300 shrink-0" />
+                <span>Nonaktif</span>
+              </span>
             )}
           </div>
         </div>
