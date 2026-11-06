@@ -152,7 +152,7 @@ export const Calendar = ({
   presets = defaultPresets,
   minValue,
   maxValue,
-  placeholder = "Pilih Rentang Tanggal",
+  placeholder = "Select Date Range",
   className,
 }: CalendarProps) => {
   const [isOpen, setIsOpen] = useState<boolean>(false);
@@ -402,8 +402,8 @@ export const Calendar = ({
         {allowClear && Boolean(value?.start || value?.end) && (
           <button
             type="button"
-            aria-label="Bersihkan tanggal"
-            title="Bersihkan filter tanggal"
+            aria-label="Clear date range"
+            title="Clear date filter"
             onClick={handleClear}
             className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-[#4A5C6A] hover:text-[#06141B] hover:bg-[#CCD0CF]/30 rounded-full transition-colors cursor-pointer"
           >
@@ -416,7 +416,7 @@ export const Calendar = ({
       {isOpen && (
         <div
           role="dialog"
-          aria-label="Pemilih Rentang Tanggal"
+          aria-label="Date Range Picker"
           style={popoverStyle}
           className={twMerge(
             clsx(
@@ -431,7 +431,7 @@ export const Calendar = ({
             {presets && Object.keys(presets).length > 0 && (
               <div className="w-full sm:w-32 shrink-0 sm:border-r border-[#CCD0CF]/60 sm:pr-3 space-y-1 pb-3 sm:pb-0 border-b sm:border-b-0">
                 <span className="text-[10px] font-bold text-[#4A5C6A] uppercase tracking-wider block px-2 mb-1.5">
-                  Pilihan Cepat
+                  Quick Presets
                 </span>
                 <div className="grid grid-cols-2 sm:grid-cols-1 gap-1">
                   {Object.entries(presets).map(([key, item]) => {
@@ -472,7 +472,7 @@ export const Calendar = ({
                   <button
                     type="button"
                     onClick={prevMonth}
-                    title="Bulan sebelumnya"
+                    title="Previous month"
                     className="p-1.5 rounded-lg hover:bg-[#CCD0CF]/40 text-[#4A5C6A] hover:text-[#06141B] transition-colors cursor-pointer"
                   >
                     <ArrowLeftIcon className="w-3.5 h-3.5" />
@@ -480,7 +480,7 @@ export const Calendar = ({
                   <button
                     type="button"
                     onClick={nextMonth}
-                    title="Bulan berikutnya"
+                    title="Next month"
                     className="p-1.5 rounded-lg hover:bg-[#CCD0CF]/40 text-[#4A5C6A] hover:text-[#06141B] transition-colors cursor-pointer"
                   >
                     <ArrowRightIcon className="w-3.5 h-3.5" />
@@ -488,15 +488,15 @@ export const Calendar = ({
                 </div>
               </div>
 
-              {/* Day of Week Headers (M T W T F S S / Sen-Min) */}
+              {/* Day of Week Headers (M T W T F S S) */}
               <div className="grid grid-cols-7 text-center text-[11px] font-bold text-[#4A5C6A] mb-1.5">
-                <div>Sen</div>
-                <div>Sel</div>
-                <div>Rab</div>
-                <div>Kam</div>
-                <div>Jum</div>
-                <div>Sab</div>
-                <div>Min</div>
+                <div>Mon</div>
+                <div>Tue</div>
+                <div>Wed</div>
+                <div>Thu</div>
+                <div>Fri</div>
+                <div>Sat</div>
+                <div>Sun</div>
               </div>
 
               {/* Days Grid */}
@@ -573,7 +573,7 @@ export const Calendar = ({
           {/* Full Width Bottom Row: Manual Date Inputs */}
           <div className="mt-3.5 pt-3 border-t border-[#CCD0CF]/60 flex flex-wrap sm:flex-nowrap items-center justify-between sm:justify-start gap-2.5 sm:gap-4">
             <div className="flex items-center gap-1.5 flex-1 min-w-[130px]">
-              <span className="text-[10px] font-bold text-[#4A5C6A] shrink-0">Dari:</span>
+              <span className="text-[10px] font-bold text-[#4A5C6A] shrink-0">From:</span>
               <input
                 type="date"
                 value={startDateInput}
@@ -585,7 +585,7 @@ export const Calendar = ({
               />
             </div>
             <div className="flex items-center gap-1.5 flex-1 min-w-[130px]">
-              <span className="text-[10px] font-bold text-[#4A5C6A] shrink-0">S/d:</span>
+              <span className="text-[10px] font-bold text-[#4A5C6A] shrink-0">To:</span>
               <input
                 type="date"
                 value={endDateInput}

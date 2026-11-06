@@ -33,21 +33,21 @@ export function SaleKpiCards({ sales, totalTransactions, isOwner = false }: Sale
       {/* 1. Total Transaksi */}
       <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/80 shadow-2xs space-y-2">
         <div className="flex items-center justify-between text-slate-500">
-          <span className="text-xs font-bold uppercase tracking-wider">Total Transaksi</span>
+          <span className="text-xs font-bold uppercase tracking-wider">Total Transactions</span>
           <div className="w-8 h-8 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
             <Receipt className="w-4 h-4" />
           </div>
         </div>
         <div className="text-xl sm:text-2xl font-black text-slate-900 tabular-nums">
-          {totalTransactions.toLocaleString("id-ID")}
+          {totalTransactions.toLocaleString("en-US")}
         </div>
-        <p className="text-[11px] text-slate-400">Jumlah nota terbit</p>
+        <p className="text-[11px] text-slate-400">Invoices issued</p>
       </div>
 
       {/* 2. Total Omzet */}
       <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/80 shadow-2xs space-y-2">
         <div className="flex items-center justify-between text-slate-500">
-          <span className="text-xs font-bold uppercase tracking-wider">Total Omzet</span>
+          <span className="text-xs font-bold uppercase tracking-wider">Total Revenue</span>
           <div className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
             <DollarSign className="w-4 h-4" />
           </div>
@@ -55,14 +55,14 @@ export function SaleKpiCards({ sales, totalTransactions, isOwner = false }: Sale
         <div className="text-xl sm:text-2xl font-black text-slate-900 tabular-nums">
           {formatRupiah(totalRevenue)}
         </div>
-        <p className="text-[11px] text-slate-400">Total nilai penjualan</p>
+        <p className="text-[11px] text-slate-400">Total sales amount</p>
       </div>
 
       {/* 3. Total HPP Bahan (OWNER only) */}
       {isOwner && (
         <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/80 shadow-2xs space-y-2">
           <div className="flex items-center justify-between text-slate-500">
-            <span className="text-xs font-bold uppercase tracking-wider">HPP Bahan Baku</span>
+            <span className="text-xs font-bold uppercase tracking-wider">Raw Ingredient Cost</span>
             <div className="w-8 h-8 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center">
               <Layers className="w-4 h-4" />
             </div>
@@ -70,7 +70,7 @@ export function SaleKpiCards({ sales, totalTransactions, isOwner = false }: Sale
           <div className="text-xl sm:text-2xl font-black text-slate-800 tabular-nums">
             {formatRupiah(totalCost)}
           </div>
-          <p className="text-[11px] text-slate-400">Modal bahan batch FEFO</p>
+          <p className="text-[11px] text-slate-400">FEFO batch cost</p>
         </div>
       )}
 
@@ -78,7 +78,7 @@ export function SaleKpiCards({ sales, totalTransactions, isOwner = false }: Sale
       {isOwner && (
         <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/80 shadow-2xs space-y-2">
           <div className="flex items-center justify-between text-slate-500">
-            <span className="text-xs font-bold uppercase tracking-wider">Laba Kotor</span>
+            <span className="text-xs font-bold uppercase tracking-wider">Gross Profit</span>
             <div className="w-8 h-8 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center">
               <TrendingUp className="w-4 h-4" />
             </div>
@@ -87,7 +87,7 @@ export function SaleKpiCards({ sales, totalTransactions, isOwner = false }: Sale
             {formatRupiah(grossProfit)}
           </div>
           <p className="text-[11px] text-slate-400">
-            Margin rata-rata: <span className="font-bold text-slate-700">{overallMarginPct}%</span>
+            Average margin: <span className="font-bold text-slate-700">{overallMarginPct}%</span>
           </p>
         </div>
       )}

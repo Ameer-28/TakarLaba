@@ -105,7 +105,7 @@ export function calculateMenuEngineering(
         menuName: menu.menuName,
         category: menu.category,
         reason: "NO_RECIPE",
-        description: "Menu belum memiliki resep bahan baku",
+        description: "Menu has no recipe configured",
       });
       continue;
     }
@@ -116,7 +116,7 @@ export function calculateMenuEngineering(
         menuName: menu.menuName,
         category: menu.category,
         reason: "INCOMPLETE_COST",
-        description: "Harga beli bahan belum lengkap",
+        description: "Ingredient purchase prices are incomplete",
       });
       continue;
     }
@@ -130,7 +130,7 @@ export function calculateMenuEngineering(
         menuName: menu.menuName,
         category: menu.category,
         reason: "NEW_MENU",
-        description: `Menu baru (< 14 hari, ${ageInDays} hari)`,
+        description: `New menu (< 14 days, ${ageInDays} days)`,
       });
       continue;
     }
@@ -141,7 +141,7 @@ export function calculateMenuEngineering(
         menuName: menu.menuName,
         category: menu.category,
         reason: "NO_SALES",
-        description: "Belum ada penjualan dalam periode ini",
+        description: "No sales recorded in this period",
       });
       continue;
     }
@@ -281,9 +281,9 @@ function buildRecommendation(
     case "STAR":
       return {
         type: "STAR",
-        title: "Pertahankan Kualitas & Penjualan",
+        title: "Maintain Quality & Sales",
         description:
-          "Menu primadona dengan popularitas tinggi dan margin prima. Jaga konsistensi rasa, kualitas takaran, dan ketersediaan stok bahan baku.",
+          "Star performer with high popularity and premium margin. Preserve taste consistency, portion quality, and ingredient stock availability.",
       };
 
     case "PLOWHORSE": {
@@ -298,10 +298,10 @@ function buildRecommendation(
 
       return {
         type: "PLOWHORSE",
-        title: "Evaluasi Harga Jual atau Efisiensi Biaya",
-        description: `Menu sangat laris namun margin per porsi di bawah rata-rata. Naik Rp1.000 tetap lebih untung selama penurunan penjualan tidak melebihi ${formattedPercent}%.`,
+        title: "Evaluate Selling Price or Cost Efficiency",
+        description: `Highly popular menu, but contribution margin per portion is below average. Increasing price by Rp1,000 remains more profitable as long as sales drop does not exceed ${formattedPercent}%.`,
         actionMetric: {
-          label: "Batas Toleransi Penurunan Penjualan (Naik Rp1.000)",
+          label: "Sales Drop Tolerance Threshold (+Rp1,000)",
           value: `${formattedPercent}%`,
         },
       };
@@ -318,10 +318,10 @@ function buildRecommendation(
 
       return {
         type: "PUZZLE",
-        title: "Dorong Promosi & Rekomendasi Kasir",
-        description: `Margin sangat menguntungkan tetapi penjualan masih rendah. Tampilkan prompt rekomendasi kasir di POS atau tawarkan bundling dengan diskon aman hingga Rp${safeDiscount.toNumber().toLocaleString("id-ID")}.`,
+        title: "Boost Promotion & Cashier Recommendations",
+        description: `High contribution margin but lower sales volume. Feature on cashier POS prompts or offer combo bundling with safe discounts up to Rp${safeDiscount.toNumber().toLocaleString("id-ID")}.`,
         actionMetric: {
-          label: "Diskon Maksimal Aman per Porsi",
+          label: "Maximum Safe Discount per Portion",
           value: `Rp${safeDiscount.toNumber().toLocaleString("id-ID")}`,
         },
       };
@@ -338,10 +338,10 @@ function buildRecommendation(
         const val = safeDecimal(exclusiveStockValue!).toNumber().toLocaleString("id-ID");
         return {
           type: "DOG",
-          title: "Evaluasi Menu & Habiskan Sisa Stok",
-          description: `Popularitas dan margin rendah. Bahan khusus (${exclusiveIngredientNames!.join(", ")}) bernilai stok Rp${val}. Habiskan stok terlebih dahulu sebelum mengganti menu.`,
+          title: "Evaluate Menu & Deplete Remaining Stock",
+          description: `Low popularity and margin. Dedicated ingredients (${exclusiveIngredientNames!.join(", ")}) hold Rp${val} in stock value. Deplete stock before removing from menu.`,
           actionMetric: {
-            label: "Nilai Stok Bahan Khusus",
+            label: "Dedicated Stock Value",
             value: `Rp${val}`,
           },
         };
@@ -349,9 +349,9 @@ function buildRecommendation(
 
       return {
         type: "DOG",
-        title: "Evaluasi Eksistensi Menu",
+        title: "Evaluate Menu Existence",
         description:
-          "Menu kurang diminati dan margin tipis. Pertimbangkan modifikasi takaran resep, perbaikan nama/foto, atau ganti dengan menu baru.",
+          "Low popularity and below-average margin. Consider modifying recipe portion, improving presentation, or replacing with a new menu item.",
       };
     }
   }

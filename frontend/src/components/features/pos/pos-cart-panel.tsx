@@ -32,10 +32,10 @@ export function PosCartPanel({
       <div className="p-4 sm:p-5 border-b border-[#CCD0CF] flex items-center justify-between shrink-0">
         <div>
           <h3 className="font-extrabold text-[#06141B] text-base sm:text-lg tracking-tight">
-            Keranjang
+            Order Cart
           </h3>
           <span className="text-xs text-[#4A5C6A] font-semibold tabular-nums">
-            {totalQty > 0 ? `${totalQty} porsi dipilih` : "Belum ada pesanan"}
+            {totalQty > 0 ? `${totalQty} items selected` : "No items yet"}
           </span>
         </div>
 
@@ -44,9 +44,9 @@ export function PosCartPanel({
             type="button"
             onClick={onClear}
             className="text-xs font-bold text-[#4A5C6A] hover:text-rose-600 transition-colors cursor-pointer px-2.5 py-1.5 rounded-full hover:bg-rose-50 flex items-center gap-1.5"
-            title="Kosongkan Semua Item (F4)"
+            title="Clear All Items (F4)"
           >
-            <span>Kosongkan</span>
+            <span>Clear</span>
             <kbd className="hidden sm:inline-block px-1.5 py-0.5 text-[9px] font-mono text-[#4A5C6A] bg-[#CCD0CF]/30 border border-[#CCD0CF] rounded shadow-2xs">
               F4
             </kbd>
@@ -54,7 +54,7 @@ export function PosCartPanel({
         )}
       </div>
 
-      {/* Order Type Selector Pills (Matching Purr'Coffee) */}
+      {/* Order Type Selector Pills */}
       <div className="p-3 bg-slate-50/50 border-b border-[#CCD0CF] shrink-0">
         <div className="grid grid-cols-3 gap-1.5 p-1 bg-[#CCD0CF]/30 rounded-full border border-[#CCD0CF]">
           <button
@@ -100,9 +100,9 @@ export function PosCartPanel({
             <div className="w-14 h-14 rounded-3xl bg-[#CCD0CF]/30 flex items-center justify-center text-[#253745] border border-[#CCD0CF] shadow-2xs">
               <ShoppingCart className="w-7 h-7" />
             </div>
-            <p className="font-extrabold text-[#06141B] text-sm">Keranjang Masih Kosong</p>
+            <p className="font-extrabold text-[#06141B] text-sm">Your Cart is Empty</p>
             <p className="text-xs text-[#4A5C6A] max-w-xs leading-relaxed">
-              Pilih menu dari katalog di sebelah kiri untuk mulai memasukkan pesanan pelanggan.
+              Select items from the catalog on the left to start adding customer orders.
             </p>
           </div>
         ) : (
@@ -139,12 +139,12 @@ export function PosCartPanel({
                           </h5>
                           {item.temperature === "ICE" && (
                             <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-black bg-sky-50 text-sky-700 border border-sky-200/80 shrink-0">
-                              Dingin
+                              Iced
                             </span>
                           )}
                           {item.temperature === "HOT" && (
                             <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-black bg-amber-50 text-amber-800 border border-amber-200/80 shrink-0">
-                              Panas
+                              Hot
                             </span>
                           )}
                         </div>
@@ -152,13 +152,13 @@ export function PosCartPanel({
                           type="button"
                           onClick={() => onRemove(itemKey)}
                           className="p-1 text-[#9BA8AB] hover:text-rose-600 transition-colors cursor-pointer"
-                          title="Hapus item"
+                          title="Remove item"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
                         </button>
                       </div>
 
-                      {/* Line Total & Stepper (Matching Purr'Coffee Layout) */}
+                      {/* Line Total & Stepper */}
                       <div className="flex items-center justify-between mt-2 pt-0.5">
                         <div className="flex flex-col">
                           <span className="text-xs font-black text-[#11212D] tabular-nums">
@@ -166,7 +166,7 @@ export function PosCartPanel({
                           </span>
                           {item.qty > 1 && (
                             <span className="text-[10px] text-[#4A5C6A] tabular-nums font-medium">
-                              {formatRupiah(item.sellingPrice)} / porsi
+                              {formatRupiah(item.sellingPrice)} / item
                             </span>
                           )}
                         </div>
@@ -177,7 +177,7 @@ export function PosCartPanel({
                             type="button"
                             onClick={() => onDecrement(itemKey)}
                             className="w-5 h-5 flex items-center justify-center text-slate-700 hover:text-rose-600 hover:bg-white rounded-full transition-colors cursor-pointer shadow-2xs text-xs font-bold"
-                            title="Kurangi kuantitas"
+                            title="Decrease quantity"
                           >
                             <Minus className="w-2.5 h-2.5" />
                           </button>
@@ -190,7 +190,7 @@ export function PosCartPanel({
                             type="button"
                             onClick={() => onIncrement(itemKey)}
                             className="w-5 h-5 flex items-center justify-center bg-[#11212D] hover:bg-[#253745] text-white rounded-full transition-colors cursor-pointer shadow-2xs text-xs font-bold"
-                            title="Tambah kuantitas"
+                            title="Increase quantity"
                           >
                             <Plus className="w-2.5 h-2.5" />
                           </button>
@@ -209,12 +209,12 @@ export function PosCartPanel({
       <div className="p-4 sm:p-5 border-t border-[#CCD0CF] bg-slate-50/50 space-y-3 shrink-0">
         <div className="space-y-1.5 text-xs text-[#4A5C6A]">
           <div className="flex justify-between items-center">
-            <span>Item Pesanan</span>
-            <span className="tabular-nums font-semibold text-[#06141B]">{totalQty} porsi</span>
+            <span>Total Items</span>
+            <span className="tabular-nums font-semibold text-[#06141B]">{totalQty} items</span>
           </div>
 
           <div className="flex justify-between items-center">
-            <span>Tipe Layanan</span>
+            <span>Order Type</span>
             <span className="font-bold text-[#06141B]">
               {orderType === "DINE_IN"
                 ? "Dine In"
@@ -225,7 +225,7 @@ export function PosCartPanel({
           </div>
 
           <div className="flex justify-between items-baseline pt-2 border-t border-[#CCD0CF]">
-            <span className="text-sm font-extrabold text-[#06141B]">Total Tagihan</span>
+            <span className="text-sm font-extrabold text-[#06141B]">Total Due</span>
             <span className="text-lg font-black text-[#06141B] tabular-nums">
               {formatRupiah(totalAmount)}
             </span>
@@ -238,7 +238,7 @@ export function PosCartPanel({
           disabled={items.length === 0}
           className="w-full py-3.5 px-4 bg-[#11212D] hover:bg-[#253745] active:bg-[#06141B] active:scale-[0.99] text-white font-extrabold text-sm rounded-full shadow-md shadow-[#11212D]/20 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
         >
-          <span>Bayar Pesanan</span>
+          <span>Checkout Order</span>
           <kbd className="px-1.5 py-0.5 text-[10px] font-mono bg-white/20 text-white rounded-md">
             F2
           </kbd>

@@ -13,7 +13,7 @@ export async function downloadCsv(endpoint: string, fallbackFilename: string): P
 
     if (!res.ok) {
       const errorJson = await res.json().catch(() => null);
-      const message = errorJson?.error?.message || "Gagal mengunduh berkas CSV";
+      const message = errorJson?.error?.message || "Failed to download CSV file";
       toast.error(message);
       return false;
     }
@@ -40,10 +40,10 @@ export async function downloadCsv(endpoint: string, fallbackFilename: string): P
       window.URL.revokeObjectURL(blobUrl);
     }
 
-    toast.success(`Berkas ${filename} berhasil diunduh`);
+    toast.success(`File ${filename} downloaded successfully`);
     return true;
   } catch (err) {
-    const msg = err instanceof Error ? err.message : "Terjadi kesalahan saat mengunduh CSV";
+    const msg = err instanceof Error ? err.message : "An error occurred while downloading CSV";
     toast.error(msg);
     return false;
   }

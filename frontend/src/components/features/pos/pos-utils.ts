@@ -26,11 +26,11 @@ export function calculateQuickCashOptions(totalAmount: number): number[] {
 export function formatPaymentMethodLabel(method: "CASH" | "QRIS" | "TRANSFER"): string {
   switch (method) {
     case "CASH":
-      return "Tunai";
+      return "Cash";
     case "QRIS":
       return "QRIS";
     case "TRANSFER":
-      return "Transfer Bank";
+      return "Bank Transfer";
   }
 }
 

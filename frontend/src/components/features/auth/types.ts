@@ -1,8 +1,8 @@
 import { z } from "zod";
 
 export const loginSchema = z.object({
-  email: z.email({ error: "Format email tidak valid" }),
-  password: z.string().min(8, { error: "Kata sandi minimal 8 karakter" }),
+  email: z.email({ error: "Invalid email format" }),
+  password: z.string().min(8, { error: "Password must be at least 8 characters" }),
 });
 
 export type LoginFormValues = z.infer<typeof loginSchema>;

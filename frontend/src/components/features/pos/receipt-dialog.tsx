@@ -49,9 +49,9 @@ export function ReceiptDialog({
           <div className="w-10 h-10 rounded-full bg-white/20 mx-auto flex items-center justify-center mb-2">
             <CheckCircle2 className="w-6 h-6 text-white" />
           </div>
-          <h3 className="font-extrabold text-base">Transaksi Berhasil</h3>
+          <h3 className="font-extrabold text-base">Transaction Successful</h3>
           <p className="text-xs text-[#CCD0CF] mt-0.5">
-            Stok batch FEFO telah berhasil dipotong otomatis
+            FEFO batch stock has been deducted automatically
           </p>
         </div>
 
@@ -66,27 +66,27 @@ export function ReceiptDialog({
               <h4 className="font-black text-sm tracking-wider uppercase text-slate-900">
                 {businessName}
               </h4>
-              <p className="text-[10px] text-slate-500">Struk Pembayaran Resmi</p>
+              <p className="text-[10px] text-slate-500">Official Payment Receipt</p>
             </div>
 
             {/* Transaction Metadata */}
             <div className="space-y-1 text-[11px] text-slate-600 pb-2 border-b border-dashed border-slate-300">
               <div className="flex justify-between">
-                <span>No. Struk</span>
+                <span>Receipt No</span>
                 <span className="font-bold text-slate-900">{sale.invoiceNo}</span>
               </div>
               <div className="flex justify-between">
-                <span>Waktu</span>
+                <span>Date / Time</span>
                 <span>{formattedDate} WIB</span>
               </div>
               {sale.cashier?.name && (
                 <div className="flex justify-between">
-                  <span>Kasir</span>
+                  <span>Cashier</span>
                   <span className="font-semibold text-slate-900">{sale.cashier.name}</span>
                 </div>
               )}
               <div className="flex justify-between">
-                <span>Pembayaran</span>
+                <span>Payment</span>
                 <span className="font-bold text-slate-900">
                   {formatPaymentMethodLabel(sale.paymentMethod)}
                 </span>
@@ -101,8 +101,8 @@ export function ReceiptDialog({
                 const matchingCart = cartItems?.find((c) => c.menuId === item.menuId);
                 const tempSuffix = matchingCart?.temperature
                   ? matchingCart.temperature === "ICE"
-                    ? " (Dingin)"
-                    : " (Panas)"
+                    ? " (Cold)"
+                    : " (Hot)"
                   : "";
 
                 return (
@@ -134,11 +134,11 @@ export function ReceiptDialog({
               {sale.paymentMethod === "CASH" && (
                 <>
                   <div className="flex justify-between text-slate-600 pt-1 tabular-nums">
-                    <span>Tunai</span>
+                    <span>Cash</span>
                     <span>{formatRupiah(cashReceived)}</span>
                   </div>
                   <div className="flex justify-between font-bold text-slate-900 tabular-nums">
-                    <span>Kembali</span>
+                    <span>Change</span>
                     <span>{formatRupiah(changeNum)}</span>
                   </div>
                 </>
@@ -147,8 +147,8 @@ export function ReceiptDialog({
 
             {/* Receipt Footer */}
             <div className="text-center pt-3 border-t border-dashed border-slate-300 text-[10px] text-slate-400 space-y-0.5">
-              <p>Terima kasih atas kunjungan Anda!</p>
-              <p className="text-[9px] text-slate-400">TakarLaba — Penjaga Margin & Anti-Waste</p>
+              <p>Thank you for your visit!</p>
+              <p className="text-[9px] text-slate-400">TakarLaba — Margin Guardian & Anti-Waste</p>
             </div>
           </div>
         </div>
@@ -161,7 +161,7 @@ export function ReceiptDialog({
             className="flex-1 flex items-center justify-center gap-1.5 py-2.5 px-3 text-xs font-bold text-stone-700 bg-stone-100 hover:bg-stone-200 rounded-full transition-colors cursor-pointer"
           >
             <Printer className="w-4 h-4 text-stone-600" />
-            <span>Cetak Struk</span>
+            <span>Print Receipt</span>
           </button>
 
           <button
@@ -170,7 +170,7 @@ export function ReceiptDialog({
             className="flex-1 flex items-center justify-center gap-1.5 py-2.5 px-3 text-xs font-bold text-white bg-[#11212D] hover:bg-[#253745] active:bg-[#06141B] rounded-full shadow-md shadow-[#11212D]/20 transition-all cursor-pointer"
           >
             <Plus className="w-4 h-4" />
-            <span>Transaksi Baru</span>
+            <span>New Transaction</span>
           </button>
         </div>
       </div>

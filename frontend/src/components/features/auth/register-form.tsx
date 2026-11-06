@@ -34,7 +34,7 @@ export function RegisterForm({ onSubmit, authError, isSubmitting }: RegisterForm
         >
           <AlertCircle className="w-5 h-5 shrink-0 text-rose-600 mt-0.5" />
           <div>
-            <p className="font-semibold">Pendaftaran Gagal</p>
+            <p className="font-semibold">Registration Failed</p>
             <p className="text-rose-700 mt-0.5">{authError}</p>
           </div>
         </div>
@@ -44,7 +44,7 @@ export function RegisterForm({ onSubmit, authError, isSubmitting }: RegisterForm
         {/* Name */}
         <div>
           <label htmlFor="name" className="block text-sm font-medium text-slate-700 mb-1">
-            Nama Pemilik Usaha
+            Business Owner Name
           </label>
           <div className="relative rounded-lg shadow-2xs">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
@@ -62,7 +62,7 @@ export function RegisterForm({ onSubmit, authError, isSubmitting }: RegisterForm
                   ? "border-rose-300 text-rose-900 focus:border-rose-500 focus:ring-rose-500"
                   : "border-slate-300 text-slate-900 focus:border-emerald-500"
               }`}
-              placeholder="Contoh: Budi Santoso"
+              placeholder="e.g. John Doe"
               {...register("name")}
             />
           </div>
@@ -76,7 +76,7 @@ export function RegisterForm({ onSubmit, authError, isSubmitting }: RegisterForm
         {/* Business Name */}
         <div>
           <label htmlFor="businessName" className="block text-sm font-medium text-slate-700 mb-1">
-            Nama Usaha Kuliner
+            Culinary Business Name
           </label>
           <div className="relative rounded-lg shadow-2xs">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
@@ -94,7 +94,7 @@ export function RegisterForm({ onSubmit, authError, isSubmitting }: RegisterForm
                   ? "border-rose-300 text-rose-900 focus:border-rose-500 focus:ring-rose-500"
                   : "border-slate-300 text-slate-900 focus:border-emerald-500"
               }`}
-              placeholder="Contoh: Kopi Mantap Jiwa"
+              placeholder="e.g. Daily Roast Cafe"
               {...register("businessName")}
             />
           </div>
@@ -108,7 +108,7 @@ export function RegisterForm({ onSubmit, authError, isSubmitting }: RegisterForm
         {/* Email */}
         <div>
           <label htmlFor="email" className="block text-sm font-medium text-slate-700 mb-1">
-            Alamat Email
+            Email Address
           </label>
           <div className="relative rounded-lg shadow-2xs">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
@@ -126,7 +126,7 @@ export function RegisterForm({ onSubmit, authError, isSubmitting }: RegisterForm
                   ? "border-rose-300 text-rose-900 focus:border-rose-500 focus:ring-rose-500"
                   : "border-slate-300 text-slate-900 focus:border-emerald-500"
               }`}
-              placeholder="nama@usaha.id"
+              placeholder="user@business.com"
               {...register("email")}
             />
           </div>
@@ -140,7 +140,7 @@ export function RegisterForm({ onSubmit, authError, isSubmitting }: RegisterForm
         {/* Password */}
         <div>
           <label htmlFor="password" className="block text-sm font-medium text-slate-700 mb-1">
-            Kata Sandi (Minimal 8 Karakter)
+            Password (Min. 8 Characters)
           </label>
           <div className="relative rounded-lg shadow-2xs">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
@@ -175,7 +175,7 @@ export function RegisterForm({ onSubmit, authError, isSubmitting }: RegisterForm
             htmlFor="confirmPassword"
             className="block text-sm font-medium text-slate-700 mb-1"
           >
-            Konfirmasi Kata Sandi
+            Confirm Password
           </label>
           <div className="relative rounded-lg shadow-2xs">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
@@ -213,11 +213,11 @@ export function RegisterForm({ onSubmit, authError, isSubmitting }: RegisterForm
             {isSubmitting ? (
               <>
                 <Loader2 className="w-4 h-4 animate-spin" />
-                Mendaftarkan Usaha...
+                Registering Business...
               </>
             ) : (
               <>
-                Daftar & Mulai Usaha
+                Register & Get Started
                 <ArrowRight className="w-4 h-4" />
               </>
             )}

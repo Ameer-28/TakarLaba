@@ -42,15 +42,15 @@ export function useDemoReset() {
         method: "POST",
       }),
     onSuccess: (data) => {
-      toast.success("Data contoh berhasil diisi ulang", {
+      toast.success("Sample demo data reset successfully", {
         description: data.message,
       });
       // Invalidate all query caches so UI updates with fresh seed data
       queryClient.invalidateQueries();
     },
     onError: (err) => {
-      const msg = err instanceof Error ? err.message : "Gagal mereset data demo";
-      toast.error("Gagal reset data demo", { description: msg });
+      const msg = err instanceof Error ? err.message : "Failed to reset demo data";
+      toast.error("Failed to reset demo data", { description: msg });
     },
   });
 }
@@ -68,12 +68,14 @@ export function useDemoLogin() {
         body: JSON.stringify({ role }),
       }),
     onSuccess: (data) => {
-      toast.success(`Berhasil masuk sebagai Demo ${data.role === "OWNER" ? "Owner" : "Kasir"}`);
+      toast.success(
+        `Signed in successfully as Demo ${data.role === "OWNER" ? "Owner" : "Cashier"}`
+      );
       queryClient.invalidateQueries();
     },
     onError: (err) => {
-      const msg = err instanceof Error ? err.message : "Gagal masuk sebagai user demo";
-      toast.error("Login demo gagal", { description: msg });
+      const msg = err instanceof Error ? err.message : "Failed to sign in as demo user";
+      toast.error("Demo login failed", { description: msg });
     },
   });
 }

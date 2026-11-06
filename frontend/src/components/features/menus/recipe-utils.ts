@@ -8,7 +8,7 @@ export interface RecipeValidationResult {
 
 export function validateRecipeRows(rows: EditorRow[]): RecipeValidationResult {
   if (rows.length === 0) {
-    return { validItems: [], error: "Resep minimal harus memiliki 1 bahan" };
+    return { validItems: [], error: "Recipe must have at least 1 ingredient" };
   }
 
   const validItems: RecipeItemInput[] = [];
@@ -16,10 +16,10 @@ export function validateRecipeRows(rows: EditorRow[]): RecipeValidationResult {
     const r = rows[i]!;
     const qtyNum = Number(r.qtyUsable);
     if (!r.ingredientId) {
-      return { validItems: [], error: `Baris ${i + 1}: Bahan baku belum dipilih` };
+      return { validItems: [], error: `Row ${i + 1}: Ingredient not selected` };
     }
     if (isNaN(qtyNum) || qtyNum <= 0) {
-      return { validItems: [], error: `Baris ${i + 1}: Jumlah takaran harus lebih dari 0` };
+      return { validItems: [], error: `Row ${i + 1}: Quantity must be greater than 0` };
     }
     validItems.push({
       ingredientId: r.ingredientId,
@@ -32,7 +32,7 @@ export function validateRecipeRows(rows: EditorRow[]): RecipeValidationResult {
   if (new Set(ids).size !== ids.length) {
     return {
       validItems: [],
-      error: "Terdapat bahan baku yang sama berulang kali. Silakan gabungkan takarannya.",
+      error: "Duplicate ingredients found. Please combine their quantities.",
     };
   }
 

@@ -25,7 +25,7 @@ export interface DashboardSalesTrendChartProps {
 const chartConfig = {
   omzet: {
     color: "#059669",
-    label: "Omzet Penjualan",
+    label: "Sales Revenue",
   },
 } satisfies ChartConfig;
 
@@ -54,15 +54,14 @@ export function DashboardSalesTrendChart({ salesLast7Days = [] }: DashboardSales
             <TrendingUp className="w-5 h-5" />
           </div>
           <div>
-            <h2 className="text-base font-bold text-slate-900 tracking-tight">
-              Tren Penjualan 7 Hari
-            </h2>
+            <h2 className="text-base font-bold text-slate-900 tracking-tight">7-Day Sales Trend</h2>
             <p className="text-xs text-slate-500">
-              Total 7 hari:{" "}
+              7-Day Total:{" "}
               <span className="font-semibold text-emerald-700 tabular-nums">
                 {formatRupiah(totalOmzet)}
               </span>{" "}
-              ({totalPortions} porsi dari {totalTransactions} struk)
+              ({totalPortions} portion{totalPortions === 1 ? "" : "s"} across {totalTransactions}{" "}
+              receipt{totalTransactions === 1 ? "" : "s"})
             </p>
           </div>
         </div>
@@ -70,7 +69,8 @@ export function DashboardSalesTrendChart({ salesLast7Days = [] }: DashboardSales
         {/* Quick summary badges */}
         <div className="flex items-center gap-2 self-start sm:self-auto">
           <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-50 border border-slate-200 text-xs font-medium text-slate-600">
-            <Calendar className="w-3.5 h-3.5 text-slate-400" />7 Hari Terakhir
+            <Calendar className="w-3.5 h-3.5 text-slate-400" />
+            Last 7 Days
           </span>
         </div>
       </div>
@@ -80,9 +80,9 @@ export function DashboardSalesTrendChart({ salesLast7Days = [] }: DashboardSales
           <div className="w-10 h-10 mx-auto rounded-full bg-slate-50 flex items-center justify-center text-slate-400">
             <Layers className="w-5 h-5" />
           </div>
-          <p className="text-sm font-medium text-slate-700">Belum Ada Data Penjualan</p>
+          <p className="text-sm font-medium text-slate-700">No Sales Data Yet</p>
           <p className="text-xs text-slate-400">
-            Data grafik akan muncul setelah ada transaksi kasir.
+            Trend charts will appear once cashier transactions are recorded.
           </p>
         </div>
       ) : (
@@ -128,7 +128,7 @@ export function DashboardSalesTrendChart({ salesLast7Days = [] }: DashboardSales
                       formatter={(value, _name, item) => (
                         <div className="flex flex-col gap-1 w-full min-w-36">
                           <div className="flex items-center justify-between gap-3">
-                            <span className="text-slate-500 text-xs">Omzet:</span>
+                            <span className="text-slate-500 text-xs">Revenue:</span>
                             <span className="font-bold text-emerald-600 font-mono tabular-nums text-xs">
                               {formatRupiah(Number(value))}
                             </span>
@@ -139,13 +139,13 @@ export function DashboardSalesTrendChart({ salesLast7Days = [] }: DashboardSales
                                 {String(
                                   (item.payload as Record<string, unknown>).portionCount ?? 0
                                 )}{" "}
-                                porsi
+                                portion(s)
                               </span>
                               <span>
                                 {String(
                                   (item.payload as Record<string, unknown>).transactionCount ?? 0
                                 )}{" "}
-                                transaksi
+                                transaction(s)
                               </span>
                             </div>
                           )}
@@ -156,7 +156,7 @@ export function DashboardSalesTrendChart({ salesLast7Days = [] }: DashboardSales
                 />
                 <Line
                   dataKey="omzet"
-                  name="Omzet"
+                  name="Revenue"
                   type="natural"
                   stroke="var(--color-omzet)"
                   strokeWidth={2.5}
@@ -175,21 +175,21 @@ export function DashboardSalesTrendChart({ salesLast7Days = [] }: DashboardSales
           {/* Quick Metrics Footer */}
           <div className="grid grid-cols-3 gap-2 pt-2 border-t border-slate-100 text-center">
             <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-100">
-              <span className="block text-[11px] text-slate-500">Rata-rata Harian</span>
+              <span className="block text-[11px] text-slate-500">Daily Average</span>
               <span className="text-xs sm:text-sm font-bold text-slate-800 tabular-nums">
                 {formatRupiah(totalOmzet / 7)}
               </span>
             </div>
             <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-100">
-              <span className="block text-[11px] text-slate-500">Total Porsi</span>
+              <span className="block text-[11px] text-slate-500">Total Portions</span>
               <span className="text-xs sm:text-sm font-bold text-emerald-700 tabular-nums">
-                {totalPortions} porsi
+                {totalPortions} portion{totalPortions === 1 ? "" : "s"}
               </span>
             </div>
             <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-100">
-              <span className="block text-[11px] text-slate-500">Total Struk</span>
+              <span className="block text-[11px] text-slate-500">Total Receipts</span>
               <span className="text-xs sm:text-sm font-bold text-slate-800 tabular-nums">
-                {totalTransactions} transaksi
+                {totalTransactions} transaction{totalTransactions === 1 ? "" : "s"}
               </span>
             </div>
           </div>

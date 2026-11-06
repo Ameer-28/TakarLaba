@@ -9,7 +9,7 @@ interface SaleTableProps {
 }
 
 const paymentLabels: Record<string, string> = {
-  CASH: "Tunai",
+  CASH: "Cash",
   QRIS: "QRIS",
   TRANSFER: "Transfer",
 };
@@ -29,13 +29,13 @@ export function SaleTable({ sales, isOwner = false, onSelectSale }: SaleTablePro
           <table className="w-full text-left border-collapse text-xs">
             <thead>
               <tr className="bg-slate-50/70 border-b border-slate-200/80 text-slate-500 font-bold uppercase tracking-wider text-[11px]">
-                <th className="py-3.5 px-4">No. Struk & Waktu</th>
-                <th className="py-3.5 px-4">Kasir</th>
-                <th className="py-3.5 px-4">Menu Dipesan</th>
-                <th className="py-3.5 px-4">Bayar</th>
-                <th className="py-3.5 px-4 text-right">Total Omzet</th>
-                {isOwner && <th className="py-3.5 px-4 text-right">HPP & Margin</th>}
-                <th className="py-3.5 px-4 text-center">Aksi</th>
+                <th className="py-3.5 px-4">Receipt No. & Time</th>
+                <th className="py-3.5 px-4">Cashier</th>
+                <th className="py-3.5 px-4">Ordered Items</th>
+                <th className="py-3.5 px-4">Payment</th>
+                <th className="py-3.5 px-4 text-right">Total Revenue</th>
+                {isOwner && <th className="py-3.5 px-4 text-right">Cost & Margin</th>}
+                <th className="py-3.5 px-4 text-center">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
@@ -66,7 +66,7 @@ export function SaleTable({ sales, isOwner = false, onSelectSale }: SaleTablePro
                         </span>
                         {sale.status === "VOIDED" && (
                           <span className="inline-flex items-center px-1.5 py-0.5 rounded-md bg-rose-50 border border-rose-200 text-rose-700 text-[10px] font-bold">
-                            Dibatalkan
+                            Voided
                           </span>
                         )}
                       </div>
@@ -79,7 +79,7 @@ export function SaleTable({ sales, isOwner = false, onSelectSale }: SaleTablePro
                     </td>
                     <td className="py-3.5 px-4">
                       <span className="font-semibold text-slate-700">
-                        {sale.cashier?.name ?? "Kasir"}
+                        {sale.cashier?.name ?? "Cashier"}
                       </span>
                     </td>
                     <td className="py-3.5 px-4 max-w-xs">
@@ -87,7 +87,7 @@ export function SaleTable({ sales, isOwner = false, onSelectSale }: SaleTablePro
                         {menuSummary}
                       </p>
                       <span className="text-[10px] text-slate-400">
-                        {sale.items.reduce((acc, i) => acc + i.qty, 0)} item total
+                        {sale.items.reduce((acc, i) => acc + i.qty, 0)} items total
                       </span>
                     </td>
                     <td className="py-3.5 px-4">
@@ -130,7 +130,7 @@ export function SaleTable({ sales, isOwner = false, onSelectSale }: SaleTablePro
                         className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-100 text-slate-700 font-bold text-xs shadow-2xs transition-colors cursor-pointer"
                       >
                         <Eye className="w-3.5 h-3.5 text-slate-500" />
-                        <span>Detail</span>
+                        <span>Details</span>
                       </button>
                     </td>
                   </tr>
@@ -166,12 +166,12 @@ export function SaleTable({ sales, isOwner = false, onSelectSale }: SaleTablePro
                     </span>
                     {sale.status === "VOIDED" && (
                       <span className="inline-flex items-center px-1.5 py-0.5 rounded-md bg-rose-50 border border-rose-200 text-rose-700 text-[10px] font-bold">
-                        Dibatalkan
+                        Voided
                       </span>
                     )}
                   </div>
                   <div className="text-[11px] text-slate-400 mt-0.5">
-                    {formattedDate}, {formattedTime} WIB • {sale.cashier?.name ?? "Kasir"}
+                    {formattedDate}, {formattedTime} WIB • {sale.cashier?.name ?? "Cashier"}
                   </div>
                 </div>
                 <span
@@ -191,7 +191,7 @@ export function SaleTable({ sales, isOwner = false, onSelectSale }: SaleTablePro
               {/* Bottom Line: Total & Detail Button */}
               <div className="flex items-center justify-between pt-2 border-t border-slate-100">
                 <div>
-                  <span className="text-[10px] text-slate-400 block">Total Transaksi</span>
+                  <span className="text-[10px] text-slate-400 block">Total Transaction</span>
                   <span className="font-extrabold text-slate-900 text-sm tabular-nums">
                     {formatRupiah(sale.totalAmount)}
                   </span>
@@ -213,7 +213,7 @@ export function SaleTable({ sales, isOwner = false, onSelectSale }: SaleTablePro
                     className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-700 font-bold text-xs cursor-pointer"
                   >
                     <Layers className="w-3.5 h-3.5 text-amber-500" />
-                    <span>Alokasi</span>
+                    <span>Allocations</span>
                   </button>
                 </div>
               </div>

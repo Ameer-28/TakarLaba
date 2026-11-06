@@ -51,7 +51,7 @@ describe("Purchase Form Schema & Calculation Logic (T-112 — FR-PUR-01)", () =>
       expect(result.success).toBe(false);
       if (!result.success) {
         const fieldError = result.error.issues.find((i) => i.path.includes("ingredientId"));
-        expect(fieldError?.message).toBe("Pilih bahan baku");
+        expect(fieldError?.message).toBe("Select an ingredient");
       }
     });
 
@@ -131,7 +131,7 @@ describe("Purchase Form Schema & Calculation Logic (T-112 — FR-PUR-01)", () =>
       expect(result.success).toBe(false);
       if (!result.success) {
         const itemIssue = result.error.issues.find((i) => i.path.includes("items"));
-        expect(itemIssue?.message).toBe("Minimal harus ada 1 bahan dibeli");
+        expect(itemIssue?.message).toBe("At least 1 item must be purchased");
       }
     });
 
@@ -152,7 +152,7 @@ describe("Purchase Form Schema & Calculation Logic (T-112 — FR-PUR-01)", () =>
       expect(result.success).toBe(false);
       if (!result.success) {
         const dateIssue = result.error.issues.find((i) => i.path.includes("purchasedAt"));
-        expect(dateIssue?.message).toBe("Tanggal belanja wajib diisi");
+        expect(dateIssue?.message).toBe("Purchase date is required");
       }
     });
   });

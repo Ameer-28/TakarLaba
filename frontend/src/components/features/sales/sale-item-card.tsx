@@ -28,7 +28,7 @@ export function SaleItemCard({
         <div className="space-y-1">
           <h5 className="font-bold text-slate-900 text-sm">{item.menuNameSnapshot}</h5>
           <div className="text-xs text-slate-500 tabular-nums">
-            {item.qty} porsi × {formatRupiah(unitPriceNum)}
+            {item.qty} portion{item.qty === 1 ? "" : "s"} × {formatRupiah(unitPriceNum)}
           </div>
         </div>
         <div className="text-right">
@@ -50,19 +50,19 @@ export function SaleItemCard({
       {isOwner && item.ingredientCostActual && item.overheadAllocated && (
         <div className="grid grid-cols-3 gap-2 p-2.5 bg-slate-50/80 rounded-xl border border-slate-100 text-xs">
           <div>
-            <span className="text-[10px] text-slate-400 block">HPP Bahan</span>
+            <span className="text-[10px] text-slate-400 block">Ingredient Cost</span>
             <span className="font-bold text-slate-700 tabular-nums">
               {formatRupiah(item.ingredientCostActual)}
             </span>
           </div>
           <div>
-            <span className="text-[10px] text-slate-400 block">Beban Overhead</span>
+            <span className="text-[10px] text-slate-400 block">Overhead Cost</span>
             <span className="font-bold text-slate-700 tabular-nums">
               {formatRupiah(item.overheadAllocated)}
             </span>
           </div>
           <div>
-            <span className="text-[10px] text-slate-400 block">Laba Bersih</span>
+            <span className="text-[10px] text-slate-400 block">Net Profit</span>
             <span className="font-bold text-emerald-600 tabular-nums">
               {formatRupiah(item.grossMargin)}
             </span>
@@ -80,7 +80,8 @@ export function SaleItemCard({
           >
             <span className="flex items-center gap-1.5">
               <Layers className="w-3.5 h-3.5 text-amber-500" />
-              Alokasi Batch Bahan (FEFO) ({item.batchAllocations?.length} batch)
+              FEFO Ingredient Batch Allocations ({item.batchAllocations?.length} batch
+              {item.batchAllocations?.length === 1 ? "" : "es"})
             </span>
             {isExpanded ? (
               <ChevronUp className="w-4 h-4 text-slate-400" />
@@ -94,7 +95,7 @@ export function SaleItemCard({
               {item.batchAllocations?.map((alloc) => {
                 const expiryFormatted = alloc.batchExpiryDate
                   ? formatDate(alloc.batchExpiryDate)
-                  : "Tanpa Kedaluwarsa";
+                  : "No Expiration";
 
                 return (
                   <div
@@ -116,7 +117,7 @@ export function SaleItemCard({
                     <div className="flex items-center justify-between sm:justify-end gap-3 text-right">
                       <div className="text-left sm:text-right">
                         <span className="text-[10px] text-slate-400 block sm:hidden">
-                          Pemotongan
+                          Deduction
                         </span>
                         <span className="font-bold text-slate-800 tabular-nums">
                           {formatQuantity(alloc.qtyDeducted, alloc.baseUnit)}

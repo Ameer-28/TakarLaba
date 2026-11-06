@@ -46,7 +46,7 @@ export function PurchaseLineItem({
           {currentIngredient?.isPerishable && (
             <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-amber-50 text-amber-700 border border-amber-200">
               <Clock className="w-3 h-3 text-amber-600" />
-              <span>Wajib Kedaluwarsa</span>
+              <span>Expiry Required</span>
             </span>
           )}
         </div>
@@ -62,7 +62,7 @@ export function PurchaseLineItem({
               type="button"
               onClick={onRemove}
               className="p-1 rounded-lg text-rose-500 hover:bg-rose-50 transition-colors"
-              title="Hapus baris ini"
+              title="Remove this item"
             >
               <Trash2 className="w-4 h-4" />
             </button>
@@ -73,7 +73,7 @@ export function PurchaseLineItem({
       <div className="grid grid-cols-1 sm:grid-cols-12 gap-2.5">
         <div className="sm:col-span-4">
           <label className="block text-[11px] font-semibold text-slate-600 mb-1">
-            Bahan Baku <span className="text-rose-500">*</span>
+            Ingredient <span className="text-rose-500">*</span>
           </label>
           <select
             {...register(`items.${index}.ingredientId`)}
@@ -90,12 +90,12 @@ export function PurchaseLineItem({
 
         <div className="sm:col-span-2">
           <label className="block text-[11px] font-semibold text-slate-600 mb-1">
-            Jumlah <span className="text-rose-500">*</span>
+            Quantity <span className="text-rose-500">*</span>
           </label>
           <input
             type="number"
             step="0.001"
-            placeholder="Misal 5"
+            placeholder="e.g. 5"
             {...register(`items.${index}.purchaseQty`, { valueAsNumber: true })}
             className="w-full px-2.5 py-1.5 rounded-lg border border-slate-200 text-xs font-mono focus:ring-2 focus:ring-emerald-500/20"
           />
@@ -103,7 +103,7 @@ export function PurchaseLineItem({
 
         <div className="sm:col-span-2">
           <label className="block text-[11px] font-semibold text-slate-600 mb-1">
-            Satuan Beli <span className="text-rose-500">*</span>
+            Purchase Unit <span className="text-rose-500">*</span>
           </label>
           <select
             {...register(`items.${index}.purchaseUnit`)}
@@ -119,7 +119,7 @@ export function PurchaseLineItem({
 
         <div className="sm:col-span-2">
           <label className="block text-[11px] font-semibold text-slate-600 mb-1">
-            Harga Satuan (Rp) <span className="text-rose-500">*</span>
+            Unit Price (Rp) <span className="text-rose-500">*</span>
           </label>
           <input
             type="number"
@@ -132,7 +132,7 @@ export function PurchaseLineItem({
 
         <div className="sm:col-span-2">
           <label className="block text-[11px] font-semibold text-slate-600 mb-1 flex items-center justify-between">
-            <span>Kedaluwarsa</span>
+            <span>Expiry Date</span>
             {currentIngredient?.isPerishable && <span className="text-rose-500">*</span>}
           </label>
           <input

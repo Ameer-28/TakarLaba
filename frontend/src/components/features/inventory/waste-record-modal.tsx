@@ -29,7 +29,6 @@ export function WasteRecordModal({
   const [qty, setQty] = useState<string>("");
   const [reason, setReason] = useState<string>("");
 
-  // Set selected batch if initialBatch is passed or whenever modal opens
   const activeBatch = useMemo(() => {
     if (initialBatch) return initialBatch;
     return batches.find((b) => b.id === selectedBatchId) ?? batches[0] ?? null;
@@ -70,14 +69,14 @@ export function WasteRecordModal({
       });
 
       toast.success(
-        `Bahan terbuang dicatat: ${res.ingredientName} (${formatNumber(Number(res.qtyBase))} ${res.baseUnit.toLowerCase()}) senilai ${formatRupiah(Number(res.wastedValue))}`
+        `Wasted ingredient recorded: ${res.ingredientName} (${formatNumber(Number(res.qtyBase))} ${res.baseUnit.toLowerCase()}) valued at ${formatRupiah(Number(res.wastedValue))}`
       );
       setQty("");
       setReason("");
       onSuccess?.();
       onClose();
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Gagal mencatat pembuangan bahan baku");
+      toast.error(err instanceof Error ? err.message : "Failed to record ingredient waste");
     }
   };
 
@@ -91,15 +90,17 @@ export function WasteRecordModal({
               <Trash2 className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="text-base font-bold text-slate-900">Catat Bahan Terbuang (Waste)</h3>
+              <h3 className="text-base font-bold text-slate-900">
+                Record Wasted Ingredients (Waste)
+              </h3>
               <p className="text-xs text-slate-500">
-                Alokasi stok terbuang akibat basi, rusak, atau kedaluwarsa (FR-INV-03)
+                Allocate wasted stock due to spoilage, damage, or expiration (FR-INV-03)
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="text-slate-400 hover:text-slate-600 p-1.5 rounded-lg hover:bg-slate-100 transition-colors"
+            className="text-slate-400 hover:text-slate-600 p-1.5 rounded-lg hover:bg-slate-100 transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -110,14 +111,14 @@ export function WasteRecordModal({
           {/* Batch Selector */}
           <div>
             <label className="block text-xs font-semibold text-slate-700 mb-1.5">
-              Pilih Batch Bahan Baku <span className="text-rose-500">*</span>
+              Select Ingredient Batch <span className="text-rose-500">*</span>
             </label>
             {initialBatch ? (
               <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 text-xs space-y-1">
                 <div className="font-bold text-slate-900">{initialBatch.ingredientName}</div>
                 <div className="text-slate-500 flex justify-between">
                   <span>
-                    Sisa: {formatNumber(Number(initialBatch.remainingQtyBase))}{" "}
+                    Remaining: {formatNumber(Number(initialBatch.remainingQtyBase))}{" "}
                     {initialBatch.baseUnit.toLowerCase()}
                   </span>
                   {initialBatch.expiryDate && (
@@ -128,11 +129,11 @@ export function WasteRecordModal({
             ) : isBatchesPending ? (
               <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 text-xs text-slate-500 flex items-center gap-2">
                 <Loader2 className="w-4 h-4 animate-spin text-emerald-600" />
-                <span>Memuat daftar batch aktif...</span>
+                <span>Loading active batch list...</span>
               </div>
             ) : batches.length === 0 ? (
               <div className="p-3 bg-amber-50 rounded-xl border border-amber-200 text-xs text-amber-800">
-                Tidak ada batch bahan dengan sisa stok aktif untuk dibuang.
+                No active batches with remaining stock to record waste for.
               </div>
             ) : (
               <select
@@ -142,9 +143,9 @@ export function WasteRecordModal({
               >
                 {batches.map((b) => (
                   <option key={b.id} value={b.id}>
-                    {b.ingredientName} — Sisa: {formatNumber(Number(b.remainingQtyBase))}{" "}
+                    {b.ingredientName} — Remaining: {formatNumber(Number(b.remainingQtyBase))}{" "}
                     {b.baseUnit.toLowerCase()} (
-                    {b.expiryDate ? `Exp: ${formatDate(b.expiryDate)}` : "Tanpa Exp"})
+                    {b.expiryDate ? `Exp: ${formatDate(b.expiryDate)}` : "No Expiry"})
                   </option>
                 ))}
               </select>
@@ -155,12 +156,12 @@ export function WasteRecordModal({
           <div>
             <div className="flex items-center justify-between mb-1.5">
               <label className="text-xs font-semibold text-slate-700">
-                Jumlah Terbuang ({currentBatch?.baseUnit.toLowerCase() ?? "satuan"}){" "}
+                Wasted Quantity ({currentBatch?.baseUnit.toLowerCase() ?? "unit"}){" "}
                 <span className="text-rose-500">*</span>
               </label>
               {currentBatch && (
                 <span className="text-[11px] text-slate-500">
-                  Maksimal: {formatNumber(remainingNum)} {currentBatch.baseUnit.toLowerCase()}
+                  Maximum: {formatNumber(remainingNum)} {currentBatch.baseUnit.toLowerCase()}
                 </span>
               )}
             </div>
@@ -186,7 +187,7 @@ export function WasteRecordModal({
             {isExceeded && (
               <p className="text-[11px] text-rose-600 mt-1 flex items-center gap-1 font-medium">
                 <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
-                Jumlah melebihi sisa stok batch yang tersedia.
+                Quantity exceeds available batch stock.
               </p>
             )}
           </div>
@@ -194,17 +195,19 @@ export function WasteRecordModal({
           {/* Reason Input */}
           <div>
             <label className="block text-xs font-semibold text-slate-700 mb-1.5">
-              Alasan Pembuangan <span className="text-rose-500">*</span>
+              Waste Reason <span className="text-rose-500">*</span>
             </label>
             <textarea
               rows={2}
               value={reason}
               onChange={(e) => setReason(e.target.value)}
-              placeholder="Contoh: Susu basi karena kulkas mati, kemasan rusak, tumpah..."
+              placeholder="e.g. Milk spoiled due to power outage, packaging torn, spilled..."
               className="w-full text-xs sm:text-sm px-3.5 py-2 rounded-xl border border-slate-200 focus:outline-hidden focus:ring-2 focus:ring-rose-500 bg-white"
             />
             {reason.length > 0 && !isReasonValid && (
-              <p className="text-[11px] text-rose-600 mt-1">Alasan minimal 3 karakter.</p>
+              <p className="text-[11px] text-rose-600 mt-1">
+                Reason must be at least 3 characters.
+              </p>
             )}
           </div>
 
@@ -212,13 +215,13 @@ export function WasteRecordModal({
           {currentBatch && qtyNum > 0 && !isExceeded && (
             <div className="p-3.5 bg-rose-50/70 border border-rose-200/80 rounded-xl space-y-1.5">
               <div className="flex items-center justify-between text-xs">
-                <span className="text-rose-800 font-medium">Estimasi Kerugian Finansial:</span>
+                <span className="text-rose-800 font-medium">Estimated Financial Loss:</span>
                 <span className="text-sm font-bold text-rose-700 font-mono tabular-nums">
                   {formatRupiah(estimatedLoss)}
                 </span>
               </div>
               <div className="flex items-center justify-between text-[11px] text-rose-600">
-                <span>Sisa stok setelah pembuangan:</span>
+                <span>Remaining stock after disposal:</span>
                 <span className="font-semibold tabular-nums">
                   {formatNumber(remainingNum - qtyNum)} {currentBatch.baseUnit.toLowerCase()}
                 </span>
@@ -232,24 +235,24 @@ export function WasteRecordModal({
               type="button"
               onClick={onClose}
               disabled={recordMutation.isPending}
-              className="px-4 py-2.5 rounded-xl border border-slate-200 text-xs sm:text-sm font-semibold text-slate-600 hover:bg-slate-50 transition-colors"
+              className="px-4 py-2.5 rounded-xl border border-slate-200 text-xs sm:text-sm font-semibold text-slate-600 hover:bg-slate-50 transition-colors cursor-pointer"
             >
-              Batal
+              Cancel
             </button>
             <button
               type="submit"
               disabled={!canSubmit || recordMutation.isPending}
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 disabled:bg-slate-200 text-white disabled:text-slate-400 text-xs sm:text-sm font-semibold shadow-xs transition-colors"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 disabled:bg-slate-200 text-white disabled:text-slate-400 text-xs sm:text-sm font-semibold shadow-xs transition-colors cursor-pointer"
             >
               {recordMutation.isPending ? (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin" />
-                  <span>Menyimpan...</span>
+                  <span>Saving...</span>
                 </>
               ) : (
                 <>
                   <Trash2 className="w-4 h-4" />
-                  <span>Catat Terbuang</span>
+                  <span>Record Waste</span>
                 </>
               )}
             </button>

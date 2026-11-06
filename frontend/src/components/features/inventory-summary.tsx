@@ -22,11 +22,11 @@ interface InventorySummaryProps {
 }
 
 const FILTER_TABS = [
-  { id: "ALL", label: "Semua" },
-  { id: "SEGERA", label: "Segera" },
-  { id: "KEDALUWARSA", label: "Kedaluwarsa" },
-  { id: "LOW_STOCK", label: "Stok Rendah" },
-  { id: "AMAN", label: "Aman" },
+  { id: "ALL", label: "All" },
+  { id: "SEGERA", label: "Expiring Soon" },
+  { id: "KEDALUWARSA", label: "Expired" },
+  { id: "LOW_STOCK", label: "Low Stock" },
+  { id: "AMAN", label: "Safe" },
 ];
 
 export function InventorySummary({
@@ -106,7 +106,7 @@ export function InventorySummary({
             <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
             <input
               type="text"
-              placeholder="Cari status stok bahan (Kopi, Susu, Beras)..."
+              placeholder="Search ingredient stock (Coffee, Milk, Rice)..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full pl-10 pr-4 py-2 rounded-xl border border-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500/20 placeholder:text-slate-400"
@@ -118,7 +118,7 @@ export function InventorySummary({
               <button
                 key={tab.id}
                 onClick={() => setStatusFilter(tab.id)}
-                className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
+                className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
                   statusFilter === tab.id
                     ? "bg-slate-900 text-white shadow-xs"
                     : "bg-slate-100 text-slate-600 hover:bg-slate-200/70"
@@ -134,14 +134,14 @@ export function InventorySummary({
                 onClick={onExportCsv}
                 disabled={isExporting}
                 className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold transition-all shadow-2xs ml-auto md:ml-2 disabled:opacity-50 cursor-pointer whitespace-nowrap"
-                title="Ekspor CSV Ringkasan Stok & Batch FEFO"
+                title="Export Stock &amp; FEFO Batches CSV"
               >
                 {isExporting ? (
                   <Loader2 className="w-3.5 h-3.5 animate-spin text-slate-500" />
                 ) : (
                   <Download className="w-3.5 h-3.5 text-slate-500" />
                 )}
-                <span>Ekspor CSV</span>
+                <span>Export CSV</span>
               </button>
             )}
           </div>
@@ -151,53 +151,53 @@ export function InventorySummary({
       {isPending ? (
         <div className="bg-white rounded-2xl border border-slate-200 p-12 text-center space-y-3">
           <Loader2 className="w-8 h-8 text-emerald-600 animate-spin mx-auto" />
-          <p className="text-xs text-slate-500 font-medium">Memuat ringkasan stok persediaan...</p>
+          <p className="text-xs text-slate-500 font-medium">Loading inventory stock summary...</p>
         </div>
       ) : isError ? (
         <div className="bg-white rounded-2xl border border-rose-200 p-8 text-center space-y-3">
           <AlertCircle className="w-8 h-8 text-rose-600 mx-auto" />
           <p className="text-xs text-slate-600">
-            {error instanceof Error ? error.message : "Gagal memuat status persediaan."}
+            {error instanceof Error ? error.message : "Failed to load inventory status."}
           </p>
           <button
             onClick={() => refetch()}
-            className="px-3 py-1.5 rounded-xl bg-slate-900 text-white text-xs font-semibold"
+            className="px-3 py-1.5 rounded-xl bg-slate-900 text-white text-xs font-semibold cursor-pointer"
           >
-            Coba Lagi
+            Try Again
           </button>
         </div>
       ) : summaries.length === 0 ? (
         <div className="bg-white rounded-2xl border border-slate-200 p-12 text-center space-y-4">
           <Package className="w-12 h-12 text-slate-400 mx-auto" />
           <div className="space-y-1">
-            <h3 className="text-sm font-bold text-slate-900">Belum ada data stok bahan</h3>
+            <h3 className="text-sm font-bold text-slate-900">No ingredient stock data yet</h3>
             <p className="text-xs text-slate-500 max-w-sm mx-auto">
-              Mulai dengan menambahkan master bahan baku atau catat nota belanja baru untuk mengisi
-              stok batch FEFO.
+              Start by adding master ingredients or record a purchase invoice to populate FEFO batch
+              stocks.
             </p>
           </div>
           <div className="flex items-center justify-center gap-2 pt-2">
             <button
               onClick={onOpenCreateIngredient}
-              className="px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-semibold transition-all"
+              className="px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-semibold transition-all cursor-pointer"
             >
-              Tambah Bahan
+              Add Ingredient
             </button>
             <button
               onClick={onOpenPurchase}
-              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold shadow-xs transition-all"
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold shadow-xs transition-all cursor-pointer"
             >
               <Receipt className="w-3.5 h-3.5" />
-              <span>Catat Belanja</span>
+              <span>Record Purchase</span>
             </button>
           </div>
         </div>
       ) : filteredSummaries.length === 0 ? (
         <div className="bg-white rounded-2xl border border-slate-200 p-12 text-center space-y-3">
           <Package className="w-10 h-10 text-slate-400 mx-auto" />
-          <h3 className="text-sm font-bold text-slate-900">Tidak ada stok yang sesuai</h3>
+          <h3 className="text-sm font-bold text-slate-900">No matching stock found</h3>
           <p className="text-xs text-slate-500 max-w-sm mx-auto">
-            Ubah kata kunci pencarian atau sesuaikan filter status persediaan Anda.
+            Change your search terms or adjust inventory status filters.
           </p>
         </div>
       ) : (

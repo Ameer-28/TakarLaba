@@ -68,7 +68,7 @@ export function RecipeRowItem({
           onClick={() => onRemove(row.rowId)}
           disabled={!canRemove}
           className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors disabled:opacity-30 cursor-pointer"
-          title="Hapus baris bahan"
+          title="Remove ingredient row"
         >
           <Trash2 className="w-4 h-4" />
         </button>
@@ -77,7 +77,7 @@ export function RecipeRowItem({
       <div className="flex items-center gap-3 pt-1">
         <div className="flex-1">
           <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">
-            Takaran Resep
+            Recipe Quantity
           </label>
           <div className="flex items-center gap-1.5">
             <input
@@ -105,7 +105,7 @@ export function RecipeRowItem({
 
         <div className="w-32 text-right">
           <span className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">
-            Subtotal Biaya
+            Cost Subtotal
           </span>
           <span className="text-xs font-bold text-slate-800 tabular-nums">
             {subtotal ? formatRupiah(subtotal) : "Rp-"}

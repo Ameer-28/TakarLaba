@@ -20,11 +20,11 @@ export function AlertDetailModal({ isOpen, onClose, alertId }: AlertDetailModalP
     try {
       await applyPriceMutation.mutateAsync(alert.id);
       toast.success(
-        `Harga menu "${alert.menuName}" berhasil dinaikkan ke ${formatRupiah(alert.optionA.recommendedPrice)}`
+        `Price for "${alert.menuName}" increased to ${formatRupiah(alert.optionA.recommendedPrice)}`
       );
       onClose();
     } catch {
-      toast.error(`Gagal menerapkan harga baru untuk "${alert.menuName}".`);
+      toast.error(`Failed to apply new price for "${alert.menuName}".`);
     }
   };
 
@@ -35,15 +35,15 @@ export function AlertDetailModal({ isOpen, onClose, alertId }: AlertDetailModalP
         <div className="flex items-center justify-between p-4 sm:p-6 border-b border-slate-100 bg-slate-50/50">
           <div>
             <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">
-              Detail Peringatan Margin
+              Margin Alert Details
             </span>
             <h2 className="text-lg sm:text-xl font-bold text-slate-900">
-              {alert ? alert.menuName : "Memuat data..."}
+              {alert ? alert.menuName : "Loading data..."}
             </h2>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-100 transition-colors"
+            className="p-1.5 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-100 transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -52,12 +52,10 @@ export function AlertDetailModal({ isOpen, onClose, alertId }: AlertDetailModalP
         {/* Content */}
         <div className="p-4 sm:p-6 space-y-6 overflow-y-auto">
           {isPending ? (
-            <div className="py-12 text-center text-xs text-slate-400">
-              Memuat rincian peringatan...
-            </div>
+            <div className="py-12 text-center text-xs text-slate-400">Loading alert details...</div>
           ) : isError || !alert ? (
             <div className="py-12 text-center text-xs text-rose-500">
-              Gagal memuat rincian peringatan.
+              Failed to load alert details.
             </div>
           ) : (
             <>
@@ -66,18 +64,18 @@ export function AlertDetailModal({ isOpen, onClose, alertId }: AlertDetailModalP
                 <div className="flex items-center gap-2">
                   <AlertTriangle className="w-4 h-4 text-rose-600 shrink-0" />
                   <span className="text-xs font-bold text-rose-900">
-                    Pemicu: Kenaikan Harga {alert.triggerIngredient?.name || "Bahan Baku"}
+                    Trigger: Price Increase in {alert.triggerIngredient?.name || "Ingredient"}
                   </span>
                 </div>
                 <p className="text-xs text-rose-800">
                   {alert.triggerPurchase ? (
                     <>
-                      Tercatat pada nota pembelian dari{" "}
-                      <strong>{alert.triggerPurchase.supplierName || "Pemasok Langsung"}</strong>{" "}
-                      pada {formatDate(alert.triggerPurchase.purchasedAt, true)}.
+                      Recorded on purchase invoice from{" "}
+                      <strong>{alert.triggerPurchase.supplierName || "Direct Supplier"}</strong> on{" "}
+                      {formatDate(alert.triggerPurchase.purchasedAt, true)}.
                     </>
                   ) : (
-                    "Tercatat melalui perubahan data resep atau pengaturan usaha."
+                    "Recorded via recipe modification or business settings update."
                   )}
                 </p>
               </div>
@@ -85,7 +83,9 @@ export function AlertDetailModal({ isOpen, onClose, alertId }: AlertDetailModalP
               {/* Cost comparison metrics */}
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 p-3.5 rounded-xl bg-slate-50 border border-slate-200/80 text-center">
                 <div>
-                  <span className="text-[11px] font-medium text-slate-500 block">HPP Bahan</span>
+                  <span className="text-[11px] font-medium text-slate-500 block">
+                    Ingredient Cost
+                  </span>
                   <div className="text-xs sm:text-sm font-bold text-slate-800 tabular-nums">
                     {formatRupiah(alert.costs.ingredientCostBefore)} →{" "}
                     <span className="text-rose-600 font-extrabold">
@@ -94,7 +94,9 @@ export function AlertDetailModal({ isOpen, onClose, alertId }: AlertDetailModalP
                   </div>
                 </div>
                 <div>
-                  <span className="text-[11px] font-medium text-slate-500 block">HPP Penuh</span>
+                  <span className="text-[11px] font-medium text-slate-500 block">
+                    Full Cost (HPP)
+                  </span>
                   <div className="text-xs sm:text-sm font-bold text-slate-800 tabular-nums">
                     {formatRupiah(alert.costs.fullCostBefore)} →{" "}
                     <span className="text-rose-600 font-extrabold">
@@ -103,7 +105,7 @@ export function AlertDetailModal({ isOpen, onClose, alertId }: AlertDetailModalP
                   </div>
                 </div>
                 <div>
-                  <span className="text-[11px] font-medium text-slate-500 block">Margin Penuh</span>
+                  <span className="text-[11px] font-medium text-slate-500 block">Full Margin</span>
                   <div className="text-xs sm:text-sm font-bold text-slate-800 tabular-nums">
                     {formatPercent(alert.costs.marginBeforePct)} →{" "}
                     <span className="text-rose-600 font-extrabold">
@@ -124,7 +126,7 @@ export function AlertDetailModal({ isOpen, onClose, alertId }: AlertDetailModalP
               {/* Recipe Breakdown */}
               <div className="space-y-2.5">
                 <h4 className="text-xs font-bold text-slate-900 uppercase tracking-wider">
-                  Komposisi Resep Produk
+                  Product Recipe Composition
                 </h4>
                 <div className="border border-slate-200 rounded-xl overflow-hidden divide-y divide-slate-100 text-xs">
                   {alert.recipe.map((item) => {
@@ -142,7 +144,7 @@ export function AlertDetailModal({ isOpen, onClose, alertId }: AlertDetailModalP
                         <div className="flex items-center gap-2">
                           {isTrigger && (
                             <span className="text-[10px] font-extrabold px-1.5 py-0.5 rounded bg-rose-200 text-rose-800">
-                              PEMICU
+                              TRIGGER
                             </span>
                           )}
                           <span>{item.ingredientName}</span>
@@ -162,7 +164,7 @@ export function AlertDetailModal({ isOpen, onClose, alertId }: AlertDetailModalP
                 <div className="p-4 rounded-xl border border-sky-200 bg-sky-50/30 space-y-2">
                   <div className="flex items-center gap-1.5 text-sky-800 text-xs font-bold uppercase tracking-wider">
                     <TrendingUp className="w-3.5 h-3.5" />
-                    Opsi A: Naikkan Harga
+                    Option A: Increase Price
                   </div>
                   <div className="flex items-baseline gap-2">
                     <span className="text-xl font-black text-slate-900 tabular-nums">
@@ -173,7 +175,7 @@ export function AlertDetailModal({ isOpen, onClose, alertId }: AlertDetailModalP
                     </span>
                   </div>
                   <p className="text-xs text-slate-600">
-                    Proyeksi margin pulih ke{" "}
+                    Projected margin recovers to{" "}
                     <strong>{formatPercent(alert.optionA.projectedMarginPercent)}</strong>.
                   </p>
                 </div>
@@ -182,7 +184,7 @@ export function AlertDetailModal({ isOpen, onClose, alertId }: AlertDetailModalP
                 <div className="p-4 rounded-xl border border-slate-200 bg-slate-50/60 space-y-2">
                   <div className="flex items-center gap-1.5 text-slate-700 text-xs font-bold uppercase tracking-wider">
                     <Scissors className="w-3.5 h-3.5" />
-                    Opsi B: Kurangi Takaran
+                    Option B: Reduce Portion
                   </div>
                   {alert.optionB ? (
                     <>
@@ -195,14 +197,14 @@ export function AlertDetailModal({ isOpen, onClose, alertId }: AlertDetailModalP
                         </span>
                       </div>
                       <p className="text-xs text-slate-600">
-                        Hemat biaya {formatRupiah(alert.optionB.costSavingNeeded)} (
-                        {formatPercent(alert.optionB.reductionPercent)} porsi{" "}
+                        Save {formatRupiah(alert.optionB.costSavingNeeded)} in cost (
+                        {formatPercent(alert.optionB.reductionPercent)} portion of{" "}
                         {alert.triggerIngredient?.name}).
                       </p>
                     </>
                   ) : (
                     <p className="text-xs text-slate-500">
-                      Data bahan baku tidak lengkap untuk opsi B.
+                      Ingredient data incomplete for Option B.
                     </p>
                   )}
                 </div>
@@ -212,12 +214,12 @@ export function AlertDetailModal({ isOpen, onClose, alertId }: AlertDetailModalP
               {alert.status === "RESOLVED" && (
                 <div className="p-3.5 rounded-xl bg-slate-100 border border-slate-200 text-xs text-slate-600 space-y-1">
                   <span className="font-bold text-slate-800">
-                    Status Penyelesaian: {alert.resolution}
+                    Resolution Status: {alert.resolution}
                   </span>
-                  {alert.note && <p className="italic">"{alert.note}"</p>}
+                  {alert.note && <p className="italic">&quot;{alert.note}&quot;</p>}
                   {alert.resolvedAt && (
                     <p className="text-[11px] text-slate-400">
-                      Diselesaikan pada {formatDate(alert.resolvedAt, true)}
+                      Resolved on {formatDate(alert.resolvedAt, true)}
                     </p>
                   )}
                 </div>
@@ -233,7 +235,7 @@ export function AlertDetailModal({ isOpen, onClose, alertId }: AlertDetailModalP
             onClick={onClose}
             className="px-4 py-2 text-xs sm:text-sm font-semibold text-slate-600 hover:text-slate-800 hover:bg-slate-200/50 rounded-xl transition-all cursor-pointer"
           >
-            Tutup
+            Close
           </button>
           {alert && alert.status !== "RESOLVED" && (
             <button
@@ -243,7 +245,7 @@ export function AlertDetailModal({ isOpen, onClose, alertId }: AlertDetailModalP
               className="px-4 py-2 rounded-xl bg-sky-600 hover:bg-sky-700 text-white text-xs sm:text-sm font-bold transition-all shadow-xs flex items-center gap-1.5 cursor-pointer active:scale-98"
             >
               <Check className="w-4 h-4" />
-              <span>Terapkan Harga {formatRupiah(alert.optionA.recommendedPrice)}</span>
+              <span>Apply Price {formatRupiah(alert.optionA.recommendedPrice)}</span>
             </button>
           )}
         </div>

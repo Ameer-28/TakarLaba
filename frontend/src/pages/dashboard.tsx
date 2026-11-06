@@ -52,11 +52,11 @@ export function DashboardPage() {
           <AlertCircle className="w-6 h-6" />
         </div>
         <div className="space-y-1">
-          <h2 className="text-lg font-bold text-slate-900">Gagal Memuat Ringkasan Dashboard</h2>
+          <h2 className="text-lg font-bold text-slate-900">Failed to Load Dashboard Summary</h2>
           <p className="text-sm text-slate-500 max-w-md mx-auto">
             {error instanceof Error
               ? error.message
-              : "Terjadi gangguan saat mengambil data ringkasan bisnis."}
+              : "An error occurred while fetching business summary data."}
           </p>
         </div>
         <button
@@ -65,7 +65,7 @@ export function DashboardPage() {
           className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-700 text-white text-sm font-semibold hover:bg-emerald-800 transition shadow-xs"
         >
           <RefreshCw className="w-4 h-4" />
-          Coba Lagi
+          Try Again
         </button>
       </div>
     );
@@ -77,12 +77,12 @@ export function DashboardPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
-            Dashboard Bisnis
+            Business Dashboard
           </h1>
           <p className="text-sm text-slate-600 mt-1">
-            Selamat datang kembali,{" "}
-            <span className="font-semibold text-slate-800">{session?.user?.name || "Pemilik"}</span>
-            . Ringkasan operasional hari ini ({todayStr}).
+            Welcome back,{" "}
+            <span className="font-semibold text-slate-800">{session?.user?.name || "Owner"}</span>.
+            Today's operational summary ({todayStr}).
           </p>
         </div>
 
@@ -92,7 +92,7 @@ export function DashboardPage() {
           className="self-start sm:self-center inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 bg-white text-xs font-semibold text-slate-700 hover:bg-slate-50 transition shadow-2xs"
         >
           <RefreshCw className="w-3.5 h-3.5" />
-          Segarkan Data
+          Refresh Data
         </button>
       </div>
 

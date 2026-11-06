@@ -80,19 +80,19 @@ export function MenuEngineeringQuadrantChart({
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
         <div className="flex items-center gap-2 p-2 rounded-xl bg-emerald-50/60 border border-emerald-100">
           <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-xs" />
-          <span className="font-semibold text-emerald-950">Star (Bintang)</span>
+          <span className="font-semibold text-emerald-950">Star</span>
         </div>
         <div className="flex items-center gap-2 p-2 rounded-xl bg-indigo-50/60 border border-indigo-100">
           <span className="w-2.5 h-2.5 rounded-full bg-indigo-500 shadow-xs" />
-          <span className="font-semibold text-indigo-950">Plowhorse (Kuda Beban)</span>
+          <span className="font-semibold text-indigo-950">Plowhorse</span>
         </div>
         <div className="flex items-center gap-2 p-2 rounded-xl bg-amber-50/60 border border-amber-100">
           <span className="w-2.5 h-2.5 rounded-full bg-amber-500 shadow-xs" />
-          <span className="font-semibold text-amber-950">Puzzle (Teka-Teki)</span>
+          <span className="font-semibold text-amber-950">Puzzle</span>
         </div>
         <div className="flex items-center gap-2 p-2 rounded-xl bg-rose-50/60 border border-rose-100">
           <span className="w-2.5 h-2.5 rounded-full bg-rose-500 shadow-xs" />
-          <span className="font-semibold text-rose-950">Dog (Anjing)</span>
+          <span className="font-semibold text-rose-950">Dog</span>
         </div>
       </div>
 
@@ -102,7 +102,7 @@ export function MenuEngineeringQuadrantChart({
           viewBox={`0 0 ${width} ${height}`}
           className="w-full h-auto max-h-[460px] select-none"
           role="img"
-          aria-label="Matriks Scatter Plot Menu Engineering Kasavana & Smith"
+          aria-label="Kasavana & Smith Menu Engineering Scatter Plot Matrix"
         >
           {/* Quadrant Background Shading */}
           {/* Top-Right: STAR */}
@@ -124,7 +124,7 @@ export function MenuEngineeringQuadrantChart({
             fontWeight="bold"
             letterSpacing="0.05em"
           >
-            STAR (BINTANG)
+            STAR
           </text>
 
           {/* Bottom-Right: PLOWHORSE */}
@@ -146,7 +146,7 @@ export function MenuEngineeringQuadrantChart({
             fontWeight="bold"
             letterSpacing="0.05em"
           >
-            PLOWHORSE (KUDA BEBAN)
+            PLOWHORSE
           </text>
 
           {/* Top-Left: PUZZLE */}
@@ -168,7 +168,7 @@ export function MenuEngineeringQuadrantChart({
             fontWeight="bold"
             letterSpacing="0.05em"
           >
-            PUZZLE (TEKA-TEKI)
+            PUZZLE
           </text>
 
           {/* Bottom-Left: DOG */}
@@ -190,7 +190,7 @@ export function MenuEngineeringQuadrantChart({
             fontWeight="bold"
             letterSpacing="0.05em"
           >
-            DOG (ANJING)
+            DOG
           </text>
 
           {/* Axes */}
@@ -240,7 +240,7 @@ export function MenuEngineeringQuadrantChart({
             fontSize="10"
             fontWeight="600"
           >
-            Ambang Porsi: {popularityThresholdPortions.toFixed(0)}
+            Portion Threshold: {popularityThresholdPortions.toFixed(0)}
           </text>
           <text
             x={padding.left + plotWidth + 5}
@@ -250,7 +250,7 @@ export function MenuEngineeringQuadrantChart({
             fontSize="10"
             fontWeight="600"
           >
-            Ambang Margin: {formatRupiah(weightedMarginThreshold)}
+            Margin Threshold: {formatRupiah(weightedMarginThreshold)}
           </text>
 
           {/* Axis Labels */}
@@ -262,7 +262,7 @@ export function MenuEngineeringQuadrantChart({
             fontSize="11"
             fontWeight="bold"
           >
-            Volume Penjualan (Porsi Terjual) →
+            Sales Volume (Portions Sold) →
           </text>
           <text
             x={-height / 2}
@@ -273,7 +273,7 @@ export function MenuEngineeringQuadrantChart({
             fontSize="11"
             fontWeight="bold"
           >
-            Margin Kontribusi per Porsi (Rp) →
+            Contribution Margin per Portion (Rp) →
           </text>
 
           {/* Plotted Menus */}
@@ -334,7 +334,7 @@ export function MenuEngineeringQuadrantChart({
                   {activeMenu.quadrant}
                 </span>
                 <span className="text-slate-500 tabular-nums">
-                  Harga: {formatRupiah(activeMenu.sellingPrice)}
+                  Price: {formatRupiah(activeMenu.sellingPrice)}
                 </span>
               </div>
               <p className="text-slate-600 font-medium">{activeMenu.recommendation.title}</p>
@@ -343,13 +343,13 @@ export function MenuEngineeringQuadrantChart({
 
             <div className="flex items-center gap-4 text-right tabular-nums self-end sm:self-center shrink-0">
               <div>
-                <span className="text-[10px] text-slate-400 block">Porsi Terjual</span>
+                <span className="text-[10px] text-slate-400 block">Portions Sold</span>
                 <strong className="text-slate-900 text-sm">
                   {formatNumber(activeMenu.portionsSold)} ({activeMenu.popularitySharePercent}%)
                 </strong>
               </div>
               <div>
-                <span className="text-[10px] text-slate-400 block">Margin Kontribusi</span>
+                <span className="text-[10px] text-slate-400 block">Contribution Margin</span>
                 <strong className="text-emerald-700 text-sm">
                   {formatRupiah(activeMenu.marginKontribusi)}
                 </strong>

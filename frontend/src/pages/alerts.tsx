@@ -47,28 +47,28 @@ export function AlertsPage() {
     try {
       await applyPriceMutation.mutateAsync(alert.id);
       toast.success(
-        `Harga menu "${alert.menu.name}" berhasil dinaikkan ke ${formatRupiah(alert.recommendedPrice)}`
+        `Price for "${alert.menu.name}" increased to ${formatRupiah(alert.recommendedPrice)}`
       );
     } catch {
-      toast.error(`Gagal menerapkan harga baru untuk "${alert.menu.name}".`);
+      toast.error(`Failed to apply new price for "${alert.menu.name}".`);
     }
   };
 
   const handleAcknowledge = async (alert: AlertListItem) => {
     try {
       await acknowledgeMutation.mutateAsync(alert.id);
-      toast.success(`Peringatan untuk menu "${alert.menu.name}" ditandai sedang ditinjau.`);
+      toast.success(`Alert for "${alert.menu.name}" marked as acknowledged.`);
     } catch {
-      toast.error(`Gagal menandai peringatan.`);
+      toast.error(`Failed to acknowledge alert.`);
     }
   };
 
   const handleConfirmDismiss = async (alertId: string, note?: string) => {
     try {
       await dismissMutation.mutateAsync({ alertId, note });
-      toast.success("Peringatan margin berhasil diabaikan.");
+      toast.success("Margin alert dismissed successfully.");
     } catch {
-      toast.error("Gagal mengabaikan peringatan.");
+      toast.error("Failed to dismiss alert.");
     }
   };
 
@@ -79,11 +79,11 @@ export function AlertsPage() {
         <div>
           <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight flex items-center gap-2.5">
             <Bell className="w-6 h-6 text-rose-600" />
-            Pusat Peringatan Margin
+            Margin Alerts Center
           </h1>
           <p className="text-xs sm:text-sm text-slate-600 mt-1">
-            Deteksi otomatis saat kenaikan harga bahan baku menggerus margin menu di bawah target
-            bisnis.
+            Automatic detection when rising ingredient prices reduce menu margins below business
+            targets.
           </p>
         </div>
 
@@ -92,7 +92,7 @@ export function AlertsPage() {
           className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold transition-all shadow-xs self-start sm:self-auto cursor-pointer"
         >
           <RefreshCw className="w-3.5 h-3.5" />
-          <span>Muat Ulang</span>
+          <span>Reload</span>
         </button>
       </div>
 
@@ -106,23 +106,21 @@ export function AlertsPage() {
       {isPending ? (
         <div className="py-16 text-center space-y-3">
           <div className="w-8 h-8 border-3 border-slate-200 border-t-slate-800 rounded-full animate-spin mx-auto" />
-          <p className="text-xs sm:text-sm text-slate-500 font-medium">
-            Memuat data peringatan margin...
-          </p>
+          <p className="text-xs sm:text-sm text-slate-500 font-medium">Loading margin alerts...</p>
         </div>
       ) : isError ? (
         <div className="bg-rose-50 border border-rose-200 rounded-2xl p-8 text-center space-y-3">
           <AlertTriangle className="w-10 h-10 text-rose-500 mx-auto" />
-          <h2 className="text-sm sm:text-base font-bold text-rose-900">Gagal Memuat Peringatan</h2>
+          <h2 className="text-sm sm:text-base font-bold text-rose-900">Failed to Load Alerts</h2>
           <p className="text-xs text-rose-600 max-w-md mx-auto">
-            Terjadi kendala saat mengambil data peringatan margin. Silakan periksa koneksi Anda dan
-            coba lagi.
+            An issue occurred while fetching margin alerts. Please check your connection and try
+            again.
           </p>
           <button
             onClick={() => refetch()}
             className="px-4 py-2 rounded-xl bg-rose-600 text-white text-xs font-bold hover:bg-rose-700 transition-all cursor-pointer shadow-xs"
           >
-            Coba Lagi
+            Try Again
           </button>
         </div>
       ) : filteredAlerts.length === 0 ? (
@@ -130,17 +128,17 @@ export function AlertsPage() {
           <CheckCircle2 className="w-12 h-12 text-emerald-500 mx-auto" />
           <h2 className="text-base sm:text-lg font-bold text-slate-800">
             {activeTab === "ALL"
-              ? "Tidak Ada Peringatan Margin"
+              ? "No Margin Alerts"
               : activeTab === "OPEN"
-                ? "Tidak Ada Peringatan Terbuka"
+                ? "No Open Alerts"
                 : activeTab === "ACKNOWLEDGED"
-                  ? "Tidak Ada Peringatan Sedang Ditinjau"
-                  : "Belum Ada Peringatan yang Diselesaikan"}
+                  ? "No Acknowledged Alerts"
+                  : "No Resolved Alerts Yet"}
           </h2>
           <p className="text-xs sm:text-sm text-slate-500 max-w-md mx-auto">
             {activeTab === "ALL" || activeTab === "OPEN"
-              ? "Seluruh menu usaha Anda saat ini memiliki margin di atas atau sama dengan target ambang batas aman."
-              : "Peringatan dalam tab ini akan muncul setelah tindakan diambil atau ditandai."}
+              ? "All of your menu items currently maintain healthy profit margins at or above your safety threshold."
+              : "Alerts in this tab will appear once actions are taken or acknowledged."}
           </p>
         </div>
       ) : (

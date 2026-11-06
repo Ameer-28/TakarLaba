@@ -18,17 +18,17 @@ export function WasteRadarPanel() {
   const { data, isLoading, isError, refetch } = useWasteRadar(warnDays);
 
   const dayOptions = [
-    { label: "3 Hari", value: 3 },
-    { label: "7 Hari (Bawaan)", value: 7 },
-    { label: "14 Hari", value: 14 },
-    { label: "30 Hari", value: 30 },
+    { label: "3 Days", value: 3 },
+    { label: "7 Days (Default)", value: 7 },
+    { label: "14 Days", value: 14 },
+    { label: "30 Days", value: 30 },
   ];
 
   if (isLoading) {
     return (
       <div className="flex flex-col items-center justify-center p-12 bg-white rounded-2xl border border-slate-200">
         <Loader2 className="w-8 h-8 text-emerald-600 animate-spin mb-3" />
-        <p className="text-sm font-medium text-slate-600">Memindai radar risiko kedaluwarsa...</p>
+        <p className="text-sm font-medium text-slate-600">Scanning expiry risk radar...</p>
       </div>
     );
   }
@@ -37,12 +37,12 @@ export function WasteRadarPanel() {
     return (
       <div className="p-6 bg-rose-50 border border-rose-200 rounded-2xl text-center space-y-3">
         <AlertCircle className="w-8 h-8 text-rose-500 mx-auto" />
-        <p className="text-sm font-semibold text-rose-900">Gagal memuat data Waste Radar</p>
+        <p className="text-sm font-semibold text-rose-900">Failed to load Waste Radar data</p>
         <button
           onClick={() => void refetch()}
           className="px-4 py-2 bg-white border border-rose-300 text-rose-700 text-xs font-semibold rounded-lg hover:bg-rose-100 transition-colors"
         >
-          Coba Lagi
+          Try Again
         </button>
       </div>
     );
@@ -60,19 +60,19 @@ export function WasteRadarPanel() {
               <AlertTriangle className="w-4 h-4" />
             </span>
             <h2 className="text-base sm:text-lg font-bold text-slate-900">
-              Waste Radar — Ubah Risiko Menjadi Pendapatan
+              Waste Radar — Turn Risk into Revenue
             </h2>
           </div>
           <p className="text-xs text-slate-500 mt-1">
-            Pantau batch mendekati kedaluwarsa, identifikasi menu terkait, dan terapkan batas diskon
-            promo yang aman agar tidak merugi.
+            Track batches approaching expiration, identify affected menu items, and apply safe promo
+            discount floors to prevent waste losses.
           </p>
         </div>
 
         {/* Day Range Filter */}
         <div className="flex items-center gap-1.5 p-1 bg-slate-100 rounded-xl border border-slate-200 self-start sm:self-center">
           <Calendar className="w-3.5 h-3.5 text-slate-400 ml-2" />
-          <span className="text-xs font-medium text-slate-500 pr-1">Rentang:</span>
+          <span className="text-xs font-medium text-slate-500 pr-1">Range:</span>
           {dayOptions.map((opt) => (
             <button
               key={opt.value}
@@ -96,7 +96,7 @@ export function WasteRadarPanel() {
         <div className="p-4 bg-white rounded-2xl border border-rose-200 shadow-xs">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-rose-700 uppercase tracking-wider">
-              Total Nilai Risiko Bahan
+              Total Ingredient Risk Value
             </span>
             <TrendingDown className="w-4 h-4 text-rose-500" />
           </div>
@@ -106,7 +106,7 @@ export function WasteRadarPanel() {
             </span>
           </div>
           <p className="text-xs text-slate-500 mt-1">
-            Potensi kerugian jika batch tidak termanfaatkan sebelum kedaluwarsa.
+            Potential loss if batches are not utilized before expiration.
           </p>
         </div>
 
@@ -114,7 +114,7 @@ export function WasteRadarPanel() {
         <div className="p-4 bg-white rounded-2xl border border-amber-200 shadow-xs">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-amber-700 uppercase tracking-wider">
-              Batch Perlu Perhatian
+              Batches Needing Attention
             </span>
             <Clock className="w-4 h-4 text-amber-500" />
           </div>
@@ -122,10 +122,10 @@ export function WasteRadarPanel() {
             <span className="text-2xl font-black tabular-nums text-amber-600">
               {formatNumber(summary.totalExpiringBatches)}
             </span>
-            <span className="text-xs text-slate-500">batch</span>
+            <span className="text-xs text-slate-500">batches</span>
           </div>
           <p className="text-xs text-slate-500 mt-1">
-            Dalam rentang {summary.warnDays} hari ke depan (atau sudah lewat).
+            Within the next {summary.warnDays} days (or already past).
           </p>
         </div>
 
@@ -133,7 +133,7 @@ export function WasteRadarPanel() {
         <div className="p-4 bg-white rounded-2xl border border-emerald-200 shadow-xs">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-emerald-700 uppercase tracking-wider">
-              Menu Potensial Promo
+              Promo Opportunity Menus
             </span>
             <Utensils className="w-4 h-4 text-emerald-500" />
           </div>
@@ -141,10 +141,10 @@ export function WasteRadarPanel() {
             <span className="text-2xl font-black tabular-nums text-emerald-600">
               {formatNumber(summary.totalImpactedMenus)}
             </span>
-            <span className="text-xs text-slate-500">resep menu</span>
+            <span className="text-xs text-slate-500">recipes</span>
           </div>
           <p className="text-xs text-slate-500 mt-1">
-            Dapat dipromosikan dengan batas laba min. {summary.wastePromoMinMarginPercent}%.
+            Can be promoted with min. profit margin of {summary.wastePromoMinMarginPercent}%.
           </p>
         </div>
       </div>
@@ -155,10 +155,9 @@ export function WasteRadarPanel() {
           <div className="w-12 h-12 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center mx-auto">
             <CheckCircle className="w-6 h-6" />
           </div>
-          <h3 className="text-base font-bold text-emerald-950">Semua Stok Bahan Terkendali!</h3>
+          <h3 className="text-base font-bold text-emerald-950">All Ingredient Stock in Control!</h3>
           <p className="text-xs text-emerald-800 max-w-md mx-auto">
-            Tidak ditemukan batch bahan baku yang mendekati batas kedaluwarsa dalam rentang waktu{" "}
-            {warnDays} hari ke depan.
+            No ingredient batches approaching expiration within the next {warnDays} days.
           </p>
         </div>
       ) : (
@@ -196,10 +195,10 @@ function WasteRadarBatchCard({ item }: { item: WasteRadarItem }) {
             <Clock className="w-3.5 h-3.5" />
             <span>
               {isExpired
-                ? `Kedaluwarsa (${Math.abs(item.daysUntilExpiry)} hari lalu)`
+                ? `Expired (${Math.abs(item.daysUntilExpiry)} days ago)`
                 : item.daysUntilExpiry === 0
-                  ? "Kedaluwarsa Hari Ini"
-                  : `Sisa ${item.daysUntilExpiry} hari`}
+                  ? "Expires Today"
+                  : `${item.daysUntilExpiry} days remaining`}
             </span>
           </div>
 
@@ -209,7 +208,7 @@ function WasteRadarBatchCard({ item }: { item: WasteRadarItem }) {
             </h3>
             {item.category && (
               <span className="text-[11px] font-medium text-slate-500">
-                Kategori: {item.category}
+                Category: {item.category}
               </span>
             )}
           </div>
@@ -218,13 +217,13 @@ function WasteRadarBatchCard({ item }: { item: WasteRadarItem }) {
         {/* Quantities & Risk Rp */}
         <div className="flex items-center gap-4 text-xs sm:text-sm">
           <div>
-            <span className="text-slate-500 block text-[11px]">Sisa Stok Batch:</span>
+            <span className="text-slate-500 block text-[11px]">Remaining Batch Stock:</span>
             <span className="font-bold tabular-nums text-slate-800">
               {item.remainingQty} {item.unit}
             </span>
           </div>
           <div className="text-right">
-            <span className="text-slate-500 block text-[11px]">Nilai Risiko:</span>
+            <span className="text-slate-500 block text-[11px]">Risk Value:</span>
             <span
               className={`font-black tabular-nums ${isExpired ? "text-rose-600" : "text-amber-700"}`}
             >
@@ -238,13 +237,13 @@ function WasteRadarBatchCard({ item }: { item: WasteRadarItem }) {
       <div className="mt-4">
         <h4 className="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5 mb-2.5">
           <Tag className="w-3.5 h-3.5 text-emerald-600" />
-          <span>Menu Terkait & Rekomendasi Diskon Promo Aman (Anti-Rugi)</span>
+          <span>Linked Menus & Safe Promo Discount Recommendations (Zero Loss)</span>
         </h4>
 
         {item.relatedMenus.length === 0 ? (
           <p className="text-xs text-slate-500 italic bg-slate-50 p-3 rounded-xl border border-slate-100">
-            Belum ada resep menu aktif yang menggunakan bahan ini. Buat resep atau gunakan pada menu
-            baru agar bahan dapat terjual.
+            No active recipes use this ingredient yet. Create a recipe or use it in a new dish to
+            utilize this stock.
           </p>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -257,19 +256,19 @@ function WasteRadarBatchCard({ item }: { item: WasteRadarItem }) {
                   <div className="flex items-center justify-between gap-2">
                     <span className="font-bold text-slate-900 text-sm">{menu.menuName}</span>
                     <span className="px-2 py-0.5 rounded-full bg-slate-200 text-slate-700 font-medium text-[10px]">
-                      Margin Normal: {menu.currentMarginPercent}%
+                      Normal Margin: {menu.currentMarginPercent}%
                     </span>
                   </div>
 
                   <div className="grid grid-cols-2 gap-2 mt-2 pt-2 border-t border-slate-200/60 text-slate-600">
                     <div>
-                      <span className="text-[10px] text-slate-500 block">Harga Normal:</span>
+                      <span className="text-[10px] text-slate-500 block">Regular Price:</span>
                       <span className="font-bold tabular-nums text-slate-900">
                         {formatRupiah(menu.sellingPrice)}
                       </span>
                     </div>
                     <div>
-                      <span className="text-[10px] text-slate-500 block">HPP Penuh:</span>
+                      <span className="text-[10px] text-slate-500 block">Full Cost (HPP):</span>
                       <span className="font-bold tabular-nums text-slate-700">
                         {formatRupiah(menu.hppPenuh)}
                       </span>
@@ -280,20 +279,20 @@ function WasteRadarBatchCard({ item }: { item: WasteRadarItem }) {
                 {/* Safe Promotion Box */}
                 <div className="p-2.5 bg-emerald-50 rounded-lg border border-emerald-200 space-y-1.5">
                   <div className="flex items-center justify-between text-emerald-900">
-                    <span className="font-semibold text-[11px]">Harga Lantai Promo:</span>
+                    <span className="font-semibold text-[11px]">Promo Floor Price:</span>
                     <span className="font-black tabular-nums text-emerald-700 text-xs">
                       {formatRupiah(menu.promoFloorPrice)}
                     </span>
                   </div>
                   <div className="flex items-center justify-between text-emerald-800">
-                    <span className="text-[11px]">Batas Diskon Aman:</span>
+                    <span className="text-[11px]">Safe Discount Ceiling:</span>
                     <span className="font-extrabold tabular-nums text-emerald-800">
-                      Maks. {formatRupiah(menu.maxDiscountAmount)} ({menu.maxDiscountPercent}%)
+                      Max. {formatRupiah(menu.maxDiscountAmount)} ({menu.maxDiscountPercent}%)
                     </span>
                   </div>
                   <p className="text-[10px] text-emerald-700/90 leading-tight pt-1 border-t border-emerald-200/60">
-                    Aman didiskon hingga batas di atas dengan laba minimal {menu.promoMarginPercent}
-                    % agar modal tertutup dan bahan terhabiskan.
+                    Safe to discount up to the limit above while maintaining a minimum profit margin
+                    of {menu.promoMarginPercent}% to recover cost and utilize stock.
                   </p>
                 </div>
               </div>

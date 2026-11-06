@@ -59,7 +59,7 @@ export function PosCheckoutModal({ isOpen, onClose, cartItems, onSuccess }: PosC
     setErrorMessage(null);
 
     if (isCashInsufficient) {
-      setErrorMessage("Nominal uang yang diterima kurang dari total tagihan pesanan.");
+      setErrorMessage("Cash received is less than total amount due.");
       return;
     }
 
@@ -84,7 +84,7 @@ export function PosCheckoutModal({ isOpen, onClose, cartItems, onSuccess }: PosC
       if (err instanceof Error) {
         setErrorMessage(err.message);
       } else {
-        setErrorMessage("Gagal memproses transaksi kasir.");
+        setErrorMessage("Failed to process cashier transaction.");
       }
     }
   };
@@ -95,9 +95,9 @@ export function PosCheckoutModal({ isOpen, onClose, cartItems, onSuccess }: PosC
         {/* Header */}
         <div className="p-5 border-b border-slate-100 flex items-center justify-between">
           <div>
-            <h3 className="text-lg font-extrabold text-slate-900">Pembayaran Kasir</h3>
+            <h3 className="text-lg font-extrabold text-slate-900">Cashier Checkout</h3>
             <span className="text-xs text-slate-500 font-medium">
-              Selesaikan transaksi dan catat pembayaran pelanggan
+              Complete transaction and record customer payment
             </span>
           </div>
 
@@ -117,7 +117,7 @@ export function PosCheckoutModal({ isOpen, onClose, cartItems, onSuccess }: PosC
             <div className="p-3.5 bg-rose-50 border border-rose-200 rounded-2xl flex items-start gap-2.5 text-xs text-rose-800">
               <AlertCircle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
               <div>
-                <p className="font-bold">Gagal Menyimpan Transaksi</p>
+                <p className="font-bold">Transaction Failed</p>
                 <p className="mt-0.5 leading-relaxed">{errorMessage}</p>
               </div>
             </div>
@@ -125,13 +125,13 @@ export function PosCheckoutModal({ isOpen, onClose, cartItems, onSuccess }: PosC
 
           <div className="bg-slate-50/80 p-4 rounded-2xl border border-slate-100 text-center">
             <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block">
-              Total Tagihan
+              Total Amount
             </span>
             <p className="text-3xl font-black text-slate-900 mt-1 tabular-nums">
               {formatRupiah(totalAmount)}
             </p>
             <span className="text-xs text-slate-500 mt-1 block">
-              {cartItems.reduce((acc, it) => acc + it.qty, 0)} porsi menu
+              {cartItems.reduce((acc, it) => acc + it.qty, 0)} item(s)
             </span>
           </div>
 
@@ -151,12 +151,12 @@ export function PosCheckoutModal({ isOpen, onClose, cartItems, onSuccess }: PosC
             <div className="p-4 bg-sky-50/60 border border-sky-100 rounded-2xl text-xs text-sky-900 space-y-1">
               <p className="font-bold">
                 {paymentMethod === "QRIS"
-                  ? "Tunjukkan QRIS kasir ke pelanggan"
-                  : "Periksa bukti transfer pelanggan"}
+                  ? "Show cashier QRIS code to customer"
+                  : "Verify customer transfer receipt"}
               </p>
               <p className="text-sky-800 leading-relaxed">
-                Pastikan dana senilai <strong>{formatRupiah(totalAmount)}</strong> telah berhasil
-                masuk ke rekening usaha sebelum menyelesaikan transaksi.
+                Ensure the amount of <strong>{formatRupiah(totalAmount)}</strong> has been
+                successfully received in the business account before completing.
               </p>
             </div>
           )}
@@ -170,7 +170,7 @@ export function PosCheckoutModal({ isOpen, onClose, cartItems, onSuccess }: PosC
             disabled={checkoutMutation.isPending}
             className="px-4 py-2.5 text-sm font-bold text-stone-600 hover:text-stone-800 hover:bg-stone-200/60 rounded-full transition-colors cursor-pointer"
           >
-            Batal
+            Cancel
           </button>
 
           <button
@@ -182,10 +182,10 @@ export function PosCheckoutModal({ isOpen, onClose, cartItems, onSuccess }: PosC
             {checkoutMutation.isPending ? (
               <>
                 <Loader2 className="w-4 h-4 animate-spin" />
-                <span>Memproses FEFO...</span>
+                <span>Processing FEFO...</span>
               </>
             ) : (
-              <span>Selesaikan Transaksi</span>
+              <span>Complete Transaction</span>
             )}
           </button>
         </div>

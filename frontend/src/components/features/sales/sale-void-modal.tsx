@@ -20,7 +20,7 @@ export function SaleVoidModal({ isOpen, onClose, sale, onSuccess }: SaleVoidModa
     e.preventDefault();
     const trimmed = reason.trim();
     if (trimmed.length < 3) {
-      toast.error("Alasan pembatalan minimal 3 karakter");
+      toast.error("Cancellation reason must be at least 3 characters");
       return;
     }
 
@@ -28,13 +28,13 @@ export function SaleVoidModal({ isOpen, onClose, sale, onSuccess }: SaleVoidModa
       { saleId: sale.id, reason: trimmed },
       {
         onSuccess: (updated) => {
-          toast.success(`Transaksi ${sale.invoiceNo} berhasil dibatalkan dan stok dikembalikan`);
+          toast.success(`Transaction ${sale.invoiceNo} voided successfully and stock was restored`);
           setReason("");
           onSuccess?.(updated);
           onClose();
         },
         onError: (err) => {
-          toast.error(err instanceof Error ? err.message : "Gagal membatalkan transaksi");
+          toast.error(err instanceof Error ? err.message : "Failed to void transaction");
         },
       }
     );
@@ -51,7 +51,7 @@ export function SaleVoidModal({ isOpen, onClose, sale, onSuccess }: SaleVoidModa
             </div>
             <div>
               <h3 className="font-extrabold text-slate-900 text-sm sm:text-base">
-                Batalkan Transaksi (Void)
+                Void Transaction
               </h3>
               <p className="text-[11px] text-slate-500 font-mono mt-0.5">{sale.invoiceNo}</p>
             </div>
@@ -71,29 +71,31 @@ export function SaleVoidModal({ isOpen, onClose, sale, onSuccess }: SaleVoidModa
           <div className="p-3 bg-amber-50/80 border border-amber-200/80 rounded-2xl flex items-start gap-2.5 text-xs text-amber-900">
             <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
             <div className="space-y-1">
-              <p className="font-bold">Pemulihan Stok Otomatis (VOID_RESTORE)</p>
+              <p className="font-bold">Automatic Stock Restoration (VOID_RESTORE)</p>
               <p className="text-amber-800 text-[11px] leading-relaxed">
-                Semua bahan baku yang terpotong saat transaksi ini akan dikembalikan ke batch asal
-                masing-masing. Transaksi yang dibatalkan tidak dapat dipulihkan kembali.
+                All ingredients deducted during this transaction will be restored to their original
+                batches. Voided transactions cannot be unvoided.
               </p>
             </div>
           </div>
 
           <div className="space-y-1.5">
             <label htmlFor="void-reason" className="block text-xs font-bold text-slate-700">
-              Alasan Pembatalan <span className="text-rose-500">*</span>
+              Cancellation Reason <span className="text-rose-500">*</span>
             </label>
             <textarea
               id="void-reason"
               rows={3}
               value={reason}
               onChange={(e) => setReason(e.target.value)}
-              placeholder="Contoh: Pelanggan salah memesan varian menu, transaksi dibatalkan..."
+              placeholder="e.g. Customer ordered wrong menu item, transaction cancelled..."
               className="w-full p-3 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-hidden focus:ring-2 focus:ring-rose-500/20 focus:border-rose-600 transition-all placeholder:text-slate-400"
               disabled={isPending}
               autoFocus
             />
-            <p className="text-[10px] text-slate-400">Minimal 3 karakter, maksimal 255 karakter.</p>
+            <p className="text-[10px] text-slate-400">
+              Minimum 3 characters, maximum 255 characters.
+            </p>
           </div>
 
           {/* Footer Actions */}
@@ -104,7 +106,7 @@ export function SaleVoidModal({ isOpen, onClose, sale, onSuccess }: SaleVoidModa
               disabled={isPending}
               className="px-4 py-2 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-100 transition-colors cursor-pointer"
             >
-              Batal
+              Cancel
             </button>
             <button
               type="submit"
@@ -114,12 +116,12 @@ export function SaleVoidModal({ isOpen, onClose, sale, onSuccess }: SaleVoidModa
               {isPending ? (
                 <>
                   <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                  <span>Membatalkan...</span>
+                  <span>Voiding...</span>
                 </>
               ) : (
                 <>
                   <Ban className="w-3.5 h-3.5" />
-                  <span>Ya, Batalkan Transaksi</span>
+                  <span>Yes, Void Transaction</span>
                 </>
               )}
             </button>

@@ -98,7 +98,7 @@ export function useRecipeEditor(menu: MenuItem, isOpen: boolean, onClose: () => 
 
   const handleAddRow = () => {
     if (rows.length >= 30) {
-      toast.error("Maksimal 30 bahan dalam satu resep");
+      toast.error("Maximum 30 ingredients per recipe");
       return;
     }
     const existingIds = new Set(rows.map((r) => r.ingredientId));
@@ -118,7 +118,7 @@ export function useRecipeEditor(menu: MenuItem, isOpen: boolean, onClose: () => 
 
   const handleRemoveRow = (rowId: string) => {
     if (rows.length <= 1) {
-      toast.error("Resep minimal harus memiliki 1 bahan baku");
+      toast.error("Recipe must have at least 1 ingredient");
       return;
     }
     setRows((prev) => prev.filter((r) => r.rowId !== rowId));
@@ -157,13 +157,13 @@ export function useRecipeEditor(menu: MenuItem, isOpen: boolean, onClose: () => 
         menuId: menu.id,
         payload: { items: validation.validItems },
       });
-      toast.success(`Resep untuk menu "${menu.name}" berhasil disimpan`);
+      toast.success(`Recipe for "${menu.name}" saved successfully`);
       onClose();
     } catch (err: unknown) {
       if (err instanceof Error) {
         setFormError(err.message);
       } else {
-        setFormError("Gagal menyimpan resep menu");
+        setFormError("Failed to save menu recipe");
       }
     }
   };

@@ -26,10 +26,10 @@ export function OverheadDeleteModal({
             <AlertTriangle className="w-6 h-6" />
           </div>
           <div>
-            <h3 className="text-base font-bold text-slate-900">Hapus Beban Overhead?</h3>
+            <h3 className="text-base font-bold text-slate-900">Delete Overhead Cost?</h3>
             <p className="text-xs text-slate-600 mt-1">
-              Apakah Anda yakin ingin menghapus beban <strong>{overhead.name}</strong>? Tindakan ini
-              akan memperbarui perhitungan beban overhead per porsi.
+              Are you sure you want to delete <strong>{overhead.name}</strong>? This action will
+              update the overhead per portion calculation.
             </p>
           </div>
 
@@ -40,7 +40,7 @@ export function OverheadDeleteModal({
               disabled={isDeleting}
               className="flex-1 px-4 py-2 border border-slate-200 text-slate-700 rounded-xl text-sm font-semibold hover:bg-slate-50 transition-colors"
             >
-              Batal
+              Cancel
             </button>
             <button
               type="button"
@@ -49,7 +49,7 @@ export function OverheadDeleteModal({
               className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-xl text-sm font-semibold transition-colors disabled:opacity-50"
             >
               {isDeleting && <Loader2 className="w-4 h-4 animate-spin" />}
-              Hapus
+              Delete
             </button>
           </div>
         </div>

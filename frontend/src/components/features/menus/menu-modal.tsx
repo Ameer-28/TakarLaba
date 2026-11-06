@@ -59,12 +59,12 @@ export function MenuModal({
             </div>
             <div>
               <h2 className="text-base font-bold text-slate-800">
-                {initialData ? "Ubah Rincian Menu" : "Tambah Menu Baru"}
+                {initialData ? "Edit Menu Details" : "Add New Menu"}
               </h2>
               <p className="text-xs text-slate-500">
                 {initialData
-                  ? "Perubahan harga jual akan tercatat di riwayat harga"
-                  : "Daftarkan menu yang akan dijual di POS dan dihitung HPP-nya"}
+                  ? "Selling price changes will be logged in price history"
+                  : "Register menu item for POS sales and HPP costing calculation"}
               </p>
             </div>
           </div>
@@ -72,7 +72,7 @@ export function MenuModal({
             type="button"
             onClick={onClose}
             disabled={isSaving}
-            className="p-1.5 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-100 transition-colors"
+            className="p-1.5 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-100 transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -106,9 +106,9 @@ export function MenuModal({
               type="button"
               onClick={onClose}
               disabled={isSaving}
-              className="px-4 py-2.5 text-sm font-semibold text-slate-600 hover:text-slate-800 hover:bg-slate-100 rounded-xl transition-colors"
+              className="px-4 py-2.5 text-sm font-semibold text-slate-600 hover:text-slate-800 hover:bg-slate-100 rounded-xl transition-colors cursor-pointer"
             >
-              Batal
+              Cancel
             </button>
             <button
               type="submit"
@@ -116,7 +116,7 @@ export function MenuModal({
               className="flex items-center gap-2 px-5 py-2.5 text-sm font-bold text-white bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 rounded-xl shadow-xs shadow-emerald-700/20 disabled:opacity-50 transition-all cursor-pointer"
             >
               {isSaving && <Loader2 className="w-4 h-4 animate-spin" />}
-              {initialData ? "Simpan Perubahan" : "Tambah Menu"}
+              {initialData ? "Save Changes" : "Add Menu"}
             </button>
           </div>
         </form>

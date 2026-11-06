@@ -55,30 +55,30 @@ export function IngredientCatalogView({
       {isPending ? (
         <div className="bg-white rounded-2xl border border-slate-200 p-12 text-center">
           <RefreshCw className="w-6 h-6 text-slate-400 animate-spin mx-auto mb-2" />
-          <p className="text-xs text-slate-500 font-medium">Memuat katalog bahan baku...</p>
+          <p className="text-xs text-slate-500 font-medium">Loading ingredient catalog...</p>
         </div>
       ) : isError ? (
         <div className="bg-rose-50 border border-rose-200 rounded-2xl p-6 text-center space-y-2">
           <AlertCircle className="w-6 h-6 text-rose-500 mx-auto" />
           <p className="text-xs text-rose-700 font-medium">
-            {error instanceof Error ? error.message : "Gagal memuat bahan"}
+            {error instanceof Error ? error.message : "Failed to load ingredients"}
           </p>
           <button
             onClick={() => refetch()}
             className="text-xs font-semibold text-rose-700 underline hover:text-rose-800 cursor-pointer"
           >
-            Coba lagi
+            Try again
           </button>
         </div>
       ) : filtered.length === 0 ? (
         <div className="bg-white rounded-2xl border border-slate-200 p-12 text-center space-y-3">
           <Package className="w-10 h-10 text-slate-300 mx-auto" />
           <div className="space-y-1">
-            <p className="text-sm font-bold text-slate-700">Tidak ada bahan baku ditemukan</p>
+            <p className="text-sm font-bold text-slate-700">No ingredients found</p>
             <p className="text-xs text-slate-400">
               {searchTerm || categoryFilter !== "ALL" || statusFilter !== "ALL"
-                ? "Coba ubah kata kunci atau filter pencarian."
-                : "Mulai dengan menambahkan bahan baku pertama Anda."}
+                ? "Try changing your search terms or filters."
+                : "Start by adding your first ingredient."}
             </p>
           </div>
           {!searchTerm && categoryFilter === "ALL" && statusFilter === "ALL" && (
@@ -88,7 +88,7 @@ export function IngredientCatalogView({
               className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold shadow-xs transition-all cursor-pointer"
             >
               <Plus className="w-3.5 h-3.5" />
-              <span>Tambah Bahan Pertama</span>
+              <span>Add First Ingredient</span>
             </button>
           )}
         </div>

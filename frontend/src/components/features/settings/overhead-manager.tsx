@@ -45,10 +45,10 @@ export function OverheadManager() {
         id: editingItem.id,
         payload,
       });
-      toast.success("Beban overhead berhasil diperbarui");
+      toast.success("Overhead cost updated successfully");
     } else {
       await createOverhead.mutateAsync(payload);
-      toast.success("Beban overhead baru berhasil ditambahkan");
+      toast.success("New overhead cost added successfully");
     }
   };
 
@@ -58,9 +58,11 @@ export function OverheadManager() {
         id: item.id,
         payload: { isActive: !item.isActive },
       });
-      toast.success(`Beban ${item.name} berhasil di${item.isActive ? "nonaktifkan" : "aktifkan"}`);
+      toast.success(
+        `Expense ${item.name} ${item.isActive ? "deactivated" : "activated"} successfully`
+      );
     } catch {
-      toast.error("Gagal mengubah status beban overhead");
+      toast.error("Failed to update overhead status");
     }
   };
 
@@ -68,10 +70,10 @@ export function OverheadManager() {
     if (!deletingItem) return;
     try {
       await deleteOverhead.mutateAsync(deletingItem.id);
-      toast.success("Beban overhead berhasil dihapus");
+      toast.success("Overhead cost deleted successfully");
       setDeletingItem(null);
     } catch {
-      toast.error("Gagal menghapus beban overhead");
+      toast.error("Failed to delete overhead cost");
     }
   };
 
@@ -85,12 +87,12 @@ export function OverheadManager() {
           </div>
           <div>
             <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
-              Total Beban Bulanan
+              Total Monthly Overhead
             </p>
             <p className="text-xl font-black text-slate-900 tabular-nums mt-0.5">
               {data ? formatRupiah(data.totalMonthlyOverhead) : "..."}
             </p>
-            <p className="text-xs text-slate-400 mt-0.5">Khusus beban aktif</p>
+            <p className="text-xs text-slate-400 mt-0.5">Active expenses only</p>
           </div>
         </div>
 
@@ -100,12 +102,12 @@ export function OverheadManager() {
           </div>
           <div>
             <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
-              Estimasi Porsi Bulanan
+              Estimated Monthly Portions
             </p>
             <p className="text-xl font-black text-slate-900 tabular-nums mt-0.5">
-              {data ? `${formatNumber(data.expectedMonthlyPortions)} porsi` : "..."}
+              {data ? `${formatNumber(data.expectedMonthlyPortions)} portions` : "..."}
             </p>
-            <p className="text-xs text-slate-400 mt-0.5">Ditetapkan di Pengaturan</p>
+            <p className="text-xs text-slate-400 mt-0.5">Configured in Settings</p>
           </div>
         </div>
 
@@ -115,12 +117,12 @@ export function OverheadManager() {
           </div>
           <div>
             <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
-              Beban Overhead per Porsi
+              Overhead per Portion
             </p>
             <p className="text-xl font-black text-emerald-600 tabular-nums mt-0.5">
-              {data ? `${formatRupiah(data.overheadPerPortion)}/porsi` : "..."}
+              {data ? `${formatRupiah(data.overheadPerPortion)}/portion` : "..."}
             </p>
-            <p className="text-xs text-slate-400 mt-0.5">Masuk ke kalkulasi HPP Penuh</p>
+            <p className="text-xs text-slate-400 mt-0.5">Included in Full Cost calculation</p>
           </div>
         </div>
       </div>
@@ -129,9 +131,9 @@ export function OverheadManager() {
       <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-xs">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-6 border-b border-slate-100 gap-4">
           <div>
-            <h2 className="text-lg font-bold text-slate-900">Daftar Beban Operasional</h2>
+            <h2 className="text-lg font-bold text-slate-900">Operating Expenses List</h2>
             <p className="text-xs text-slate-500 mt-0.5">
-              Kelola beban utilitas, upah, penyusutan peralatan, dan sewa bulanan.
+              Manage utilities, wages, equipment depreciation, and monthly rent.
             </p>
           </div>
           <button
@@ -140,28 +142,28 @@ export function OverheadManager() {
             className="flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-sm font-semibold transition-colors shadow-xs"
           >
             <Plus className="w-4 h-4" />
-            Tambah Beban
+            Add Expense
           </button>
         </div>
 
         {isLoading ? (
-          <div className="p-12 text-center text-slate-400 text-sm">Memuat data overhead...</div>
+          <div className="p-12 text-center text-slate-400 text-sm">Loading overhead data...</div>
         ) : !data || data.items.length === 0 ? (
           <div className="p-12 text-center space-y-3">
             <div className="w-12 h-12 bg-slate-100 text-slate-400 rounded-full flex items-center justify-center mx-auto">
               <Layers className="w-6 h-6" />
             </div>
-            <p className="text-sm font-semibold text-slate-700">Belum ada beban operasional</p>
+            <p className="text-sm font-semibold text-slate-700">No operating expenses yet</p>
             <p className="text-xs text-slate-500 max-w-sm mx-auto">
-              Tambahkan beban bulanan seperti listrik, air, dan gaji agar HPP Penuh mencerminkan
-              biaya sebenarnya.
+              Add monthly overhead expenses such as utilities and wages so Full Cost accurately
+              reflects actual operational costs.
             </p>
             <button
               type="button"
               onClick={handleOpenCreate}
               className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-semibold transition-colors mt-2"
             >
-              <Plus className="w-4 h-4" /> Tambah Beban Sekarang
+              <Plus className="w-4 h-4" /> Add Expense Now
             </button>
           </div>
         ) : (
@@ -169,11 +171,11 @@ export function OverheadManager() {
             <table className="w-full text-left text-sm">
               <thead className="bg-slate-50 text-slate-600 text-xs uppercase font-semibold border-b border-slate-100">
                 <tr>
-                  <th className="px-6 py-3.5">Nama Beban</th>
-                  <th className="px-6 py-3.5">Kategori</th>
-                  <th className="px-6 py-3.5">Nominal / Bulan</th>
+                  <th className="px-6 py-3.5">Expense Name</th>
+                  <th className="px-6 py-3.5">Category</th>
+                  <th className="px-6 py-3.5">Amount / Month</th>
                   <th className="px-6 py-3.5 text-center">Status</th>
-                  <th className="px-6 py-3.5 text-right">Aksi</th>
+                  <th className="px-6 py-3.5 text-right">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
@@ -208,7 +210,7 @@ export function OverheadManager() {
                           }`}
                         >
                           <Power className="w-3.5 h-3.5" />
-                          {item.isActive ? "Aktif" : "Nonaktif"}
+                          {item.isActive ? "Active" : "Inactive"}
                         </button>
                       </td>
                       <td className="px-6 py-4 text-right">
@@ -217,7 +219,7 @@ export function OverheadManager() {
                             type="button"
                             onClick={() => handleOpenEdit(item)}
                             className="p-1.5 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-100 transition-colors"
-                            title="Edit Beban"
+                            title="Edit Expense"
                           >
                             <Edit2 className="w-4 h-4" />
                           </button>
@@ -225,7 +227,7 @@ export function OverheadManager() {
                             type="button"
                             onClick={() => setDeletingItem(item)}
                             className="p-1.5 text-slate-400 hover:text-red-600 rounded-lg hover:bg-red-50 transition-colors"
-                            title="Hapus Beban"
+                            title="Delete Expense"
                           >
                             <Trash2 className="w-4 h-4" />
                           </button>

@@ -16,11 +16,11 @@ export function DashboardTopAlerts({ alerts }: DashboardTopAlertsProps) {
     applyPriceMutation.mutate(alertId, {
       onSuccess: () => {
         toast.success(
-          `Harga menu "${menuName}" berhasil dinaikkan ke ${formatRupiah(recommendedPrice)}`
+          `Menu "${menuName}" price successfully updated to ${formatRupiah(recommendedPrice)}`
         );
       },
       onError: (err) => {
-        toast.error(`Gagal menerapkan harga rekomendasi: ${err.message}`);
+        toast.error(`Failed to apply recommended price: ${err.message}`);
       },
     });
   };
@@ -33,17 +33,17 @@ export function DashboardTopAlerts({ alerts }: DashboardTopAlertsProps) {
             <span className="p-1.5 bg-amber-50 text-amber-700 rounded-lg">
               <AlertTriangle className="w-4 h-4" />
             </span>
-            Peringatan Margin Teratas
+            Top Margin Alerts
           </h2>
           <p className="text-xs text-slate-500 mt-0.5">
-            Menu terdampak lonjakan harga beli yang perlu penyesuaian
+            Menus impacted by purchase price surges requiring attention
           </p>
         </div>
         <Link
           to="/alerts"
           className="inline-flex items-center gap-1 text-xs font-semibold text-emerald-700 hover:text-emerald-800 transition"
         >
-          Lihat Semua
+          View All
           <ArrowRight className="w-3.5 h-3.5" />
         </Link>
       </div>
@@ -53,9 +53,9 @@ export function DashboardTopAlerts({ alerts }: DashboardTopAlertsProps) {
           <div className="w-10 h-10 mx-auto rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center">
             <CheckCircle2 className="w-5 h-5" />
           </div>
-          <p className="text-sm font-semibold text-slate-800">Margin Semua Menu Aman</p>
+          <p className="text-sm font-semibold text-slate-800">All Menu Margins Safe</p>
           <p className="text-xs text-slate-500 max-w-xs mx-auto">
-            Tidak ada menu dengan margin di bawah target bisnis saat ini.
+            No menu items currently below target profit margin.
           </p>
         </div>
       ) : (
@@ -80,7 +80,7 @@ export function DashboardTopAlerts({ alerts }: DashboardTopAlertsProps) {
                         : "bg-blue-100 text-blue-800"
                     }`}
                   >
-                    {alert.status === "OPEN" ? "Perlu Tindakan" : "Ditinjau"}
+                    {alert.status === "OPEN" ? "Needs Action" : "Reviewed"}
                   </span>
                 </div>
 
@@ -96,7 +96,7 @@ export function DashboardTopAlerts({ alerts }: DashboardTopAlertsProps) {
                   </span>
                   <span className="text-slate-300">•</span>
                   <span>
-                    Rekomendasi Opsi A:{" "}
+                    Option A Recommendation:{" "}
                     <strong className="text-emerald-700 tabular-nums">
                       {formatRupiah(alert.recommendedPrice)}
                     </strong>
@@ -109,7 +109,7 @@ export function DashboardTopAlerts({ alerts }: DashboardTopAlertsProps) {
                   to="/alerts"
                   className="px-2.5 py-1.5 rounded-lg border border-slate-200 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition"
                 >
-                  Detail
+                  Details
                 </Link>
                 <button
                   type="button"
@@ -122,7 +122,7 @@ export function DashboardTopAlerts({ alerts }: DashboardTopAlertsProps) {
                   ) : (
                     <TrendingUp className="w-3.5 h-3.5" />
                   )}
-                  Terapkan Harga
+                  Apply Price
                 </button>
               </div>
             </div>

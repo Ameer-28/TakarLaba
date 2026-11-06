@@ -26,7 +26,7 @@ export function IngredientCard({ item, onEdit, onManageUnits, onDeactivate }: In
           <div className="flex items-center gap-1.5">
             <h4 className="font-bold text-slate-900 text-base">{item.name}</h4>
             {item.isPerishable && (
-              <span title="Mudah rusak" className="text-amber-600">
+              <span title="Perishable / has expiration date" className="text-amber-600">
                 <Clock className="w-3.5 h-3.5" />
               </span>
             )}
@@ -40,12 +40,12 @@ export function IngredientCard({ item, onEdit, onManageUnits, onDeactivate }: In
             {item.isActive ? (
               <span className="inline-flex items-center gap-1.5 text-xs text-slate-700 font-medium">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" />
-                <span>Aktif</span>
+                <span>Active</span>
               </span>
             ) : (
               <span className="inline-flex items-center gap-1.5 text-xs text-slate-400 font-medium">
                 <span className="w-1.5 h-1.5 rounded-full bg-slate-300 shrink-0" />
-                <span>Nonaktif</span>
+                <span>Inactive</span>
               </span>
             )}
           </div>
@@ -71,7 +71,7 @@ export function IngredientCard({ item, onEdit, onManageUnits, onDeactivate }: In
 
       <div className="grid grid-cols-3 gap-2 bg-slate-50 rounded-xl p-2.5 text-xs border border-slate-100">
         <div>
-          <span className="text-slate-500 block">Satuan Resep</span>
+          <span className="text-slate-500 block">Recipe Unit</span>
           <span className="font-bold text-slate-800 font-mono">{item.baseUnit.toLowerCase()}</span>
         </div>
         <div>
@@ -83,26 +83,26 @@ export function IngredientCard({ item, onEdit, onManageUnits, onDeactivate }: In
           </span>
         </div>
         <div>
-          <span className="text-slate-500 block">Min. Stok</span>
+          <span className="text-slate-500 block">Min. Stock</span>
           <span className="font-bold text-slate-800 tabular-nums">{formatNumber(minStockNum)}</span>
         </div>
       </div>
 
       <div className="space-y-1 pt-1">
         <div className="flex items-center justify-between text-xs">
-          <span className="font-semibold text-slate-600">Satuan Beli</span>
+          <span className="font-semibold text-slate-600">Purchase Units</span>
           <button
             onClick={() => onManageUnits(item)}
             className="text-emerald-600 font-bold hover:underline flex items-center gap-1"
           >
             <Scale className="w-3 h-3" />
-            <span>Kelola Satuan ({item.units.length})</span>
+            <span>Manage Units ({item.units.length})</span>
           </button>
         </div>
         <div className="flex flex-wrap gap-1">
           {item.units.length === 0 ? (
             <span className="text-xs text-slate-400 italic">
-              Hanya satuan dasar ({item.baseUnit.toLowerCase()})
+              Base unit only ({item.baseUnit.toLowerCase()})
             </span>
           ) : (
             item.units.map((u) => (

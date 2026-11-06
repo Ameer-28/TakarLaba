@@ -60,27 +60,27 @@ export function MenuFiltersBar({
 
   const navItems: NavItem[] = [
     {
-      id: "kategori",
-      label: selectedCategory === "ALL" ? "Kategori" : `Kategori: ${selectedCategory}`,
+      id: "category",
+      label: selectedCategory === "ALL" ? "Category" : `Category: ${selectedCategory}`,
       active: selectedCategory !== "ALL",
       subMenus: [
         {
-          title: "Pilihan Kategori Menu",
+          title: "Menu Categories",
           items: [
             {
-              label: "Semua Kategori",
-              description: "Tampilkan seluruh menu makanan dan minuman",
+              label: "All Categories",
+              description: "Show all food and beverage menus",
               icon: LayoutGrid,
               active: selectedCategory === "ALL",
               onClick: () => onSelectCategory("ALL"),
             },
             ...availableCategories.map((cat) => {
               let Icon = Tag;
-              let desc = `Daftar menu untuk kategori ${cat}`;
+              let desc = `Menu items in category ${cat}`;
               const lower = cat.toLowerCase();
-              if (lower.includes("kopi") && !lower.includes("non")) {
+              if (lower.includes("kopi") || lower.includes("coffee")) {
                 Icon = Coffee;
-                desc = "Minuman olahan espresso, latte, & racikan kopi";
+                desc = "Espresso, latte, & specialty coffee drinks";
               } else if (
                 lower.includes("makan") ||
                 lower.includes("food") ||
@@ -89,17 +89,18 @@ export function MenuFiltersBar({
                 lower.includes("pastry")
               ) {
                 Icon = Utensils;
-                desc = "Makanan berat, camilan, & hidangan penutup";
+                desc = "Main dishes, snacks, & desserts";
               } else if (
                 lower.includes("non") ||
                 lower.includes("teh") ||
+                lower.includes("tea") ||
                 lower.includes("drink") ||
                 lower.includes("minum") ||
                 lower.includes("juice") ||
                 lower.includes("jus")
               ) {
                 Icon = CupSoda;
-                desc = "Aneka teh, cokelat, susu, & minuman segar";
+                desc = "Teas, chocolate, milk, & refreshing beverages";
               }
               return {
                 label: cat,
@@ -117,50 +118,50 @@ export function MenuFiltersBar({
       id: "margin",
       label:
         marginFilter === "ALL"
-          ? "Status Margin"
+          ? "Margin Status"
           : marginFilter === "AMAN"
-            ? "Margin: Aman"
+            ? "Margin: Safe"
             : marginFilter === "WASPADA"
-              ? "Margin: Waspada"
+              ? "Margin: Warning"
               : marginFilter === "BAHAYA"
-                ? "Margin: Bahaya"
-                : "Margin: Perlu Resep",
+                ? "Margin: Critical"
+                : "Margin: Recipe Needed",
       active: marginFilter !== "ALL",
       subMenus: [
         {
-          title: "Kesehatan Margin & HPP",
+          title: "Margin Health & Costing",
           items: [
             {
-              label: "Semua Margin",
-              description: "Tampilkan seluruh status kesehatan keuntungan menu",
+              label: "All Margins",
+              description: "Show all menu profit margin health statuses",
               icon: Layers,
               active: marginFilter === "ALL",
               onClick: () => onMarginFilterChange("ALL"),
             },
             {
-              label: "Aman",
-              description: "Margin laba sehat di atas batas target keuntungan",
+              label: "Safe",
+              description: "Healthy profit margin above target threshold",
               icon: CheckCircle2,
               active: marginFilter === "AMAN",
               onClick: () => onMarginFilterChange("AMAN"),
             },
             {
-              label: "Waspada",
-              description: "Margin tipis mendekati batas kritis modal HPP bahan",
+              label: "Warning",
+              description: "Thin margin close to critical ingredient cost limit",
               icon: AlertTriangle,
               active: marginFilter === "WASPADA",
               onClick: () => onMarginFilterChange("WASPADA"),
             },
             {
-              label: "Bahaya",
-              description: "Margin sangat rendah atau rugi di bawah modal pokok",
+              label: "Critical",
+              description: "Very low margin or losing money below base cost",
               icon: AlertCircle,
               active: marginFilter === "BAHAYA",
               onClick: () => onMarginFilterChange("BAHAYA"),
             },
             {
-              label: "Perlu Resep / Belum Lengkap",
-              description: "Menu belum diisi resep bahan baku atau racikan kosong",
+              label: "Recipe Needed / Incomplete",
+              description: "Menu has empty recipe or missing ingredient purchase cost",
               icon: BookOpen,
               active: marginFilter === "INCOMPLETE_OR_NO_RECIPE",
               onClick: () => onMarginFilterChange("INCOMPLETE_OR_NO_RECIPE"),
@@ -173,32 +174,32 @@ export function MenuFiltersBar({
       id: "status",
       label:
         activeFilter === "ALL"
-          ? "Semua Status"
+          ? "All Statuses"
           : activeFilter === "ACTIVE"
-            ? "Hanya Aktif"
-            : "Hanya Nonaktif",
+            ? "Active Only"
+            : "Inactive Only",
       active: activeFilter !== "ALL",
       subMenus: [
         {
-          title: "Ketersediaan Menu",
+          title: "Menu Availability",
           items: [
             {
-              label: "Semua Status",
-              description: "Tampilkan seluruh menu baik yang aktif maupun nonaktif",
+              label: "All Statuses",
+              description: "Show both active and inactive menu items",
               icon: SlidersHorizontal,
               active: activeFilter === "ALL",
               onClick: () => onActiveFilterChange("ALL"),
             },
             {
-              label: "Hanya Aktif",
-              description: "Menu aktif yang siap dijual di kasir POS",
+              label: "Active Only",
+              description: "Active menu items available for sale in POS",
               icon: ToggleRight,
               active: activeFilter === "ACTIVE",
               onClick: () => onActiveFilterChange("ACTIVE"),
             },
             {
-              label: "Hanya Nonaktif",
-              description: "Menu yang sedang dinonaktifkan atau diarsipkan",
+              label: "Inactive Only",
+              description: "Menu items currently inactive or archived",
               icon: ToggleLeft,
               active: activeFilter === "INACTIVE",
               onClick: () => onActiveFilterChange("INACTIVE"),
@@ -219,7 +220,7 @@ export function MenuFiltersBar({
             type="text"
             value={search}
             onChange={(e) => onSearchChange(e.target.value)}
-            placeholder="Cari nama menu atau kategori..."
+            placeholder="Search menu name or category..."
             className="w-full pl-10 pr-9 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-hidden focus:ring-2 focus:ring-[#253745]/20 focus:border-[#253745] transition-all placeholder:text-slate-400"
           />
           {search && (
@@ -227,7 +228,7 @@ export function MenuFiltersBar({
               type="button"
               onClick={() => onSearchChange("")}
               className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-0.5 rounded cursor-pointer"
-              title="Hapus pencarian"
+              title="Clear search"
             >
               &times;
             </button>
@@ -238,14 +239,14 @@ export function MenuFiltersBar({
         <div className="flex flex-wrap items-center gap-2">
           <DropdownNavigation navItems={navItems} />
 
-          {/* Standalone Direct Action: Tambah Menu */}
+          {/* Standalone Direct Action: Add Menu */}
           <button
             type="button"
             onClick={onOpenCreate}
             className="inline-flex items-center justify-center gap-1.5 px-4 py-2 text-xs sm:text-sm font-bold text-white bg-[#11212D] hover:bg-[#253745] active:bg-[#06141B] rounded-full shadow-xs transition-all duration-200 cursor-pointer active:scale-95 shrink-0 select-none"
           >
             <Plus className="w-4 h-4 text-white" />
-            <span>Tambah Menu</span>
+            <span>Add Menu</span>
           </button>
 
           {hasActiveFilters && (
@@ -253,7 +254,7 @@ export function MenuFiltersBar({
               type="button"
               onClick={handleResetFilters}
               className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-slate-500 hover:text-rose-600 hover:bg-rose-50 border border-slate-200 hover:border-rose-200 rounded-full transition-all cursor-pointer"
-              title="Reset semua filter"
+              title="Reset all filters"
             >
               <RotateCcw className="w-3.5 h-3.5" />
               <span>Reset</span>

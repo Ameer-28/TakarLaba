@@ -28,7 +28,7 @@ export function DemoAccountsPanel({
         </div>
         <div className="relative flex justify-center text-xs uppercase">
           <span className="bg-white px-3 text-slate-500 font-medium tracking-wider">
-            Akses Cepat Demo
+            Quick Demo Access
           </span>
         </div>
       </div>
@@ -46,7 +46,7 @@ export function DemoAccountsPanel({
             ) : (
               <ChefHat className="w-4 h-4 text-[#11212D] flex-shrink-0" />
             )}
-            <span className="truncate">Masuk sebagai Demo Owner</span>
+            <span className="truncate">Sign in as Demo Owner</span>
           </button>
 
           <button
@@ -60,13 +60,13 @@ export function DemoAccountsPanel({
             ) : (
               <Store className="w-4 h-4 text-[#253745] flex-shrink-0" />
             )}
-            <span className="truncate">Masuk sebagai Demo Kasir</span>
+            <span className="truncate">Sign in as Demo Cashier</span>
           </button>
         </div>
       </div>
 
       <p className="mt-2.5 text-center text-[11px] text-slate-400">
-        Khusus evaluasi juri GTNIC 2026. Masuk sebagai Pemilik untuk melakukan reset data.
+        For GTNIC 2026 evaluation. Sign in as Owner to reset sample data.
       </p>
     </div>
   );

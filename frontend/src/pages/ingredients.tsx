@@ -58,7 +58,7 @@ export function IngredientsPage() {
 
   const handleExportStockCsv = async () => {
     setIsExportingStock(true);
-    await downloadCsv("/export/stock.csv", "stok-bahan.csv");
+    await downloadCsv("/export/stock.csv", "ingredient-stock.csv");
     setIsExportingStock(false);
   };
 
@@ -84,7 +84,7 @@ export function IngredientsPage() {
           }`}
         >
           <Layers className="w-4 h-4" />
-          <span>Katalog Bahan ({ingredients.length})</span>
+          <span>Ingredient Catalog ({ingredients.length})</span>
         </button>
         <button
           onClick={() => handleTabChange("stock")}
@@ -95,7 +95,7 @@ export function IngredientsPage() {
           }`}
         >
           <Boxes className="w-4 h-4" />
-          <span>Stok &amp; FEFO</span>
+          <span>Stock &amp; FEFO</span>
         </button>
         <button
           onClick={() => handleTabChange("history")}
@@ -106,7 +106,7 @@ export function IngredientsPage() {
           }`}
         >
           <Receipt className="w-4 h-4" />
-          <span>Riwayat Nota Belanja</span>
+          <span>Purchase Invoices</span>
         </button>
         {isOwner && (
           <button
@@ -118,7 +118,7 @@ export function IngredientsPage() {
             }`}
           >
             <Trash2 className="w-4 h-4" />
-            <span>Bahan Terbuang (Waste)</span>
+            <span>Waste Log</span>
           </button>
         )}
         {isOwner && (
@@ -131,7 +131,7 @@ export function IngredientsPage() {
             }`}
           >
             <SlidersHorizontal className="w-4 h-4" />
-            <span>Riwayat Opname</span>
+            <span>Stock Adjustments</span>
           </button>
         )}
         {isOwner && (

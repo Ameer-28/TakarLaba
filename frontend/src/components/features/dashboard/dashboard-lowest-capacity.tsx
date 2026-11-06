@@ -16,26 +16,26 @@ export function DashboardLowestCapacity({ menus }: DashboardLowestCapacityProps)
             <span className="p-1.5 bg-blue-50 text-blue-700 rounded-lg">
               <UtensilsCrossed className="w-4 h-4" />
             </span>
-            Kapasitas Porsi Menu Terendah
+            Lowest Menu Capacity
           </h2>
           <p className="text-xs text-slate-500 mt-0.5">
-            Estimasi porsi tersisa berdasarkan ketersediaan bahan baku (BR-08)
+            Estimated portions remaining based on raw ingredient availability (BR-08)
           </p>
         </div>
         <Link
           to="/menus"
           className="inline-flex items-center gap-1 text-xs font-semibold text-blue-700 hover:text-blue-800 transition"
         >
-          Kelola Menu
+          Manage Menus
           <ArrowRight className="w-3.5 h-3.5" />
         </Link>
       </div>
 
       {menus.length === 0 ? (
         <div className="py-8 text-center space-y-2">
-          <p className="text-sm font-semibold text-slate-800">Belum Ada Menu Aktif</p>
+          <p className="text-sm font-semibold text-slate-800">No Active Menus</p>
           <p className="text-xs text-slate-500 max-w-xs mx-auto">
-            Buat menu dan atur resep bahan baku untuk melihat estimasi kapasitas porsi.
+            Create menus and configure ingredient recipes to view estimated portion capacity.
           </p>
         </div>
       ) : (
@@ -65,15 +65,15 @@ export function DashboardLowestCapacity({ menus }: DashboardLowestCapacityProps)
                   <div className="text-xs text-slate-500 flex items-center gap-1.5">
                     {item.hasRecipe && item.bottleneckIngredient ? (
                       <>
-                        <span className="font-medium text-slate-700">Dibatasi bahan:</span>
+                        <span className="font-medium text-slate-700">Limited by ingredient:</span>
                         <strong className="text-slate-900">{item.bottleneckIngredient.name}</strong>
                         <span>
-                          (sisa {formatNumber(item.bottleneckIngredient.remainingStock)}{" "}
-                          {item.bottleneckIngredient.unit})
+                          ({formatNumber(item.bottleneckIngredient.remainingStock)}{" "}
+                          {item.bottleneckIngredient.unit} remaining)
                         </span>
                       </>
                     ) : (
-                      <span className="text-slate-400 italic">Belum ada resep bahan baku</span>
+                      <span className="text-slate-400 italic">No recipe configured yet</span>
                     )}
                   </div>
                 </div>
@@ -82,17 +82,17 @@ export function DashboardLowestCapacity({ menus }: DashboardLowestCapacityProps)
                   {isOutOfStock ? (
                     <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-rose-50 text-rose-700 border border-rose-200 text-xs font-semibold">
                       <AlertCircle className="w-3.5 h-3.5" />
-                      Habis (0 porsi)
+                      Sold Out (0 portions)
                     </span>
                   ) : isLowPortions ? (
                     <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-amber-50 text-amber-800 border border-amber-200 text-xs font-semibold tabular-nums">
                       <AlertCircle className="w-3.5 h-3.5" />
-                      Sisa {item.capacity} porsi
+                      {item.capacity} portion{item.capacity === 1 ? "" : "s"} left
                     </span>
                   ) : (
                     <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-semibold tabular-nums">
                       <CheckCircle className="w-3.5 h-3.5" />
-                      Tersedia {item.capacity} porsi
+                      {item.capacity} portion{item.capacity === 1 ? "" : "s"} available
                     </span>
                   )}
                 </div>

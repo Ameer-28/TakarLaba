@@ -62,18 +62,18 @@ export function MenuManager() {
         {isPending ? (
           <div className="p-12 text-center text-slate-500 space-y-2">
             <div className="w-8 h-8 border-3 border-emerald-600 border-t-transparent rounded-full animate-spin mx-auto" />
-            <p className="text-sm">Memuat katalog menu & kalkulasi margin...</p>
+            <p className="text-sm">Loading menu catalog & margin calculations...</p>
           </div>
         ) : isError ? (
           <div className="p-8 text-center space-y-3">
             <AlertCircle className="w-8 h-8 text-rose-500 mx-auto" />
-            <p className="text-sm font-semibold text-rose-700">Gagal memuat katalog menu usaha</p>
+            <p className="text-sm font-semibold text-rose-700">Failed to load menu catalog</p>
             <button
               type="button"
               onClick={() => refetch()}
               className="px-4 py-2 text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors cursor-pointer"
             >
-              Coba Lagi
+              Try Again
             </button>
           </div>
         ) : filteredMenus.length === 0 ? (
@@ -86,16 +86,16 @@ export function MenuManager() {
               selectedCategory !== "ALL" ||
               activeFilter !== "ALL" ||
               marginFilter !== "ALL"
-                ? "Tidak Ada Menu yang Cocok"
-                : "Belum Ada Menu Terdaftar"}
+                ? "No Matching Menus Found"
+                : "No Menu Items Registered Yet"}
             </h3>
             <p className="text-sm text-slate-500 max-w-sm mx-auto">
               {search ||
               selectedCategory !== "ALL" ||
               activeFilter !== "ALL" ||
               marginFilter !== "ALL"
-                ? "Coba sesuaikan kata kunci pencarian, filter kategori, atau filter status margin Anda."
-                : "Mulai daftarkan menu makanan atau minuman Anda untuk menghitung HPP Bahan, HPP Penuh, dan menentukan harga jual yang sehat."}
+                ? "Try adjusting your search keywords, category filter, or margin status filter."
+                : "Start by registering your food or beverage menu items to calculate ingredient cost, full cost, and price for healthy profit margins."}
             </p>
             {!search &&
               selectedCategory === "ALL" &&
@@ -107,7 +107,7 @@ export function MenuManager() {
                   className="inline-flex items-center gap-2 px-4 py-2 text-sm font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl transition-all cursor-pointer shadow-xs shadow-emerald-700/20"
                 >
                   <Plus className="w-4 h-4" />
-                  Tambah Menu Pertama
+                  Add First Menu
                 </button>
               )}
           </div>

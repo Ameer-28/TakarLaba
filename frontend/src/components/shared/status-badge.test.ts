@@ -5,13 +5,13 @@ describe("resolveStatusConfig", () => {
   it("resolves SEHAT to success variant", () => {
     const config = resolveStatusConfig("SEHAT");
     expect(config.variant).toBe("success");
-    expect(config.defaultLabel).toBe("Sehat");
+    expect(config.defaultLabel).toBe("Healthy");
   });
 
   it("resolves TIPIS to warning variant", () => {
     const config = resolveStatusConfig("TIPIS");
     expect(config.variant).toBe("warning");
-    expect(config.defaultLabel).toBe("Tipis");
+    expect(config.defaultLabel).toBe("Thin");
   });
 
   it("resolves KRITIS and RUGI to danger variant", () => {
@@ -22,7 +22,7 @@ describe("resolveStatusConfig", () => {
   it("resolves INCOMPLETE to neutral variant", () => {
     const config = resolveStatusConfig("INCOMPLETE");
     expect(config.variant).toBe("neutral");
-    expect(config.defaultLabel).toBe("Belum Lengkap");
+    expect(config.defaultLabel).toBe("Incomplete");
   });
 
   it("resolves stock status AMAN, SEGARA, KEDALUWARSA", () => {

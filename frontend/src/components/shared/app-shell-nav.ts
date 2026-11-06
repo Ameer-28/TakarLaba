@@ -33,38 +33,38 @@ export const NAV_ITEMS: NavItem[] = [
     section: "MAIN",
   },
   {
-    label: "Kasir (POS)",
+    label: "Point of Sale (POS)",
     path: "/pos",
     icon: Store,
     roles: ["OWNER", "CASHIER"],
     section: "MAIN",
   },
   {
-    label: "Riwayat Penjualan",
+    label: "Sales History",
     path: "/sales",
     icon: Receipt,
     roles: ["OWNER", "CASHIER"],
     section: "MAIN",
   },
   {
-    label: "Peringatan Margin",
+    label: "Margin Alerts",
     path: "/alerts",
     icon: AlertTriangle,
     roles: ["OWNER"],
     section: "MAIN",
   },
   {
-    label: "Bahan Baku & Stok",
+    label: "Ingredients & Stock",
     path: "/ingredients",
     icon: Package,
     roles: ["OWNER"],
     section: "OPERASIONAL",
     children: [
-      { label: "Katalog Bahan", path: "/ingredients?tab=catalog" },
-      { label: "Stok & FEFO", path: "/ingredients?tab=stock" },
-      { label: "Riwayat Belanja", path: "/ingredients?tab=history" },
-      { label: "Bahan Terbuang", path: "/ingredients?tab=waste" },
-      { label: "Riwayat Opname", path: "/ingredients?tab=adjustments" },
+      { label: "Ingredient Catalog", path: "/ingredients?tab=catalog" },
+      { label: "Stock & FEFO", path: "/ingredients?tab=stock" },
+      { label: "Purchase Invoices", path: "/ingredients?tab=history" },
+      { label: "Waste Log", path: "/ingredients?tab=waste" },
+      { label: "Stock Adjustments", path: "/ingredients?tab=adjustments" },
       { label: "Waste Radar", path: "/ingredients?tab=radar" },
     ],
   },
@@ -76,14 +76,14 @@ export const NAV_ITEMS: NavItem[] = [
     section: "OPERASIONAL",
   },
   {
-    label: "Analitik Menu",
+    label: "Menu Analytics",
     path: "/analytics",
     icon: BarChart3,
     roles: ["OWNER"],
     section: "OPERASIONAL",
   },
   {
-    label: "Pengaturan",
+    label: "Settings",
     path: "/settings",
     icon: Settings,
     roles: ["OWNER"],
@@ -117,12 +117,13 @@ export function filterNavItemsByRole(items: NavItem[], role: UserRole): NavItem[
 
 export function getNavShortLabel(label: string): string {
   if (label.startsWith("Dashboard")) return "Dashboard";
-  if (label.startsWith("Kasir")) return "Kasir";
-  if (label.startsWith("Riwayat")) return "Riwayat";
-  if (label.startsWith("Peringatan")) return "Peringatan";
-  if (label.startsWith("Bahan")) return "Bahan";
-  if (label.startsWith("Menu")) return "Menu";
-  if (label.startsWith("Analitik")) return "Analitik";
-  if (label.startsWith("Pengaturan")) return "Pengaturan";
+  if (label.startsWith("Point of Sale") || label.startsWith("Kasir") || label.includes("POS"))
+    return "POS";
+  if (label.startsWith("Sales") || label.startsWith("Riwayat")) return "Sales";
+  if (label.startsWith("Margin Alerts") || label.startsWith("Peringatan")) return "Alerts";
+  if (label.startsWith("Ingredients") || label.startsWith("Bahan")) return "Ingredients";
+  if (label.startsWith("Menu Analytics") || label.startsWith("Analitik")) return "Analytics";
+  if (label.startsWith("Menu &") || label.startsWith("Menu")) return "Menu";
+  if (label.startsWith("Settings") || label.startsWith("Pengaturan")) return "Settings";
   return label.split(" ")[0] ?? label;
 }

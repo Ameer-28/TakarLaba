@@ -132,13 +132,13 @@ describe("AppShell Sidebar State & Navigation (BR-NAV)", () => {
       const shortLabels = ownerItems.map((item) => getNavShortLabel(item.label));
       expect(shortLabels).toEqual([
         "Dashboard",
-        "Kasir",
-        "Riwayat",
-        "Peringatan",
-        "Bahan",
+        "POS",
+        "Sales",
+        "Alerts",
+        "Ingredients",
         "Menu",
-        "Analitik",
-        "Pengaturan",
+        "Analytics",
+        "Settings",
       ]);
     });
   });

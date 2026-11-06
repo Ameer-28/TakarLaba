@@ -7,15 +7,14 @@ export function DashboardEmptyState() {
       <div className="max-w-xl space-y-2">
         <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-semibold">
           <Sparkles className="w-3.5 h-3.5" />
-          Selamat Datang di TakarLaba
+          Welcome to TakarLaba
         </span>
         <h2 className="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight">
-          Mulai Lindungi Margin Bisnis Kuliner Anda
+          Start Protecting Your Food & Beverage Margins
         </h2>
         <p className="text-sm text-slate-600 leading-relaxed">
-          TakarLaba membantu Anda memantau HPP secara otomatis, mendeteksi kenaikan harga bahan baku
-          sebelum margin bocor, dan mencegah pemborosan stok dengan sistem FEFO. Ikuti 3 langkah
-          mudah di bawah ini:
+          TakarLaba helps you monitor COGS automatically, detect raw ingredient price hikes before
+          margins leak, and prevent waste with FEFO stock rotation. Follow these 3 steps:
         </p>
         <div className="pt-2">
           <Link
@@ -23,7 +22,7 @@ export function DashboardEmptyState() {
             className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-600 text-white text-xs font-bold hover:bg-emerald-700 shadow-2xs transition"
           >
             <Sparkles className="w-3.5 h-3.5" />
-            Mulai Panduan Cepat (Wizard 3 Langkah)
+            Start Quick Guide (3-Step Wizard)
             <ArrowRight className="w-3.5 h-3.5" />
           </Link>
         </div>
@@ -40,15 +39,15 @@ export function DashboardEmptyState() {
           </div>
           <div className="space-y-1">
             <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-700">
-              Langkah 1
+              Step 1
             </span>
             <h3 className="font-bold text-slate-900 group-hover:text-emerald-700 transition flex items-center justify-between">
-              Input Belanja Bahan
+              Record Ingredient Purchase
               <ArrowRight className="w-4 h-4 opacity-0 group-hover:opacity-100 transition -translate-x-1 group-hover:translate-x-0" />
             </h3>
             <p className="text-xs text-slate-500">
-              Catat nota belanja dan tanggal kedaluwarsa untuk mengaktifkan stok batch dan
-              replacement cost.
+              Record purchase receipts and expiry dates to activate batch inventory and replacement
+              cost tracking.
             </p>
           </div>
         </Link>
@@ -63,14 +62,15 @@ export function DashboardEmptyState() {
           </div>
           <div className="space-y-1">
             <span className="text-[11px] font-bold uppercase tracking-wider text-blue-700">
-              Langkah 2
+              Step 2
             </span>
             <h3 className="font-bold text-slate-900 group-hover:text-blue-700 transition flex items-center justify-between">
-              Susun Resep Menu
+              Configure Menu Recipe
               <ArrowRight className="w-4 h-4 opacity-0 group-hover:opacity-100 transition -translate-x-1 group-hover:translate-x-0" />
             </h3>
             <p className="text-xs text-slate-500">
-              Tautkan bahan dan takaran per porsi agar HPP Bahan & HPP Penuh terhitung otomatis.
+              Link ingredients and portions per serving for automated Recipe and Full COGS
+              calculations.
             </p>
           </div>
         </Link>
@@ -85,15 +85,15 @@ export function DashboardEmptyState() {
           </div>
           <div className="space-y-1">
             <span className="text-[11px] font-bold uppercase tracking-wider text-purple-700">
-              Langkah 3
+              Step 3
             </span>
             <h3 className="font-bold text-slate-900 group-hover:text-purple-700 transition flex items-center justify-between">
-              Buka Layar POS
+              Open POS Cashier
               <ArrowRight className="w-4 h-4 opacity-0 group-hover:opacity-100 transition -translate-x-1 group-hover:translate-x-0" />
             </h3>
             <p className="text-xs text-slate-500">
-              Layani penjualan cepat di kasir. Stok akan terpotong secara FEFO dan laba tercatat
-              real-time.
+              Serve customer orders quickly. Inventory deducts automatically via FEFO and profit is
+              tracked in real-time.
             </p>
           </div>
         </Link>

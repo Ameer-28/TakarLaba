@@ -7,7 +7,7 @@ interface SaleMetadataPillsProps {
 }
 
 const paymentLabels: Record<string, string> = {
-  CASH: "Tunai",
+  CASH: "Cash",
   QRIS: "QRIS",
   TRANSFER: "Transfer",
 };
@@ -26,27 +26,27 @@ export function SaleMetadataPills({ sale }: SaleMetadataPillsProps) {
     <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-xs">
       <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-100">
         <span className="text-slate-400 flex items-center gap-1 mb-1">
-          <Calendar className="w-3.5 h-3.5" /> Tanggal
+          <Calendar className="w-3.5 h-3.5" /> Date
         </span>
         <span className="font-bold text-slate-800">{formattedDate}</span>
       </div>
       <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-100">
         <span className="text-slate-400 flex items-center gap-1 mb-1">
-          <Clock className="w-3.5 h-3.5" /> Waktu
+          <Clock className="w-3.5 h-3.5" /> Time
         </span>
         <span className="font-bold text-slate-800">{formattedTime} WIB</span>
       </div>
       <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-100">
         <span className="text-slate-400 flex items-center gap-1 mb-1">
-          <User className="w-3.5 h-3.5" /> Kasir
+          <User className="w-3.5 h-3.5" /> Cashier
         </span>
         <span className="font-bold text-slate-800 truncate block">
-          {sale.cashier?.name ?? "Kasir"}
+          {sale.cashier?.name ?? "Cashier"}
         </span>
       </div>
       <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-100">
         <span className="text-slate-400 flex items-center gap-1 mb-1">
-          <CreditCard className="w-3.5 h-3.5" /> Pembayaran
+          <CreditCard className="w-3.5 h-3.5" /> Payment
         </span>
         <span
           className={`inline-block font-bold px-2 py-0.5 rounded-md border text-[11px] ${

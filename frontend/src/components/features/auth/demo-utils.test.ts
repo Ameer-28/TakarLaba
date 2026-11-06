@@ -34,14 +34,14 @@ describe("demo-utils (pure helpers)", () => {
   });
 
   it("formats cooldown badge text", () => {
-    expect(formatCooldownBadge(0)).toBe("Tersedia");
-    expect(formatCooldownBadge(-5)).toBe("Tersedia");
-    expect(formatCooldownBadge(30)).toBe("Tunggu (30 dtk)");
+    expect(formatCooldownBadge(0)).toBe("Available");
+    expect(formatCooldownBadge(-5)).toBe("Available");
+    expect(formatCooldownBadge(30)).toBe("Wait (30s)");
   });
 
   it("formats reset button text with states", () => {
-    expect(formatResetButtonText(0, false)).toBe("Isi Data Contoh");
-    expect(formatResetButtonText(25, false)).toBe("Isi Data Contoh (25s)");
-    expect(formatResetButtonText(25, true)).toBe("Mereset data...");
+    expect(formatResetButtonText(0, false)).toBe("Load Sample Data");
+    expect(formatResetButtonText(25, false)).toBe("Load Sample Data (25s)");
+    expect(formatResetButtonText(25, true)).toBe("Resetting data...");
   });
 });

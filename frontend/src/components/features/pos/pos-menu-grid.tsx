@@ -87,7 +87,7 @@ export function PosMenuGrid({
             type="text"
             value={search}
             onChange={(e) => onSearchChange(e.target.value)}
-            placeholder="Cari menu pesanan..."
+            placeholder="Search menu items..."
             className="w-full pl-11 pr-24 py-3 text-sm bg-white border border-[#CCD0CF] rounded-full focus:outline-hidden focus:ring-2 focus:ring-[#253745]/20 focus:border-[#253745] transition-all placeholder:text-[#4A5C6A] shadow-2xs"
           />
           <div className="absolute right-3.5 top-1/2 -translate-y-1/2 hidden sm:flex items-center gap-1 select-none pointer-events-none">
@@ -108,7 +108,7 @@ export function PosMenuGrid({
                 : "bg-white text-[#4A5C6A] hover:text-[#06141B] border border-[#CCD0CF] hover:border-[#9BA8AB] shadow-2xs"
             }`}
           >
-            Semua Menu
+            All Items
           </button>
           {availableCategories.map((cat) => (
             <button
@@ -130,10 +130,10 @@ export function PosMenuGrid({
       {/* Section Header */}
       <div className="flex items-center justify-between px-1">
         <h3 className="font-extrabold text-[#06141B] text-base sm:text-lg tracking-tight">
-          {selectedCategory === "ALL" ? "Daftar Menu" : `Menu ${selectedCategory}`}
+          {selectedCategory === "ALL" ? "Menu Catalog" : `${selectedCategory} Menu`}
         </h3>
         <span className="text-xs font-semibold text-[#4A5C6A] tabular-nums">
-          {filteredMenus.length} menu tersedia
+          {filteredMenus.length} items available
         </span>
       </div>
 
@@ -141,18 +141,18 @@ export function PosMenuGrid({
       {isPending ? (
         <div className="bg-white rounded-3xl border border-[#CCD0CF] p-12 text-center text-[#4A5C6A] space-y-2 shadow-2xs">
           <div className="w-8 h-8 border-3 border-[#11212D] border-t-transparent rounded-full animate-spin mx-auto" />
-          <p className="text-sm">Memuat katalog kasir...</p>
+          <p className="text-sm">Loading catalog...</p>
         </div>
       ) : isError ? (
         <div className="bg-white rounded-3xl border border-[#CCD0CF] p-8 text-center space-y-3 shadow-2xs">
           <AlertCircle className="w-8 h-8 text-rose-500 mx-auto" />
-          <p className="text-sm font-semibold text-rose-700">Gagal memuat katalog menu</p>
+          <p className="text-sm font-semibold text-rose-700">Failed to load menu catalog</p>
           <button
             type="button"
             onClick={onRefetch}
             className="px-4 py-2 text-xs font-bold text-[#06141B] bg-[#CCD0CF]/40 hover:bg-[#CCD0CF] rounded-full transition-colors cursor-pointer"
           >
-            Coba Lagi
+            Try Again
           </button>
         </div>
       ) : filteredMenus.length === 0 ? (
@@ -162,13 +162,13 @@ export function PosMenuGrid({
           </div>
           <h3 className="text-base font-bold text-[#06141B]">
             {search || selectedCategory !== "ALL"
-              ? "Tidak Ada Menu yang Cocok"
-              : "Belum Ada Menu Siap Jual"}
+              ? "No Matching Menu Items"
+              : "No Items Ready for Sale"}
           </h3>
           <p className="text-sm text-[#4A5C6A] max-w-sm mx-auto">
             {search || selectedCategory !== "ALL"
-              ? "Coba ubah kata kunci pencarian atau pilih kategori lain."
-              : "Tambahkan menu dan susun takaran resep di katalog agar menu dapat dijual di kasir."}
+              ? "Try changing search keywords or choose another category."
+              : "Add menus and configure recipes in the catalog so they can be sold here."}
           </p>
         </div>
       ) : (
@@ -199,7 +199,7 @@ export function PosMenuGrid({
                     : "border-[#CCD0CF] bg-[#CCD0CF]/20 opacity-65"
                 }`}
               >
-                {/* Card Top: Thumbnail + Info (Matching Reference Layout) */}
+                {/* Card Top: Thumbnail + Info */}
                 <div className="flex items-start gap-3.5 sm:gap-4">
                   {/* Left Thumbnail Box */}
                   <div className="w-20 h-20 sm:w-22 sm:h-22 rounded-2xl bg-slate-100 border border-[#CCD0CF]/60 shrink-0 relative overflow-hidden group-hover:scale-105 transition-transform shadow-2xs">
@@ -236,26 +236,26 @@ export function PosMenuGrid({
                     <p className="text-xs text-[#4A5C6A] line-clamp-2 leading-relaxed">
                       {menu.category ? `${menu.category} · ` : ""}
                       {menu.capacity === 0 ? (
-                        <span className="text-rose-600 font-semibold">Stok habis</span>
+                        <span className="text-rose-600 font-semibold">Out of stock</span>
                       ) : menu.capacity <= 10 ? (
                         <span className="text-amber-700 font-semibold">
-                          Sisa {menu.capacity} porsi
+                          {menu.capacity} portions left
                           {menu.bottleneckIngredientName
-                            ? ` (dibatasi ${menu.bottleneckIngredientName})`
+                            ? ` (limited by ${menu.bottleneckIngredientName})`
                             : ""}
                         </span>
                       ) : (
-                        <span>Sisa {menu.capacity} porsi</span>
+                        <span>{menu.capacity} portions left</span>
                       )}
                     </p>
 
-                    {/* Beverage Temperature Selector: Dingin vs Panas */}
+                    {/* Beverage Temperature Selector: Iced vs Hot */}
                     {isDrink && (
                       <div
                         className="flex items-center gap-2 pt-1"
                         onClick={(e) => e.stopPropagation()}
                       >
-                        <span className="text-xs font-semibold text-[#4A5C6A]">Suhu</span>
+                        <span className="text-xs font-semibold text-[#4A5C6A]">Temp</span>
                         <div className="inline-flex items-center p-0.5 bg-slate-100 rounded-full border border-[#CCD0CF]/60 select-none">
                           <button
                             type="button"
@@ -268,9 +268,9 @@ export function PosMenuGrid({
                                 ? "bg-[#11212D] text-white shadow-2xs"
                                 : "text-[#4A5C6A] hover:text-[#06141B]"
                             }`}
-                            title="Pilihan Dingin"
+                            title="Iced option"
                           >
-                            Dingin
+                            Iced
                           </button>
                           <button
                             type="button"
@@ -283,9 +283,9 @@ export function PosMenuGrid({
                                 ? "bg-[#11212D] text-white shadow-2xs"
                                 : "text-[#4A5C6A] hover:text-[#06141B]"
                             }`}
-                            title="Pilihan Panas"
+                            title="Hot option"
                           >
-                            Panas
+                            Hot
                           </button>
                         </div>
                       </div>
@@ -293,7 +293,7 @@ export function PosMenuGrid({
                   </div>
                 </div>
 
-                {/* Card Bottom: Stepper on Left, Action Button on Right (Matching Reference) */}
+                {/* Card Bottom: Stepper on Left, Action Button on Right */}
                 <div className="mt-3.5 pt-3 border-t border-[#CCD0CF]/60 flex items-center justify-between gap-3">
                   {/* Left Stepper: [-] qty [+] */}
                   <div
@@ -308,7 +308,7 @@ export function PosMenuGrid({
                         onDecrement?.(menu.id, temperature);
                       }}
                       className="w-5 h-5 rounded-full bg-white text-[#11212D] hover:text-rose-600 disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center shadow-2xs text-xs font-bold cursor-pointer transition-colors"
-                      title="Kurang 1"
+                      title="Decrease 1"
                     >
                       <Minus className="w-3 h-3" />
                     </button>
@@ -327,13 +327,13 @@ export function PosMenuGrid({
                         }
                       }}
                       className="w-5 h-5 rounded-full bg-white text-[#11212D] hover:bg-[#11212D] hover:text-white disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center shadow-2xs text-xs font-bold cursor-pointer transition-colors"
-                      title="Tambah 1"
+                      title="Increase 1"
                     >
                       <Plus className="w-3 h-3" />
                     </button>
                   </div>
 
-                  {/* Right Action Button: Always "Tambah ke Keranjang" */}
+                  {/* Right Action Button */}
                   {isSellable ? (
                     <button
                       type="button"
@@ -344,11 +344,11 @@ export function PosMenuGrid({
                       className="inline-flex items-center justify-center gap-1.5 px-3 sm:px-4 py-2 text-xs sm:text-sm font-bold text-white bg-[#11212D] hover:bg-[#253745] active:bg-[#06141B] rounded-full shadow-xs transition-all cursor-pointer active:scale-95 whitespace-nowrap shrink-0 ml-auto"
                     >
                       <Plus className="w-3.5 h-3.5" />
-                      <span>Tambah ke Keranjang</span>
+                      <span>Add to Cart</span>
                     </button>
                   ) : (
                     <span className="text-xs font-bold text-rose-700 bg-rose-50 px-3.5 py-1.5 rounded-full border border-rose-200/60 ml-auto">
-                      Stok Habis
+                      Out of Stock
                     </span>
                   )}
                 </div>

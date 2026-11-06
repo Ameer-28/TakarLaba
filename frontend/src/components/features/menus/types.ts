@@ -8,10 +8,4 @@ export type {
   PriceHistoryDetail,
 } from "../../../api/hooks/use-menus.js";
 
-export const DEFAULT_MENU_CATEGORIES = [
-  "Makanan",
-  "Minuman",
-  "Camilan",
-  "Paket",
-  "Lainnya",
-] as const;
+export const DEFAULT_MENU_CATEGORIES = ["Food", "Beverages", "Snacks", "Combo", "Other"] as const;

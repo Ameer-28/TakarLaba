@@ -28,28 +28,27 @@ export function MenuDeleteModal({
           </div>
           <div>
             <h2 className="text-base font-bold text-slate-800">
-              {hasSales ? "Menu Tidak Dapat Dihapus" : "Hapus Menu?"}
+              {hasSales ? "Menu Cannot Be Deleted" : "Delete Menu?"}
             </h2>
-            <p className="text-xs text-slate-500">Konfirmasi tindakan penghapusan</p>
+            <p className="text-xs text-slate-500">Confirm deletion action</p>
           </div>
         </div>
 
         {hasSales ? (
           <div className="p-3 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-800 space-y-1">
             <p className="font-semibold">
-              Menu &quot;{menuName}&quot; telah memiliki riwayat transaksi penjualan.
+              Menu &quot;{menuName}&quot; has existing sales transaction history.
             </p>
             <p>
-              Untuk menjaga integritas laporan laba dan pembukuan historis, menu ini tidak dapat
-              dihapus secara permanen. Anda dapat menonaktifkan statusnya agar tidak muncul di
-              kasir.
+              To preserve financial integrity and historical records, this menu cannot be
+              permanently deleted. You can deactivate it so it won't appear in the POS cashier.
             </p>
           </div>
         ) : (
           <p className="text-sm text-slate-600">
-            Apakah Anda yakin ingin menghapus menu{" "}
-            <strong className="text-slate-800">&quot;{menuName}&quot;</strong>? Tindakan ini tidak
-            dapat dibatalkan.
+            Are you sure you want to delete menu item{" "}
+            <strong className="text-slate-800">&quot;{menuName}&quot;</strong>? This action cannot
+            be undone.
           </p>
         )}
 
@@ -58,9 +57,9 @@ export function MenuDeleteModal({
             type="button"
             onClick={onClose}
             disabled={isDeleting}
-            className="px-4 py-2.5 text-sm font-semibold text-slate-600 hover:text-slate-800 hover:bg-slate-100 rounded-xl transition-colors"
+            className="px-4 py-2.5 text-sm font-semibold text-slate-600 hover:text-slate-800 hover:bg-slate-100 rounded-xl transition-colors cursor-pointer"
           >
-            {hasSales ? "Tutup" : "Batal"}
+            {hasSales ? "Close" : "Cancel"}
           </button>
           {!hasSales && (
             <button
@@ -70,7 +69,7 @@ export function MenuDeleteModal({
               className="flex items-center gap-2 px-5 py-2.5 text-sm font-bold text-white bg-rose-600 hover:bg-rose-700 active:bg-rose-800 rounded-xl shadow-xs shadow-rose-700/20 disabled:opacity-50 transition-all cursor-pointer"
             >
               {isDeleting && <Loader2 className="w-4 h-4 animate-spin" />}
-              Hapus Menu
+              Delete Menu
             </button>
           )}
         </div>

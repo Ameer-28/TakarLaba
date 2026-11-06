@@ -5,19 +5,19 @@ export type { OverheadCost, OverheadType, BusinessSettings };
 
 export const OVERHEAD_TYPE_LABELS: Record<OverheadType, { label: string; badgeClass: string }> = {
   UTILITY: {
-    label: "Utilitas (Listrik, Air, Gas, WiFi)",
+    label: "Utilities (Electricity, Water, Gas, WiFi)",
     badgeClass: "bg-blue-50 text-blue-700 border-blue-200",
   },
   LABOR: {
-    label: "Gaji & Tenaga Kerja",
+    label: "Labor & Payroll",
     badgeClass: "bg-emerald-50 text-emerald-700 border-emerald-200",
   },
   DEPRECIATION: {
-    label: "Penyusutan Alat & Mesin",
+    label: "Equipment Depreciation",
     badgeClass: "bg-amber-50 text-amber-700 border-amber-200",
   },
   OTHER: {
-    label: "Lain-lain / Sewa Tempat",
+    label: "Rent & Other Expenses",
     badgeClass: "bg-purple-50 text-purple-700 border-purple-200",
   },
 };

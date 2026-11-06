@@ -28,7 +28,7 @@ export function CashPaymentFields({
             htmlFor="cash-received-input"
             className="text-xs font-bold text-slate-700 uppercase tracking-wider block"
           >
-            Uang Diterima (Rp)
+            Cash Received (Rp)
           </label>
           {cashReceived > 0 && (
             <button
@@ -36,7 +36,7 @@ export function CashPaymentFields({
               onClick={() => onChangeInput("0")}
               className="text-[11px] font-semibold text-slate-400 hover:text-slate-600 transition cursor-pointer"
             >
-              Hapus
+              Clear
             </button>
           )}
         </div>
@@ -51,7 +51,7 @@ export function CashPaymentFields({
             value={cashReceived ? cashReceived.toLocaleString("id-ID") : ""}
             onChange={(e) => onChangeInput(e.target.value)}
             placeholder="0"
-            aria-label="Nominal uang tunai diterima"
+            aria-label="Cash received amount"
             aria-invalid={isCashInsufficient}
             aria-describedby={isCashInsufficient ? "cash-insufficient-msg" : "cash-change-msg"}
             className="w-full pl-10 pr-10 py-2.5 text-base font-black text-slate-900 bg-slate-50 border border-slate-200 rounded-xl focus:outline-hidden focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 tabular-nums transition-all"
@@ -60,7 +60,7 @@ export function CashPaymentFields({
             <button
               type="button"
               onClick={() => onChangeInput("0")}
-              aria-label="Bersihkan input uang tunai"
+              aria-label="Clear cash input"
               className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-slate-600 rounded-full hover:bg-slate-200 transition cursor-pointer"
             >
               <X className="w-3.5 h-3.5" />
@@ -72,7 +72,7 @@ export function CashPaymentFields({
       <div
         className="flex flex-wrap items-center gap-1.5"
         role="group"
-        aria-label="Pilihan nominal uang cepat"
+        aria-label="Quick cash suggestions"
       >
         {quickCashOptions.map((amount) => (
           <button
@@ -85,7 +85,7 @@ export function CashPaymentFields({
                 : "bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100"
             }`}
           >
-            {amount === totalAmount ? "Uang Pas" : formatRupiah(amount)}
+            {amount === totalAmount ? "Exact" : formatRupiah(amount)}
           </button>
         ))}
       </div>
@@ -102,7 +102,7 @@ export function CashPaymentFields({
             id={isCashInsufficient ? "cash-insufficient-msg" : "cash-change-msg"}
             className="text-xs font-bold uppercase tracking-wider block"
           >
-            {isCashInsufficient ? "Kurang Bayar" : "Kembalian"}
+            {isCashInsufficient ? "Underpaid" : "Change"}
           </span>
           <span className="text-xl font-black tabular-nums">
             {formatRupiah(isCashInsufficient ? totalAmount - cashReceived : change)}

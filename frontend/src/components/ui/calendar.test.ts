@@ -94,7 +94,7 @@ describe("Calendar Utilities", () => {
     expect(isWithinInterval(mid, { start: end, end: start })).toBe(true);
   });
 
-  it("formats date ranges in clean human-readable Indonesian format", () => {
+  it("formats date ranges in clean human-readable format", () => {
     const sameDay = formatDateRange(new Date(2026, 10, 5), new Date(2026, 10, 5));
     expect(sameDay).toBe("5 Nov 2026");
 
@@ -102,10 +102,10 @@ describe("Calendar Utilities", () => {
     expect(sameMonth).toBe("1 - 5 Nov 2026");
 
     const diffMonth = formatDateRange(new Date(2026, 9, 25), new Date(2026, 10, 5));
-    expect(diffMonth).toBe("25 Okt - 5 Nov 2026");
+    expect(diffMonth).toBe("25 Oct - 5 Nov 2026");
 
     const diffYear = formatDateRange(new Date(2025, 11, 28), new Date(2026, 0, 3));
-    expect(diffYear).toBe("28 Des 2025 - 3 Jan 2026");
+    expect(diffYear).toBe("28 Dec 2025 - 3 Jan 2026");
   });
 
   it("provides standard presets with correct relative ranges", () => {
@@ -116,8 +116,8 @@ describe("Calendar Utilities", () => {
     expect(defaultPresets.thisMonth).toBeDefined();
     expect(defaultPresets.lastMonth).toBeDefined();
 
-    expect(defaultPresets.today?.text).toBe("Hari Ini");
-    expect(defaultPresets.last7days?.text).toBe("7 Hari Terakhir");
+    expect(defaultPresets.today?.text).toBe("Today");
+    expect(defaultPresets.last7days?.text).toBe("Last 7 Days");
   });
 
   describe("calculatePopoverPosition boundary clamping", () => {

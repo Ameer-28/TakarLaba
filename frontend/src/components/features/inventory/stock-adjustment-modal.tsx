@@ -24,10 +24,10 @@ interface StockAdjustmentModalProps {
 }
 
 const PRESET_REASONS = [
-  "Opname fisik mingguan",
-  "Pecah / Tumpah saat penyimpanan",
-  "Koreksi salah input awal",
-  "Bonus / Selisih timbangan supplier",
+  "Weekly physical stock opname",
+  "Spilled / broken during storage",
+  "Correction of initial entry typo",
+  "Supplier bonus / scale discrepancy",
 ];
 
 export function StockAdjustmentModal({
@@ -89,14 +89,14 @@ export function StockAdjustmentModal({
 
       const prefix = Number(res.deltaQtyBase) > 0 ? "+" : "";
       toast.success(
-        `Penyesuaian stok dicatat: ${res.ingredientName} (${prefix}${formatNumber(Number(res.deltaQtyBase))} ${res.baseUnit.toLowerCase()}) selisih ${formatRupiah(Number(res.diffValue))}`
+        `Stock adjustment recorded: ${res.ingredientName} (${prefix}${formatNumber(Number(res.deltaQtyBase))} ${res.baseUnit.toLowerCase()}) difference of ${formatRupiah(Number(res.diffValue))}`
       );
       setActualQty("");
       setReason("");
       onSuccess?.();
       onClose();
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Gagal menyimpan penyesuaian stok");
+      toast.error(err instanceof Error ? err.message : "Failed to record stock adjustment");
     }
   };
 
@@ -111,10 +111,10 @@ export function StockAdjustmentModal({
             </div>
             <div>
               <h3 className="text-base font-bold text-slate-900">
-                Penyesuaian Stok (Opname Fisik)
+                Stock Adjustment (Physical Opname)
               </h3>
               <p className="text-xs text-slate-500">
-                Koreksi selisih hitung fisik riil vs stok sistem (T-204)
+                Correct variance between physical inventory and system records (T-204)
               </p>
             </div>
           </div>
@@ -131,11 +131,11 @@ export function StockAdjustmentModal({
           {/* Batch Selector if no initialBatch provided */}
           {!initialBatch && (
             <div className="space-y-1.5">
-              <label className="text-xs font-bold text-slate-700">Pilih Batch Bahan Baku</label>
+              <label className="text-xs font-bold text-slate-700">Select Ingredient Batch</label>
               {isBatchesPending ? (
                 <div className="p-3 bg-slate-50 rounded-xl text-xs text-slate-400 flex items-center gap-2">
                   <Loader2 className="w-4 h-4 animate-spin text-sky-600" />
-                  <span>Memuat daftar batch...</span>
+                  <span>Loading batch list...</span>
                 </div>
               ) : (
                 <select
@@ -148,7 +148,7 @@ export function StockAdjustmentModal({
                 >
                   {batches.map((b) => (
                     <option key={b.id} value={b.id}>
-                      {b.ingredientName} — Sisa: {formatNumber(Number(b.remainingQtyBase))}{" "}
+                      {b.ingredientName} — Remaining: {formatNumber(Number(b.remainingQtyBase))}{" "}
                       {b.baseUnit.toLowerCase()}
                       {b.expiryDate ? ` (Exp: ${formatDate(b.expiryDate)})` : ""}
                     </option>
@@ -180,7 +180,7 @@ export function StockAdjustmentModal({
                 </div>
 
                 <div className="text-right">
-                  <span className="text-[11px] text-slate-400 block font-medium">Stok Sistem</span>
+                  <span className="text-[11px] text-slate-400 block font-medium">System Stock</span>
                   <span className="font-extrabold text-slate-900 text-sm tabular-nums">
                     {formatNumber(currentRemainingNum)} {currentBatch.baseUnit.toLowerCase()}
                   </span>
@@ -193,11 +193,11 @@ export function StockAdjustmentModal({
           <div className="space-y-1.5">
             <div className="flex items-center justify-between">
               <label className="text-xs font-bold text-slate-700">
-                Stok Fisik Aktual Hasil Opname
+                Actual Physical Stock (Count Result)
               </label>
               {currentBatch && (
                 <span className="text-[11px] text-slate-400 font-medium">
-                  Satuan dasar: {currentBatch.baseUnit.toLowerCase()}
+                  Base unit: {currentBatch.baseUnit.toLowerCase()}
                 </span>
               )}
             </div>
@@ -224,7 +224,7 @@ export function StockAdjustmentModal({
                 onClick={() => setActualQty(currentRemainingNum.toString())}
                 className="text-[11px] font-semibold text-slate-500 hover:text-sky-700 underline cursor-pointer"
               >
-                Salin stok sistem ({formatNumber(currentRemainingNum)})
+                Copy system stock ({formatNumber(currentRemainingNum)})
               </button>
             </div>
           </div>
@@ -262,10 +262,10 @@ export function StockAdjustmentModal({
                 <div>
                   <span className="text-[11px] font-bold block uppercase tracking-wider opacity-70">
                     {delta > 0
-                      ? "Surplus Fisik (+)"
+                      ? "Physical Surplus (+)"
                       : delta < 0
-                        ? "Susut / Selisih Kurang (-)"
-                        : "Stok Sesuai Sistem"}
+                        ? "Shortage / Deficit (-)"
+                        : "Matches System Stock"}
                   </span>
                   <span className="text-sm font-extrabold tabular-nums">
                     {delta > 0 ? "+" : ""}
@@ -276,7 +276,9 @@ export function StockAdjustmentModal({
 
               {costPerBaseNum > 0 && Math.abs(diffValue) > 0 && (
                 <div className="text-right">
-                  <span className="text-[11px] font-bold block opacity-70">Valuasi Selisih</span>
+                  <span className="text-[11px] font-bold block opacity-70">
+                    Difference Valuation
+                  </span>
                   <span className="text-sm font-extrabold tabular-nums font-mono">
                     {diffValue > 0 ? "+" : ""}
                     {formatRupiah(diffValue)}
@@ -289,13 +291,13 @@ export function StockAdjustmentModal({
           {/* Reason Input */}
           <div className="space-y-1.5">
             <label className="text-xs font-bold text-slate-700">
-              Alasan Penyesuaian <span className="text-rose-500">*</span>
+              Adjustment Reason <span className="text-rose-500">*</span>
             </label>
             <textarea
               rows={2}
               value={reason}
               onChange={(e) => setReason(e.target.value)}
-              placeholder="Contoh: Hasil stock opname fisik mingguan gudang utama..."
+              placeholder="e.g. Weekly physical stock count at main kitchen..."
               className="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-hidden focus:ring-2 focus:ring-sky-500/20 focus:border-sky-600 transition-all resize-none text-slate-800 placeholder:text-slate-400"
             />
 
@@ -321,8 +323,7 @@ export function StockAdjustmentModal({
           {/* Validation Notice when delta is 0 */}
           {isDeltaZero && (
             <p className="text-xs text-amber-700 bg-amber-50 p-2.5 rounded-xl border border-amber-200">
-              Kuantitas fisik yang diinput sama persis dengan sisa stok sistem saat ini. Tidak ada
-              perubahan yang perlu disesuaikan.
+              Physical count matches current system stock exactly. No adjustment is required.
             </p>
           )}
 
@@ -334,7 +335,7 @@ export function StockAdjustmentModal({
               disabled={adjustmentMutation.isPending}
               className="px-4 py-2 text-xs font-semibold text-slate-600 hover:text-slate-800 hover:bg-slate-100 rounded-xl transition-all cursor-pointer"
             >
-              Batal
+              Cancel
             </button>
 
             <button
@@ -345,10 +346,10 @@ export function StockAdjustmentModal({
               {adjustmentMutation.isPending ? (
                 <>
                   <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                  <span>Menyimpan...</span>
+                  <span>Saving...</span>
                 </>
               ) : (
-                <span>Simpan Penyesuaian</span>
+                <span>Save Adjustment</span>
               )}
             </button>
           </div>

@@ -123,10 +123,10 @@ export function useMenuManager() {
   }) => {
     if (editingMenu) {
       await updateMutation.mutateAsync({ id: editingMenu.id, payload });
-      toast.success(`Menu "${payload.name}" berhasil diperbarui`);
+      toast.success(`Menu "${payload.name}" updated successfully`);
     } else {
       await createMutation.mutateAsync(payload);
-      toast.success(`Menu "${payload.name}" berhasil ditambahkan`);
+      toast.success(`Menu "${payload.name}" added successfully`);
     }
   };
 
@@ -137,10 +137,10 @@ export function useMenuManager() {
         payload: { isActive: !menu.isActive },
       });
       toast.success(
-        `Status menu "${menu.name}" diubah menjadi ${!menu.isActive ? "Aktif" : "Nonaktif"}`
+        `Menu "${menu.name}" status changed to ${!menu.isActive ? "Active" : "Inactive"}`
       );
     } catch {
-      toast.error(`Gagal mengubah status menu "${menu.name}"`);
+      toast.error(`Failed to update status for menu "${menu.name}"`);
     }
   };
 
@@ -148,13 +148,13 @@ export function useMenuManager() {
     if (!deleteModalState.menu) return;
     try {
       await deleteMutation.mutateAsync(deleteModalState.menu.id);
-      toast.success(`Menu "${deleteModalState.menu.name}" berhasil dihapus`);
+      toast.success(`Menu "${deleteModalState.menu.name}" deleted successfully`);
       setDeleteModalState({ isOpen: false, menu: null });
     } catch (err: unknown) {
       if (err instanceof Error) {
         toast.error(err.message);
       } else {
-        toast.error("Gagal menghapus menu");
+        toast.error("Failed to delete menu");
       }
     }
   };

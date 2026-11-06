@@ -13,7 +13,7 @@ export function App() {
           TakarLaba
         </h1>
         <p className="text-lg text-slate-600">
-          Asisten Penjaga Margin & Anti-Waste untuk UMKM Kuliner Indonesia
+          Margin Guardian & Anti-Waste Assistant for Culinary Businesses
         </p>
       </header>
 
@@ -22,9 +22,9 @@ export function App() {
           <div className="w-10 h-10 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center">
             <TrendingUp className="w-5 h-5" />
           </div>
-          <h2 className="font-semibold text-lg text-slate-900">Costing Real-time</h2>
+          <h2 className="font-semibold text-lg text-slate-900">Real-time Costing</h2>
           <p className="text-sm text-slate-500">
-            Perhitungan HPP Aktual & Pengganti otomatis dengan akurasi desimal tinggi.
+            Automated Actual & Replacement Cost calculation with high decimal precision.
           </p>
         </div>
 
@@ -32,9 +32,9 @@ export function App() {
           <div className="w-10 h-10 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center">
             <AlertTriangle className="w-5 h-5" />
           </div>
-          <h2 className="font-semibold text-lg text-slate-900">Price Shock Alert</h2>
+          <h2 className="font-semibold text-lg text-slate-900">Price Shock Alerts</h2>
           <p className="text-sm text-slate-500">
-            Deteksi dini kenaikan harga bahan pokok untuk melindungi margin laba Anda.
+            Early detection of raw material price increases to safeguard your profit margins.
           </p>
         </div>
 
@@ -42,9 +42,9 @@ export function App() {
           <div className="w-10 h-10 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center">
             <Store className="w-5 h-5" />
           </div>
-          <h2 className="font-semibold text-lg text-slate-900">POS Atomik & FEFO</h2>
+          <h2 className="font-semibold text-lg text-slate-900">Atomic POS & FEFO</h2>
           <p className="text-sm text-slate-500">
-            Pengurangan stok otomatis berbasis tanggal kedaluwarsa pertama (FEFO).
+            Automatic stock depletion based on First-Expired, First-Out (FEFO).
           </p>
         </div>
       </main>
