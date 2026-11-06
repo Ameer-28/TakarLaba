@@ -49,6 +49,7 @@ export function IngredientCatalogView({
         onCategoryChange={onCategoryChange}
         statusFilter={statusFilter}
         onStatusChange={onStatusChange}
+        onOpenCreate={onOpenCreateIngredient}
       />
 
       {isPending ? (
