@@ -1,6 +1,5 @@
-import { Package, AlertCircle, RefreshCw } from "lucide-react";
+import { Package, AlertCircle, RefreshCw, Plus } from "lucide-react";
 import type { Ingredient } from "@/api/hooks/use-ingredients";
-import { InventorySummary } from "@/components/features/inventory-summary";
 import { IngredientFilters } from "./ingredient-filters";
 import { IngredientTable } from "./ingredient-table";
 
@@ -36,18 +35,13 @@ export function IngredientCatalogView({
   isError,
   error,
   refetch,
-  onOpenPurchase,
   onOpenCreateIngredient,
   onEdit,
   onManageUnits,
   onDeactivate,
 }: IngredientCatalogViewProps) {
   return (
-    <>
-      <InventorySummary
-        onOpenPurchase={onOpenPurchase}
-        onOpenCreateIngredient={onOpenCreateIngredient}
-      />
+    <div className="space-y-4">
       <IngredientFilters
         searchTerm={searchTerm}
         onSearchChange={onSearchChange}
@@ -70,7 +64,7 @@ export function IngredientCatalogView({
           </p>
           <button
             onClick={() => refetch()}
-            className="text-xs font-semibold text-rose-700 underline hover:text-rose-800"
+            className="text-xs font-semibold text-rose-700 underline hover:text-rose-800 cursor-pointer"
           >
             Coba lagi
           </button>
@@ -86,6 +80,16 @@ export function IngredientCatalogView({
                 : "Mulai dengan menambahkan bahan baku pertama Anda."}
             </p>
           </div>
+          {!searchTerm && categoryFilter === "ALL" && statusFilter === "ALL" && (
+            <button
+              type="button"
+              onClick={onOpenCreateIngredient}
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold shadow-xs transition-all cursor-pointer"
+            >
+              <Plus className="w-3.5 h-3.5" />
+              <span>Tambah Bahan Pertama</span>
+            </button>
+          )}
         </div>
       ) : (
         <IngredientTable
@@ -95,6 +99,6 @@ export function IngredientCatalogView({
           onDeactivate={onDeactivate}
         />
       )}
-    </>
+    </div>
   );
 }
