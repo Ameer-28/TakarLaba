@@ -37,12 +37,18 @@ export interface DropdownNavigationProps {
 export function DropdownNavigation({ navItems, className }: DropdownNavigationProps) {
   const [openMenu, setOpenMenu] = useState<string | null>(null);
   const [isHover, setIsHover] = useState<string | number | null>(null);
-  const [alignRightMap, setAlignRightMap] = useState<Record<string, boolean>>({});
+  const [popoverCoords, setPopoverCoords] = useState<{
+    top: number;
+    left: number;
+    width: number;
+    maxHeight: number;
+  } | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
   // Close when clicking outside
   useClickOutside(containerRef, () => {
     setOpenMenu(null);
+    setPopoverCoords(null);
   });
 
   // Close on Escape key
@@ -50,11 +56,27 @@ export function DropdownNavigation({ navItems, className }: DropdownNavigationPr
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
         setOpenMenu(null);
+        setPopoverCoords(null);
       }
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
+
+  // Close or reposition on scroll / resize to prevent floating desync
+  useEffect(() => {
+    if (!openMenu) return;
+    const handleScrollOrResize = () => {
+      setOpenMenu(null);
+      setPopoverCoords(null);
+    };
+    window.addEventListener("scroll", handleScrollOrResize, { passive: true });
+    window.addEventListener("resize", handleScrollOrResize);
+    return () => {
+      window.removeEventListener("scroll", handleScrollOrResize);
+      window.removeEventListener("resize", handleScrollOrResize);
+    };
+  }, [openMenu]);
 
   const handleButtonClick = (navItem: NavItem, e: React.MouseEvent<HTMLButtonElement>) => {
     if (navItem.onClick) {
@@ -64,13 +86,40 @@ export function DropdownNavigation({ navItems, className }: DropdownNavigationPr
       const isOpening = openMenu !== navItem.label;
       if (isOpening) {
         const rect = e.currentTarget.getBoundingClientRect();
-        const spaceOnRight = window.innerWidth - rect.left;
-        const shouldAlignRight =
-          navItem.align === "right" || spaceOnRight < 340 || rect.right > window.innerWidth / 2;
-        setAlignRightMap((prev) => ({ ...prev, [navItem.label]: shouldAlignRight }));
+        const viewportWidth = window.innerWidth;
+        const viewportHeight = window.innerHeight;
+
+        // Desired width: 310px on mobile, or wider if multiple columns on larger screen
+        const hasMultipleCols = navItem.subMenus.length > 1 && viewportWidth >= 640;
+        const targetWidth = Math.min(hasMultipleCols ? 520 : 310, viewportWidth - 24);
+
+        // Calculate left position: align with button left or right, then clamp strictly within [12px, viewportWidth - targetWidth - 12px]
+        let left = rect.left;
+        if (rect.right > viewportWidth / 2) {
+          // If button is on right half of viewport, align right edge of popover with button right edge
+          left = rect.right - targetWidth;
+        }
+        // Strict boundary clamping so it NEVER clips off the left or right of the screen
+        if (left + targetWidth > viewportWidth - 12) {
+          left = viewportWidth - targetWidth - 12;
+        }
+        if (left < 12) {
+          left = 12;
+        }
+
+        const top = rect.bottom + 6;
+        const maxHeight = Math.max(180, viewportHeight - top - 16);
+
+        setPopoverCoords({
+          top,
+          left,
+          width: targetWidth,
+          maxHeight,
+        });
         setOpenMenu(navItem.label);
       } else {
         setOpenMenu(null);
+        setPopoverCoords(null);
       }
     }
   };
@@ -82,7 +131,6 @@ export function DropdownNavigation({ navItems, className }: DropdownNavigationPr
           const isOpen = openMenu === navItem.label;
           const isItemHovered = isHover === navItem.id;
           const Icon = navItem.icon;
-          const isRightAligned = navItem.align === "right" || Boolean(alignRightMap[navItem.label]);
 
           return (
             <li key={navItem.id} className="relative">
@@ -146,22 +194,24 @@ export function DropdownNavigation({ navItems, className }: DropdownNavigationPr
                 )}
               </button>
 
-              {/* Dropdown Menu Popover */}
-              {isOpen && navItem.subMenus && navItem.subMenus.length > 0 && (
+              {/* Viewport-Clamped Dropdown Menu Popover */}
+              {isOpen && navItem.subMenus && navItem.subMenus.length > 0 && popoverCoords && (
                 <div
-                  className={clsx(
-                    "w-auto absolute top-full pt-2 z-50",
-                    isRightAligned ? "right-0" : "left-0"
-                  )}
+                  style={{
+                    position: "fixed",
+                    top: `${popoverCoords.top}px`,
+                    left: `${popoverCoords.left}px`,
+                    width: `${popoverCoords.width}px`,
+                    maxHeight: `${popoverCoords.maxHeight}px`,
+                    zIndex: 60,
+                  }}
+                  className="animate-in fade-in-0 zoom-in-95 duration-150"
                 >
-                  <div className="bg-white border border-[#CCD0CF] p-3 sm:p-4 w-max max-w-[calc(100vw-1.5rem)] sm:max-w-xl max-h-[calc(100vh-10rem)] overflow-y-auto rounded-2xl shadow-xl animate-in fade-in-0 zoom-in-95 duration-150">
-                    <div className="w-fit shrink-0 flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-8">
+                  <div className="bg-white border border-[#CCD0CF] p-3 sm:p-4 w-full max-h-[inherit] overflow-y-auto rounded-2xl shadow-2xl">
+                    <div className="w-full flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-6">
                       {navItem.subMenus.map((sub) => (
-                        <div
-                          className="w-full min-w-[200px] sm:min-w-[220px] max-w-[320px]"
-                          key={sub.title}
-                        >
-                          <h3 className="mb-3 text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                        <div className="w-full flex-1 min-w-0" key={sub.title}>
+                          <h3 className="mb-2.5 text-[11px] font-bold uppercase tracking-wider text-slate-400">
                             {sub.title}
                           </h3>
                           <ul className="space-y-1.5">
@@ -174,6 +224,7 @@ export function DropdownNavigation({ navItems, className }: DropdownNavigationPr
                                     onClick={() => {
                                       item.onClick?.();
                                       setOpenMenu(null);
+                                      setPopoverCoords(null);
                                     }}
                                     className={clsx(
                                       "flex items-start space-x-3 group text-left w-full p-2 rounded-xl transition-all duration-200 cursor-pointer",

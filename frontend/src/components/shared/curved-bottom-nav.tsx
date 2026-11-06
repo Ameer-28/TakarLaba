@@ -24,6 +24,13 @@ interface CurvedBottomNavProps {
   isLoggingOut: boolean;
 }
 
+interface BottomNavItem {
+  id: string;
+  label: string;
+  path: string;
+  icon: React.ElementType;
+}
+
 export function CurvedBottomNav({
   userRole,
   userName,
@@ -46,8 +53,67 @@ export function CurvedBottomNav({
   const isAnalyticsActive = pathname.startsWith("/analytics");
   const isSettingsActive = pathname.startsWith("/settings");
 
-  // More menu is considered active if we are on one of the secondary routes
+  // Secondary features are active under "Lainnya"
   const isMoreActive = isSalesActive || isAlertsActive || isAnalyticsActive || isSettingsActive;
+
+  // Define navigation items per role
+  const ownerNavItems: BottomNavItem[] = [
+    {
+      id: "dashboard",
+      label: "Dashboard",
+      path: "/dashboard",
+      icon: LayoutDashboard,
+    },
+    {
+      id: "ingredients",
+      label: "Bahan & Stok",
+      path: "/ingredients",
+      icon: Package,
+    },
+    { id: "pos", label: "Kasir POS", path: "/pos", icon: Store },
+    {
+      id: "menus",
+      label: "Menu & Costing",
+      path: "/menus",
+      icon: UtensilsCrossed,
+    },
+    { id: "more", label: "Semua Fitur", path: "#more", icon: Grid2X2 },
+  ];
+
+  const cashierNavItems: BottomNavItem[] = [
+    { id: "pos", label: "Kasir POS", path: "/pos", icon: Store },
+    { id: "sales", label: "Riwayat", path: "/sales", icon: Receipt },
+    { id: "pos_center", label: "Kasir POS", path: "/pos", icon: Store },
+    { id: "sales_alt", label: "Riwayat", path: "/sales", icon: Receipt },
+    { id: "logout", label: "Keluar", path: "#logout", icon: LogOut },
+  ];
+
+  const items = userRole === "OWNER" ? ownerNavItems : cashierNavItems;
+
+  // Calculate active index (0 to 4)
+  let activeIndex = 0;
+  if (userRole === "OWNER") {
+    if (isDashboardActive) {
+      activeIndex = 0;
+    } else if (isIngredientsActive) {
+      activeIndex = 1;
+    } else if (isPosActive) {
+      activeIndex = 2;
+    } else if (isMenusActive) {
+      activeIndex = 3;
+    } else if (isMoreActive) {
+      activeIndex = 4;
+    }
+  } else {
+    if (isPosActive) {
+      activeIndex = 0;
+    } else if (isSalesActive) {
+      activeIndex = 1;
+    }
+  }
+
+  const activeItem = items[activeIndex] ?? items[0]!;
+  const ActiveIcon = activeItem.icon;
 
   // Close sheet on route change
   useEffect(() => {
@@ -69,193 +135,110 @@ export function CurvedBottomNav({
 
   return (
     <>
-      {/* Floating Curved Bottom Bar (Visible only on Mobile & Tablet: < lg) */}
+      {/* Floating Bottom Bar (Visible only on Mobile & Tablet: < lg) */}
       <nav
-        aria-label="Navigasi Bawah Melengkung"
+        aria-label="Navigasi Bawah Mobile & Tablet"
         className="lg:hidden fixed bottom-3 sm:bottom-4 inset-x-0 z-40 mx-auto w-[calc(100%-1.5rem)] max-w-md sm:max-w-lg select-none"
       >
-        <div className="relative flex items-center h-16 filter drop-shadow-[0_12px_28px_rgba(0,0,0,0.10)]">
-          {/* Left Wing */}
-          <div className="flex-1 h-full bg-white rounded-l-[32px] flex items-center justify-around px-2 z-10 -mr-px">
-            {userRole === "OWNER" ? (
-              <>
-                {/* 1. Dashboard */}
-                <Link
-                  to="/dashboard"
-                  title="Dashboard"
-                  className="flex flex-col items-center justify-center p-2 rounded-2xl transition-all group"
-                  aria-current={isDashboardActive ? "page" : undefined}
-                >
-                  <LayoutDashboard
-                    className={`w-5.5 h-5.5 transition-colors ${
-                      isDashboardActive
-                        ? "text-slate-900"
-                        : "text-slate-400 group-hover:text-slate-700"
-                    }`}
-                  />
-                  {isDashboardActive && (
-                    <span className="w-1.5 h-1.5 rounded-full bg-[#1b7e53] mt-1" />
-                  )}
-                </Link>
-
-                {/* 2. Bahan Baku & Stok */}
-                <Link
-                  to="/ingredients"
-                  title="Bahan Baku & Stok"
-                  className="flex flex-col items-center justify-center p-2 rounded-2xl transition-all group"
-                  aria-current={isIngredientsActive ? "page" : undefined}
-                >
-                  <Package
-                    className={`w-5.5 h-5.5 transition-colors ${
-                      isIngredientsActive
-                        ? "text-slate-900"
-                        : "text-slate-400 group-hover:text-slate-700"
-                    }`}
-                  />
-                  {isIngredientsActive && (
-                    <span className="w-1.5 h-1.5 rounded-full bg-[#1b7e53] mt-1" />
-                  )}
-                </Link>
-              </>
-            ) : (
-              <>
-                {/* Cashier: POS Shortcut & Sales */}
-                <Link
-                  to="/pos"
-                  title="Kasir"
-                  className="flex flex-col items-center justify-center p-2 rounded-2xl transition-all group"
-                  aria-current={isPosActive ? "page" : undefined}
-                >
-                  <Store
-                    className={`w-5.5 h-5.5 transition-colors ${
-                      isPosActive ? "text-slate-900" : "text-slate-400 group-hover:text-slate-700"
-                    }`}
-                  />
-                  {isPosActive && <span className="w-1.5 h-1.5 rounded-full bg-[#1b7e53] mt-1" />}
-                </Link>
-                <Link
-                  to="/sales"
-                  title="Riwayat Penjualan"
-                  className="flex flex-col items-center justify-center p-2 rounded-2xl transition-all group"
-                  aria-current={isSalesActive ? "page" : undefined}
-                >
-                  <Receipt
-                    className={`w-5.5 h-5.5 transition-colors ${
-                      isSalesActive ? "text-slate-900" : "text-slate-400 group-hover:text-slate-700"
-                    }`}
-                  />
-                  {isSalesActive && <span className="w-1.5 h-1.5 rounded-full bg-[#1b7e53] mt-1" />}
-                </Link>
-              </>
-            )}
+        <div className="relative flex items-center h-16 bg-white rounded-[32px] border border-slate-200/80 shadow-[0_12px_28px_rgba(0,0,0,0.08)]">
+          {/* Animated Elevated Bubble Indicator (Matches website theme: #11212D / slate-900) */}
+          <div
+            className="absolute -top-3.5 z-30 pointer-events-none transition-[left] duration-300 ease-out"
+            style={{
+              left: `${(activeIndex + 0.5) * 20}%`,
+              transform: "translateX(-50%)",
+            }}
+          >
+            <div className="w-[52px] h-[52px] rounded-full bg-[#11212D] text-white flex items-center justify-center shadow-[0_8px_20px_rgba(17,33,45,0.35)] ring-4 ring-white">
+              <ActiveIcon className="w-5.5 h-5.5 text-white transition-transform duration-200" />
+            </div>
           </div>
 
-          {/* Center Scoop Cutout Piece */}
-          <div className="w-[112px] h-16 relative shrink-0 flex items-center justify-center z-10">
-            {/* Seamless SVG scoop path matching reference curve */}
-            <svg
-              viewBox="0 0 112 64"
-              className="w-[112px] h-[64px] block shrink-0"
-              preserveAspectRatio="none"
-              aria-hidden="true"
-            >
-              <path
-                d="M 0 0 L 12 0 C 26 0 26 42 56 42 C 86 42 86 0 100 0 L 112 0 L 112 64 L 0 64 Z"
-                fill="#ffffff"
-              />
-            </svg>
-
-            {/* Elevated Primary Action: Kasir (POS) Emerald Circle */}
-            <Link
-              to="/pos"
-              title="Kasir (POS)"
-              className="absolute left-1/2 -translate-x-1/2 -top-3.5 w-[52px] h-[52px] rounded-full bg-[#1b7e53] hover:bg-[#156743] active:scale-95 text-white flex items-center justify-center shadow-[0_8px_20px_rgba(27,126,83,0.38)] transition-all z-20 group"
-              aria-current={isPosActive ? "page" : undefined}
-            >
-              <Store className="w-6 h-6 transition-transform group-hover:scale-110" />
-            </Link>
-
-            {/* Active Indicator Dot under Center Dip (matching reference) */}
-            {isPosActive && (
-              <span
-                className="absolute left-1/2 -translate-x-1/2 bottom-[9px] w-1.5 h-1.5 rounded-full bg-[#1b7e53] z-10"
-                aria-hidden="true"
-              />
-            )}
+          {/* Animated Active Indicator Dot at the bottom of the active slot */}
+          <div
+            className="absolute bottom-2 z-20 pointer-events-none transition-[left] duration-300 ease-out"
+            style={{
+              left: `${(activeIndex + 0.5) * 20}%`,
+              transform: "translateX(-50%)",
+            }}
+          >
+            <span className="block w-1.5 h-1.5 rounded-full bg-[#11212D]" />
           </div>
 
-          {/* Right Wing */}
-          <div className="flex-1 h-full bg-white rounded-r-[32px] flex items-center justify-around px-2 z-10 -ml-px">
-            {userRole === "OWNER" ? (
-              <>
-                {/* 3. Menu & Costing */}
-                <Link
-                  to="/menus"
-                  title="Menu & Costing"
-                  className="flex flex-col items-center justify-center p-2 rounded-2xl transition-all group"
-                  aria-current={isMenusActive ? "page" : undefined}
-                >
-                  <UtensilsCrossed
-                    className={`w-5.5 h-5.5 transition-colors ${
-                      isMenusActive ? "text-slate-900" : "text-slate-400 group-hover:text-slate-700"
-                    }`}
-                  />
-                  {isMenusActive && <span className="w-1.5 h-1.5 rounded-full bg-[#1b7e53] mt-1" />}
-                </Link>
+          {/* 5 Interactive Slots */}
+          <div className="w-full h-full flex items-center justify-around px-1 z-10">
+            {items.map((item, index) => {
+              const isSelected = activeIndex === index;
+              const Icon = item.icon;
 
-                {/* 4. Semua Menu / Fitur Lainnya (Sheet Trigger) */}
-                <button
-                  type="button"
-                  onClick={() => setIsMoreMenuOpen(true)}
-                  title="Semua Fitur Menu"
-                  aria-label="Buka semua fitur menu"
-                  className="flex flex-col items-center justify-center p-2 rounded-2xl transition-all group cursor-pointer"
-                >
-                  <Grid2X2
-                    className={`w-5.5 h-5.5 transition-colors ${
-                      isMoreActive ? "text-slate-900" : "text-slate-400 group-hover:text-slate-700"
-                    }`}
-                  />
-                  {isMoreActive && <span className="w-1.5 h-1.5 rounded-full bg-[#1b7e53] mt-1" />}
-                </button>
-              </>
-            ) : (
-              <>
-                {/* Cashier: Riwayat Penjualan & Logout */}
+              // Slide-Up Sheet Trigger (Lainnya)
+              if (item.id === "more") {
+                return (
+                  <button
+                    key={item.id}
+                    type="button"
+                    onClick={() => setIsMoreMenuOpen(true)}
+                    title={item.label}
+                    aria-label={item.label}
+                    className="w-1/5 h-full flex flex-col items-center justify-center p-2 rounded-2xl transition-all group cursor-pointer relative z-10"
+                  >
+                    <Icon
+                      className={`w-5.5 h-5.5 transition-all duration-200 ${
+                        isSelected
+                          ? "opacity-0 scale-75"
+                          : "text-slate-400 group-hover:text-slate-800"
+                      }`}
+                    />
+                  </button>
+                );
+              }
+
+              // Logout Action for Cashier
+              if (item.id === "logout") {
+                return (
+                  <button
+                    key={item.id}
+                    type="button"
+                    onClick={onLogout}
+                    disabled={isLoggingOut}
+                    title="Keluar Akun"
+                    aria-label="Keluar akun"
+                    className="w-1/5 h-full flex flex-col items-center justify-center p-2 rounded-2xl transition-all group cursor-pointer relative z-10"
+                  >
+                    {isLoggingOut ? (
+                      <Loader2 className="w-5 h-5 animate-spin text-rose-600" />
+                    ) : (
+                      <LogOut className="w-5.5 h-5.5 text-slate-400 group-hover:text-rose-600 transition-colors" />
+                    )}
+                  </button>
+                );
+              }
+
+              // Standard Navigation Link (Dashboard, Bahan, POS, Menu)
+              return (
                 <Link
-                  to="/sales"
-                  title="Riwayat"
-                  className="flex flex-col items-center justify-center p-2 rounded-2xl transition-all group"
-                  aria-current={isSalesActive ? "page" : undefined}
+                  key={item.id}
+                  to={item.path}
+                  title={item.label}
+                  aria-label={item.label}
+                  aria-current={isSelected ? "page" : undefined}
+                  className="w-1/5 h-full flex flex-col items-center justify-center p-2 rounded-2xl transition-all group relative z-10"
                 >
-                  <Receipt
-                    className={`w-5.5 h-5.5 transition-colors ${
-                      isSalesActive ? "text-slate-900" : "text-slate-400 group-hover:text-slate-700"
+                  <Icon
+                    className={`w-5.5 h-5.5 transition-all duration-200 ${
+                      isSelected
+                        ? "opacity-0 scale-75"
+                        : "text-slate-400 group-hover:text-slate-800"
                     }`}
                   />
-                  {isSalesActive && <span className="w-1.5 h-1.5 rounded-full bg-[#1b7e53] mt-1" />}
                 </Link>
-                <button
-                  type="button"
-                  onClick={onLogout}
-                  disabled={isLoggingOut}
-                  title="Keluar Akun"
-                  aria-label="Keluar akun"
-                  className="flex flex-col items-center justify-center p-2 rounded-2xl text-slate-400 hover:text-rose-600 transition-colors cursor-pointer"
-                >
-                  {isLoggingOut ? (
-                    <Loader2 className="w-5 h-5 animate-spin text-rose-600" />
-                  ) : (
-                    <LogOut className="w-5.5 h-5.5" />
-                  )}
-                </button>
-              </>
-            )}
+              );
+            })}
           </div>
         </div>
       </nav>
 
-      {/* Modern Slide-Up Menu Sheet (When 4th icon is clicked) */}
+      {/* Modern Slide-Up Menu Sheet (When 5th icon is clicked) */}
       {isMoreMenuOpen && (
         <div className="lg:hidden fixed inset-0 z-50 flex flex-col justify-end">
           {/* Backdrop */}
@@ -272,7 +255,7 @@ export function CurvedBottomNav({
               <div className="w-12 h-1.5 bg-slate-200 rounded-full mb-3" />
               <div className="w-full flex items-center justify-between">
                 <div>
-                  <h3 className="text-base font-extrabold text-slate-900">Semua Fitur TakarLaba</h3>
+                  <h3 className="text-base font-extrabold text-[#11212D]">Semua Fitur TakarLaba</h3>
                   <p className="text-xs text-slate-400 font-medium">
                     Pilih menu operasional & analitik
                   </p>
@@ -296,7 +279,7 @@ export function CurvedBottomNav({
                 onClick={() => setIsMoreMenuOpen(false)}
                 className={`p-3.5 rounded-2xl border flex items-center gap-3 transition-all ${
                   isAlertsActive
-                    ? "bg-slate-900 text-white border-slate-900 shadow-sm"
+                    ? "bg-[#11212D] text-white border-[#11212D] shadow-xs"
                     : "bg-slate-50 border-slate-100 hover:bg-slate-100 text-slate-800"
                 }`}
               >
@@ -325,7 +308,7 @@ export function CurvedBottomNav({
                 onClick={() => setIsMoreMenuOpen(false)}
                 className={`p-3.5 rounded-2xl border flex items-center gap-3 transition-all ${
                   isSalesActive
-                    ? "bg-slate-900 text-white border-slate-900 shadow-sm"
+                    ? "bg-[#11212D] text-white border-[#11212D] shadow-xs"
                     : "bg-slate-50 border-slate-100 hover:bg-slate-100 text-slate-800"
                 }`}
               >
@@ -354,7 +337,7 @@ export function CurvedBottomNav({
                 onClick={() => setIsMoreMenuOpen(false)}
                 className={`p-3.5 rounded-2xl border flex items-center gap-3 transition-all ${
                   isAnalyticsActive
-                    ? "bg-slate-900 text-white border-slate-900 shadow-sm"
+                    ? "bg-[#11212D] text-white border-[#11212D] shadow-xs"
                     : "bg-slate-50 border-slate-100 hover:bg-slate-100 text-slate-800"
                 }`}
               >
@@ -383,7 +366,7 @@ export function CurvedBottomNav({
                 onClick={() => setIsMoreMenuOpen(false)}
                 className={`p-3.5 rounded-2xl border flex items-center gap-3 transition-all ${
                   isSettingsActive
-                    ? "bg-slate-900 text-white border-slate-900 shadow-sm"
+                    ? "bg-[#11212D] text-white border-[#11212D] shadow-xs"
                     : "bg-slate-50 border-slate-100 hover:bg-slate-100 text-slate-800"
                 }`}
               >
@@ -440,7 +423,7 @@ export function CurvedBottomNav({
             {/* User Info & Logout inside Sheet */}
             <div className="pt-2 border-t border-slate-100 flex items-center justify-between">
               <div className="flex items-center gap-2.5 min-w-0">
-                <div className="w-8 h-8 rounded-xl bg-slate-900 text-white font-bold flex items-center justify-center text-xs shrink-0">
+                <div className="w-8 h-8 rounded-xl bg-[#11212D] text-white font-bold flex items-center justify-center text-xs shrink-0">
                   {userName.slice(0, 2).toUpperCase()}
                 </div>
                 <div className="min-w-0">
