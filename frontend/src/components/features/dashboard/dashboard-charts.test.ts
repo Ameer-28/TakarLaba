@@ -111,4 +111,26 @@ describe("Dashboard Chart Calculations (T-107)", () => {
     expect(percent2).toBe(50);
     expect(percent3).toBe(20);
   });
+
+  it("transforms 7-day sales records into Recharts LineChart data structure accurately", () => {
+    const chartData = mock7Days.map((d) => ({
+      date: d.date,
+      dayName: d.dayName,
+      label: d.label,
+      omzet: Number.parseFloat(d.omzet) || 0,
+      portionCount: d.portionCount,
+      transactionCount: d.transactionCount,
+    }));
+
+    expect(chartData).toHaveLength(7);
+    expect(chartData[0]).toEqual({
+      date: "2026-10-25",
+      dayName: "Min",
+      label: "25 Okt",
+      omzet: 100000,
+      portionCount: 5,
+      transactionCount: 3,
+    });
+    expect(chartData[6]!.omzet).toBe(250000);
+  });
 });

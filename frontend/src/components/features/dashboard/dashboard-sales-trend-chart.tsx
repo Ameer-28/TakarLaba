@@ -1,6 +1,13 @@
-import { useState } from "react";
+import { useMemo } from "react";
 import { TrendingUp, Calendar, Layers } from "lucide-react";
+import { CartesianGrid, Line, LineChart, XAxis } from "recharts";
 import { formatRupiah } from "@/lib/format";
+import {
+  type ChartConfig,
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+} from "@/components/ui/chart";
 
 export interface SalesDayTrend {
   date: string;
@@ -15,17 +22,28 @@ export interface DashboardSalesTrendChartProps {
   salesLast7Days?: SalesDayTrend[];
 }
 
-export function DashboardSalesTrendChart({ salesLast7Days = [] }: DashboardSalesTrendChartProps) {
-  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+const chartConfig = {
+  omzet: {
+    color: "#059669",
+    label: "Omzet Penjualan",
+  },
+} satisfies ChartConfig;
 
+export function DashboardSalesTrendChart({ salesLast7Days = [] }: DashboardSalesTrendChartProps) {
   const totalOmzet = salesLast7Days.reduce((sum, d) => sum + (Number.parseFloat(d.omzet) || 0), 0);
   const totalPortions = salesLast7Days.reduce((sum, d) => sum + d.portionCount, 0);
   const totalTransactions = salesLast7Days.reduce((sum, d) => sum + d.transactionCount, 0);
 
-  const maxOmzet = Math.max(
-    ...salesLast7Days.map((d) => Number.parseFloat(d.omzet) || 0),
-    1000 // avoid divide by zero
-  );
+  const chartData = useMemo(() => {
+    return salesLast7Days.map((d) => ({
+      date: d.date,
+      dayName: d.dayName,
+      label: d.label,
+      omzet: Number.parseFloat(d.omzet) || 0,
+      portionCount: d.portionCount,
+      transactionCount: d.transactionCount,
+    }));
+  }, [salesLast7Days]);
 
   return (
     <div className="p-5 sm:p-6 rounded-2xl bg-white border border-slate-200/80 shadow-xs space-y-4">
@@ -69,90 +87,89 @@ export function DashboardSalesTrendChart({ salesLast7Days = [] }: DashboardSales
         </div>
       ) : (
         <div className="space-y-4">
-          {/* Responsive Column Bar Chart with explicit height to prevent collapse */}
-          <div className="h-44 sm:h-52 w-full pt-6 pb-2 flex items-end justify-between gap-2 sm:gap-6 px-3 sm:px-6 bg-slate-50/60 rounded-xl border border-slate-100">
-            {salesLast7Days.map((day, idx) => {
-              const numericOmzet = Number.parseFloat(day.omzet) || 0;
-              const heightPercent = Math.max(Math.round((numericOmzet / maxOmzet) * 100), 4);
-              const isToday = idx === salesLast7Days.length - 1;
-              const isHovered = hoveredIndex === idx;
-
-              return (
-                <div
-                  key={day.date}
-                  className="flex-1 flex flex-col items-center h-full justify-end group relative cursor-pointer"
-                  onMouseEnter={() => setHoveredIndex(idx)}
-                  onMouseLeave={() => setHoveredIndex(null)}
-                  tabIndex={0}
-                  role="button"
-                  aria-label={`${day.label}: ${formatRupiah(numericOmzet)}, ${day.portionCount} porsi`}
-                >
-                  {/* Floating tooltip on hover */}
-                  {isHovered && (
-                    <div className="absolute -top-12 z-30 px-2.5 py-1.5 rounded-xl bg-slate-900 text-white text-[11px] shadow-xl whitespace-nowrap animate-in fade-in zoom-in-95 pointer-events-none">
-                      <div className="font-bold">{day.label}</div>
-                      <div className="text-emerald-400 font-bold tabular-nums">
-                        {formatRupiah(numericOmzet)}
-                      </div>
-                      <div className="text-slate-300 text-[10px]">
-                        {day.portionCount} porsi · {day.transactionCount} transaksi
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Top value label */}
-                  <span
-                    className={`text-[10px] tabular-nums font-bold mb-1 transition-opacity ${
-                      numericOmzet > 0
-                        ? isHovered || isToday
-                          ? "text-emerald-700 font-extrabold opacity-100"
-                          : "text-slate-500 opacity-80"
-                        : "text-transparent"
-                    }`}
-                  >
-                    {numericOmzet >= 1000000
-                      ? `${(numericOmzet / 1000000).toFixed(1)}jt`
-                      : numericOmzet >= 1000
-                        ? `${Math.round(numericOmzet / 1000)}rb`
-                        : numericOmzet > 0
-                          ? numericOmzet
-                          : ""}
-                  </span>
-
-                  {/* Bar column: full height container with inner percentage height */}
-                  <div className="w-full flex-1 flex flex-col justify-end items-center max-w-[52px] sm:max-w-[72px]">
-                    <div className="w-full h-full bg-slate-200/60 rounded-t-xl overflow-hidden flex flex-col justify-end p-0.5">
-                      <div
-                        style={{ height: `${heightPercent}%` }}
-                        className={`w-full rounded-t-lg transition-all duration-300 ${
-                          isToday
-                            ? "bg-gradient-to-t from-emerald-600 to-emerald-400 shadow-sm"
-                            : isHovered
-                              ? "bg-emerald-500"
-                              : numericOmzet > 0
-                                ? "bg-emerald-600/85 hover:bg-emerald-500"
-                                : "bg-slate-300/40"
-                        }`}
-                      />
-                    </div>
-                  </div>
-
-                  {/* Bottom labels: day name & date */}
-                  <div className="mt-2 text-center">
-                    <span
-                      className={`block text-xs font-bold ${
-                        isToday ? "text-emerald-700" : "text-slate-700"
-                      }`}
-                    >
-                      {day.dayName}
-                    </span>
-                    <span className="block text-[10px] text-slate-500 tabular-nums font-medium">
-                      {day.label.split(" ")[0]}
-                    </span>
-                  </div>
-                </div>
-              );
-            })}
+          {/* Recharts Line Chart Container matching shadcn demo pattern */}
+          <div className="w-full pt-4 pb-2 px-1 sm:px-3 bg-slate-50/60 rounded-xl border border-slate-100">
+            <ChartContainer className="h-52 sm:h-60 w-full aspect-auto" config={chartConfig}>
+              <LineChart
+                accessibilityLayer
+                data={chartData}
+                margin={{
+                  left: 12,
+                  right: 12,
+                  top: 16,
+                  bottom: 6,
+                }}
+              >
+                <CartesianGrid
+                  vertical={false}
+                  strokeDasharray="3 3"
+                  className="stroke-slate-200/60"
+                />
+                <XAxis
+                  dataKey="dayName"
+                  axisLine={false}
+                  tickLine={false}
+                  tickMargin={8}
+                  tickFormatter={(val, idx) => {
+                    const item = chartData[idx];
+                    return item ? `${item.dayName} (${item.label.split(" ")[0]})` : String(val);
+                  }}
+                  className="text-[11px] font-medium text-slate-500"
+                />
+                <ChartTooltip
+                  cursor={false}
+                  content={
+                    <ChartTooltipContent
+                      labelFormatter={(_label, payload) => {
+                        const first = payload?.[0]?.payload as
+                          { dayName?: string; label?: string } | undefined;
+                        return first ? `${first.dayName}, ${first.label}` : _label;
+                      }}
+                      formatter={(value, _name, item) => (
+                        <div className="flex flex-col gap-1 w-full min-w-36">
+                          <div className="flex items-center justify-between gap-3">
+                            <span className="text-slate-500 text-xs">Omzet:</span>
+                            <span className="font-bold text-emerald-600 font-mono tabular-nums text-xs">
+                              {formatRupiah(Number(value))}
+                            </span>
+                          </div>
+                          {item.payload && (
+                            <div className="text-[10px] text-slate-400 border-t border-slate-100 pt-1 flex justify-between gap-2">
+                              <span>
+                                {String(
+                                  (item.payload as Record<string, unknown>).portionCount ?? 0
+                                )}{" "}
+                                porsi
+                              </span>
+                              <span>
+                                {String(
+                                  (item.payload as Record<string, unknown>).transactionCount ?? 0
+                                )}{" "}
+                                transaksi
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    />
+                  }
+                />
+                <Line
+                  dataKey="omzet"
+                  name="Omzet"
+                  type="natural"
+                  stroke="var(--color-omzet)"
+                  strokeWidth={2.5}
+                  dot={false}
+                  activeDot={{
+                    r: 5,
+                    fill: "var(--color-omzet)",
+                    stroke: "#ffffff",
+                    strokeWidth: 2,
+                  }}
+                />
+              </LineChart>
+            </ChartContainer>
           </div>
 
           {/* Quick Metrics Footer */}
