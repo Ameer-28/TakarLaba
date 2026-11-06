@@ -1,4 +1,7 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none">
-  <rect width="32" height="32" rx="8" fill="#16a34a"/>
-  <path d="M16 6v20M9 13h14M7 19l4-6 4 6M19 19l4-6 4 6" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none">
+  <rect width="512" height="512" rx="112" fill="#0f172a"/>
+  <!-- Shield outline & body -->
+  <path d="M 256 88 C 348 88 396 128 396 128 V 268 C 396 364 332 432 256 456 C 180 432 116 364 116 268 V 128 C 116 128 164 88 256 88 Z" fill="#1e293b" stroke="#10b981" stroke-width="20" stroke-linejoin="round"/>
+  <!-- Checkmark -->
+  <path d="M 196 264 L 238 306 L 324 204" stroke="#34d399" stroke-width="36" stroke-linecap="round" stroke-linejoin="round"/>
 </svg>
