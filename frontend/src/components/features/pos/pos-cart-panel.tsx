@@ -1,19 +1,9 @@
 import { useState } from "react";
-import {
-  ShoppingCart,
-  Plus,
-  Minus,
-  Trash2,
-  ArrowRight,
-  Coffee,
-  Utensils,
-  CupSoda,
-  Cake,
-} from "lucide-react";
+import { ShoppingCart, Plus, Minus, Trash2, ArrowRight } from "lucide-react";
 import type { CartItem, PosOrderType } from "./types.js";
 import { formatRupiah } from "../../../lib/format.js";
 import { getCartTotalQty, getCartTotalAmount } from "./cart-reducer.js";
-import { formatPosMenuName } from "./pos-utils.js";
+import { formatPosMenuName, getMenuImageUrl } from "./pos-utils.js";
 
 interface PosCartPanelProps {
   items: CartItem[];
@@ -22,30 +12,6 @@ interface PosCartPanelProps {
   onRemove: (menuId: string) => void;
   onClear: () => void;
   onCheckout: () => void;
-}
-
-function getItemMiniIcon(name: string, category: string | null) {
-  const text = `${name} ${category ?? ""}`.toLowerCase();
-  if (
-    text.includes("kopi") ||
-    text.includes("coffee") ||
-    text.includes("latte") ||
-    text.includes("espresso")
-  ) {
-    return <Coffee className="w-5 h-5 text-[#253745]" />;
-  }
-  if (
-    text.includes("teh") ||
-    text.includes("jus") ||
-    text.includes("drink") ||
-    text.includes("soda")
-  ) {
-    return <CupSoda className="w-5 h-5 text-[#253745]" />;
-  }
-  if (text.includes("snack") || text.includes("roti") || text.includes("kue")) {
-    return <Cake className="w-5 h-5 text-[#253745]" />;
-  }
-  return <Utensils className="w-5 h-5 text-[#253745]" />;
 }
 
 export function PosCartPanel({
@@ -151,8 +117,17 @@ export function PosCartPanel({
                 <div key={itemKey} className="py-3 first:pt-0 last:pb-0 space-y-2">
                   <div className="flex items-start gap-3">
                     {/* Item Thumbnail */}
-                    <div className="w-11 h-11 rounded-2xl bg-slate-100 border border-[#CCD0CF] flex items-center justify-center shrink-0">
-                      {getItemMiniIcon(item.name, item.category)}
+                    <div className="w-11 h-11 rounded-2xl bg-slate-100 border border-[#CCD0CF] shrink-0 overflow-hidden shadow-2xs">
+                      <img
+                        src={getMenuImageUrl(item.name, item.category)}
+                        alt={formatPosMenuName(item.name)}
+                        loading="lazy"
+                        className="w-full h-full object-cover rounded-2xl"
+                        onError={(e) => {
+                          (e.currentTarget as HTMLImageElement).src =
+                            "/images/menus/default-food.jpg";
+                        }}
+                      />
                     </div>
 
                     {/* Item Details */}

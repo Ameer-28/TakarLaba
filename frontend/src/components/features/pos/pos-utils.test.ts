@@ -6,6 +6,7 @@ import {
   isBeverageMenu,
   getDefaultTemperature,
   formatPosMenuName,
+  getMenuImageUrl,
 } from "./pos-utils";
 
 describe("calculateQuickCashOptions", () => {
@@ -93,5 +94,25 @@ describe("formatPosMenuName", () => {
   it("preserves names that do not start with 'Es '", () => {
     expect(formatPosMenuName("Americano")).toBe("Americano");
     expect(formatPosMenuName("Croissant")).toBe("Croissant");
+  });
+});
+
+describe("getMenuImageUrl", () => {
+  it("resolves specific image paths for core demo menu items", () => {
+    expect(getMenuImageUrl("Es Kopi Susu Aren", "Kopi")).toBe("/images/menus/kopi-susu.jpg");
+    expect(getMenuImageUrl("Americano", "Kopi")).toBe("/images/menus/americano.jpg");
+    expect(getMenuImageUrl("Matcha Latte", "Non-Kopi")).toBe("/images/menus/matcha.jpg");
+    expect(getMenuImageUrl("Es Teh Manis", "Non-Kopi")).toBe("/images/menus/es-teh.jpg");
+    expect(getMenuImageUrl("Roti Bakar", "Makanan")).toBe("/images/menus/roti-bakar.jpg");
+    expect(getMenuImageUrl("Croissant", "Makanan")).toBe("/images/menus/croissant.jpg");
+  });
+
+  it("falls back to category-level default culinary images for other items", () => {
+    expect(getMenuImageUrl("V60 Gayo", "Kopi")).toBe("/images/menus/default-coffee.jpg");
+    expect(getMenuImageUrl("Jus Alpukat", "Minuman")).toBe("/images/menus/default-drink.jpg");
+    expect(getMenuImageUrl("Brownies", "Dessert")).toBe("/images/menus/default-pastry.jpg");
+    expect(getMenuImageUrl("Nasi Goreng Spesial", "Makanan")).toBe(
+      "/images/menus/default-food.jpg"
+    );
   });
 });

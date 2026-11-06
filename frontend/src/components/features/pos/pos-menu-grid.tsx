@@ -1,19 +1,14 @@
 import { useState, useMemo } from "react";
-import {
-  Search,
-  Plus,
-  Minus,
-  UtensilsCrossed,
-  AlertCircle,
-  Coffee,
-  CupSoda,
-  Utensils,
-  Cake,
-} from "lucide-react";
+import { Search, Plus, Minus, UtensilsCrossed, AlertCircle } from "lucide-react";
 import type { PosMenuItem } from "../../../api/hooks/use-pos-menus.js";
 import { formatRupiah } from "../../../lib/format.js";
 import type { CartItem, DrinkTemperature } from "./types.js";
-import { isBeverageMenu, getDefaultTemperature, formatPosMenuName } from "./pos-utils.js";
+import {
+  isBeverageMenu,
+  getDefaultTemperature,
+  formatPosMenuName,
+  getMenuImageUrl,
+} from "./pos-utils.js";
 
 interface PosMenuGridProps {
   menus: PosMenuItem[];
@@ -29,47 +24,6 @@ interface PosMenuGridProps {
   isError: boolean;
   onRefetch: () => void;
   searchInputRef?: React.RefObject<HTMLInputElement | null>;
-}
-
-function getMenuIcon(name: string, category: string | null) {
-  const text = `${name} ${category ?? ""}`.toLowerCase();
-  if (
-    text.includes("kopi") ||
-    text.includes("coffee") ||
-    text.includes("espresso") ||
-    text.includes("latte") ||
-    text.includes("cappuccino") ||
-    text.includes("v60") ||
-    text.includes("americano")
-  ) {
-    return <Coffee className="w-8 h-8 sm:w-10 sm:h-10 text-[#253745]" />;
-  }
-  if (
-    text.includes("teh") ||
-    text.includes("tea") ||
-    text.includes("jus") ||
-    text.includes("juice") ||
-    text.includes("soda") ||
-    text.includes("minuman") ||
-    text.includes("drink") ||
-    text.includes("boba") ||
-    text.includes("susu") ||
-    text.includes("milk")
-  ) {
-    return <CupSoda className="w-8 h-8 sm:w-10 sm:h-10 text-[#253745]" />;
-  }
-  if (
-    text.includes("snack") ||
-    text.includes("roti") ||
-    text.includes("cake") ||
-    text.includes("dessert") ||
-    text.includes("kue") ||
-    text.includes("toast") ||
-    text.includes("pastry")
-  ) {
-    return <Cake className="w-8 h-8 sm:w-10 sm:h-10 text-[#253745]" />;
-  }
-  return <Utensils className="w-8 h-8 sm:w-10 sm:h-10 text-[#253745]" />;
 }
 
 export function PosMenuGrid({
@@ -248,10 +202,19 @@ export function PosMenuGrid({
                 {/* Card Top: Thumbnail + Info (Matching Reference Layout) */}
                 <div className="flex items-start gap-3.5 sm:gap-4">
                   {/* Left Thumbnail Box */}
-                  <div className="w-20 h-20 sm:w-22 sm:h-22 rounded-2xl bg-slate-50 border border-[#CCD0CF]/60 flex items-center justify-center shrink-0 relative overflow-hidden group-hover:scale-105 transition-transform p-2">
-                    {getMenuIcon(menu.name, menu.category)}
+                  <div className="w-20 h-20 sm:w-22 sm:h-22 rounded-2xl bg-slate-100 border border-[#CCD0CF]/60 shrink-0 relative overflow-hidden group-hover:scale-105 transition-transform shadow-2xs">
+                    <img
+                      src={getMenuImageUrl(menu.name, menu.category)}
+                      alt={displayName}
+                      loading="lazy"
+                      className="w-full h-full object-cover rounded-2xl"
+                      onError={(e) => {
+                        (e.currentTarget as HTMLImageElement).src =
+                          "/images/menus/default-food.jpg";
+                      }}
+                    />
                     {totalMenuInCartQty > 0 && (
-                      <span className="absolute top-1.5 right-1.5 px-1.5 py-0.5 text-[10px] font-black bg-[#11212D] text-white rounded-full shadow-2xs">
+                      <span className="absolute top-1.5 right-1.5 px-1.5 py-0.5 text-[10px] font-black bg-[#11212D] text-white rounded-full shadow-md z-10">
                         {totalMenuInCartQty}
                       </span>
                     )}
