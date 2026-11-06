@@ -57,7 +57,7 @@ export function IngredientsPage() {
 
   const [searchTerm, setSearchTerm] = useState("");
   const [categoryFilter, setCategoryFilter] = useState<string>("ALL");
-  const [statusFilter, setStatusFilter] = useState<"ALL" | "ACTIVE" | "INACTIVE">("ACTIVE");
+  const [statusFilter, setStatusFilter] = useState<"ALL" | "ACTIVE" | "INACTIVE">("ALL");
   const [isWasteModalOpen, setIsWasteModalOpen] = useState(false);
   const [isAdjustmentModalOpen, setIsAdjustmentModalOpen] = useState(false);
   const [isExportingStock, setIsExportingStock] = useState(false);
@@ -92,54 +92,62 @@ export function IngredientsPage() {
             Pantau ketersediaan batch FEFO, kelola konversi satuan, dan catat nota belanja.
           </p>
         </div>
-        <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
-          {isOwner && (
+        <div className="flex items-center gap-2">
+          {activeTab === "catalog" && (
+            <button
+              onClick={() => actions.setIsCreateOpen(true)}
+              className="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold shadow-xs transition-all cursor-pointer"
+              title="Tambah master bahan baku baru"
+            >
+              <Plus className="w-3.5 h-3.5" />
+              <span>Tambah Bahan</span>
+            </button>
+          )}
+
+          {activeTab === "stock" && isOwner && (
             <button
               onClick={handleExportStockCsv}
               disabled={isExportingStock}
-              className="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold shadow-2xs transition-all cursor-pointer disabled:opacity-50"
+              className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold shadow-2xs transition-all cursor-pointer disabled:opacity-50"
               title="Ekspor data stok ke CSV"
             >
               <Download className={`w-3.5 h-3.5 ${isExportingStock ? "animate-bounce" : ""}`} />
-              <span>{isExportingStock ? "Mengunduh..." : "Ekspor CSV"}</span>
+              <span>{isExportingStock ? "Mengunduh..." : "Ekspor CSV Stok"}</span>
             </button>
           )}
-          {isOwner && (
+
+          {activeTab === "history" && (
             <button
-              onClick={() => setIsAdjustmentModalOpen(true)}
-              className="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold shadow-2xs transition-all cursor-pointer"
-              title="Penyesuaian stok fisik (Opname)"
+              onClick={() => actions.setIsPurchaseModalOpen(true)}
+              className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold shadow-xs transition-all cursor-pointer"
+              title="Catat belanja bahan baku baru"
             >
-              <SlidersHorizontal className="w-3.5 h-3.5 text-slate-500" />
-              <span>Opname Stok</span>
+              <Receipt className="w-3.5 h-3.5" />
+              <span>Catat Nota Belanja</span>
             </button>
           )}
-          {isOwner && (
+
+          {activeTab === "waste" && isOwner && (
             <button
               onClick={() => setIsWasteModalOpen(true)}
-              className="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl border border-slate-200 bg-white hover:bg-rose-50 text-slate-700 hover:text-rose-700 hover:border-rose-200 text-xs font-semibold shadow-2xs transition-all cursor-pointer"
+              className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl border border-rose-200 bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-semibold shadow-2xs transition-all cursor-pointer"
               title="Catat bahan rusak atau terbuang"
             >
-              <Trash2 className="w-3.5 h-3.5 text-rose-500" />
+              <Trash2 className="w-3.5 h-3.5" />
               <span>Catat Terbuang</span>
             </button>
           )}
-          <button
-            onClick={() => actions.setIsPurchaseModalOpen(true)}
-            className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl border border-emerald-200/90 bg-emerald-50/80 hover:bg-emerald-100/90 text-emerald-800 text-xs font-semibold shadow-2xs transition-all cursor-pointer"
-            title="Catat belanja bahan baku baru"
-          >
-            <Receipt className="w-3.5 h-3.5 text-emerald-600" />
-            <span>Catat Nota Belanja</span>
-          </button>
-          <button
-            onClick={() => actions.setIsCreateOpen(true)}
-            className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold shadow-xs transition-all cursor-pointer"
-            title="Tambah master bahan baku baru"
-          >
-            <Plus className="w-3.5 h-3.5" />
-            <span>Tambah Bahan</span>
-          </button>
+
+          {activeTab === "adjustments" && isOwner && (
+            <button
+              onClick={() => setIsAdjustmentModalOpen(true)}
+              className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl border border-sky-200 bg-sky-50 hover:bg-sky-100 text-sky-800 text-xs font-semibold shadow-2xs transition-all cursor-pointer"
+              title="Penyesuaian stok fisik (Opname)"
+            >
+              <SlidersHorizontal className="w-3.5 h-3.5" />
+              <span>Opname Stok</span>
+            </button>
+          )}
         </div>
       </div>
 
@@ -221,7 +229,7 @@ export function IngredientsPage() {
       {activeTab === "radar" ? (
         <WasteRadarPanel />
       ) : activeTab === "history" ? (
-        <PurchaseHistory onOpenCreate={() => actions.setIsCreateOpen(true)} />
+        <PurchaseHistory onOpenCreate={() => actions.setIsPurchaseModalOpen(true)} />
       ) : activeTab === "stock" ? (
         <InventorySummary
           isOwner={isOwner}
