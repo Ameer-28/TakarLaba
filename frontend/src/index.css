@@ -2,6 +2,10 @@
 @import "tw-animate-css";
 
 @theme inline {
+  --font-sans:
+    "Poppins", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji",
+    "Segoe UI Symbol", "Noto Color Emoji";
+
   --color-background: hsl(var(--background));
   --color-foreground: hsl(var(--foreground));
 
@@ -89,6 +93,7 @@
 }
 
 body {
+  font-family: var(--font-sans, "Poppins", sans-serif);
   font-feature-settings: "cv02", "cv03", "cv04", "cv11";
   overflow-x: clip;
   max-width: 100vw;
