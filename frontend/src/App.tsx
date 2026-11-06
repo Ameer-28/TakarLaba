@@ -1,11 +1,12 @@
-import { ShieldCheck, TrendingUp, AlertTriangle, Store } from "lucide-react";
+import { TrendingUp, AlertTriangle, Store } from "lucide-react";
+import { BrandLogo } from "@/components/shared/brand-logo";
 
 export function App() {
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-6 text-slate-800">
       <header className="max-w-2xl w-full text-center space-y-4">
         <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-100 text-emerald-800 text-sm font-medium">
-          <ShieldCheck className="w-4 h-4" />
+          <BrandLogo className="w-4 h-4" />
           <span>TakarLaba Platform Ready</span>
         </div>
         <h1 className="text-4xl font-extrabold tracking-tight text-slate-900 sm:text-5xl">

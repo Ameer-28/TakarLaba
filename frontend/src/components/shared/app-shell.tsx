@@ -4,17 +4,9 @@ import { signOut, useSession, type UserRole } from "@/lib/auth-client";
 import { toast } from "sonner";
 import { DemoBanner } from "@/components/shared/demo-banner";
 import { ErrorBoundary } from "@/components/shared/error-boundary";
+import { BrandLogo } from "@/components/shared/brand-logo";
 import { useClickOutside } from "@/components/ui/use-click-outside";
-import {
-  LogOut,
-  ShieldCheck,
-  Loader2,
-  ChevronLeft,
-  ChevronRight,
-  ChevronDown,
-  Menu,
-  X,
-} from "lucide-react";
+import { LogOut, Loader2, ChevronLeft, ChevronRight, ChevronDown, Menu, X } from "lucide-react";
 import {
   NAV_ITEMS,
   filterNavItemsByRole,
@@ -344,7 +336,7 @@ export function AppShell() {
             className="flex items-center gap-2.5 group"
           >
             <div className="w-8 h-8 rounded-xl bg-black text-white flex items-center justify-center shadow-xs transition-transform group-hover:scale-105 shrink-0">
-              <ShieldCheck className="w-4.5 h-4.5" />
+              <BrandLogo className="w-5 h-5" />
             </div>
             {!isCollapsed && (
               <div className="min-w-0">
@@ -464,7 +456,7 @@ export function AppShell() {
           </button>
 
           <div className="inline-flex items-center justify-center w-7 h-7 rounded-xl bg-slate-900 text-white">
-            <ShieldCheck className="w-4 h-4" />
+            <BrandLogo className="w-4.5 h-4.5" />
           </div>
           <span className="font-extrabold text-base text-slate-900 tracking-tight">TakarLaba</span>
           <span
@@ -509,7 +501,7 @@ export function AppShell() {
             <div className="p-4 border-b border-slate-100 flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <div className="w-8 h-8 rounded-xl bg-slate-900 text-white flex items-center justify-center font-black">
-                  <ShieldCheck className="w-4.5 h-4.5" />
+                  <BrandLogo className="w-5 h-5" />
                 </div>
                 <div>
                   <span className="font-extrabold text-sm text-slate-900 block leading-tight">

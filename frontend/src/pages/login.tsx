@@ -2,7 +2,8 @@ import { useState, useEffect } from "react";
 import { useNavigate, useLocation, Link } from "react-router";
 import { signIn, useSession, type UserRole } from "@/lib/auth-client";
 import { toast } from "sonner";
-import { ShieldCheck, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
+import { BrandLogo } from "@/components/shared/brand-logo";
 import { apiClient } from "@/api/client";
 import { LoginForm } from "@/components/features/auth/login-form";
 import { DemoAccountsPanel } from "@/components/features/auth/demo-accounts-panel";
@@ -102,7 +103,7 @@ export function LoginPage() {
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <div className="flex justify-center">
           <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-[#11212D] text-[#CCD0CF] shadow-md shadow-[#11212D]/20">
-            <ShieldCheck className="w-7 h-7" />
+            <BrandLogo className="w-7 h-7" />
           </div>
         </div>
         <h2 className="mt-4 text-center text-2xl font-bold tracking-tight text-[#06141B] sm:text-3xl">
