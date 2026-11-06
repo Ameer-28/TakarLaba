@@ -1,34 +1,22 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router";
 import type { UserRole } from "@/lib/auth-client";
+import { X, LogOut, Loader2, AlertTriangle, Receipt, BarChart3, Settings } from "lucide-react";
 import {
-  LayoutDashboard,
-  Store,
-  Package,
-  UtensilsCrossed,
-  Grid2X2,
-  AlertTriangle,
-  BarChart3,
-  Settings,
-  Receipt,
-  X,
-  LogOut,
-  Loader2,
-} from "lucide-react";
+  OWNER_MOBILE_NAV_ITEMS,
+  CASHIER_MOBILE_NAV_ITEMS,
+  OWNER_TABLET_NAV_ITEMS,
+  CASHIER_TABLET_NAV_ITEMS,
+  getMobileActiveIndex,
+  getTabletActiveIndex,
+} from "./curved-bottom-nav-config";
 
-interface CurvedBottomNavProps {
+export interface CurvedBottomNavProps {
   userRole: UserRole;
   userName: string;
   userEmail?: string;
   onLogout: () => void;
   isLoggingOut: boolean;
-}
-
-interface BottomNavItem {
-  id: string;
-  label: string;
-  path: string;
-  icon: React.ElementType;
 }
 
 export function CurvedBottomNav({
@@ -44,76 +32,24 @@ export function CurvedBottomNav({
   const pathname = location.pathname;
 
   // Active state helpers
-  const isPosActive = pathname === "/pos";
-  const isDashboardActive = pathname === "/dashboard";
-  const isIngredientsActive = pathname.startsWith("/ingredients");
-  const isMenusActive = pathname.startsWith("/menus");
   const isSalesActive = pathname.startsWith("/sales");
   const isAlertsActive = pathname.startsWith("/alerts");
   const isAnalyticsActive = pathname.startsWith("/analytics");
   const isSettingsActive = pathname.startsWith("/settings");
 
-  // Secondary features are active under "Lainnya"
-  const isMoreActive = isSalesActive || isAlertsActive || isAnalyticsActive || isSettingsActive;
+  // Items per role
+  const mobileItems = userRole === "OWNER" ? OWNER_MOBILE_NAV_ITEMS : CASHIER_MOBILE_NAV_ITEMS;
+  const tabletItems = userRole === "OWNER" ? OWNER_TABLET_NAV_ITEMS : CASHIER_TABLET_NAV_ITEMS;
 
-  // Define navigation items per role
-  const ownerNavItems: BottomNavItem[] = [
-    {
-      id: "dashboard",
-      label: "Dashboard",
-      path: "/dashboard",
-      icon: LayoutDashboard,
-    },
-    {
-      id: "ingredients",
-      label: "Bahan & Stok",
-      path: "/ingredients",
-      icon: Package,
-    },
-    { id: "pos", label: "Kasir POS", path: "/pos", icon: Store },
-    {
-      id: "menus",
-      label: "Menu & Costing",
-      path: "/menus",
-      icon: UtensilsCrossed,
-    },
-    { id: "more", label: "Semua Fitur", path: "#more", icon: Grid2X2 },
-  ];
+  // Active indices
+  const mobileActiveIndex = getMobileActiveIndex(pathname, userRole);
+  const tabletActiveIndex = getTabletActiveIndex(pathname, userRole);
 
-  const cashierNavItems: BottomNavItem[] = [
-    { id: "pos", label: "Kasir POS", path: "/pos", icon: Store },
-    { id: "sales", label: "Riwayat", path: "/sales", icon: Receipt },
-    { id: "pos_center", label: "Kasir POS", path: "/pos", icon: Store },
-    { id: "sales_alt", label: "Riwayat", path: "/sales", icon: Receipt },
-    { id: "logout", label: "Keluar", path: "#logout", icon: LogOut },
-  ];
+  const mobileActiveItem = mobileItems[mobileActiveIndex] ?? mobileItems[0]!;
+  const MobileActiveIcon = mobileActiveItem.icon;
 
-  const items = userRole === "OWNER" ? ownerNavItems : cashierNavItems;
-
-  // Calculate active index (0 to 4)
-  let activeIndex = 0;
-  if (userRole === "OWNER") {
-    if (isDashboardActive) {
-      activeIndex = 0;
-    } else if (isIngredientsActive) {
-      activeIndex = 1;
-    } else if (isPosActive) {
-      activeIndex = 2;
-    } else if (isMenusActive) {
-      activeIndex = 3;
-    } else if (isMoreActive) {
-      activeIndex = 4;
-    }
-  } else {
-    if (isPosActive) {
-      activeIndex = 0;
-    } else if (isSalesActive) {
-      activeIndex = 1;
-    }
-  }
-
-  const activeItem = items[activeIndex] ?? items[0]!;
-  const ActiveIcon = activeItem.icon;
+  const tabletActiveItem = tabletItems[tabletActiveIndex] ?? tabletItems[0]!;
+  const TabletActiveIcon = tabletActiveItem.icon;
 
   // Close sheet on route change
   useEffect(() => {
@@ -135,30 +71,30 @@ export function CurvedBottomNav({
 
   return (
     <>
-      {/* Floating Bottom Bar (Visible only on Mobile & Tablet: < lg) */}
+      {/* 1. Mobile Floating Curved Bottom Bar (Visible only on Mobile: < md) */}
       <nav
-        aria-label="Navigasi Bawah Mobile & Tablet"
-        className="lg:hidden fixed bottom-3 sm:bottom-4 inset-x-0 z-40 mx-auto w-[calc(100%-1.5rem)] max-w-md sm:max-w-lg select-none"
+        aria-label="Mobile Bottom Navigation"
+        className="md:hidden fixed bottom-3 sm:bottom-4 inset-x-0 z-40 mx-auto w-[calc(100%-1.5rem)] max-w-md select-none"
       >
         <div className="relative flex items-center h-16 bg-white rounded-[32px] border border-slate-200/80 shadow-[0_12px_28px_rgba(0,0,0,0.08)]">
-          {/* Animated Elevated Bubble Indicator (Matches website theme: #11212D / slate-900) */}
+          {/* Animated Elevated Bubble Indicator */}
           <div
             className="absolute -top-3.5 z-30 pointer-events-none transition-[left] duration-300 ease-out"
             style={{
-              left: `${(activeIndex + 0.5) * 20}%`,
+              left: `${(mobileActiveIndex + 0.5) * 20}%`,
               transform: "translateX(-50%)",
             }}
           >
             <div className="w-[52px] h-[52px] rounded-full bg-[#11212D] text-white flex items-center justify-center shadow-[0_8px_20px_rgba(17,33,45,0.35)] ring-4 ring-white">
-              <ActiveIcon className="w-5.5 h-5.5 text-white transition-transform duration-200" />
+              <MobileActiveIcon className="w-5.5 h-5.5 text-white transition-transform duration-200" />
             </div>
           </div>
 
-          {/* Animated Active Indicator Dot at the bottom of the active slot */}
+          {/* Animated Active Indicator Dot */}
           <div
             className="absolute bottom-2 z-20 pointer-events-none transition-[left] duration-300 ease-out"
             style={{
-              left: `${(activeIndex + 0.5) * 20}%`,
+              left: `${(mobileActiveIndex + 0.5) * 20}%`,
               transform: "translateX(-50%)",
             }}
           >
@@ -167,11 +103,11 @@ export function CurvedBottomNav({
 
           {/* 5 Interactive Slots */}
           <div className="w-full h-full flex items-center justify-around px-1 z-10">
-            {items.map((item, index) => {
-              const isSelected = activeIndex === index;
+            {mobileItems.map((item, index) => {
+              const isSelected = mobileActiveIndex === index;
               const Icon = item.icon;
 
-              // Slide-Up Sheet Trigger (Lainnya)
+              // Slide-Up Sheet Trigger (Semua Fitur)
               if (item.id === "more") {
                 return (
                   <button
@@ -201,8 +137,8 @@ export function CurvedBottomNav({
                     type="button"
                     onClick={onLogout}
                     disabled={isLoggingOut}
-                    title="Keluar Akun"
-                    aria-label="Keluar akun"
+                    title="Sign Out"
+                    aria-label="Sign out"
                     className="w-1/5 h-full flex flex-col items-center justify-center p-2 rounded-2xl transition-all group cursor-pointer relative z-10"
                   >
                     {isLoggingOut ? (
@@ -214,7 +150,7 @@ export function CurvedBottomNav({
                 );
               }
 
-              // Standard Navigation Link (Dashboard, Bahan, POS, Menu)
+              // Standard Navigation Link
               return (
                 <Link
                   key={item.id}
@@ -238,9 +174,115 @@ export function CurvedBottomNav({
         </div>
       </nav>
 
-      {/* Modern Slide-Up Menu Sheet (When 5th icon is clicked) */}
+      {/* 2. Tablet Floating Bottom Bar (Visible on Tablet: md <= width < lg) */}
+      {/* Displays all available menus directly without needing the rightmost sheet trigger */}
+      <nav
+        aria-label="Tablet Bottom Navigation"
+        className={`hidden md:block lg:hidden fixed bottom-4 inset-x-0 z-40 mx-auto w-[calc(100%-2rem)] select-none ${
+          userRole === "OWNER" ? "max-w-3xl" : "max-w-md"
+        }`}
+      >
+        <div className="relative flex items-center h-[4.25rem] bg-white rounded-[32px] border border-slate-200/80 shadow-[0_12px_28px_rgba(0,0,0,0.08)] px-2">
+          {/* Animated Elevated Bubble Indicator */}
+          <div
+            className="absolute -top-3.5 z-30 pointer-events-none transition-[left] duration-300 ease-out"
+            style={{
+              left: `${(tabletActiveIndex + 0.5) * (100 / tabletItems.length)}%`,
+              transform: "translateX(-50%)",
+            }}
+          >
+            <div className="w-12 h-12 rounded-full bg-[#11212D] text-white flex items-center justify-center shadow-[0_8px_20px_rgba(17,33,45,0.35)] ring-4 ring-white">
+              <TabletActiveIcon className="w-5 h-5 text-white transition-transform duration-200" />
+            </div>
+          </div>
+
+          {/* Animated Active Indicator Dot */}
+          <div
+            className="absolute bottom-1.5 z-20 pointer-events-none transition-[left] duration-300 ease-out"
+            style={{
+              left: `${(tabletActiveIndex + 0.5) * (100 / tabletItems.length)}%`,
+              transform: "translateX(-50%)",
+            }}
+          >
+            <span className="block w-1.5 h-1.5 rounded-full bg-[#11212D]" />
+          </div>
+
+          {/* All Interactive Menu Slots for Tablet */}
+          <div className="w-full h-full flex items-center justify-between z-10">
+            {tabletItems.map((item, index) => {
+              const isSelected = tabletActiveIndex === index;
+              const Icon = item.icon;
+
+              if (item.id === "logout") {
+                return (
+                  <button
+                    key={item.id}
+                    type="button"
+                    onClick={onLogout}
+                    disabled={isLoggingOut}
+                    title="Sign Out"
+                    aria-label="Sign out"
+                    className="flex-1 h-full flex flex-col items-center justify-center pt-2 pb-1.5 px-0.5 rounded-2xl transition-all group cursor-pointer relative z-10"
+                  >
+                    {isLoggingOut ? (
+                      <Loader2 className="w-5 h-5 animate-spin text-rose-600" />
+                    ) : (
+                      <LogOut
+                        className={`w-5 h-5 transition-all duration-200 ${
+                          isSelected
+                            ? "opacity-0 scale-75"
+                            : "text-slate-400 group-hover:text-rose-600"
+                        }`}
+                      />
+                    )}
+                    <span
+                      className={`text-[10px] leading-tight truncate transition-colors duration-200 mt-1 ${
+                        isSelected
+                          ? "font-bold text-[#11212D]"
+                          : "font-semibold text-slate-400 group-hover:text-rose-600"
+                      }`}
+                    >
+                      {item.shortLabel ?? item.label}
+                    </span>
+                  </button>
+                );
+              }
+
+              return (
+                <Link
+                  key={item.id}
+                  to={item.path}
+                  title={item.label}
+                  aria-label={item.label}
+                  aria-current={isSelected ? "page" : undefined}
+                  className="flex-1 h-full flex flex-col items-center justify-center pt-2 pb-1.5 px-0.5 rounded-2xl transition-all group relative z-10"
+                >
+                  <Icon
+                    className={`w-5 h-5 transition-all duration-200 ${
+                      isSelected
+                        ? "opacity-0 scale-75"
+                        : "text-slate-400 group-hover:text-slate-800"
+                    }`}
+                  />
+                  <span
+                    className={`text-[10px] leading-tight truncate transition-colors duration-200 mt-1 ${
+                      isSelected
+                        ? "font-bold text-[#11212D]"
+                        : "font-semibold text-slate-400 group-hover:text-slate-700"
+                    }`}
+                  >
+                    {item.shortLabel ?? item.label}
+                  </span>
+                </Link>
+              );
+            })}
+          </div>
+        </div>
+      </nav>
+
+      {/* 3. Modern Slide-Up Menu Sheet (Only on Mobile: md:hidden) */}
       {isMoreMenuOpen && (
-        <div className="lg:hidden fixed inset-0 z-50 flex flex-col justify-end">
+        <div className="md:hidden fixed inset-0 z-50 flex flex-col justify-end">
           {/* Backdrop */}
           <div
             className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs animate-in fade-in duration-200"
@@ -255,16 +297,18 @@ export function CurvedBottomNav({
               <div className="w-12 h-1.5 bg-slate-200 rounded-full mb-3" />
               <div className="w-full flex items-center justify-between">
                 <div>
-                  <h3 className="text-base font-extrabold text-[#11212D]">Semua Fitur TakarLaba</h3>
+                  <h3 className="text-base font-extrabold text-[#11212D]">
+                    All TakarLaba Features
+                  </h3>
                   <p className="text-xs text-slate-400 font-medium">
-                    Pilih menu operasional & analitik
+                    Select operational & analytical menus
                   </p>
                 </div>
                 <button
                   type="button"
                   onClick={() => setIsMoreMenuOpen(false)}
                   className="p-1.5 text-slate-400 hover:text-slate-700 rounded-xl hover:bg-slate-100 transition-colors cursor-pointer"
-                  aria-label="Tutup menu"
+                  aria-label="Close menu"
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -273,7 +317,7 @@ export function CurvedBottomNav({
 
             {/* Quick Grid of Remaining Features */}
             <div className="grid grid-cols-2 gap-2.5 pt-1">
-              {/* Peringatan Margin */}
+              {/* Margin Alerts */}
               <Link
                 to="/alerts"
                 onClick={() => setIsMoreMenuOpen(false)}
@@ -291,18 +335,18 @@ export function CurvedBottomNav({
                   <AlertTriangle className="w-5 h-5" />
                 </div>
                 <div className="min-w-0">
-                  <p className="text-xs font-bold truncate">Peringatan Margin</p>
+                  <p className="text-xs font-bold truncate">Margin Alerts</p>
                   <p
                     className={`text-[10px] truncate ${
                       isAlertsActive ? "text-slate-300" : "text-slate-400"
                     }`}
                   >
-                    Deteksi price shock
+                    Price shock detection
                   </p>
                 </div>
               </Link>
 
-              {/* Riwayat Penjualan */}
+              {/* Sales History */}
               <Link
                 to="/sales"
                 onClick={() => setIsMoreMenuOpen(false)}
@@ -320,18 +364,18 @@ export function CurvedBottomNav({
                   <Receipt className="w-5 h-5" />
                 </div>
                 <div className="min-w-0">
-                  <p className="text-xs font-bold truncate">Riwayat Penjualan</p>
+                  <p className="text-xs font-bold truncate">Sales History</p>
                   <p
                     className={`text-[10px] truncate ${
                       isSalesActive ? "text-slate-300" : "text-slate-400"
                     }`}
                   >
-                    Laporan transaksi
+                    Transaction reports
                   </p>
                 </div>
               </Link>
 
-              {/* Analitik Menu */}
+              {/* Menu Analytics */}
               <Link
                 to="/analytics"
                 onClick={() => setIsMoreMenuOpen(false)}
@@ -349,18 +393,18 @@ export function CurvedBottomNav({
                   <BarChart3 className="w-5 h-5" />
                 </div>
                 <div className="min-w-0">
-                  <p className="text-xs font-bold truncate">Analitik Menu</p>
+                  <p className="text-xs font-bold truncate">Menu Analytics</p>
                   <p
                     className={`text-[10px] truncate ${
                       isAnalyticsActive ? "text-slate-300" : "text-slate-400"
                     }`}
                   >
-                    Matriks kuadran
+                    Quadrant matrix
                   </p>
                 </div>
               </Link>
 
-              {/* Pengaturan */}
+              {/* Settings */}
               <Link
                 to="/settings"
                 onClick={() => setIsMoreMenuOpen(false)}
@@ -378,22 +422,22 @@ export function CurvedBottomNav({
                   <Settings className="w-5 h-5" />
                 </div>
                 <div className="min-w-0">
-                  <p className="text-xs font-bold truncate">Pengaturan</p>
+                  <p className="text-xs font-bold truncate">Settings</p>
                   <p
                     className={`text-[10px] truncate ${
                       isSettingsActive ? "text-slate-300" : "text-slate-400"
                     }`}
                   >
-                    Biaya & profil usaha
+                    Costs & business profile
                   </p>
                 </div>
               </Link>
             </div>
 
-            {/* Quick Tabs in Bahan Baku */}
+            {/* Quick Tabs in Ingredients */}
             <div className="bg-slate-50 rounded-2xl p-3 border border-slate-100 space-y-2">
               <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider px-1">
-                Akses Cepat Stok
+                Quick Stock Access
               </p>
               <div className="grid grid-cols-3 gap-1.5 text-center">
                 <Link
@@ -401,14 +445,14 @@ export function CurvedBottomNav({
                   onClick={() => setIsMoreMenuOpen(false)}
                   className="px-2 py-1.5 bg-white border border-slate-200/70 rounded-xl text-[11px] font-semibold text-slate-700 hover:border-slate-400 transition-colors"
                 >
-                  Stok & FEFO
+                  Stock & FEFO
                 </Link>
                 <Link
                   to="/ingredients?tab=history"
                   onClick={() => setIsMoreMenuOpen(false)}
                   className="px-2 py-1.5 bg-white border border-slate-200/70 rounded-xl text-[11px] font-semibold text-slate-700 hover:border-slate-400 transition-colors"
                 >
-                  Nota Belanja
+                  Invoices
                 </Link>
                 <Link
                   to="/ingredients?tab=radar"
@@ -429,7 +473,7 @@ export function CurvedBottomNav({
                 <div className="min-w-0">
                   <p className="text-xs font-bold text-slate-900 truncate">{userName}</p>
                   <p className="text-[10px] text-slate-400 truncate">
-                    {userEmail || (userRole === "OWNER" ? "Pemilik" : "Kasir")}
+                    {userEmail || (userRole === "OWNER" ? "Owner" : "Cashier")}
                   </p>
                 </div>
               </div>
@@ -445,7 +489,7 @@ export function CurvedBottomNav({
                 ) : (
                   <LogOut className="w-3.5 h-3.5" />
                 )}
-                <span>Keluar</span>
+                <span>Sign Out</span>
               </button>
             </div>
           </div>
