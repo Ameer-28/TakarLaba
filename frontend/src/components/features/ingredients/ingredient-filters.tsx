@@ -1,4 +1,4 @@
-import { Search, X } from "lucide-react";
+import { Search, X, Plus } from "lucide-react";
 
 interface IngredientFiltersProps {
   searchTerm: string;
@@ -7,6 +7,7 @@ interface IngredientFiltersProps {
   onCategoryChange: (val: string) => void;
   statusFilter: "ALL" | "ACTIVE" | "INACTIVE";
   onStatusChange: (val: "ALL" | "ACTIVE" | "INACTIVE") => void;
+  onOpenCreate?: () => void;
 }
 
 const CATEGORY_TABS = [
@@ -23,6 +24,7 @@ export function IngredientFilters({
   onCategoryChange,
   statusFilter,
   onStatusChange,
+  onOpenCreate,
 }: IngredientFiltersProps) {
   return (
     <div className="bg-white rounded-2xl border border-slate-200 p-3.5 sm:p-4 shadow-xs space-y-3">
@@ -68,8 +70,8 @@ export function IngredientFilters({
           ))}
         </div>
 
-        {/* Status Filter */}
-        <div className="flex items-center gap-1.5">
+        {/* Right Controls: Status Filter & Tambah Bahan */}
+        <div className="flex items-center gap-2">
           <select
             value={statusFilter}
             onChange={(e) => onStatusChange(e.target.value as "ALL" | "ACTIVE" | "INACTIVE")}
@@ -79,6 +81,18 @@ export function IngredientFilters({
             <option value="ACTIVE">Hanya Aktif</option>
             <option value="INACTIVE">Hanya Nonaktif</option>
           </select>
+
+          {onOpenCreate && (
+            <button
+              type="button"
+              onClick={onOpenCreate}
+              className="inline-flex items-center justify-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold shadow-xs transition-all cursor-pointer whitespace-nowrap"
+              title="Tambah master bahan baku baru"
+            >
+              <Plus className="w-3.5 h-3.5" />
+              <span>Tambah Bahan</span>
+            </button>
+          )}
         </div>
       </div>
     </div>

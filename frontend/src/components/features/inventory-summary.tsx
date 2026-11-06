@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { Search, Loader2, AlertCircle, Package, Receipt } from "lucide-react";
+import { Search, Loader2, AlertCircle, Package, Receipt, Download } from "lucide-react";
 import {
   useInventorySummary,
   useInventoryBatches,
@@ -17,6 +17,8 @@ interface InventorySummaryProps {
   onOpenPurchase?: () => void;
   onOpenCreateIngredient?: () => void;
   isOwner?: boolean;
+  onExportCsv?: () => void;
+  isExporting?: boolean;
 }
 
 const FILTER_TABS = [
@@ -31,6 +33,8 @@ export function InventorySummary({
   onOpenPurchase,
   onOpenCreateIngredient,
   isOwner: isOwnerProp,
+  onExportCsv,
+  isExporting,
 }: InventorySummaryProps) {
   const { data: session } = useSession();
   const isOwner = isOwnerProp ?? session?.user?.role !== "CASHIER";
@@ -123,6 +127,23 @@ export function InventorySummary({
                 {tab.label}
               </button>
             ))}
+
+            {onExportCsv && isOwner && (
+              <button
+                type="button"
+                onClick={onExportCsv}
+                disabled={isExporting}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold transition-all shadow-2xs ml-auto md:ml-2 disabled:opacity-50 cursor-pointer whitespace-nowrap"
+                title="Ekspor CSV Ringkasan Stok & Batch FEFO"
+              >
+                {isExporting ? (
+                  <Loader2 className="w-3.5 h-3.5 animate-spin text-slate-500" />
+                ) : (
+                  <Download className="w-3.5 h-3.5 text-slate-500" />
+                )}
+                <span>Ekspor CSV</span>
+              </button>
+            )}
           </div>
         </div>
       </div>
