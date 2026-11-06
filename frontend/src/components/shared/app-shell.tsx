@@ -1,15 +1,26 @@
-import { useState } from "react";
+import { useState, useRef, useMemo } from "react";
 import { Link, Outlet, useLocation, useNavigate } from "react-router";
 import { signOut, useSession, type UserRole } from "@/lib/auth-client";
 import { toast } from "sonner";
 import { DemoBanner } from "@/components/shared/demo-banner";
 import { ErrorBoundary } from "@/components/shared/error-boundary";
-import { LogOut, ShieldCheck, Loader2, PanelLeftClose, PanelLeftOpen } from "lucide-react";
+import { useClickOutside } from "@/components/ui/use-click-outside";
+import {
+  LogOut,
+  ShieldCheck,
+  Loader2,
+  ChevronLeft,
+  ChevronRight,
+  ChevronDown,
+  Search,
+  Plus,
+} from "lucide-react";
 import {
   NAV_ITEMS,
   filterNavItemsByRole,
   getInitialSidebarCollapsed,
   saveSidebarCollapsed,
+  type NavItem,
 } from "./app-shell-nav";
 
 export function AppShell() {
@@ -17,6 +28,15 @@ export function AppShell() {
   const location = useLocation();
   const navigate = useNavigate();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [isDashboardTreeOpen, setIsDashboardTreeOpen] = useState(true);
+  const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
+  const profileMenuRef = useRef<HTMLDivElement>(null);
+
+  useClickOutside(profileMenuRef, () => {
+    setIsProfileMenuOpen(false);
+  });
+
   const [isCollapsed, setIsCollapsed] = useState(() => {
     if (typeof window !== "undefined") {
       return getInitialSidebarCollapsed(window.localStorage);
@@ -40,6 +60,19 @@ export function AppShell() {
 
   const allowedNavItems = filterNavItemsByRole(NAV_ITEMS, userRole);
 
+  const filteredItems = useMemo(() => {
+    if (!searchQuery.trim()) return allowedNavItems;
+    const q = searchQuery.toLowerCase();
+    return allowedNavItems.filter(
+      (item) =>
+        item.label.toLowerCase().includes(q) ||
+        item.children?.some((c) => c.label.toLowerCase().includes(q))
+    );
+  }, [allowedNavItems, searchQuery]);
+
+  const mainSectionItems = filteredItems.filter((i) => i.section !== "OPERASIONAL");
+  const opsSectionItems = filteredItems.filter((i) => i.section === "OPERASIONAL");
+
   const handleLogout = async () => {
     setIsLoggingOut(true);
     try {
@@ -53,179 +86,385 @@ export function AppShell() {
     }
   };
 
+  const isCurrentActive = (item: NavItem) => {
+    if (location.pathname === item.path) return true;
+    if (item.children?.some((c) => location.pathname === c.path)) return true;
+    return false;
+  };
+
   return (
     <div className="min-h-screen bg-white flex flex-col lg:flex-row">
-      {/* Desktop Sidebar (lg: min 1024px) */}
+      {/* Desktop Floating Rounded Sidebar (lg: min 1024px) */}
       <aside
-        className={`hidden lg:flex lg:flex-col lg:fixed lg:inset-y-0 lg:border-r lg:border-[#CCD0CF] lg:bg-white lg:z-30 transition-all duration-300 ease-in-out ${
-          isCollapsed ? "lg:w-20" : "lg:w-64"
+        className={`hidden lg:flex lg:flex-col fixed top-3 bottom-3 left-3 z-30 bg-white border border-slate-200/90 shadow-[0_4px_24px_rgba(0,0,0,0.04)] rounded-[28px] transition-all duration-300 ease-in-out select-none ${
+          isCollapsed ? "w-20" : "w-64"
         }`}
       >
-        {/* Brand Header */}
-        <div
-          className={`flex items-center border-b border-[#CCD0CF] h-16 transition-all duration-300 ${
-            isCollapsed ? "justify-center px-2" : "justify-between px-5"
-          }`}
+        {/* Floating Circular Collapse Toggle Button (Exact reference style) */}
+        <button
+          type="button"
+          onClick={toggleCollapse}
+          aria-label={isCollapsed ? "Lebarkan sidebar" : "Ciutkan sidebar"}
+          aria-expanded={!isCollapsed}
+          title={isCollapsed ? "Lebarkan sidebar" : "Ciutkan sidebar"}
+          className="absolute -right-3 top-5.5 w-6 h-6 rounded-full bg-white border border-slate-200 shadow-sm flex items-center justify-center text-slate-400 hover:text-slate-900 transition-all cursor-pointer z-40 hover:scale-110 active:scale-95"
         >
           {isCollapsed ? (
+            <ChevronRight className="w-3.5 h-3.5" />
+          ) : (
+            <ChevronLeft className="w-3.5 h-3.5" />
+          )}
+        </button>
+
+        {/* Top Header: Brand Logo */}
+        <div
+          className={`pt-4 pb-2 transition-all duration-300 ${
+            isCollapsed ? "px-2 flex justify-center" : "px-4 flex items-center justify-between"
+          }`}
+        >
+          <Link
+            to="/dashboard"
+            title="TakarLaba Dashboard"
+            className="flex items-center gap-2.5 group"
+          >
+            <div className="w-8 h-8 rounded-xl bg-black text-white flex items-center justify-center shadow-xs transition-transform group-hover:scale-105 shrink-0">
+              <ShieldCheck className="w-4.5 h-4.5" />
+            </div>
+            {!isCollapsed && (
+              <div className="min-w-0">
+                <span className="font-extrabold text-sm tracking-tight text-slate-900 block leading-tight">
+                  TakarLaba
+                </span>
+                <span className="text-[9px] font-semibold text-slate-400 uppercase tracking-wider block">
+                  Margin Guard
+                </span>
+              </div>
+            )}
+          </Link>
+        </div>
+
+        {/* Search Bar matching reference */}
+        <div
+          className={`pt-1 pb-1 transition-all ${isCollapsed ? "px-2 flex justify-center" : "px-3"}`}
+        >
+          {!isCollapsed ? (
+            <div className="relative flex items-center bg-slate-50/80 hover:bg-slate-100/70 focus-within:bg-white border border-slate-200/80 focus-within:border-slate-400 rounded-2xl px-3 py-2 transition-all">
+              <Search className="w-3.5 h-3.5 text-slate-400 shrink-0 mr-2" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search"
+                className="w-full text-xs bg-transparent border-0 outline-none text-slate-800 placeholder:text-slate-400"
+              />
+              <div className="flex items-center gap-0.5 shrink-0 px-1.5 py-0.5 rounded-md bg-white border border-slate-200/80 text-[10px] text-slate-400 font-mono shadow-2xs">
+                <span>⌘</span>
+                <span>S</span>
+              </div>
+            </div>
+          ) : (
             <button
               type="button"
               onClick={toggleCollapse}
-              aria-label="Lebarkan sidebar"
-              aria-expanded={false}
-              title="Lebarkan sidebar"
-              className="inline-flex items-center justify-center w-10 h-10 rounded-2xl bg-[#CCD0CF]/40 text-[#11212D] hover:bg-[#11212D] hover:text-white border border-[#CCD0CF] transition-all cursor-pointer shadow-2xs group"
+              title="Cari fitur"
+              className="w-10 h-10 rounded-2xl bg-slate-50 border border-slate-200/70 text-slate-400 hover:text-slate-900 hover:bg-slate-100 flex items-center justify-center transition-all cursor-pointer"
             >
-              <PanelLeftOpen className="w-5 h-5 transition-transform group-hover:scale-110" />
+              <Search className="w-4 h-4" />
             </button>
-          ) : (
-            <>
-              <div className="flex items-center gap-3 min-w-0">
-                <Link
-                  to="/dashboard"
-                  title="TakarLaba Beranda"
-                  className="inline-flex items-center justify-center w-9 h-9 rounded-2xl bg-[#11212D] text-[#CCD0CF] shadow-xs shrink-0 hover:bg-[#253745] transition-colors"
-                >
-                  <ShieldCheck className="w-5 h-5" />
-                </Link>
-                <div className="min-w-0 truncate">
-                  <span className="font-extrabold text-base tracking-tight text-[#06141B] block leading-tight">
-                    TakarLaba
-                  </span>
-                  <span className="text-[10px] font-semibold text-[#4A5C6A] tracking-wide uppercase truncate block">
-                    Margin Guard &bull; UMKM
-                  </span>
-                </div>
-              </div>
-
-              <button
-                type="button"
-                onClick={toggleCollapse}
-                aria-label="Ciutkan sidebar"
-                aria-expanded={true}
-                title="Ciutkan sidebar"
-                className="p-1.5 rounded-xl text-[#4A5C6A] hover:text-[#06141B] hover:bg-[#CCD0CF]/40 transition-colors cursor-pointer shrink-0"
-              >
-                <PanelLeftClose className="w-5 h-5" />
-              </button>
-            </>
           )}
         </div>
 
-        {/* Navigation Links */}
+        {/* Scrollable Navigation Body */}
         <nav
-          className={`flex-1 py-4 space-y-1.5 overflow-y-auto overflow-x-hidden ${
-            isCollapsed ? "px-2" : "px-3.5"
-          }`}
+          className="flex-1 overflow-y-auto overflow-x-hidden px-2.5 py-2 space-y-3.5 scrollbar-none"
           aria-label="Menu Utama"
         >
-          {allowedNavItems.map((item) => {
-            const isActive = location.pathname === item.path;
-            const Icon = item.icon;
-            return (
-              <Link
-                key={item.path}
-                to={item.path}
-                title={item.label}
-                className={`flex items-center rounded-2xl transition-all relative group ${
-                  isCollapsed
-                    ? "justify-center w-11 h-11 mx-auto"
-                    : "gap-3 px-3.5 py-2.5 text-sm font-medium"
-                } ${
-                  isActive
-                    ? "bg-[#11212D] text-white font-bold shadow-xs border border-[#11212D]"
-                    : "text-[#4A5C6A] hover:text-[#06141B] hover:bg-[#CCD0CF]/30"
-                }`}
-                aria-current={isActive ? "page" : undefined}
-              >
-                <Icon
-                  className={`w-5 h-5 flex-shrink-0 ${
-                    isActive ? "text-[#CCD0CF]" : "text-[#4A5C6A] group-hover:text-[#253745]"
-                  }`}
-                />
-                {!isCollapsed ? (
-                  <span className="truncate">{item.label}</span>
+          {/* Section: MAIN */}
+          {mainSectionItems.length > 0 && (
+            <div className="space-y-1">
+              {!isCollapsed ? (
+                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider px-3 pb-1">
+                  MAIN
+                </p>
+              ) : (
+                <p className="text-[9px] font-bold text-slate-400 uppercase tracking-wider text-center pb-1">
+                  MAIN
+                </p>
+              )}
+
+              {mainSectionItems.map((item) => {
+                const isActive = isCurrentActive(item);
+                const Icon = item.icon;
+                const hasChildren = Boolean(item.children && item.children.length > 0);
+
+                // Expandable tree item in expanded mode
+                if (hasChildren && !isCollapsed) {
+                  return (
+                    <div key={item.path} className="space-y-0.5">
+                      <button
+                        type="button"
+                        onClick={() => setIsDashboardTreeOpen((prev) => !prev)}
+                        className={`w-full flex items-center justify-between px-3 py-2 rounded-2xl text-xs font-semibold transition-all cursor-pointer ${
+                          isActive
+                            ? "bg-slate-100/90 text-slate-900 font-bold shadow-2xs"
+                            : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
+                        }`}
+                      >
+                        <div className="flex items-center gap-2.5">
+                          <Icon
+                            className={`w-4 h-4 ${isActive ? "text-slate-900" : "text-slate-400"}`}
+                          />
+                          <span>{item.label}</span>
+                        </div>
+                        <ChevronDown
+                          className={`w-3.5 h-3.5 text-slate-400 transition-transform duration-200 ${
+                            isDashboardTreeOpen ? "rotate-180" : ""
+                          }`}
+                        />
+                      </button>
+
+                      {/* Tree branch connector lines matching reference */}
+                      {isDashboardTreeOpen && (
+                        <div className="relative ml-5.5 pl-3 border-l border-slate-200/90 space-y-0.5 py-1 my-0.5">
+                          {item.children?.map((child) => {
+                            const isChildActive = location.pathname === child.path;
+                            return (
+                              <Link
+                                key={child.label}
+                                to={child.path}
+                                className={`block px-2.5 py-1.5 rounded-xl text-xs transition-all relative ${
+                                  isChildActive
+                                    ? "bg-slate-100 text-slate-900 font-bold"
+                                    : "text-slate-500 hover:text-slate-900 hover:bg-slate-50 font-medium"
+                                }`}
+                              >
+                                {child.label}
+                              </Link>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </div>
+                  );
+                }
+
+                // Collapsed mode with flyout card matching reference
+                if (hasChildren && isCollapsed) {
+                  return (
+                    <div key={item.path} className="relative group flex justify-center">
+                      <button
+                        type="button"
+                        onClick={() => navigate(item.path)}
+                        className={`w-10 h-10 rounded-2xl flex items-center justify-center transition-all cursor-pointer ${
+                          isActive
+                            ? "bg-slate-100 text-slate-900 shadow-2xs font-bold"
+                            : "text-slate-400 hover:text-slate-900 hover:bg-slate-50"
+                        }`}
+                      >
+                        <Icon className="w-4.5 h-4.5" />
+                      </button>
+
+                      {/* Flyout Card matching reference */}
+                      <div className="absolute left-full ml-3 top-0 bg-white border border-slate-200/90 rounded-2xl shadow-xl p-2 min-w-[145px] opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-all z-50 animate-in fade-in zoom-in-95 duration-150">
+                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider px-2 py-1">
+                          {item.label}
+                        </p>
+                        {item.children?.map((child) => (
+                          <Link
+                            key={child.label}
+                            to={child.path}
+                            className={`block px-2.5 py-1.5 rounded-xl text-xs transition-all ${
+                              location.pathname === child.path
+                                ? "bg-slate-100 text-slate-900 font-bold"
+                                : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
+                            }`}
+                          >
+                            {child.label}
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
+                  );
+                }
+
+                // Standard navigation item (POS, Sales, Alerts)
+                return !isCollapsed ? (
+                  <Link
+                    key={item.path}
+                    to={item.path}
+                    className={`flex items-center gap-2.5 px-3 py-2 rounded-2xl text-xs font-semibold transition-all ${
+                      isActive
+                        ? "bg-slate-100/90 text-slate-900 font-bold shadow-2xs"
+                        : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
+                    }`}
+                  >
+                    <Icon className={`w-4 h-4 ${isActive ? "text-slate-900" : "text-slate-400"}`} />
+                    <span>{item.label}</span>
+                  </Link>
                 ) : (
-                  <div className="absolute left-full ml-3 px-2.5 py-1 bg-[#06141B] text-white text-xs font-medium rounded-lg whitespace-nowrap shadow-lg opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity z-50">
-                    {item.label}
+                  <div key={item.path} className="relative group flex justify-center">
+                    <Link
+                      to={item.path}
+                      title={item.label}
+                      className={`w-10 h-10 rounded-2xl flex items-center justify-center transition-all ${
+                        isActive
+                          ? "bg-slate-100 text-slate-900 shadow-2xs font-bold"
+                          : "text-slate-400 hover:text-slate-900 hover:bg-slate-50"
+                      }`}
+                    >
+                      <Icon className="w-4.5 h-4.5" />
+                    </Link>
+                    <div className="absolute left-full ml-3 px-2.5 py-1 bg-slate-900 text-white text-xs font-medium rounded-xl whitespace-nowrap shadow-lg opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity z-50">
+                      {item.label}
+                    </div>
                   </div>
-                )}
-              </Link>
-            );
-          })}
+                );
+              })}
+            </div>
+          )}
+
+          {/* Section: OPERASIONAL with `+` icon matching reference */}
+          {opsSectionItems.length > 0 && (
+            <div className="space-y-1">
+              {!isCollapsed ? (
+                <div className="flex items-center justify-between px-3 pt-2 pb-1">
+                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                    OPERASIONAL
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => navigate("/menus")}
+                    title="Tambah Menu"
+                    className="p-1 rounded-md text-slate-400 hover:text-slate-800 hover:bg-slate-100 transition-colors cursor-pointer"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              ) : (
+                <p className="text-[9px] font-bold text-slate-400 uppercase tracking-wider text-center pt-2 pb-1">
+                  OPS
+                </p>
+              )}
+
+              {opsSectionItems.map((item) => {
+                const isActive = isCurrentActive(item);
+                const Icon = item.icon;
+                return !isCollapsed ? (
+                  <Link
+                    key={item.path}
+                    to={item.path}
+                    className={`flex items-center gap-2.5 px-3 py-2 rounded-2xl text-xs font-semibold transition-all ${
+                      isActive
+                        ? "bg-slate-100/90 text-slate-900 font-bold shadow-2xs"
+                        : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
+                    }`}
+                  >
+                    <Icon className={`w-4 h-4 ${isActive ? "text-slate-900" : "text-slate-400"}`} />
+                    <span>{item.label}</span>
+                  </Link>
+                ) : (
+                  <div key={item.path} className="relative group flex justify-center">
+                    <Link
+                      to={item.path}
+                      title={item.label}
+                      className={`w-10 h-10 rounded-2xl flex items-center justify-center transition-all ${
+                        isActive
+                          ? "bg-slate-100 text-slate-900 shadow-2xs font-bold"
+                          : "text-slate-400 hover:text-slate-900 hover:bg-slate-50"
+                      }`}
+                    >
+                      <Icon className="w-4.5 h-4.5" />
+                    </Link>
+                    <div className="absolute left-full ml-3 px-2.5 py-1 bg-slate-900 text-white text-xs font-medium rounded-xl whitespace-nowrap shadow-lg opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity z-50">
+                      {item.label}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </nav>
 
         {/* Demo Mode Information Widget (Sidebar) */}
-        <DemoBanner isCollapsed={isCollapsed} />
+        <div className="px-3 pb-1">
+          <DemoBanner isCollapsed={isCollapsed} />
+        </div>
 
-        {/* User Profile & Logout */}
+        {/* Bottom Profile Card matching reference */}
         {!isCollapsed ? (
-          <div className="p-4 border-t border-[#CCD0CF] bg-[#CCD0CF]/20">
-            <div className="flex items-center gap-3 mb-3">
-              <div className="w-9 h-9 rounded-full bg-[#11212D] border border-[#253745] text-[#CCD0CF] font-black flex items-center justify-center text-xs shrink-0 shadow-2xs">
-                {userName.slice(0, 2).toUpperCase()}
-              </div>
-              <div className="min-w-0 flex-1">
-                <div className="flex items-center justify-between gap-1">
-                  <p className="text-sm font-bold text-[#06141B] truncate">{userName}</p>
-                  <span
-                    className={`inline-flex items-center px-1.5 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider ${
-                      userRole === "OWNER"
-                        ? "bg-[#253745] text-[#CCD0CF] border border-[#4A5C6A]/40"
-                        : "bg-[#CCD0CF] text-[#11212D] border border-[#9BA8AB]"
-                    }`}
-                  >
-                    {userRole === "OWNER" ? "Pemilik" : "Kasir"}
-                  </span>
+          <div className="p-3 border-t border-slate-100" ref={profileMenuRef}>
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => setIsProfileMenuOpen((prev) => !prev)}
+                className="w-full rounded-2xl border border-slate-200/80 bg-slate-50/60 hover:bg-slate-100/70 p-2 flex items-center justify-between transition-all cursor-pointer group select-none"
+              >
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <div className="w-8 h-8 rounded-xl bg-slate-900 text-white font-bold flex items-center justify-center text-xs shrink-0 shadow-2xs">
+                    {userName.slice(0, 2).toUpperCase()}
+                  </div>
+                  <div className="min-w-0 text-left">
+                    <p className="text-xs font-bold text-slate-900 truncate leading-tight">
+                      {userName}
+                    </p>
+                    <p className="text-[9px] font-bold text-slate-400 uppercase tracking-wider truncate">
+                      {userRole === "OWNER" ? "PEMILIK" : "KASIR"}
+                    </p>
+                  </div>
                 </div>
-                <p className="text-xs text-[#4A5C6A] truncate">{userEmail}</p>
-              </div>
-            </div>
+                <ChevronDown
+                  className={`w-3.5 h-3.5 text-slate-400 transition-transform ${
+                    isProfileMenuOpen ? "rotate-180" : ""
+                  }`}
+                />
+              </button>
 
-            <button
-              type="button"
-              onClick={handleLogout}
-              disabled={isLoggingOut}
-              className="w-full flex items-center justify-center gap-2 px-3 py-2 text-xs font-semibold text-[#4A5C6A] hover:text-rose-700 hover:bg-rose-50 border border-[#CCD0CF] hover:border-rose-200 rounded-xl transition-colors disabled:opacity-60 cursor-pointer"
-            >
-              {isLoggingOut ? (
-                <Loader2 className="w-4 h-4 animate-spin text-rose-600" />
-              ) : (
-                <LogOut className="w-4 h-4 text-[#4A5C6A] hover:text-rose-600" />
+              {/* Profile Popover / Dropdown */}
+              {isProfileMenuOpen && (
+                <div className="absolute bottom-full left-0 right-0 mb-2 bg-white rounded-2xl border border-slate-200/90 shadow-xl p-2 z-50 space-y-1.5 animate-in fade-in zoom-in-95 duration-150">
+                  <div className="px-2.5 py-1.5 border-b border-slate-100">
+                    <p className="text-xs font-bold text-slate-900 truncate">{userName}</p>
+                    <p className="text-[11px] text-slate-400 truncate">{userEmail}</p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleLogout}
+                    disabled={isLoggingOut}
+                    className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-xl text-xs font-semibold text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
+                  >
+                    {isLoggingOut ? (
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    ) : (
+                      <LogOut className="w-3.5 h-3.5" />
+                    )}
+                    <span>Keluar Akun</span>
+                  </button>
+                </div>
               )}
-              <span>Keluar Akun</span>
-            </button>
+            </div>
           </div>
         ) : (
-          <div className="p-3 border-t border-[#CCD0CF] bg-[#CCD0CF]/20 flex flex-col items-center gap-3">
-            <div
-              title={`${userName} (${userRole === "OWNER" ? "Pemilik" : "Kasir"})`}
-              className="w-10 h-10 rounded-full bg-[#11212D] border border-[#253745] text-[#CCD0CF] font-black flex items-center justify-center text-xs shrink-0 shadow-2xs relative group cursor-default"
-            >
-              {userName.slice(0, 2).toUpperCase()}
-              <div className="absolute left-full ml-3 px-2.5 py-1 bg-[#06141B] text-white text-xs font-medium rounded-lg whitespace-nowrap shadow-lg opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity z-50">
-                <span className="font-bold">{userName}</span> (
-                {userRole === "OWNER" ? "Pemilik" : "Kasir"})
+          <div className="p-3 border-t border-slate-100 flex justify-center">
+            <div className="relative group">
+              <button
+                type="button"
+                onClick={handleLogout}
+                disabled={isLoggingOut}
+                title={`${userName} (${userRole === "OWNER" ? "Pemilik" : "Kasir"}) - Klik untuk keluar`}
+                className="w-10 h-10 rounded-2xl bg-slate-900 text-white font-bold flex items-center justify-center text-xs shadow-2xs cursor-pointer hover:ring-2 hover:ring-slate-300 transition-all"
+              >
+                {isLoggingOut ? (
+                  <Loader2 className="w-4 h-4 animate-spin text-white" />
+                ) : (
+                  userName.slice(0, 2).toUpperCase()
+                )}
+              </button>
+              <div className="absolute left-full ml-3 px-2.5 py-1.5 bg-slate-900 text-white text-xs rounded-xl whitespace-nowrap shadow-lg opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity z-50">
+                <span className="font-bold">{userName}</span> &bull;{" "}
+                {userRole === "OWNER" ? "Pemilik" : "Kasir"}
+                <span className="block text-[10px] text-rose-300 mt-0.5">Klik untuk Keluar</span>
               </div>
             </div>
-
-            <button
-              type="button"
-              onClick={handleLogout}
-              disabled={isLoggingOut}
-              title="Keluar Akun"
-              aria-label="Keluar Akun"
-              className="w-10 h-10 flex items-center justify-center text-[#4A5C6A] hover:text-rose-700 hover:bg-rose-50 border border-[#CCD0CF] hover:border-rose-200 rounded-xl transition-colors disabled:opacity-60 cursor-pointer relative group"
-            >
-              {isLoggingOut ? (
-                <Loader2 className="w-4 h-4 animate-spin text-rose-600" />
-              ) : (
-                <LogOut className="w-4 h-4 text-[#4A5C6A] group-hover:text-rose-600" />
-              )}
-              <div className="absolute left-full ml-3 px-2.5 py-1 bg-[#06141B] text-white text-xs font-medium rounded-lg whitespace-nowrap shadow-lg opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity z-50">
-                Keluar Akun
-              </div>
-            </button>
           </div>
         )}
       </aside>
@@ -266,7 +505,7 @@ export function AppShell() {
       {/* Main Content Area */}
       <main
         className={`flex-1 min-h-screen min-w-0 max-w-full flex flex-col bg-white overflow-x-clip transition-all duration-300 ease-in-out ${
-          isCollapsed ? "lg:pl-20" : "lg:pl-64"
+          isCollapsed ? "lg:pl-[6.25rem]" : "lg:pl-[17.75rem]"
         }`}
       >
         <div
@@ -288,7 +527,7 @@ export function AppShell() {
         aria-label="Navigasi Bawah Mobile"
       >
         {allowedNavItems.slice(0, 5).map((item) => {
-          const isActive = location.pathname === item.path;
+          const isActive = isCurrentActive(item);
           const Icon = item.icon;
           return (
             <Link
@@ -310,3 +549,5 @@ export function AppShell() {
     </div>
   );
 }
+
+export default AppShell;
