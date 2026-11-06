@@ -75,8 +75,8 @@ export function IngredientFilters({
             onChange={(e) => onStatusChange(e.target.value as "ALL" | "ACTIVE" | "INACTIVE")}
             className="px-3 py-1.5 rounded-xl border border-slate-200 text-xs font-semibold text-slate-700 bg-slate-50/60 hover:bg-slate-100/70 focus:outline-hidden focus:border-slate-800 transition-colors cursor-pointer"
           >
-            <option value="ACTIVE">Hanya Aktif</option>
             <option value="ALL">Semua Status</option>
+            <option value="ACTIVE">Hanya Aktif</option>
             <option value="INACTIVE">Hanya Nonaktif</option>
           </select>
         </div>
