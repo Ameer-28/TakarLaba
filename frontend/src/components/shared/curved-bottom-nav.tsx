@@ -236,11 +236,12 @@ export function CurvedBottomNav({
                       />
                     )}
                     <span
-                      className={`text-[10px] leading-tight truncate transition-colors duration-200 mt-1 ${
+                      className={`text-[10px] leading-tight truncate transition-all duration-200 mt-1 ${
                         isSelected
-                          ? "font-bold text-[#11212D]"
-                          : "font-semibold text-slate-400 group-hover:text-rose-600"
+                          ? "opacity-0 invisible select-none"
+                          : "font-semibold text-slate-400 group-hover:text-rose-600 opacity-100"
                       }`}
+                      aria-hidden={isSelected}
                     >
                       {item.shortLabel ?? item.label}
                     </span>
@@ -265,11 +266,12 @@ export function CurvedBottomNav({
                     }`}
                   />
                   <span
-                    className={`text-[10px] leading-tight truncate transition-colors duration-200 mt-1 ${
+                    className={`text-[10px] leading-tight truncate transition-all duration-200 mt-1 ${
                       isSelected
-                        ? "font-bold text-[#11212D]"
-                        : "font-semibold text-slate-400 group-hover:text-slate-700"
+                        ? "opacity-0 invisible select-none"
+                        : "font-semibold text-slate-400 group-hover:text-slate-700 opacity-100"
                     }`}
+                    aria-hidden={isSelected}
                   >
                     {item.shortLabel ?? item.label}
                   </span>
