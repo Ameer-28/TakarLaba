@@ -34,14 +34,14 @@ export function MenuMobileCard({
           <div>
             <h3 className="font-bold text-slate-900 leading-tight">{menu.name}</h3>
             <span className="text-[11px] font-semibold text-slate-500">
-              {menu.category ?? "Tanpa kategori"}
+              {menu.category ?? "Uncategorized"}
             </span>
           </div>
         </div>
         <button
           type="button"
           onClick={() => onToggleActive(menu)}
-          className={`inline-flex items-center gap-1 px-2 py-0.5 text-[11px] font-bold rounded-full transition-colors ${
+          className={`inline-flex items-center gap-1 px-2 py-0.5 text-[11px] font-bold rounded-full transition-colors cursor-pointer ${
             menu.isActive ? "bg-emerald-100 text-emerald-800" : "bg-slate-100 text-slate-500"
           }`}
         >
@@ -50,32 +50,32 @@ export function MenuMobileCard({
               menu.isActive ? "bg-emerald-600" : "bg-slate-400"
             }`}
           />
-          {menu.isActive ? "Aktif" : "Nonaktif"}
+          {menu.isActive ? "Active" : "Inactive"}
         </button>
       </div>
 
       {/* Capacity & Bottleneck Badge */}
       {menu.hasRecipe && menu.capacity !== undefined && (
         <div className="flex items-center justify-between text-xs px-2.5 py-1.5 bg-slate-50 border border-slate-100 rounded-xl">
-          <span className="text-slate-500 font-medium">Kapasitas Porsi</span>
+          <span className="text-slate-500 font-medium">Portion Capacity</span>
           <div className="flex items-center gap-1.5">
             {menu.capacity === 0 ? (
               <span className="font-bold text-rose-700 bg-rose-50 px-2 py-0.5 rounded-md border border-rose-200 text-[11px]">
-                Habis (0)
+                Sold Out (0)
               </span>
             ) : menu.capacity <= 10 ? (
               <span className="font-bold text-amber-800 bg-amber-50 px-2 py-0.5 rounded-md border border-amber-200 text-[11px] tabular-nums">
-                Sisa {menu.capacity} porsi
+                {menu.capacity} portions left
               </span>
             ) : (
               <span className="font-semibold text-slate-700 bg-white px-2 py-0.5 rounded-md border border-slate-200 text-[11px] tabular-nums">
-                {menu.capacity} porsi
+                {menu.capacity} portions
               </span>
             )}
             {menu.bottleneckIngredientName && (
               <span
                 className="text-[10px] text-slate-400 truncate max-w-[120px]"
-                title={`Dibatasi: ${menu.bottleneckIngredientName}`}
+                title={`Limited: ${menu.bottleneckIngredientName}`}
               >
                 ({menu.bottleneckIngredientName})
               </span>
@@ -87,25 +87,25 @@ export function MenuMobileCard({
       {/* Financial Metrics Grid */}
       <div className="grid grid-cols-2 gap-2 p-3 bg-slate-50/70 rounded-xl text-xs">
         <div>
-          <span className="text-slate-400 block mb-0.5">Harga Jual</span>
+          <span className="text-slate-400 block mb-0.5">Selling Price</span>
           <span className="font-bold text-slate-900 tabular-nums text-sm">
             {formatRupiah(menu.sellingPrice)}
           </span>
         </div>
         <div>
-          <span className="text-slate-400 block mb-0.5">HPP Bahan</span>
+          <span className="text-slate-400 block mb-0.5">Ingredient Cost</span>
           <span className="font-bold text-slate-800 tabular-nums">
             {isCostReady && cost.hppBahan ? formatRupiah(cost.hppBahan) : "-"}
           </span>
         </div>
         <div>
-          <span className="text-slate-400 block mb-0.5">HPP Penuh</span>
+          <span className="text-slate-400 block mb-0.5">Full Cost (HPP)</span>
           <span className="font-bold text-slate-800 tabular-nums">
             {isCostReady && cost.hppPenuh ? formatRupiah(cost.hppPenuh) : "-"}
           </span>
         </div>
         <div>
-          <span className="text-slate-400 block mb-0.5">Margin Kontribusi</span>
+          <span className="text-slate-400 block mb-0.5">Contribution Margin</span>
           <span className="font-bold text-slate-900 tabular-nums">
             {isCostReady && cost.marginKontribusi ? formatRupiah(cost.marginKontribusi) : "-"}
           </span>
@@ -123,17 +123,17 @@ export function MenuMobileCard({
         <button
           type="button"
           onClick={() => onOpenRecipe(menu)}
-          className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-bold text-sky-700 bg-sky-50 border border-sky-200/60 rounded-lg hover:bg-sky-100 transition-colors"
+          className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-bold text-sky-700 bg-sky-50 border border-sky-200/60 rounded-lg hover:bg-sky-100 transition-colors cursor-pointer"
         >
           {menu.hasRecipe ? (
             <>
               <BookOpen className="w-3.5 h-3.5" />
-              {menu.recipeItemsCount} Bahan
+              {menu.recipeItemsCount} Ingredient{menu.recipeItemsCount === 1 ? "" : "s"}
             </>
           ) : (
             <>
               <AlertCircle className="w-3.5 h-3.5 text-amber-600" />
-              <span className="text-amber-700">Atur Resep</span>
+              <span className="text-amber-700">Set Recipe</span>
             </>
           )}
         </button>
@@ -144,18 +144,18 @@ export function MenuMobileCard({
         <button
           type="button"
           onClick={() => onOpenEdit(menu)}
-          className="flex items-center gap-1 px-3 py-1.5 text-xs font-semibold text-slate-600 hover:text-emerald-700 hover:bg-emerald-50 rounded-lg transition-colors border border-slate-200"
+          className="flex items-center gap-1 px-3 py-1.5 text-xs font-semibold text-slate-600 hover:text-emerald-700 hover:bg-emerald-50 rounded-lg transition-colors border border-slate-200 cursor-pointer"
         >
           <Pencil className="w-3.5 h-3.5" />
-          Ubah
+          Edit
         </button>
         <button
           type="button"
           onClick={() => onOpenDelete(menu)}
-          className="flex items-center gap-1 px-3 py-1.5 text-xs font-semibold text-rose-600 hover:bg-rose-50 rounded-lg transition-colors border border-rose-200"
+          className="flex items-center gap-1 px-3 py-1.5 text-xs font-semibold text-rose-600 hover:bg-rose-50 rounded-lg transition-colors border border-rose-200 cursor-pointer"
         >
           <Trash2 className="w-3.5 h-3.5" />
-          Hapus
+          Delete
         </button>
       </div>
     </div>

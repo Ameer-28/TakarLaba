@@ -16,33 +16,33 @@ export function DashboardRecentSales({ sales }: DashboardRecentSalesProps) {
             <span className="p-1.5 bg-emerald-50 text-emerald-700 rounded-lg">
               <ShoppingCart className="w-4 h-4" />
             </span>
-            Penjualan Terakhir Hari Ini
+            Recent Sales Today
           </h2>
           <p className="text-xs text-slate-500 mt-0.5">
-            5 transaksi kasir terkini yang tercatat secara atomik (FEFO)
+            Recent cashier transactions deducted atomically (FEFO)
           </p>
         </div>
         <Link
           to="/sales"
           className="inline-flex items-center gap-1 text-xs font-semibold text-emerald-700 hover:text-emerald-800 transition"
         >
-          Riwayat Penjualan
+          Sales History
           <ArrowRight className="w-3.5 h-3.5" />
         </Link>
       </div>
 
       {sales.length === 0 ? (
         <div className="py-8 text-center space-y-3">
-          <p className="text-sm font-semibold text-slate-800">Belum Ada Transaksi Hari Ini</p>
+          <p className="text-sm font-semibold text-slate-800">No Transactions Today</p>
           <p className="text-xs text-slate-500 max-w-xs mx-auto">
-            Transaksi penjualan yang dicatat di POS akan langsung memotong stok batch secara FEFO.
+            Sales recorded in the POS will immediately deduct batch stock using FEFO.
           </p>
           <Link
             to="/pos"
             className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-700 text-white text-xs font-semibold hover:bg-emerald-800 transition shadow-xs"
           >
-            <Store className="w-3.5 h-3.5" />
-            Buka Kasir POS
+            <Store className="w-4 h-4" />
+            Open POS Cashier
           </Link>
         </div>
       ) : (
@@ -62,9 +62,9 @@ export function DashboardRecentSales({ sales }: DashboardRecentSalesProps) {
                   </span>
                 </div>
                 <p className="text-xs text-slate-500">
-                  {formatDate(sale.soldAt, true)} • Dilayani oleh{" "}
+                  {formatDate(sale.soldAt, true)} • Served by{" "}
                   <strong className="text-slate-700">{sale.cashierName}</strong> ({sale.itemCount}{" "}
-                  item)
+                  item{sale.itemCount === 1 ? "" : "s"})
                 </p>
               </div>
 

@@ -25,9 +25,9 @@ export function MenuEngineeringRecommendations({
           <Lightbulb className="w-4 h-4" />
         </span>
         <div>
-          <h3 className="text-sm font-bold text-slate-900">Rekomendasi Taktis Terhitung</h3>
+          <h3 className="text-sm font-bold text-slate-900">Calculated Tactical Recommendations</h3>
           <p className="text-xs text-slate-500">
-            Aksi terukur berdasarkan batas margin dan elastisitas volume penjualan (BR-10).
+            Actionable tactics based on margin thresholds and sales volume elasticity (BR-10).
           </p>
         </div>
       </div>
@@ -38,13 +38,13 @@ export function MenuEngineeringRecommendations({
           <div className="flex items-center justify-between">
             <span className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-900">
               <Star className="w-4 h-4 fill-emerald-500 text-emerald-600" />
-              Bintang (Star) · {stars.length} Menu
+              Star · {stars.length} Menu{stars.length === 1 ? "" : "s"}
             </span>
-            <span className="text-[11px] font-semibold text-emerald-700">Laba & Volume Tinggi</span>
+            <span className="text-[11px] font-semibold text-emerald-700">High Profit & Volume</span>
           </div>
           <p className="text-xs text-emerald-950/80">
-            Penyumbang laba utama usaha Anda. Pertahankan konsistensi resep, standar penyajian, dan
-            tempatkan di etalase teratas kasir.
+            Primary profit drivers for your business. Maintain recipe consistency, quality
+            presentation, and highlight in top POS placement.
           </p>
           <div className="space-y-1.5">
             {stars.map((menu) => (
@@ -60,11 +60,11 @@ export function MenuEngineeringRecommendations({
                 <div className="flex items-center justify-between font-bold text-slate-900">
                   <span>{menu.menuName}</span>
                   <span className="text-emerald-700 tabular-nums">
-                    +{formatRupiah(menu.marginKontribusi)}/porsi
+                    +{formatRupiah(menu.marginKontribusi)}/portion
                   </span>
                 </div>
                 <div className="flex items-center justify-between text-[11px] text-slate-500 mt-1">
-                  <span>{formatNumber(menu.portionsSold)} porsi terjual</span>
+                  <span>{formatNumber(menu.portionsSold)} portions sold</span>
                   <span>{menu.recommendation.title}</span>
                 </div>
               </div>
@@ -77,15 +77,15 @@ export function MenuEngineeringRecommendations({
           <div className="flex items-center justify-between">
             <span className="inline-flex items-center gap-1.5 text-xs font-bold text-indigo-900">
               <ShieldAlert className="w-4 h-4 text-indigo-600" />
-              Kuda Beban (Plowhorse) · {plowhorses.length} Menu
+              Plowhorse · {plowhorses.length} Menu{plowhorses.length === 1 ? "" : "s"}
             </span>
             <span className="text-[11px] font-semibold text-indigo-700">
-              Volume Tinggi, Margin Rendah
+              High Volume, Low Margin
             </span>
           </div>
           <p className="text-xs text-indigo-950/80">
-            Sangat disukai pelanggan namun margin di bawah rata-rata. Naikkan harga jual secara
-            bertahap atau optimalkan takaran bahan berbiaya tinggi.
+            Highly popular with customers but below-average margin. Consider modest price increases
+            or optimizing high-cost ingredients.
           </p>
           <div className="space-y-1.5">
             {plowhorses.map((menu) => (
@@ -101,7 +101,7 @@ export function MenuEngineeringRecommendations({
                 <div className="flex items-center justify-between font-bold text-slate-900">
                   <span>{menu.menuName}</span>
                   <span className="text-indigo-700 tabular-nums">
-                    +{formatRupiah(menu.marginKontribusi)}/porsi
+                    +{formatRupiah(menu.marginKontribusi)}/portion
                   </span>
                 </div>
                 <div className="text-[11px] text-slate-600 mt-1">
@@ -117,15 +117,15 @@ export function MenuEngineeringRecommendations({
           <div className="flex items-center justify-between">
             <span className="inline-flex items-center gap-1.5 text-xs font-bold text-amber-900">
               <HelpCircle className="w-4 h-4 text-amber-600" />
-              Teka-Teki (Puzzle) · {puzzles.length} Menu
+              Puzzle · {puzzles.length} Menu{puzzles.length === 1 ? "" : "s"}
             </span>
             <span className="text-[11px] font-semibold text-amber-700">
-              Margin Tinggi, Volume Rendah
+              High Margin, Low Volume
             </span>
           </div>
           <p className="text-xs text-amber-950/80">
-            Potensi keuntungan besar jika berhasil dijual lebih banyak. Dorong melalui promosi
-            kasir, bundling menu, atau diskon yang aman.
+            High profit potential if sales volume can be boosted. Promote at checkout, bundle with
+            popular items, or offer safe promo discounts.
           </p>
           <div className="space-y-1.5">
             {puzzles.map((menu) => (
@@ -141,7 +141,7 @@ export function MenuEngineeringRecommendations({
                 <div className="flex items-center justify-between font-bold text-slate-900">
                   <span>{menu.menuName}</span>
                   <span className="text-amber-700 tabular-nums">
-                    +{formatRupiah(menu.marginKontribusi)}/porsi
+                    +{formatRupiah(menu.marginKontribusi)}/portion
                   </span>
                 </div>
                 <div className="text-[11px] text-slate-600 mt-1">
@@ -157,13 +157,13 @@ export function MenuEngineeringRecommendations({
           <div className="flex items-center justify-between">
             <span className="inline-flex items-center gap-1.5 text-xs font-bold text-rose-900">
               <AlertOctagon className="w-4 h-4 text-rose-600" />
-              Anjing (Dog) · {dogs.length} Menu
+              Dog · {dogs.length} Menu{dogs.length === 1 ? "" : "s"}
             </span>
-            <span className="text-[11px] font-semibold text-rose-700">Volume & Margin Rendah</span>
+            <span className="text-[11px] font-semibold text-rose-700">Low Volume & Margin</span>
           </div>
           <p className="text-xs text-rose-950/80">
-            Penjualan lesu dan margin tipis. Berisiko menyebabkan pemborosan stok bahan baku
-            eksklusif. Pertimbangkan reposisi harga, reformulasi resep, atau ganti menu.
+            Sluggish sales and thin margins. High risk of ingredient waste. Consider price
+            repositioning, recipe reformulation, or replacement.
           </p>
           <div className="space-y-1.5">
             {dogs.map((menu) => (
@@ -179,7 +179,7 @@ export function MenuEngineeringRecommendations({
                 <div className="flex items-center justify-between font-bold text-slate-900">
                   <span>{menu.menuName}</span>
                   <span className="text-rose-700 tabular-nums">
-                    +{formatRupiah(menu.marginKontribusi)}/porsi
+                    +{formatRupiah(menu.marginKontribusi)}/portion
                   </span>
                 </div>
                 <div className="text-[11px] text-slate-600 mt-1">

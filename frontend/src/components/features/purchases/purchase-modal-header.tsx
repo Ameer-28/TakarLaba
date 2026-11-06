@@ -12,13 +12,16 @@ export function PurchaseModalHeader({ onClose }: PurchaseModalHeaderProps) {
           <Receipt className="w-4 h-4" />
         </div>
         <div>
-          <h3 className="text-base font-bold text-slate-900">Catat Nota Belanja Bahan</h3>
+          <h3 className="text-base font-bold text-slate-900">Record Ingredient Purchase</h3>
           <p className="text-xs text-slate-500">
-            Pencatatan nota otomatis menambah batch stok (FEFO) dan memperbarui biaya riil.
+            Recording invoices automatically adds FEFO stock batches and updates actual cost.
           </p>
         </div>
       </div>
-      <button onClick={onClose} className="text-slate-400 hover:text-slate-600 p-1 rounded-lg">
+      <button
+        onClick={onClose}
+        className="text-slate-400 hover:text-slate-600 p-1 rounded-lg cursor-pointer"
+      >
         <X className="w-5 h-5" />
       </button>
     </div>

@@ -6,10 +6,10 @@ export function MenusPage() {
       {/* Page Header */}
       <div>
         <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
-          Katalog Menu & Resep
+          Menu & Recipe Catalog
         </h1>
         <p className="text-sm text-slate-600 mt-1">
-          Kelola daftar menu jualan, harga, target margin, serta pemantauan kelengkapan resep.
+          Manage your menu items, pricing, target margins, and track recipe completeness.
         </p>
       </div>
 

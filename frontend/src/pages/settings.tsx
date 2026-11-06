@@ -12,10 +12,10 @@ export function SettingsPage() {
       {/* Page Header */}
       <div>
         <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
-          Pengaturan Usaha & Overhead
+          Business & Overhead Settings
         </h1>
         <p className="text-sm text-slate-600 mt-1">
-          Kelola beban biaya operasional bulanan untuk perhitungan HPP Penuh dan parameter usaha.
+          Manage monthly operational overhead for Full Cost calculations and business parameters.
         </p>
       </div>
 
@@ -31,7 +31,7 @@ export function SettingsPage() {
           }`}
         >
           <Layers className="w-4 h-4" />
-          Beban Overhead Bulanan
+          Monthly Overhead Costs
         </button>
         <button
           type="button"
@@ -43,7 +43,7 @@ export function SettingsPage() {
           }`}
         >
           <Sliders className="w-4 h-4" />
-          Parameter & Target Usaha
+          Business Parameters & Targets
         </button>
       </div>
 

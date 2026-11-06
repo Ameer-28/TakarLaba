@@ -20,12 +20,12 @@ export function computeCooldownRemaining(
 }
 
 export function formatCooldownBadge(seconds: number): string {
-  if (seconds <= 0) return "Tersedia";
-  return `Tunggu (${seconds} dtk)`;
+  if (seconds <= 0) return "Available";
+  return `Wait (${seconds}s)`;
 }
 
 export function formatResetButtonText(seconds: number, isResetting: boolean): string {
-  if (isResetting) return "Mereset data...";
-  if (seconds > 0) return `Isi Data Contoh (${seconds}s)`;
-  return "Isi Data Contoh";
+  if (isResetting) return "Resetting data...";
+  if (seconds > 0) return `Load Sample Data (${seconds}s)`;
+  return "Load Sample Data";
 }

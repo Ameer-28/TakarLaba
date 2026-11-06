@@ -49,31 +49,31 @@ export function AlertCard({
             {isOpen && (
               <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-bold bg-rose-100 text-rose-700">
                 <AlertTriangle className="w-3 h-3 text-rose-600" />
-                Perlu Tindakan
+                Action Required
               </span>
             )}
             {isAcknowledged && (
               <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-bold bg-amber-100 text-amber-700">
                 <Eye className="w-3 h-3 text-amber-600" />
-                Sedang Ditinjau
+                Under Review
               </span>
             )}
             {isResolved && (
               <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-700">
                 <CheckCircle2 className="w-3 h-3 text-emerald-600" />
-                Selesai ({alert.resolution})
+                Resolved ({alert.resolution})
               </span>
             )}
           </div>
           <p className="text-xs text-slate-500">
-            Harga jual saat ini:{" "}
+            Current selling price:{" "}
             <span className="font-semibold text-slate-700">
               {formatRupiah(alert.sellingPriceAtTrigger)}
             </span>
             {alert.triggerIngredient && (
               <>
                 {" "}
-                · Dipicu kenaikan:{" "}
+                · Triggered by cost increase in:{" "}
                 <span className="font-semibold text-rose-600">{alert.triggerIngredient.name}</span>
               </>
             )}
@@ -83,7 +83,7 @@ export function AlertCard({
         {/* Trigger purchase timestamp */}
         {alert.triggerPurchase && (
           <div className="text-left sm:text-right text-[11px] text-slate-400">
-            <span>Nota: {alert.triggerPurchase.supplierName || "Pemasok"}</span>
+            <span>Invoice: {alert.triggerPurchase.supplierName || "Supplier"}</span>
             <span className="block">{formatDate(alert.triggerPurchase.purchasedAt)}</span>
           </div>
         )}
@@ -92,21 +92,21 @@ export function AlertCard({
       {/* Metrics Row: Before vs After vs Target */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 p-3 rounded-xl bg-slate-50 border border-slate-200/60 text-center">
         <div>
-          <span className="text-[11px] font-medium text-slate-500 block">HPP Bahan</span>
+          <span className="text-[11px] font-medium text-slate-500 block">Ingredient Cost</span>
           <span className="text-xs sm:text-sm font-semibold text-slate-700 tabular-nums">
             {formatRupiah(alert.ingredientCostBefore)} →{" "}
             <strong className="text-rose-600">{formatRupiah(alert.ingredientCostAfter)}</strong>
           </span>
         </div>
         <div>
-          <span className="text-[11px] font-medium text-slate-500 block">HPP Penuh</span>
+          <span className="text-[11px] font-medium text-slate-500 block">Full Cost (HPP)</span>
           <span className="text-xs sm:text-sm font-semibold text-slate-700 tabular-nums">
             {formatRupiah(alert.fullCostBefore)} →{" "}
             <strong className="text-rose-600">{formatRupiah(alert.fullCostAfter)}</strong>
           </span>
         </div>
         <div>
-          <span className="text-[11px] font-medium text-slate-500 block">Margin Penuh</span>
+          <span className="text-[11px] font-medium text-slate-500 block">Full Margin</span>
           <div className="flex items-center justify-center gap-1 text-xs sm:text-sm font-bold tabular-nums">
             <span className="text-slate-600">{formatPercent(alert.marginBeforePct)}</span>
             <ArrowRight className="w-3 h-3 text-slate-400" />
@@ -129,14 +129,14 @@ export function AlertCard({
           <div className="space-y-0.5">
             <div className="flex items-center gap-1.5 text-sky-800 text-xs font-bold uppercase tracking-wider">
               <TrendingUp className="w-3.5 h-3.5" />
-              Rekomendasi Opsi A (Naikkan Harga)
+              Recommended Option A (Increase Price)
             </div>
             <div className="flex items-baseline gap-2">
               <span className="text-base sm:text-lg font-black text-slate-900 tabular-nums">
                 {formatRupiah(alert.recommendedPrice)}
               </span>
               <span className="text-xs text-sky-700 font-medium">
-                (Kembalikan margin ke ambang aman target {formatPercent(alert.targetPct)})
+                (Restores margin to safe target threshold of {formatPercent(alert.targetPct)})
               </span>
             </div>
           </div>
@@ -148,7 +148,7 @@ export function AlertCard({
             className="w-full sm:w-auto px-4 py-2 rounded-xl bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold transition-all shadow-xs flex items-center justify-center gap-1.5 cursor-pointer active:scale-98 disabled:opacity-50"
           >
             <Check className="w-3.5 h-3.5" />
-            <span>Terapkan Harga Ini</span>
+            <span>Apply This Price</span>
           </button>
         </div>
       )}
@@ -156,7 +156,7 @@ export function AlertCard({
       {/* Note if resolved */}
       {isResolved && alert.note && (
         <div className="p-2.5 rounded-xl bg-slate-100 text-xs text-slate-600 italic">
-          Catatan: "{alert.note}"
+          Note: &quot;{alert.note}&quot;
         </div>
       )}
 
@@ -168,7 +168,7 @@ export function AlertCard({
           className="text-slate-600 hover:text-slate-900 font-semibold flex items-center gap-1 transition-colors cursor-pointer"
         >
           <FileText className="w-3.5 h-3.5" />
-          <span>Lihat Rincian Resep & Opsi B</span>
+          <span>View Recipe Details & Option B</span>
         </button>
 
         <div className="flex items-center gap-2">
@@ -178,7 +178,7 @@ export function AlertCard({
               onClick={() => onAcknowledge(alert)}
               className="px-3 py-1.5 rounded-lg border border-slate-200 text-slate-600 hover:text-slate-900 hover:bg-slate-50 font-semibold transition-all cursor-pointer"
             >
-              Tandai Ditinjau
+              Mark Reviewed
             </button>
           )}
 
@@ -188,7 +188,7 @@ export function AlertCard({
               onClick={() => onDismiss(alert)}
               className="px-3 py-1.5 rounded-lg text-rose-600 hover:bg-rose-50 font-semibold transition-all cursor-pointer"
             >
-              Abaikan
+              Dismiss
             </button>
           )}
         </div>

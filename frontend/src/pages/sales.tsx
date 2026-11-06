@@ -79,7 +79,7 @@ export function SalesPage() {
     if (endDate) params.set("endDate", endDate);
     params.set("status", "ALL");
     const query = params.toString() ? `?${params.toString()}` : "";
-    await downloadCsv(`/export/sales.csv${query}`, "penjualan.csv");
+    await downloadCsv(`/export/sales.csv${query}`, "sales.csv");
     setIsExporting(false);
   };
 
@@ -89,10 +89,10 @@ export function SalesPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
-            Riwayat Penjualan
+            Sales History
           </h1>
           <p className="text-sm text-slate-600 mt-1">
-            Daftar seluruh transaksi kasir dan detail alokasi stok batch FEFO.
+            All cashier sales transactions and FEFO batch inventory deductions.
           </p>
         </div>
         <div className="flex items-center gap-2 self-start sm:self-auto">
@@ -104,7 +104,7 @@ export function SalesPage() {
               className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-emerald-300 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 text-xs font-bold shadow-2xs transition-all disabled:opacity-50 cursor-pointer"
             >
               <Download className={`w-3.5 h-3.5 ${isExporting ? "animate-bounce" : ""}`} />
-              <span>{isExporting ? "Mengunduh..." : "Ekspor CSV"}</span>
+              <span>{isExporting ? "Downloading..." : "Export CSV"}</span>
             </button>
           )}
           <button
@@ -116,7 +116,7 @@ export function SalesPage() {
             <RefreshCw
               className={`w-3.5 h-3.5 ${isFetching ? "animate-spin text-amber-600" : ""}`}
             />
-            <span>Muat Ulang</span>
+            <span>Reload</span>
           </button>
         </div>
       </div>
@@ -155,15 +155,15 @@ export function SalesPage() {
       ) : isError ? (
         <div className="bg-white rounded-2xl border border-rose-200 p-8 text-center space-y-3">
           <p className="text-sm font-bold text-rose-600">
-            Gagal memuat riwayat penjualan:{" "}
-            {error instanceof Error ? error.message : "Terjadi kesalahan"}
+            Failed to load sales history:{" "}
+            {error instanceof Error ? error.message : "An error occurred"}
           </p>
           <button
             type="button"
             onClick={() => refetch()}
             className="px-4 py-2 bg-slate-800 text-white rounded-xl text-xs font-bold hover:bg-slate-900 transition-colors cursor-pointer"
           >
-            Coba Lagi
+            Try Again
           </button>
         </div>
       ) : filteredSales.length === 0 ? (
@@ -171,11 +171,11 @@ export function SalesPage() {
           <div className="w-12 h-12 rounded-2xl bg-slate-100 text-slate-400 mx-auto flex items-center justify-center">
             <Receipt className="w-6 h-6" />
           </div>
-          <h2 className="text-base font-bold text-slate-800">Belum Ada Transaksi</h2>
+          <h2 className="text-base font-bold text-slate-800">No Transactions Yet</h2>
           <p className="text-xs text-slate-500 max-w-sm mx-auto">
             {search || startDate || endDate || paymentMethod !== "ALL"
-              ? "Tidak ada transaksi yang cocok dengan filter yang dipilih."
-              : "Transaksi penjualan yang dilakukan kasir akan muncul di sini secara otomatis."}
+              ? "No transactions matched the selected filters."
+              : "Sales transactions completed at checkout will appear here automatically."}
           </p>
           {(search || startDate || endDate || paymentMethod !== "ALL") && (
             <button
@@ -183,7 +183,7 @@ export function SalesPage() {
               onClick={handleResetFilters}
               className="px-3.5 py-1.5 text-xs font-bold text-amber-700 bg-amber-50 hover:bg-amber-100 rounded-xl transition-colors inline-block mt-2 cursor-pointer"
             >
-              Reset Filter
+              Reset Filters
             </button>
           )}
         </div>

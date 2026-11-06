@@ -128,29 +128,29 @@ export const MONTH_NAMES_SHORT = [
   "Feb",
   "Mar",
   "Apr",
-  "Mei",
+  "May",
   "Jun",
   "Jul",
-  "Agu",
+  "Aug",
   "Sep",
-  "Okt",
+  "Oct",
   "Nov",
-  "Des",
+  "Dec",
 ];
 
 export const MONTH_NAMES_FULL = [
-  "Januari",
-  "Februari",
-  "Maret",
+  "January",
+  "February",
+  "March",
   "April",
-  "Mei",
-  "Juni",
-  "Juli",
-  "Agustus",
+  "May",
+  "June",
+  "July",
+  "August",
   "September",
-  "Oktober",
+  "October",
   "November",
-  "Desember",
+  "December",
 ];
 
 // --- Responsive Popover Boundary Clamping ---
@@ -250,32 +250,32 @@ export function parseYMD(str: string): Date | null {
 
 export const defaultPresets: PresetsMap = {
   today: {
-    text: "Hari Ini",
+    text: "Today",
     start: startOfDay(new Date()),
     end: endOfDay(new Date()),
   },
   yesterday: {
-    text: "Kemarin",
+    text: "Yesterday",
     start: startOfDay(subDays(new Date(), 1)),
     end: endOfDay(subDays(new Date(), 1)),
   },
   last7days: {
-    text: "7 Hari Terakhir",
+    text: "Last 7 Days",
     start: startOfDay(subDays(new Date(), 6)),
     end: endOfDay(new Date()),
   },
   last30days: {
-    text: "30 Hari Terakhir",
+    text: "Last 30 Days",
     start: startOfDay(subDays(new Date(), 29)),
     end: endOfDay(new Date()),
   },
   thisMonth: {
-    text: "Bulan Ini",
+    text: "This Month",
     start: startOfMonth(new Date()),
     end: endOfDay(new Date()),
   },
   lastMonth: {
-    text: "Bulan Lalu",
+    text: "Last Month",
     start: startOfMonth(subMonths(new Date(), 1)),
     end: endOfMonth(subMonths(new Date(), 1)),
   },

@@ -41,19 +41,18 @@ export function LoginPage() {
 
       if (result.error) {
         const errorMsg =
-          result.error.message ||
-          "Email atau kata sandi tidak valid. Silakan periksa kembali kredensial Anda.";
+          result.error.message || "Invalid email or password. Please verify your credentials.";
         setAuthError(errorMsg);
-        toast.error("Gagal masuk", { description: errorMsg });
+        toast.error("Sign in failed", { description: errorMsg });
         return;
       }
 
-      toast.success("Berhasil masuk ke TakarLaba");
+      toast.success("Signed in to TakarLaba successfully");
       navigate("/dashboard", { replace: true });
     } catch {
-      const fallbackMsg = "Terjadi gangguan jaringan atau server. Silakan coba lagi.";
+      const fallbackMsg = "A network or server error occurred. Please try again.";
       setAuthError(fallbackMsg);
-      toast.error("Koneksi gagal", { description: fallbackMsg });
+      toast.error("Connection failed", { description: fallbackMsg });
     } finally {
       setIsSubmitting(false);
     }
@@ -70,14 +69,14 @@ export function LoginPage() {
         body: JSON.stringify({ role: backendRole }),
       });
 
-      toast.success(`Berhasil masuk sebagai Demo ${role === "owner" ? "Owner" : "Kasir"}`);
+      toast.success(`Signed in as Demo ${role === "owner" ? "Owner" : "Cashier"} successfully`);
       const targetPath = role === "owner" ? "/dashboard" : "/pos";
       window.location.href = targetPath;
     } catch (err: unknown) {
       const fallbackMsg =
-        err instanceof Error ? err.message : "Gagal terhubung ke layanan otentikasi demo.";
+        err instanceof Error ? err.message : "Failed to connect to demo authentication service.";
       setAuthError(fallbackMsg);
-      toast.error("Demo login gagal", { description: fallbackMsg });
+      toast.error("Demo sign in failed", { description: fallbackMsg });
     } finally {
       setIsDemoSubmitting(null);
     }
@@ -91,7 +90,7 @@ export function LoginPage() {
         aria-live="polite"
       >
         <Loader2 className="w-8 h-8 animate-spin text-[#11212D]" />
-        <p className="text-sm font-medium">Memuat data sesi...</p>
+        <p className="text-sm font-medium">Loading session data...</p>
       </div>
     );
   }
@@ -107,10 +106,10 @@ export function LoginPage() {
           </div>
         </div>
         <h2 className="mt-4 text-center text-2xl font-bold tracking-tight text-[#06141B] sm:text-3xl">
-          Masuk ke TakarLaba
+          Sign In to TakarLaba
         </h2>
         <p className="mt-2 text-center text-sm text-[#4A5C6A]">
-          Asisten Penjaga Margin & Anti-Waste untuk UMKM Kuliner
+          Margin Guard & Anti-Waste Assistant for Food Businesses
         </p>
       </div>
 
@@ -124,12 +123,12 @@ export function LoginPage() {
           />
           <div className="mt-4 pt-4 border-t border-[#CCD0CF]/60 text-center">
             <p className="text-xs text-[#4A5C6A]">
-              Belum punya akun usaha?{" "}
+              Don't have a business account?{" "}
               <Link
                 to="/register"
                 className="font-bold text-[#11212D] hover:text-[#253745] hover:underline transition"
               >
-                Daftar Bisnis Baru
+                Register New Business
               </Link>
             </p>
           </div>

@@ -11,10 +11,10 @@ interface IngredientFiltersProps {
 }
 
 const CATEGORY_TABS = [
-  { id: "ALL", label: "Semua Kategori" },
-  { id: "MAIN", label: "Bahan Utama" },
-  { id: "SUPPORT", label: "Pendukung" },
-  { id: "PACKAGING", label: "Kemasan" },
+  { id: "ALL", label: "All Categories" },
+  { id: "MAIN", label: "Main Ingredients" },
+  { id: "SUPPORT", label: "Supporting" },
+  { id: "PACKAGING", label: "Packaging" },
 ];
 
 export function IngredientFilters({
@@ -28,12 +28,12 @@ export function IngredientFilters({
 }: IngredientFiltersProps) {
   return (
     <div className="bg-white rounded-2xl border border-slate-200 p-3.5 sm:p-4 shadow-xs space-y-3">
-      {/* Search Bar (Baris Atas - Lebar Penuh) */}
+      {/* Search Bar */}
       <div className="relative w-full">
         <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
         <input
           type="text"
-          placeholder="Cari nama bahan baku (misal: Beras, Kopi, Susu)..."
+          placeholder="Search ingredient name (e.g. Rice, Coffee, Milk)..."
           value={searchTerm}
           onChange={(e) => onSearchChange(e.target.value)}
           className="w-full pl-10 pr-9 py-2 text-sm rounded-xl border border-slate-200 text-slate-900 placeholder:text-slate-400 focus:outline-hidden focus:border-slate-800 focus:ring-1 focus:ring-slate-800/10 transition-all bg-slate-50/50"
@@ -43,14 +43,14 @@ export function IngredientFilters({
             type="button"
             onClick={() => onSearchChange("")}
             className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 cursor-pointer p-0.5"
-            title="Hapus pencarian"
+            title="Clear search"
           >
             <X className="w-3.5 h-3.5" />
           </button>
         )}
       </div>
 
-      {/* Filter Controls Row (Baris Bawah - Kategori & Status) */}
+      {/* Filter Controls Row */}
       <div className="flex flex-wrap items-center justify-between gap-2.5">
         {/* Category Tabs */}
         <div className="flex items-center gap-1.5 overflow-x-auto pb-0.5 scrollbar-none">
@@ -70,16 +70,16 @@ export function IngredientFilters({
           ))}
         </div>
 
-        {/* Right Controls: Status Filter & Tambah Bahan */}
+        {/* Right Controls: Status Filter & Add Ingredient */}
         <div className="flex items-center gap-2">
           <select
             value={statusFilter}
             onChange={(e) => onStatusChange(e.target.value as "ALL" | "ACTIVE" | "INACTIVE")}
             className="px-3 py-1.5 rounded-xl border border-slate-200 text-xs font-semibold text-slate-700 bg-slate-50/60 hover:bg-slate-100/70 focus:outline-hidden focus:border-slate-800 transition-colors cursor-pointer"
           >
-            <option value="ALL">Semua Status</option>
-            <option value="ACTIVE">Hanya Aktif</option>
-            <option value="INACTIVE">Hanya Nonaktif</option>
+            <option value="ALL">All Status</option>
+            <option value="ACTIVE">Active Only</option>
+            <option value="INACTIVE">Inactive Only</option>
           </select>
 
           {onOpenCreate && (
@@ -87,10 +87,10 @@ export function IngredientFilters({
               type="button"
               onClick={onOpenCreate}
               className="inline-flex items-center justify-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold shadow-xs transition-all cursor-pointer whitespace-nowrap"
-              title="Tambah master bahan baku baru"
+              title="Add new master ingredient"
             >
               <Plus className="w-3.5 h-3.5" />
-              <span>Tambah Bahan</span>
+              <span>Add Ingredient</span>
             </button>
           )}
         </div>

@@ -47,7 +47,7 @@ export function AppShell() {
   };
 
   const userRole = (session?.user?.role as UserRole | undefined) ?? "CASHIER";
-  const userName = session?.user?.name || "Pengguna";
+  const userName = session?.user?.name || "User";
   const userEmail = session?.user?.email || "";
 
   const allowedNavItems = filterNavItemsByRole(NAV_ITEMS, userRole);
@@ -56,10 +56,10 @@ export function AppShell() {
     setIsLoggingOut(true);
     try {
       await signOut();
-      toast.success("Berhasil keluar dari TakarLaba");
+      toast.success("Signed out of TakarLaba successfully");
       navigate("/login", { replace: true });
     } catch {
-      toast.error("Gagal keluar. Silakan coba lagi.");
+      toast.error("Failed to sign out. Please try again.");
     } finally {
       setIsLoggingOut(false);
     }
@@ -281,9 +281,9 @@ export function AppShell() {
         <button
           type="button"
           onClick={toggleCollapse}
-          aria-label={isCollapsed ? "Lebarkan sidebar" : "Ciutkan sidebar"}
+          aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
           aria-expanded={!isCollapsed}
-          title={isCollapsed ? "Lebarkan sidebar" : "Ciutkan sidebar"}
+          title={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
           className="absolute -right-3 top-5.5 w-6 h-6 rounded-full bg-white border border-slate-200 shadow-sm flex items-center justify-center text-slate-400 hover:text-slate-900 transition-all cursor-pointer z-40 hover:scale-110 active:scale-95"
         >
           {isCollapsed ? (
@@ -323,7 +323,7 @@ export function AppShell() {
         {/* Scrollable Navigation Body */}
         <nav
           className="flex-1 overflow-y-auto overflow-x-hidden px-2.5 py-2 space-y-1 scrollbar-none"
-          aria-label="Menu Utama"
+          aria-label="Main Menu"
         >
           {allowedNavItems.map((item) => renderItem(item))}
         </nav>
@@ -351,7 +351,7 @@ export function AppShell() {
                       {userName}
                     </p>
                     <p className="text-[9px] font-bold text-slate-400 uppercase tracking-wider truncate">
-                      {userRole === "OWNER" ? "PEMILIK" : "KASIR"}
+                      {userRole === "OWNER" ? "OWNER" : "CASHIER"}
                     </p>
                   </div>
                 </div>
@@ -380,7 +380,7 @@ export function AppShell() {
                     ) : (
                       <LogOut className="w-3.5 h-3.5" />
                     )}
-                    <span>Keluar Akun</span>
+                    <span>Sign Out</span>
                   </button>
                 </div>
               )}
@@ -393,7 +393,7 @@ export function AppShell() {
                 type="button"
                 onClick={handleLogout}
                 disabled={isLoggingOut}
-                title={`${userName} (${userRole === "OWNER" ? "Pemilik" : "Kasir"}) - Klik untuk keluar`}
+                title={`${userName} (${userRole === "OWNER" ? "Owner" : "Cashier"}) - Click to sign out`}
                 className="w-10 h-10 rounded-2xl bg-slate-900 text-white font-bold flex items-center justify-center text-xs shadow-2xs cursor-pointer hover:ring-2 hover:ring-slate-300 transition-all"
               >
                 {isLoggingOut ? (
@@ -404,8 +404,8 @@ export function AppShell() {
               </button>
               <div className="absolute left-full ml-3 px-2.5 py-1.5 bg-slate-900 text-white text-xs rounded-xl whitespace-nowrap shadow-lg opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity z-50">
                 <span className="font-bold">{userName}</span> &bull;{" "}
-                {userRole === "OWNER" ? "Pemilik" : "Kasir"}
-                <span className="block text-[10px] text-rose-300 mt-0.5">Klik untuk Keluar</span>
+                {userRole === "OWNER" ? "Owner" : "Cashier"}
+                <span className="block text-[10px] text-rose-300 mt-0.5">Click to Sign Out</span>
               </div>
             </div>
           </div>
@@ -426,7 +426,7 @@ export function AppShell() {
                 : "bg-slate-200 text-slate-800"
             }`}
           >
-            {userRole === "OWNER" ? "Pemilik" : "Kasir"}
+            {userRole === "OWNER" ? "Owner" : "Cashier"}
           </span>
         </div>
 
@@ -434,7 +434,7 @@ export function AppShell() {
           type="button"
           onClick={handleLogout}
           disabled={isLoggingOut}
-          title="Keluar Akun"
+          title="Sign Out"
           className="p-1.5 text-slate-500 hover:text-rose-600 rounded-xl hover:bg-slate-100 transition-colors cursor-pointer"
         >
           {isLoggingOut ? (
@@ -454,7 +454,7 @@ export function AppShell() {
         <div
           className={`flex-1 min-w-0 ${
             location.pathname === "/pos"
-              ? "w-full flex flex-col p-0 pb-24 lg:pb-0"
+              ? "w-full flex flex-col p-0 pb-36 lg:pb-0"
               : "p-4 sm:p-6 lg:p-8 pb-28 lg:pb-8 max-w-7xl w-full mx-auto"
           }`}
         >

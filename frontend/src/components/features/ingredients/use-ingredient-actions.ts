@@ -48,13 +48,13 @@ export function useIngredientActions() {
             },
           });
         } catch {
-          toast.warning("Bahan tersimpan, tetapi satuan tambahan gagal ditambahkan.");
+          toast.warning("Ingredient saved, but additional purchase unit could not be added.");
         }
       }
-      toast.success(`Bahan "${created.name}" berhasil ditambahkan.`);
+      toast.success(`Ingredient "${created.name}" added successfully.`);
       setIsCreateOpen(false);
     } catch (err) {
-      toast.error(err instanceof ApiError ? err.message : "Gagal menambahkan bahan baku.");
+      toast.error(err instanceof ApiError ? err.message : "Failed to add ingredient.");
     }
   };
 
@@ -71,10 +71,10 @@ export function useIngredientActions() {
           isPerishable: values.isPerishable,
         },
       });
-      toast.success(`Data "${values.name}" berhasil diperbarui.`);
+      toast.success(`Ingredient "${values.name}" updated successfully.`);
       setEditingIngredient(null);
     } catch (err) {
-      toast.error(err instanceof ApiError ? err.message : "Gagal memperbarui data bahan baku.");
+      toast.error(err instanceof ApiError ? err.message : "Failed to update ingredient.");
     }
   };
 
@@ -92,9 +92,9 @@ export function useIngredientActions() {
         ...managingUnitsIngredient,
         units: [...managingUnitsIngredient.units, created],
       });
-      toast.success(`Satuan "${values.name}" berhasil ditambahkan.`);
+      toast.success(`Unit "${values.name}" added successfully.`);
     } catch (err) {
-      toast.error(err instanceof ApiError ? err.message : "Gagal menambahkan satuan beli.");
+      toast.error(err instanceof ApiError ? err.message : "Failed to add purchase unit.");
     }
   };
 
@@ -106,9 +106,9 @@ export function useIngredientActions() {
         ...managingUnitsIngredient,
         units: managingUnitsIngredient.units.filter((u) => u.id !== unitId),
       });
-      toast.success(`Satuan "${unitName}" berhasil dihapus.`);
+      toast.success(`Unit "${unitName}" removed successfully.`);
     } catch (err) {
-      toast.error(err instanceof ApiError ? err.message : "Gagal menghapus satuan beli.");
+      toast.error(err instanceof ApiError ? err.message : "Failed to remove purchase unit.");
     }
   };
 
@@ -116,10 +116,10 @@ export function useIngredientActions() {
     if (!deactivatingIngredient) return;
     try {
       await deleteMutation.mutateAsync(deactivatingIngredient.id);
-      toast.success(`Bahan "${deactivatingIngredient.name}" berhasil dinonaktifkan.`);
+      toast.success(`Ingredient "${deactivatingIngredient.name}" deactivated successfully.`);
       setDeactivatingIngredient(null);
     } catch (err) {
-      toast.error(err instanceof ApiError ? err.message : "Gagal menonaktifkan bahan.");
+      toast.error(err instanceof ApiError ? err.message : "Failed to deactivate ingredient.");
     }
   };
 

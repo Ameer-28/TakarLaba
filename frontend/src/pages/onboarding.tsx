@@ -42,13 +42,13 @@ export function OnboardingPage() {
   const { data: settings } = useSettings();
   const updateSettingsMutation = useUpdateSettings();
 
-  // Step 1 Form State: Bahan Baku
+  // Step 1 Form State: Ingredients
   const [ingName, setIngName] = useState("");
   const [ingCategory, setIngCategory] = useState<IngredientCategory>("MAIN");
   const [ingBaseUnit, setIngBaseUnit] = useState<BaseUnit>("G");
   const [isSubmittingIng, setIsSubmittingIng] = useState(false);
 
-  // Step 2 Form State: Menu & Resep
+  // Step 2 Form State: Menu & Recipe
   const [menuName, setMenuName] = useState("");
   const [menuPrice, setMenuPrice] = useState("");
   const [recipeItems, setRecipeItems] = useState<
@@ -74,7 +74,7 @@ export function OnboardingPage() {
     e.preventDefault();
     const trimmed = ingName.trim();
     if (!trimmed) {
-      toast.error("Nama bahan baku wajib diisi");
+      toast.error("Ingredient name is required");
       return;
     }
 
@@ -87,10 +87,10 @@ export function OnboardingPage() {
         yieldPercent: 100,
         isPerishable: false,
       });
-      toast.success(`Bahan "${trimmed}" berhasil ditambahkan`);
+      toast.success(`Ingredient "${trimmed}" added successfully`);
       setIngName("");
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "Gagal menambahkan bahan baku";
+      const msg = err instanceof Error ? err.message : "Failed to add ingredient";
       toast.error(msg);
     } finally {
       setIsSubmittingIng(false);
@@ -100,12 +100,12 @@ export function OnboardingPage() {
   // Handlers Step 2: Recipe builder
   const handleAddRecipeItem = () => {
     if (!selectedIngId) {
-      toast.error("Pilih bahan baku terlebih dahulu");
+      toast.error("Please select an ingredient first");
       return;
     }
     const qtyNum = parseFloat(selectedQty);
     if (!qtyNum || qtyNum <= 0) {
-      toast.error("Kuantitas takaran resep harus lebih dari 0");
+      toast.error("Recipe quantity must be greater than 0");
       return;
     }
 
@@ -131,16 +131,16 @@ export function OnboardingPage() {
   const handleSaveMenuAndContinue = async () => {
     const trimmedName = menuName.trim();
     if (!trimmedName) {
-      toast.error("Nama menu wajib diisi");
+      toast.error("Menu name is required");
       return;
     }
     const priceNum = parseInt(menuPrice, 10);
     if (!priceNum || priceNum <= 0) {
-      toast.error("Harga jual menu harus lebih dari Rp0");
+      toast.error("Selling price must be greater than Rp0");
       return;
     }
     if (recipeItems.length === 0) {
-      toast.error("Resep wajib memiliki minimal 1 bahan baku");
+      toast.error("Recipe requires at least 1 ingredient");
       return;
     }
 
@@ -149,7 +149,7 @@ export function OnboardingPage() {
       const createdMenu = await createMenuMutation.mutateAsync({
         name: trimmedName,
         sellingPrice: priceNum,
-        category: "Makanan/Minuman",
+        category: "Food/Beverage",
       });
 
       await saveRecipeMutation.mutateAsync({
@@ -163,10 +163,10 @@ export function OnboardingPage() {
       });
 
       setCreatedMenuSummary({ name: trimmedName, price: priceNum });
-      toast.success(`Menu "${trimmedName}" dan resepnya berhasil disimpan`);
+      toast.success(`Menu "${trimmedName}" and recipe saved successfully`);
       setCurrentStep(3);
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "Gagal menyimpan menu dan resep";
+      const msg = err instanceof Error ? err.message : "Failed to save menu and recipe";
       toast.error(msg);
     } finally {
       setIsSubmittingMenu(false);
@@ -178,12 +178,12 @@ export function OnboardingPage() {
     e.preventDefault();
     const trimmed = overheadName.trim();
     if (!trimmed) {
-      toast.error("Nama biaya operasional wajib diisi");
+      toast.error("Expense name is required");
       return;
     }
     const amountNum = parseFloat(overheadAmount);
     if (!amountNum || amountNum <= 0) {
-      toast.error("Jumlah biaya bulanan harus lebih dari Rp0");
+      toast.error("Monthly expense amount must be greater than Rp0");
       return;
     }
 
@@ -194,11 +194,11 @@ export function OnboardingPage() {
         type: overheadType,
         monthlyAmount: amountNum,
       });
-      toast.success(`Biaya "${trimmed}" berhasil ditambahkan`);
+      toast.success(`Expense "${trimmed}" added successfully`);
       setOverheadName("");
       setOverheadAmount("");
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "Gagal menambahkan biaya operasional";
+      const msg = err instanceof Error ? err.message : "Failed to add expense";
       toast.error(msg);
     } finally {
       setIsSubmittingOverhead(false);
@@ -231,13 +231,13 @@ export function OnboardingPage() {
         <div>
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-bold mb-2">
             <Sparkles className="w-3.5 h-3.5" />
-            Panduan Awal TakarLaba (3 Langkah)
+            TakarLaba Setup Guide (3 Steps)
           </div>
           <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
-            Mulai Siapkan Usaha Kuliner Anda
+            Set Up Your Culinary Business
           </h1>
           <p className="text-sm text-slate-600 mt-1">
-            Konfigurasi fondasi HPP & resep usaha Anda agar margin keuntungan selalu terlindungi.
+            Configure your COGS and recipe foundations so profit margins stay protected.
           </p>
         </div>
 
@@ -247,7 +247,7 @@ export function OnboardingPage() {
             onClick={() => navigate("/dashboard")}
             className="self-start sm:self-center text-xs font-semibold text-slate-500 hover:text-slate-800 hover:underline transition py-1.5 px-3 rounded-lg border border-slate-200 bg-white shadow-2xs cursor-pointer"
           >
-            Lewati Panduan (ke Dashboard)
+            Skip Guide (Go to Dashboard)
           </button>
         )}
       </div>
@@ -272,7 +272,7 @@ export function OnboardingPage() {
               >
                 {currentStep > 1 ? <Check className="w-3.5 h-3.5" /> : "1"}
               </span>
-              <span className="text-xs sm:text-sm font-semibold truncate">1. Bahan Baku</span>
+              <span className="text-xs sm:text-sm font-semibold truncate">1. Ingredients</span>
             </div>
           </div>
 
@@ -297,7 +297,7 @@ export function OnboardingPage() {
               >
                 {currentStep > 2 ? <Check className="w-3.5 h-3.5" /> : "2"}
               </span>
-              <span className="text-xs sm:text-sm font-semibold truncate">2. Menu & Resep</span>
+              <span className="text-xs sm:text-sm font-semibold truncate">2. Menus & Recipes</span>
             </div>
           </div>
 
@@ -319,24 +319,24 @@ export function OnboardingPage() {
                 3
               </span>
               <span className="text-xs sm:text-sm font-semibold truncate">
-                3. Biaya Tetap (Overhead)
+                3. Fixed Costs (Overheads)
               </span>
             </div>
           </div>
         </div>
       )}
 
-      {/* STEP 1: BAHAN BAKU */}
+      {/* STEP 1: INGREDIENTS */}
       {currentStep === 1 && (
         <div className="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-xs space-y-6">
           <div className="space-y-1">
             <h2 className="text-xl font-bold text-slate-900 flex items-center gap-2">
               <ShoppingBag className="w-5 h-5 text-emerald-600" />
-              Langkah 1: Masukkan Bahan Baku Inti
+              Step 1: Add Core Ingredients
             </h2>
             <p className="text-xs sm:text-sm text-slate-600">
-              TakarLaba menghitung HPP secara otomatis dari setiap gram atau mililiter bahan yang
-              dipakai. Masukkan beberapa bahan utama yang menjadi bahan dasar menu Anda.
+              TakarLaba automatically calculates COGS per gram or milliliter used. Add key
+              ingredients that form the basis of your menu.
             </p>
           </div>
 
@@ -346,7 +346,7 @@ export function OnboardingPage() {
             className="p-5 bg-slate-50 border border-slate-200 rounded-2xl space-y-4"
           >
             <h3 className="text-xs font-bold uppercase tracking-wider text-slate-700">
-              Form Tambah Bahan Baru
+              Add New Ingredient Form
             </h3>
             <div className="grid grid-cols-1 sm:grid-cols-12 gap-3">
               <div className="sm:col-span-6">
@@ -354,14 +354,14 @@ export function OnboardingPage() {
                   htmlFor="onboard-ing-name"
                   className="block text-xs font-semibold text-slate-700 mb-1"
                 >
-                  Nama Bahan Baku
+                  Ingredient Name
                 </label>
                 <input
                   id="onboard-ing-name"
                   type="text"
                   value={ingName}
                   onChange={(e) => setIngName(e.target.value)}
-                  placeholder="Contoh: Biji Kopi Arabika, Susu Segar"
+                  placeholder="e.g. Arabica Coffee Beans, Fresh Milk"
                   className="w-full px-3 py-2 text-sm border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white"
                 />
               </div>
@@ -371,7 +371,7 @@ export function OnboardingPage() {
                   htmlFor="onboard-ing-cat"
                   className="block text-xs font-semibold text-slate-700 mb-1"
                 >
-                  Kategori
+                  Category
                 </label>
                 <select
                   id="onboard-ing-cat"
@@ -379,9 +379,9 @@ export function OnboardingPage() {
                   onChange={(e) => setIngCategory(e.target.value as IngredientCategory)}
                   className="w-full px-3 py-2 text-sm border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white"
                 >
-                  <option value="MAIN">Bahan Utama</option>
-                  <option value="SUPPORT">Bahan Pendukung</option>
-                  <option value="PACKAGING">Kemasan</option>
+                  <option value="MAIN">Main Ingredient</option>
+                  <option value="SUPPORT">Supporting Ingredient</option>
+                  <option value="PACKAGING">Packaging</option>
                 </select>
               </div>
 
@@ -390,7 +390,7 @@ export function OnboardingPage() {
                   htmlFor="onboard-ing-unit"
                   className="block text-xs font-semibold text-slate-700 mb-1"
                 >
-                  Satuan Dasar
+                  Base Unit
                 </label>
                 <select
                   id="onboard-ing-unit"
@@ -399,8 +399,8 @@ export function OnboardingPage() {
                   className="w-full px-3 py-2 text-sm border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white"
                 >
                   <option value="G">Gram (g)</option>
-                  <option value="ML">Mililiter (ml)</option>
-                  <option value="PCS">Satuan (pcs)</option>
+                  <option value="ML">Milliliter (ml)</option>
+                  <option value="PCS">Piece (pcs)</option>
                 </select>
               </div>
             </div>
@@ -412,7 +412,7 @@ export function OnboardingPage() {
                 className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-600 text-white text-xs font-bold hover:bg-emerald-700 disabled:opacity-50 transition cursor-pointer"
               >
                 <Plus className="w-4 h-4" />
-                {isSubmittingIng ? "Menyimpan..." : "Tambah Bahan"}
+                {isSubmittingIng ? "Saving..." : "Add Ingredient"}
               </button>
             </div>
           </form>
@@ -420,13 +420,13 @@ export function OnboardingPage() {
           {/* Current Ingredients List */}
           <div className="space-y-3">
             <h3 className="text-xs font-bold uppercase tracking-wider text-slate-700">
-              Daftar Bahan Baku Terdaftar ({ingredients.length})
+              Registered Ingredients ({ingredients.length})
             </h3>
             {isLoadingIngredients ? (
-              <p className="text-xs text-slate-400">Memuat bahan baku...</p>
+              <p className="text-xs text-slate-400">Loading ingredients...</p>
             ) : ingredients.length === 0 ? (
               <div className="p-6 text-center rounded-2xl border border-dashed border-slate-300 text-slate-500 text-xs">
-                Belum ada bahan baku. Tambahkan minimal 1 bahan di atas untuk melanjutkan.
+                No ingredients yet. Add at least 1 ingredient above to proceed.
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5">
@@ -439,11 +439,11 @@ export function OnboardingPage() {
                       <p className="font-bold text-slate-900">{ing.name}</p>
                       <p className="text-[11px] text-slate-500">
                         {ing.category === "MAIN"
-                          ? "Bahan Utama"
+                          ? "Main Ingredient"
                           : ing.category === "SUPPORT"
-                            ? "Pendukung"
-                            : "Kemasan"}{" "}
-                        • Satuan: {ing.baseUnit}
+                            ? "Supporting"
+                            : "Packaging"}{" "}
+                        • Unit: {ing.baseUnit}
                       </p>
                     </div>
                     <span className="w-2 h-2 rounded-full bg-emerald-500" />
@@ -460,24 +460,24 @@ export function OnboardingPage() {
               disabled={ingredients.length === 0}
               className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-emerald-600 text-white text-xs font-bold hover:bg-emerald-700 disabled:opacity-40 transition shadow-xs cursor-pointer"
             >
-              Lanjut ke Langkah 2: Susun Resep
+              Proceed to Step 2: Build Recipes
               <ArrowRight className="w-4 h-4" />
             </button>
           </div>
         </div>
       )}
 
-      {/* STEP 2: MENU & RESEP */}
+      {/* STEP 2: MENU & RECIPE */}
       {currentStep === 2 && (
         <div className="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-xs space-y-6">
           <div className="space-y-1">
             <h2 className="text-xl font-bold text-slate-900 flex items-center gap-2">
               <UtensilsCrossed className="w-5 h-5 text-emerald-600" />
-              Langkah 2: Susun Menu & Komposisi Resep
+              Step 2: Create Menu & Recipe Composition
             </h2>
             <p className="text-xs sm:text-sm text-slate-600">
-              Pilih menu andalan Anda, tentukan harga jual, dan tautkan takaran bahan baku per
-              porsinya.
+              Choose your signature menu item, set its selling price, and link ingredient portions
+              per serving.
             </p>
           </div>
 
@@ -487,14 +487,14 @@ export function OnboardingPage() {
                 htmlFor="onboard-menu-name"
                 className="block text-xs font-semibold text-slate-700 mb-1"
               >
-                Nama Menu
+                Menu Name
               </label>
               <input
                 id="onboard-menu-name"
                 type="text"
                 value={menuName}
                 onChange={(e) => setMenuName(e.target.value)}
-                placeholder="Contoh: Es Kopi Susu Aren"
+                placeholder="e.g. Iced Palm Sugar Latte"
                 className="w-full px-3.5 py-2 text-sm border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white"
               />
             </div>
@@ -504,14 +504,14 @@ export function OnboardingPage() {
                 htmlFor="onboard-menu-price"
                 className="block text-xs font-semibold text-slate-700 mb-1"
               >
-                Harga Jual (Rp)
+                Selling Price (Rp)
               </label>
               <input
                 id="onboard-menu-price"
                 type="number"
                 value={menuPrice}
                 onChange={(e) => setMenuPrice(e.target.value)}
-                placeholder="Contoh: 18000"
+                placeholder="e.g. 18000"
                 className="w-full px-3.5 py-2 text-sm border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white"
               />
             </div>
@@ -520,7 +520,7 @@ export function OnboardingPage() {
           {/* Recipe Builder Box */}
           <div className="p-5 bg-slate-50 border border-slate-200 rounded-2xl space-y-4">
             <h3 className="text-xs font-bold uppercase tracking-wider text-slate-700">
-              Komposisi Resep per Porsi
+              Recipe Composition per Serving
             </h3>
             <div className="grid grid-cols-1 sm:grid-cols-12 gap-3 items-end">
               <div className="sm:col-span-7">
@@ -528,7 +528,7 @@ export function OnboardingPage() {
                   htmlFor="onboard-recipe-ing"
                   className="block text-xs font-semibold text-slate-700 mb-1"
                 >
-                  Pilih Bahan Baku
+                  Select Ingredient
                 </label>
                 <select
                   id="onboard-recipe-ing"
@@ -536,7 +536,7 @@ export function OnboardingPage() {
                   onChange={(e) => setSelectedIngId(e.target.value)}
                   className="w-full px-3 py-2 text-sm border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white"
                 >
-                  <option value="">-- Pilih Bahan --</option>
+                  <option value="">-- Select Ingredient --</option>
                   {ingredients.map((ing) => (
                     <option key={ing.id} value={ing.id}>
                       {ing.name} ({ing.baseUnit})
@@ -550,7 +550,7 @@ export function OnboardingPage() {
                   htmlFor="onboard-recipe-qty"
                   className="block text-xs font-semibold text-slate-700 mb-1"
                 >
-                  Takaran Usable
+                  Usable Amount
                 </label>
                 <input
                   id="onboard-recipe-qty"
@@ -558,7 +558,7 @@ export function OnboardingPage() {
                   step="any"
                   value={selectedQty}
                   onChange={(e) => setSelectedQty(e.target.value)}
-                  placeholder="Contoh: 15"
+                  placeholder="e.g. 15"
                   className="w-full px-3 py-2 text-sm border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white"
                 />
               </div>
@@ -571,7 +571,7 @@ export function OnboardingPage() {
                   className="w-full inline-flex items-center justify-center gap-1 px-3 py-2 rounded-xl bg-slate-800 text-white text-xs font-bold hover:bg-slate-900 disabled:opacity-40 transition cursor-pointer"
                 >
                   <Plus className="w-3.5 h-3.5" />
-                  Tambah
+                  Add
                 </button>
               </div>
             </div>
@@ -580,7 +580,7 @@ export function OnboardingPage() {
             <div className="space-y-2 pt-2">
               {recipeItems.length === 0 ? (
                 <p className="text-xs text-slate-500 italic">
-                  Belum ada bahan dalam resep menu ini.
+                  No ingredients added to this recipe yet.
                 </p>
               ) : (
                 <div className="divide-y divide-slate-200 border border-slate-200 rounded-xl bg-white overflow-hidden">
@@ -589,7 +589,9 @@ export function OnboardingPage() {
                     return (
                       <div key={idx} className="p-3 flex items-center justify-between text-xs">
                         <div>
-                          <span className="font-bold text-slate-900">{ing?.name || "Bahan"}</span>
+                          <span className="font-bold text-slate-900">
+                            {ing?.name || "Ingredient"}
+                          </span>
                           <span className="text-slate-500 ml-2">
                             {item.qtyUsable} {ing?.baseUnit}
                           </span>
@@ -616,7 +618,7 @@ export function OnboardingPage() {
               className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl border border-slate-200 bg-white text-slate-700 text-xs font-semibold hover:bg-slate-50 transition cursor-pointer"
             >
               <ArrowLeft className="w-4 h-4" />
-              Kembali
+              Back
             </button>
             <button
               type="button"
@@ -626,24 +628,24 @@ export function OnboardingPage() {
               }
               className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-emerald-600 text-white text-xs font-bold hover:bg-emerald-700 disabled:opacity-40 transition shadow-xs cursor-pointer"
             >
-              {isSubmittingMenu ? "Menyimpan Menu..." : "Simpan Menu & Lanjut"}
+              {isSubmittingMenu ? "Saving Menu..." : "Save Menu & Continue"}
               <ArrowRight className="w-4 h-4" />
             </button>
           </div>
         </div>
       )}
 
-      {/* STEP 3: BIAYA OPERASIONAL & OVERHEAD */}
+      {/* STEP 3: OPERATING COSTS & OVERHEAD */}
       {currentStep === 3 && (
         <div className="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-xs space-y-6">
           <div className="space-y-1">
             <h2 className="text-xl font-bold text-slate-900 flex items-center gap-2">
               <Calculator className="w-5 h-5 text-emerald-600" />
-              Langkah 3: Biaya Operasional & Target Margin
+              Step 3: Operating Costs & Margin Target
             </h2>
             <p className="text-xs sm:text-sm text-slate-600">
-              HPP Sejati bukan hanya biaya bahan baku, melainkan mencakup beban overhead dapur per
-              porsi. Masukkan estimasi beban bulanan usaha Anda.
+              True COGS includes kitchen overhead allocation per portion, not just raw ingredients.
+              Enter your monthly business expenses.
             </p>
           </div>
 
@@ -651,11 +653,10 @@ export function OnboardingPage() {
           <div className="p-4 bg-emerald-50/60 border border-emerald-100 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
               <h3 className="text-xs font-bold text-emerald-950 uppercase tracking-wider">
-                Estimasi Penjualan Bulanan (Porsi)
+                Estimated Monthly Sales (Portions)
               </h3>
               <p className="text-xs text-emerald-800">
-                Digunakan untuk membagi rata total overhead bulanan ke setiap porsi menu yang
-                terjual (BR-02).
+                Used to allocate monthly overhead evenly across menu portions sold (BR-02).
               </p>
             </div>
             <div className="w-36 shrink-0">
@@ -675,7 +676,7 @@ export function OnboardingPage() {
             className="p-5 bg-slate-50 border border-slate-200 rounded-2xl space-y-4"
           >
             <h3 className="text-xs font-bold uppercase tracking-wider text-slate-700">
-              Tambah Pos Biaya Bulanan
+              Add Monthly Expense Item
             </h3>
             <div className="grid grid-cols-1 sm:grid-cols-12 gap-3">
               <div className="sm:col-span-5">
@@ -683,14 +684,14 @@ export function OnboardingPage() {
                   htmlFor="onboard-ovh-name"
                   className="block text-xs font-semibold text-slate-700 mb-1"
                 >
-                  Nama Biaya
+                  Expense Name
                 </label>
                 <input
                   id="onboard-ovh-name"
                   type="text"
                   value={overheadName}
                   onChange={(e) => setOverheadName(e.target.value)}
-                  placeholder="Contoh: Listrik, Gas & Air"
+                  placeholder="e.g. Electricity, Gas & Water"
                   className="w-full px-3 py-2 text-sm border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white"
                 />
               </div>
@@ -700,7 +701,7 @@ export function OnboardingPage() {
                   htmlFor="onboard-ovh-type"
                   className="block text-xs font-semibold text-slate-700 mb-1"
                 >
-                  Tipe Beban
+                  Expense Type
                 </label>
                 <select
                   id="onboard-ovh-type"
@@ -708,10 +709,10 @@ export function OnboardingPage() {
                   onChange={(e) => setOverheadType(e.target.value as OverheadType)}
                   className="w-full px-3 py-2 text-sm border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white"
                 >
-                  <option value="UTILITY">Utilitas (Listrik, Air, Gas)</option>
-                  <option value="LABOR">Tenaga Kerja / Gaji</option>
-                  <option value="DEPRECIATION">Penyusutan Alat / Sewa</option>
-                  <option value="OTHER">Biaya Lainnya</option>
+                  <option value="UTILITY">Utilities (Electricity, Water, Gas)</option>
+                  <option value="LABOR">Labor / Payroll</option>
+                  <option value="DEPRECIATION">Equipment Depreciation / Rent</option>
+                  <option value="OTHER">Other Expenses</option>
                 </select>
               </div>
 
@@ -720,14 +721,14 @@ export function OnboardingPage() {
                   htmlFor="onboard-ovh-amount"
                   className="block text-xs font-semibold text-slate-700 mb-1"
                 >
-                  Jumlah per Bulan (Rp)
+                  Monthly Amount (Rp)
                 </label>
                 <input
                   id="onboard-ovh-amount"
                   type="number"
                   value={overheadAmount}
                   onChange={(e) => setOverheadAmount(e.target.value)}
-                  placeholder="Contoh: 500000"
+                  placeholder="e.g. 500000"
                   className="w-full px-3 py-2 text-sm border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white"
                 />
               </div>
@@ -740,7 +741,7 @@ export function OnboardingPage() {
                 className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-600 text-white text-xs font-bold hover:bg-emerald-700 disabled:opacity-50 transition cursor-pointer"
               >
                 <Plus className="w-4 h-4" />
-                {isSubmittingOverhead ? "Menyimpan..." : "Tambah Pos Biaya"}
+                {isSubmittingOverhead ? "Saving..." : "Add Expense Item"}
               </button>
             </div>
           </form>
@@ -748,11 +749,11 @@ export function OnboardingPage() {
           {/* Current overhead items and Live calculation */}
           <div className="space-y-3">
             <h3 className="text-xs font-bold uppercase tracking-wider text-slate-700">
-              Ringkasan Beban Operasional ({overheadData?.items.length ?? 0} Pos)
+              Operational Overhead Summary ({overheadData?.items.length ?? 0} Items)
             </h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="p-4 rounded-2xl bg-white border border-slate-200 space-y-2">
-                <p className="text-xs text-slate-500">Total Biaya Bulanan Terdaftar</p>
+                <p className="text-xs text-slate-500">Total Registered Monthly Overheads</p>
                 <p className="text-xl font-extrabold text-slate-900 tabular-nums">
                   {formatRupiah(totalOverheadNum)}
                 </p>
@@ -760,11 +761,11 @@ export function OnboardingPage() {
 
               <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 space-y-2">
                 <p className="text-xs text-emerald-800 font-semibold">
-                  Alokasi Beban per Porsi (BR-02)
+                  Overhead Allocation per Portion (BR-02)
                 </p>
                 <p className="text-xl font-extrabold text-emerald-950 tabular-nums">
                   {formatRupiah(overheadPerPortionNum)}{" "}
-                  <span className="text-xs font-normal text-emerald-700">/ porsi</span>
+                  <span className="text-xs font-normal text-emerald-700">/ portion</span>
                 </p>
               </div>
             </div>
@@ -777,14 +778,14 @@ export function OnboardingPage() {
               className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl border border-slate-200 bg-white text-slate-700 text-xs font-semibold hover:bg-slate-50 transition cursor-pointer"
             >
               <ArrowLeft className="w-4 h-4" />
-              Kembali
+              Back
             </button>
             <button
               type="button"
               onClick={handleFinishOnboarding}
               className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-emerald-600 text-white text-xs font-bold hover:bg-emerald-700 transition shadow-xs cursor-pointer"
             >
-              Selesaikan Penyiapan Usaha
+              Complete Business Setup
               <CheckCircle2 className="w-4 h-4" />
             </button>
           </div>
@@ -800,12 +801,11 @@ export function OnboardingPage() {
 
           <div className="max-w-md mx-auto space-y-2">
             <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
-              Selamat! Toko Anda Siap Beroperasi
+              Congratulations! Your Store is Ready
             </h2>
             <p className="text-sm text-slate-600">
-              Fondasi HPP, resep menu, dan alokasi beban overhead usaha Anda telah siap. Anda
-              sekarang dapat mulai melayani transaksi penjualan di kasir atau memantau performa di
-              dashboard.
+              Your COGS foundation, menu recipes, and overhead allocations are ready. You can now
+              start serving customer orders at the POS or track performance on the dashboard.
             </p>
           </div>
 
@@ -813,23 +813,23 @@ export function OnboardingPage() {
           <div className="max-w-md mx-auto p-5 rounded-2xl bg-slate-50 border border-slate-200 text-left space-y-3">
             <h3 className="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
               <Store className="w-4 h-4 text-emerald-600" />
-              Ringkasan Fondasi Usaha
+              Business Foundation Summary
             </h3>
             <div className="divide-y divide-slate-100 text-xs space-y-2">
               <div className="flex justify-between pt-2">
-                <span className="text-slate-500">Bahan Baku Terdaftar:</span>
-                <span className="font-bold text-slate-800">{ingredients.length} jenis</span>
+                <span className="text-slate-500">Registered Ingredients:</span>
+                <span className="font-bold text-slate-800">{ingredients.length} items</span>
               </div>
               {createdMenuSummary && (
                 <div className="flex justify-between pt-2">
-                  <span className="text-slate-500">Menu Pertama:</span>
+                  <span className="text-slate-500">First Menu Item:</span>
                   <span className="font-bold text-slate-800">
                     {createdMenuSummary.name} ({formatRupiah(createdMenuSummary.price)})
                   </span>
                 </div>
               )}
               <div className="flex justify-between pt-2">
-                <span className="text-slate-500">Beban Dapur per Porsi:</span>
+                <span className="text-slate-500">Kitchen Overhead per Portion:</span>
                 <span className="font-bold text-emerald-700">
                   {formatRupiah(overheadPerPortionNum)}
                 </span>
@@ -845,7 +845,7 @@ export function OnboardingPage() {
               className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-emerald-600 text-white text-sm font-bold hover:bg-emerald-700 transition shadow-sm cursor-pointer"
             >
               <Store className="w-4 h-4" />
-              Buka Layar Kasir (POS)
+              Open POS Cashier
             </button>
             <button
               type="button"
@@ -853,7 +853,7 @@ export function OnboardingPage() {
               className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 text-sm font-bold hover:bg-slate-50 transition shadow-2xs cursor-pointer"
             >
               <LayoutDashboard className="w-4 h-4" />
-              Masuk ke Dashboard Utama
+              Go to Main Dashboard
             </button>
           </div>
         </div>

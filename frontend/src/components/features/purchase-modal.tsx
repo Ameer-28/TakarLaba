@@ -99,7 +99,7 @@ export function PurchaseModal({ isOpen, onClose, ingredients, onSuccess }: Purch
       const it = values.items[i]!;
       const ing = activeIngredients.find((x) => x.id === it.ingredientId);
       if (ing?.isPerishable && !it.expiryDate) {
-        toast.error(`Bahan "${ing.name}" mudah rusak. Wajib menyertakan tanggal kedaluwarsa.`);
+        toast.error(`Ingredient "${ing.name}" is perishable. An expiration date is required.`);
         return;
       }
     }
@@ -120,7 +120,7 @@ export function PurchaseModal({ isOpen, onClose, ingredients, onSuccess }: Purch
 
       const result = await createMutation.mutateAsync(payload);
       toast.success(
-        `Nota belanja berhasil dicatat! Menambah ${result.batches.length} batch stok baru.`
+        `Purchase invoice recorded successfully! Added ${result.batches.length} new stock batch(es).`
       );
       reset();
       onSuccess?.();
@@ -133,7 +133,9 @@ export function PurchaseModal({ isOpen, onClose, ingredients, onSuccess }: Purch
       }
     } catch (err) {
       toast.error(
-        err instanceof ApiError ? err.message : "Gagal menyimpan nota belanja. Periksa isian form."
+        err instanceof ApiError
+          ? err.message
+          : "Failed to record purchase invoice. Please check the form."
       );
     }
   };
@@ -155,7 +157,8 @@ export function PurchaseModal({ isOpen, onClose, ingredients, onSuccess }: Purch
                   <div className="flex items-center gap-2">
                     <Sparkles className="w-4 h-4 text-emerald-600" />
                     <h4 className="text-xs font-bold text-slate-900 uppercase tracking-wider">
-                      Daftar Bahan yang Dibeli ({fields.length} Item)
+                      Purchased Ingredients List ({fields.length} Item
+                      {fields.length === 1 ? "" : "s"})
                     </h4>
                   </div>
                   <button
@@ -173,7 +176,7 @@ export function PurchaseModal({ isOpen, onClose, ingredients, onSuccess }: Purch
                     className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-emerald-50 text-emerald-700 hover:bg-emerald-100 text-xs font-semibold border border-emerald-200 transition-all disabled:opacity-50"
                   >
                     <Plus className="w-3.5 h-3.5" />
-                    <span>Tambah Baris</span>
+                    <span>Add Row</span>
                   </button>
                 </div>
 

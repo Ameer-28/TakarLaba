@@ -6,7 +6,7 @@ export function RouteLoadingFallback() {
       className="w-full space-y-6 animate-pulse p-4 sm:p-6"
       role="status"
       aria-live="polite"
-      aria-label="Memuat data halaman"
+      aria-label="Loading page data"
     >
       {/* Top Header skeleton */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -16,7 +16,7 @@ export function RouteLoadingFallback() {
         </div>
         <div className="flex items-center gap-2 text-slate-400 text-xs font-medium">
           <Loader2 className="w-4 h-4 animate-spin text-emerald-600" />
-          <span>Memuat konten...</span>
+          <span>Loading content...</span>
         </div>
       </div>
 

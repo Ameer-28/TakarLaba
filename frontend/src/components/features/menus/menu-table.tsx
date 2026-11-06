@@ -26,14 +26,14 @@ export function MenuTable({
         <table className="w-full text-left border-collapse text-sm">
           <thead>
             <tr className="border-b border-slate-100 bg-slate-50/75 text-slate-500 text-xs font-bold uppercase tracking-wider">
-              <th className="py-3 px-4">Menu & Kategori</th>
-              <th className="py-3 px-4">Harga Jual</th>
-              <th className="py-3 px-4">HPP Bahan vs Penuh</th>
-              <th className="py-3 px-4">Margin Kontribusi</th>
-              <th className="py-3 px-4">Status Margin</th>
-              <th className="py-3 px-4">Resep</th>
+              <th className="py-3 px-4">Menu & Category</th>
+              <th className="py-3 px-4">Selling Price</th>
+              <th className="py-3 px-4">Ingredient vs Full Cost</th>
+              <th className="py-3 px-4">Contribution Margin</th>
+              <th className="py-3 px-4">Margin Status</th>
+              <th className="py-3 px-4">Recipe</th>
               <th className="py-3 px-4 text-center">Status</th>
-              <th className="py-3 px-4 text-right">Aksi</th>
+              <th className="py-3 px-4 text-right">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">

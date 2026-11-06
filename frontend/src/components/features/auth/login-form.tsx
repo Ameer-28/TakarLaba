@@ -32,7 +32,7 @@ export function LoginForm({ onSubmit, authError, isAnySubmitting, isSubmitting }
         >
           <AlertCircle className="w-5 h-5 flex-shrink-0 text-rose-600 mt-0.5" />
           <div>
-            <p className="font-semibold">Autentikasi Gagal</p>
+            <p className="font-semibold">Authentication Failed</p>
             <p className="text-rose-700 mt-0.5">{authError}</p>
           </div>
         </div>
@@ -41,7 +41,7 @@ export function LoginForm({ onSubmit, authError, isAnySubmitting, isSubmitting }
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-5" noValidate>
         <div>
           <label htmlFor="email" className="block text-sm font-medium text-slate-700 mb-1">
-            Alamat Email
+            Email Address
           </label>
           <div className="relative rounded-lg shadow-sm">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
@@ -59,7 +59,7 @@ export function LoginForm({ onSubmit, authError, isAnySubmitting, isSubmitting }
                   ? "border-rose-300 text-rose-900 focus:border-rose-500 focus:ring-rose-500"
                   : "border-[#CCD0CF] text-[#06141B] focus:border-[#253745]"
               }`}
-              placeholder="nama@usaha.id"
+              placeholder="user@business.com"
               {...register("email")}
             />
           </div>
@@ -72,7 +72,7 @@ export function LoginForm({ onSubmit, authError, isAnySubmitting, isSubmitting }
 
         <div>
           <label htmlFor="password" className="block text-sm font-medium text-slate-700 mb-1">
-            Kata Sandi
+            Password
           </label>
           <div className="relative rounded-lg shadow-sm">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
@@ -110,10 +110,10 @@ export function LoginForm({ onSubmit, authError, isAnySubmitting, isSubmitting }
             {isSubmitting ? (
               <>
                 <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                Sedang Masuk...
+                Signing In...
               </>
             ) : (
-              "Masuk"
+              "Sign In"
             )}
           </button>
         </div>

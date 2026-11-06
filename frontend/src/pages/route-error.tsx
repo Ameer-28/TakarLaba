@@ -4,11 +4,11 @@ import { AlertTriangle, Home, RefreshCw } from "lucide-react";
 export function RouteErrorPage() {
   const error = useRouteError();
 
-  let errorMessage = "Terjadi gangguan saat memuat halaman.";
-  let statusText = "Halaman Mengalami Gangguan";
+  let errorMessage = "An error occurred while loading this page.";
+  let statusText = "Something went wrong";
 
   if (isRouteErrorResponse(error)) {
-    statusText = `Kesalahan ${error.status}: ${error.statusText || "Tidak Ditemukan"}`;
+    statusText = `Error ${error.status}: ${error.statusText || "Not Found"}`;
     errorMessage = error.data?.message || error.statusText || errorMessage;
   } else if (error instanceof Error) {
     errorMessage = error.message;
@@ -36,7 +36,7 @@ export function RouteErrorPage() {
             className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-emerald-700 text-white rounded-xl text-xs font-semibold hover:bg-emerald-800 transition shadow-xs focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-600"
           >
             <Home className="w-4 h-4" />
-            Kembali ke Beranda
+            Back to Home
           </Link>
           <button
             type="button"
@@ -44,7 +44,7 @@ export function RouteErrorPage() {
             className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 border border-slate-200 bg-white text-slate-700 rounded-xl text-xs font-semibold hover:bg-slate-50 transition shadow-2xs focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-400"
           >
             <RefreshCw className="w-4 h-4" />
-            Muat Ulang
+            Reload Page
           </button>
         </div>
       </div>

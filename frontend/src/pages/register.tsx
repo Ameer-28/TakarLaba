@@ -29,8 +29,8 @@ export function RegisterPage() {
         password: values.password,
       });
 
-      toast.success("Pendaftaran berhasil!", {
-        description: `Selamat datang di TakarLaba, ${values.name}. Mari kita mulai dengan panduan singkat.`,
+      toast.success("Registration successful!", {
+        description: `Welcome to TakarLaba, ${values.name}. Let's get started with a quick tour.`,
       });
 
       navigate("/onboarding", { replace: true });
@@ -38,9 +38,9 @@ export function RegisterPage() {
       const errorMsg =
         err instanceof Error
           ? err.message
-          : "Gagal mendaftarkan usaha. Silakan periksa koneksi dan coba lagi.";
+          : "Failed to register business. Please check your connection and try again.";
       setAuthError(errorMsg);
-      toast.error("Registrasi gagal", { description: errorMsg });
+      toast.error("Registration failed", { description: errorMsg });
     }
   };
 
@@ -52,7 +52,7 @@ export function RegisterPage() {
         aria-live="polite"
       >
         <Loader2 className="w-8 h-8 animate-spin text-emerald-600" />
-        <p className="text-sm font-medium">Memeriksa status akun...</p>
+        <p className="text-sm font-medium">Checking account status...</p>
       </div>
     );
   }
@@ -66,10 +66,10 @@ export function RegisterPage() {
           </div>
         </div>
         <h2 className="mt-4 text-center text-2xl font-extrabold tracking-tight text-slate-900 sm:text-3xl">
-          Daftar Bisnis Baru
+          Register New Business
         </h2>
         <p className="mt-2 text-center text-sm text-slate-600">
-          Mulai kendalikan HPP, margin laba, dan cegah pemborosan stok kuliner Anda
+          Take control of your food cost, profit margins, and prevent food inventory waste
         </p>
       </div>
 
@@ -83,12 +83,12 @@ export function RegisterPage() {
 
           <div className="mt-6 pt-5 border-t border-slate-100 text-center">
             <p className="text-xs text-slate-500">
-              Sudah memiliki akun usaha?{" "}
+              Already have a business account?{" "}
               <Link
                 to="/login"
                 className="font-bold text-emerald-600 hover:text-emerald-700 hover:underline transition"
               >
-                Masuk di sini
+                Sign in here
               </Link>
             </p>
           </div>

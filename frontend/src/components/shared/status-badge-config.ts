@@ -36,31 +36,31 @@ export function resolveStatusConfig(status?: string | null, explicitVariant?: St
   const normalized = (status ?? "").toUpperCase().trim();
   switch (normalized) {
     case "SEHAT":
-      return { variant: "success" as const, defaultLabel: "Sehat" };
+      return { variant: "success" as const, defaultLabel: "Healthy" };
     case "TIPIS":
-      return { variant: "warning" as const, defaultLabel: "Tipis" };
+      return { variant: "warning" as const, defaultLabel: "Thin" };
     case "KRITIS":
-      return { variant: "danger" as const, defaultLabel: "Kritis" };
+      return { variant: "danger" as const, defaultLabel: "Critical" };
     case "RUGI":
-      return { variant: "danger" as const, defaultLabel: "Rugi" };
+      return { variant: "danger" as const, defaultLabel: "Loss" };
     case "INCOMPLETE":
-      return { variant: "neutral" as const, defaultLabel: "Belum Lengkap" };
+      return { variant: "neutral" as const, defaultLabel: "Incomplete" };
     case "COMPLETED":
-      return { variant: "success" as const, defaultLabel: "Selesai" };
+      return { variant: "success" as const, defaultLabel: "Completed" };
     case "REFUNDED":
-      return { variant: "danger" as const, defaultLabel: "Refund" };
+      return { variant: "danger" as const, defaultLabel: "Refunded" };
     case "ACTIVE":
-      return { variant: "success" as const, defaultLabel: "Aktif" };
+      return { variant: "success" as const, defaultLabel: "Active" };
     case "INACTIVE":
-      return { variant: "neutral" as const, defaultLabel: "Nonaktif" };
+      return { variant: "neutral" as const, defaultLabel: "Inactive" };
     case "AMAN":
-      return { variant: "success" as const, defaultLabel: "Aman" };
+      return { variant: "success" as const, defaultLabel: "Safe" };
     case "SEGERA":
     case "WASPADA":
-      return { variant: "warning" as const, defaultLabel: "Segera" };
+      return { variant: "warning" as const, defaultLabel: "Warning" };
     case "KEDALUWARSA":
     case "BAHAYA":
-      return { variant: "danger" as const, defaultLabel: "Kedaluwarsa" };
+      return { variant: "danger" as const, defaultLabel: "Expired" };
     default:
       return { variant: "neutral" as const, defaultLabel: status || "-" };
   }

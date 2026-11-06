@@ -31,9 +31,7 @@ export function AdjustmentHistoryList({ onOpenAdjustmentModal }: AdjustmentHisto
     return (
       <div className="p-12 text-center space-y-3 bg-white rounded-2xl border border-slate-200">
         <Loader2 className="w-8 h-8 animate-spin mx-auto text-sky-600" />
-        <p className="text-xs sm:text-sm text-slate-500">
-          Memuat riwayat penyesuaian stok opname...
-        </p>
+        <p className="text-xs sm:text-sm text-slate-500">Loading stock adjustment history...</p>
       </div>
     );
   }
@@ -42,15 +40,15 @@ export function AdjustmentHistoryList({ onOpenAdjustmentModal }: AdjustmentHisto
     return (
       <div className="p-8 text-center space-y-3 bg-rose-50/50 rounded-2xl border border-rose-200">
         <AlertCircle className="w-8 h-8 mx-auto text-rose-500" />
-        <p className="text-sm font-semibold text-rose-800">Gagal memuat riwayat penyesuaian</p>
+        <p className="text-sm font-semibold text-rose-800">Failed to load adjustment history</p>
         <p className="text-xs text-rose-600">
-          {error instanceof Error ? error.message : "Terjadi kesalahan internal server"}
+          {error instanceof Error ? error.message : "Internal server error occurred"}
         </p>
         <button
           onClick={() => refetch()}
-          className="px-4 py-2 rounded-xl bg-white border border-rose-200 text-xs font-semibold text-rose-700 hover:bg-rose-50"
+          className="px-4 py-2 rounded-xl bg-white border border-rose-200 text-xs font-semibold text-rose-700 hover:bg-rose-50 cursor-pointer"
         >
-          Coba Lagi
+          Try Again
         </button>
       </div>
     );
@@ -66,7 +64,7 @@ export function AdjustmentHistoryList({ onOpenAdjustmentModal }: AdjustmentHisto
           </div>
           <div>
             <div className="text-xs font-medium text-slate-500">
-              Net Deviasi Finansial Opname Fisik
+              Net Financial Deviation (Physical Opname)
             </div>
             <div
               className={`text-xl font-black font-mono tabular-nums ${
@@ -83,7 +81,7 @@ export function AdjustmentHistoryList({ onOpenAdjustmentModal }: AdjustmentHisto
           className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-sky-600 hover:bg-sky-700 text-white text-xs sm:text-sm font-semibold shadow-xs transition-colors cursor-pointer"
         >
           <SlidersHorizontal className="w-4 h-4" />
-          <span>Opname Stok Fisik</span>
+          <span>Adjust Physical Stock</span>
         </button>
       </div>
 
@@ -91,10 +89,10 @@ export function AdjustmentHistoryList({ onOpenAdjustmentModal }: AdjustmentHisto
       {history.length === 0 ? (
         <div className="p-12 text-center space-y-3 bg-white rounded-2xl border border-slate-200">
           <SlidersHorizontal className="w-10 h-10 mx-auto text-slate-300" />
-          <h4 className="text-sm font-bold text-slate-700">Belum Ada Riwayat Opname</h4>
+          <h4 className="text-sm font-bold text-slate-700">No Adjustment History Yet</h4>
           <p className="text-xs text-slate-400 max-w-sm mx-auto">
-            Stok fisik belum pernah disesuaikan. Lakukan penyesuaian berkala saat stok fisik berbeda
-            dari catatan sistem.
+            Physical stock has not been adjusted. Perform periodic adjustments when counted stock
+            differs from system records.
           </p>
         </div>
       ) : (
@@ -154,7 +152,7 @@ export function AdjustmentHistoryList({ onOpenAdjustmentModal }: AdjustmentHisto
 
                 <div className="text-left sm:text-right">
                   <span className="text-[11px] text-slate-400 block font-medium">
-                    Valuasi Selisih
+                    Difference Valuation
                   </span>
                   <span
                     className={`font-mono font-bold text-sm sm:text-base tabular-nums ${

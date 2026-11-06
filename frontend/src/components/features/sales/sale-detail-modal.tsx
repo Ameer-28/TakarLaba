@@ -53,17 +53,17 @@ export function SaleDetailModal({
                   {sale.status === "VOIDED" ? (
                     <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2 py-0.5 rounded-full bg-rose-50 text-rose-700 border border-rose-200">
                       <Ban className="w-3 h-3" />
-                      Dibatalkan (Void)
+                      Voided
                     </span>
                   ) : (
                     <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
                       <CheckCircle2 className="w-3 h-3" />
-                      Selesai
+                      Completed
                     </span>
                   )}
                 </div>
                 <p className="text-xs text-slate-500 mt-0.5">
-                  Rincian transaksi dan detail alokasi stok batch FEFO
+                  Transaction details and FEFO stock batch deductions
                 </p>
               </div>
             </div>
@@ -82,15 +82,15 @@ export function SaleDetailModal({
               <div className="p-3.5 bg-rose-50/80 border border-rose-200 rounded-2xl text-xs text-rose-800 space-y-1">
                 <div className="flex items-center gap-1.5 font-bold">
                   <AlertTriangle className="w-4 h-4 text-rose-600" />
-                  <span>Transaksi Telah Dibatalkan (Void)</span>
+                  <span>Transaction Has Been Voided</span>
                 </div>
                 <p className="text-slate-600">
-                  Alasan:{" "}
-                  <strong className="text-rose-900">{sale.voidReason || "Tidak disebutkan"}</strong>
+                  Reason:{" "}
+                  <strong className="text-rose-900">{sale.voidReason || "Not specified"}</strong>
                 </p>
                 {sale.voidedAt && (
                   <p className="text-[11px] text-slate-500">
-                    Waktu pembatalan: {new Date(sale.voidedAt).toLocaleString("id-ID")}
+                    Voided at: {new Date(sale.voidedAt).toLocaleString("en-US")}
                   </p>
                 )}
               </div>
@@ -102,10 +102,10 @@ export function SaleDetailModal({
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <h4 className="font-bold text-slate-800 text-xs tracking-wider uppercase">
-                  Daftar Menu ({sale.items.length} Menu)
+                  Menu Items ({sale.items.length} Item{sale.items.length === 1 ? "" : "s"})
                 </h4>
                 <span className="text-[11px] text-slate-500">
-                  Klik item untuk melihat alokasi batch
+                  Click items to view batch deductions
                 </span>
               </div>
 
@@ -134,7 +134,7 @@ export function SaleDetailModal({
                 className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-slate-300 bg-white hover:bg-slate-100 text-slate-700 font-bold text-xs shadow-2xs transition-colors cursor-pointer"
               >
                 <Printer className="w-4 h-4 text-slate-500" />
-                Cetak Ulang Struk
+                Reprint Receipt
               </button>
 
               {isOwner && sale.status !== "VOIDED" && (
@@ -144,7 +144,7 @@ export function SaleDetailModal({
                   className="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl border border-rose-200 bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold text-xs transition-colors cursor-pointer"
                 >
                   <Ban className="w-4 h-4 text-rose-600" />
-                  <span>Batalkan (Void)</span>
+                  <span>Void Transaction</span>
                 </button>
               )}
             </div>
@@ -154,7 +154,7 @@ export function SaleDetailModal({
               onClick={onClose}
               className="px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-900 text-white font-bold text-xs transition-colors cursor-pointer"
             >
-              Tutup
+              Close
             </button>
           </div>
         </div>

@@ -10,7 +10,7 @@ export function SaleFinancialSummary({ sale, isOwner = false }: SaleFinancialSum
   return (
     <div className="bg-slate-900 text-white rounded-2xl p-5 space-y-3">
       <div className="flex justify-between items-center text-xs text-slate-400">
-        <span>Total Omzet Penjualan</span>
+        <span>Total Sales Revenue</span>
         <span className="text-white text-base font-extrabold tabular-nums">
           {formatRupiah(sale.totalAmount)}
         </span>
@@ -20,13 +20,13 @@ export function SaleFinancialSummary({ sale, isOwner = false }: SaleFinancialSum
         <>
           <div className="border-t border-slate-800 pt-3 space-y-1.5 text-xs">
             <div className="flex justify-between text-slate-300">
-              <span>Total HPP Bahan Baku</span>
+              <span>Total Raw Ingredient Cost</span>
               <span className="font-semibold tabular-nums text-slate-200">
                 {formatRupiah(sale.totalIngredientCost)}
               </span>
             </div>
             <div className="flex justify-between text-slate-300">
-              <span>Total Alokasi Beban Overhead</span>
+              <span>Total Overhead Allocation</span>
               <span className="font-semibold tabular-nums text-slate-200">
                 {formatRupiah(sale.totalOverhead)}
               </span>
@@ -37,10 +37,10 @@ export function SaleFinancialSummary({ sale, isOwner = false }: SaleFinancialSum
             <div className="border-t border-slate-800 pt-3 flex justify-between items-center">
               <div className="space-y-0.5">
                 <span className="font-bold text-sm text-emerald-400 block">
-                  Laba Kotor / Margin
+                  Gross Profit / Margin
                 </span>
                 <span className="text-[11px] text-slate-400">
-                  Persentase Margin: {sale.marginPercentage}%
+                  Margin Percentage: {sale.marginPercentage}%
                 </span>
               </div>
               <span className="text-lg font-black text-emerald-400 tabular-nums">

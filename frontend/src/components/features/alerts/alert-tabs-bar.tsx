@@ -15,22 +15,22 @@ interface AlertTabsBarProps {
 
 export function AlertTabsBar({ activeTab, onTabChange, counts }: AlertTabsBarProps) {
   const tabs: Array<{ value: AlertTabValue; label: string; count: number; color?: string }> = [
-    { value: "ALL", label: "Semua", count: counts.all },
+    { value: "ALL", label: "All", count: counts.all },
     {
       value: "OPEN",
-      label: "Perlu Tindakan",
+      label: "Action Required",
       count: counts.open,
       color: "text-rose-600 bg-rose-50 border-rose-200",
     },
     {
       value: "ACKNOWLEDGED",
-      label: "Ditinjau",
+      label: "Reviewed",
       count: counts.acknowledged,
       color: "text-amber-600 bg-amber-50 border-amber-200",
     },
     {
       value: "RESOLVED",
-      label: "Selesai",
+      label: "Resolved",
       count: counts.resolved,
       color: "text-emerald-600 bg-emerald-50 border-emerald-200",
     },

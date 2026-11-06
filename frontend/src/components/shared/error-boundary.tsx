@@ -53,11 +53,11 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
 
           <div className="space-y-1.5">
             <h2 className="text-lg font-bold text-slate-900 tracking-tight">
-              Terjadi Gangguan pada Tampilan
+              Display Issue Encountered
             </h2>
             <p className="text-sm text-slate-500 leading-relaxed">
-              Sistem mendeteksi kendala saat memuat bagian ini. Data operasional bisnis Anda tetap
-              aman di server.
+              A problem occurred while rendering this section. Your business data remains safely
+              stored on the server.
             </p>
           </div>
 
@@ -74,7 +74,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
               className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-700 text-white text-xs font-semibold hover:bg-emerald-800 transition shadow-2xs focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-600"
             >
               <RotateCcw className="w-3.5 h-3.5" />
-              Coba Lagi
+              Try Again
             </button>
             <button
               type="button"
@@ -82,7 +82,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
               className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl border border-slate-200 bg-white text-slate-700 text-xs font-semibold hover:bg-slate-50 transition shadow-2xs focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-400"
             >
               <RefreshCw className="w-3.5 h-3.5" />
-              Muat Ulang Halaman
+              Reload Page
             </button>
           </div>
         </div>

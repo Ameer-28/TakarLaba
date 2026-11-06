@@ -18,9 +18,9 @@ export function SalePagination({
   return (
     <div className="flex items-center justify-between bg-white px-4 py-3 rounded-2xl border border-slate-200/80 shadow-2xs text-xs text-slate-600">
       <div>
-        Halaman <span className="font-bold text-slate-900">{page}</span> dari{" "}
-        <span className="font-bold text-slate-900">{totalPages}</span> (Total {totalRecords}{" "}
-        transaksi)
+        Page <span className="font-bold text-slate-900">{page}</span> of{" "}
+        <span className="font-bold text-slate-900">{totalPages}</span> ({totalRecords} total
+        transactions)
       </div>
       <div className="flex items-center gap-1.5">
         <button

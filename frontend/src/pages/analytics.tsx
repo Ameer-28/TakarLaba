@@ -32,9 +32,9 @@ export function AnalyticsPage() {
   } = useMenuEngineering(selectedDays);
 
   const periodOptions = [
-    { label: "7 Hari Terakhir", value: 7 },
-    { label: "30 Hari Terakhir", value: 30 },
-    { label: "90 Hari Terakhir", value: 90 },
+    { label: "Last 7 Days", value: 7 },
+    { label: "Last 30 Days", value: 30 },
+    { label: "Last 90 Days", value: 90 },
   ];
 
   return (
@@ -43,10 +43,11 @@ export function AnalyticsPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
-            Analitik Menu & Kapasitas
+            Menu & Capacity Analytics
           </h1>
           <p className="text-sm text-slate-600 mt-1">
-            Evaluasi efisiensi portofolio menu, matriks kuadran laba, dan deteksi bahan pembatas.
+            Evaluate menu portfolio performance, profit quadrant matrix, and bottleneck ingredient
+            capacity.
           </p>
         </div>
 
@@ -81,21 +82,21 @@ export function AnalyticsPage() {
               <span className="p-1.5 bg-indigo-50 text-indigo-700 rounded-lg">
                 <BarChart3 className="w-4 h-4" />
               </span>
-              Matriks Menu Engineering Kasavana & Smith
+              Kasavana & Smith Menu Engineering Matrix
             </h2>
             <p className="text-xs text-slate-500 mt-0.5">
-              Klasifikasi 4 kuadran berdasarkan volume penjualan porsi vs margin kontribusi
-              terhitung (BR-10).
+              4-quadrant classification based on portion sales volume vs calculated contribution
+              margin (BR-10).
             </p>
           </div>
 
           {megData && megData.isDataSufficient && (
             <div className="flex items-center gap-2 text-xs text-slate-500 tabular-nums self-start sm:self-center">
               <span className="px-2.5 py-1 rounded-full bg-slate-100 text-slate-700 font-semibold">
-                {formatNumber(megData.totalTransactions)} transaksi
+                {formatNumber(megData.totalTransactions)} transactions
               </span>
               <span className="px-2.5 py-1 rounded-full bg-slate-100 text-slate-700 font-semibold">
-                {formatNumber(megData.totalClassifiedPortions)} porsi
+                {formatNumber(megData.totalClassifiedPortions)} portions
               </span>
             </div>
           )}
@@ -104,11 +105,11 @@ export function AnalyticsPage() {
         {isMegLoading ? (
           <div className="py-16 flex flex-col items-center justify-center gap-2 text-sm text-slate-500">
             <Loader2 className="w-5 h-5 animate-spin text-indigo-600" />
-            <span>Menganalisis matriks penjualan menu...</span>
+            <span>Analyzing menu sales matrix...</span>
           </div>
         ) : isMegError ? (
           <div className="py-10 text-center text-sm text-rose-600 bg-rose-50/60 rounded-xl border border-rose-100">
-            Gagal memuat analisis Menu Engineering. Pastikan Anda masuk sebagai Pemilik (OWNER).
+            Failed to load Menu Engineering analysis. Ensure you are signed in as OWNER.
           </div>
         ) : !megData ? null : (
           <div className="space-y-6">
@@ -118,11 +119,11 @@ export function AnalyticsPage() {
                 <Info className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
                 <div className="text-xs space-y-1">
                   <div className="font-bold text-amber-950">
-                    Data Penjualan Belum Mencukupi untuk Analisis Kuadran
+                    Insufficient Sales Data for Quadrant Analysis
                   </div>
                   <p className="text-amber-800">
                     {megData.insufficientReason ??
-                      "Analisis Menu Engineering memerlukan minimal 4 menu aktif dengan resep lengkap dan minimal 30 transaksi selesai dalam periode ini."}
+                      "Menu Engineering analysis requires at least 4 active menu items with complete recipes and at least 30 completed transactions in this period."}
                   </p>
                 </div>
               </div>
@@ -148,11 +149,15 @@ export function AnalyticsPage() {
             <div>
               <div className="flex items-center justify-between mb-3">
                 <h3 className="text-sm font-bold text-slate-900">
-                  Tabel Rincian Portofolio Menu (
-                  {megData.classifiedMenus.length + megData.unclassifiedMenus.length} Menu)
+                  Menu Portfolio Breakdown Table (
+                  {megData.classifiedMenus.length + megData.unclassifiedMenus.length} Menu
+                  {megData.classifiedMenus.length + megData.unclassifiedMenus.length === 1
+                    ? ""
+                    : "s"}
+                  )
                 </h3>
                 <span className="text-xs text-slate-400">
-                  Klik baris untuk menyorot pada grafik
+                  Click rows to highlight on the matrix chart
                 </span>
               </div>
               <MenuEngineeringTable
@@ -174,10 +179,10 @@ export function AnalyticsPage() {
               <span className="p-1.5 bg-blue-50 text-blue-700 rounded-lg">
                 <UtensilsCrossed className="w-4 h-4" />
               </span>
-              Kapasitas Porsi & Bahan Pembatas (Bottleneck)
+              Portion Capacity & Bottleneck Ingredients
             </h2>
             <p className="text-xs text-slate-500 mt-0.5">
-              Estimasi sisa porsi yang dapat disajikan berdasarkan ketersediaan bahan baku aktif
+              Estimated remaining portions that can be prepared based on active stock availability
               (BR-08).
             </p>
           </div>
@@ -186,15 +191,15 @@ export function AnalyticsPage() {
         {isCapacityLoading ? (
           <div className="py-12 flex items-center justify-center gap-2 text-sm text-slate-500">
             <Loader2 className="w-4 h-4 animate-spin text-blue-600" />
-            <span>Memuat data kapasitas menu...</span>
+            <span>Loading menu capacity data...</span>
           </div>
         ) : isCapacityError ? (
           <div className="py-8 text-center text-sm text-rose-600 bg-rose-50/60 rounded-xl">
-            Gagal memuat data kapasitas. Silakan coba lagi.
+            Failed to load capacity data. Please try again.
           </div>
         ) : !capacityMenus || capacityMenus.length === 0 ? (
           <div className="py-8 text-center text-sm text-slate-500">
-            Belum ada menu aktif yang terdaftar.
+            No active menu items registered yet.
           </div>
         ) : (
           <div className="divide-y divide-slate-100">
@@ -223,24 +228,24 @@ export function AnalyticsPage() {
                     <div className="text-xs text-slate-500 flex items-center gap-1.5">
                       {menu.hasRecipe && menu.bottleneck ? (
                         <>
-                          <span className="font-medium text-slate-700">Dibatasi bahan:</span>
+                          <span className="font-medium text-slate-700">Limited by ingredient:</span>
                           <strong className="text-slate-900">
                             {menu.bottleneck.ingredientName}
                           </strong>
                           <span>
-                            (tersedia {formatNumber(menu.bottleneck.validStockBase)}{" "}
-                            {menu.bottleneck.baseUnit})
+                            ({formatNumber(menu.bottleneck.validStockBase)}{" "}
+                            {menu.bottleneck.baseUnit} available)
                           </span>
                         </>
                       ) : menu.hasRecipe && menu.bottleneckIngredientName ? (
                         <>
-                          <span className="font-medium text-slate-700">Dibatasi bahan:</span>
+                          <span className="font-medium text-slate-700">Limited by ingredient:</span>
                           <strong className="text-slate-900">
                             {menu.bottleneckIngredientName}
                           </strong>
                         </>
                       ) : (
-                        <span className="text-slate-400 italic">Belum ada resep bahan baku</span>
+                        <span className="text-slate-400 italic">No recipe configured yet</span>
                       )}
                     </div>
                   </div>
@@ -249,17 +254,17 @@ export function AnalyticsPage() {
                     {isOutOfStock ? (
                       <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-rose-50 text-rose-700 border border-rose-200 text-xs font-semibold">
                         <AlertCircle className="w-3.5 h-3.5" />
-                        Habis (0 porsi)
+                        Sold out (0 portions)
                       </span>
                     ) : isLow ? (
                       <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-amber-50 text-amber-800 border border-amber-200 text-xs font-semibold tabular-nums">
                         <AlertCircle className="w-3.5 h-3.5" />
-                        Sisa {menu.capacity} porsi
+                        {menu.capacity} portions left
                       </span>
                     ) : (
                       <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-semibold tabular-nums">
                         <CheckCircle className="w-3.5 h-3.5" />
-                        Tersedia {menu.capacity} porsi
+                        {menu.capacity} portions available
                       </span>
                     )}
                   </div>

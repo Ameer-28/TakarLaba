@@ -31,10 +31,10 @@ export function PriceShockImpactModal({ isOpen, onClose, alerts }: PriceShockImp
       await applyPriceMutation.mutateAsync(alert.alertId);
       setAppliedAlertIds((prev) => new Set(prev).add(alert.alertId));
       toast.success(
-        `Harga menu "${alert.menuName}" berhasil dinaikkan ke ${formatRupiah(alert.optionA.recommendedPrice)}`
+        `Price for "${alert.menuName}" successfully updated to ${formatRupiah(alert.optionA.recommendedPrice)}`
       );
     } catch {
-      toast.error(`Gagal menerapkan harga baru untuk "${alert.menuName}".`);
+      toast.error(`Failed to apply new price for "${alert.menuName}".`);
     }
   };
 
@@ -49,21 +49,21 @@ export function PriceShockImpactModal({ isOpen, onClose, alerts }: PriceShockImp
             </div>
             <div>
               <h2 className="text-lg sm:text-xl font-bold text-slate-900 tracking-tight flex items-center gap-2">
-                Dampak Kenaikan Harga Terdeteksi
+                Price Shock Impact Detected
                 <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-rose-100 text-rose-700">
-                  {alerts.length} Menu Terdampak
+                  {alerts.length} Menu{alerts.length === 1 ? "" : "s"} Impacted
                 </span>
               </h2>
               <p className="text-xs sm:text-sm text-slate-600 mt-0.5">
-                Kenaikan harga beli bahan baku menurunkan margin produk di bawah target batas
-                bisnis.
+                Increased ingredient purchase costs have pushed menu profit margins below your
+                business target threshold.
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-white/60 rounded-lg transition-colors"
-            aria-label="Tutup modal"
+            className="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-white/60 rounded-lg transition-colors cursor-pointer"
+            aria-label="Close modal"
           >
             <X className="w-5 h-5" />
           </button>
@@ -83,18 +83,18 @@ export function PriceShockImpactModal({ isOpen, onClose, alerts }: PriceShockImp
                       {alert.menuName}
                     </h3>
                     <p className="text-xs text-slate-500">
-                      Bahan pemicu:{" "}
+                      Trigger ingredient:{" "}
                       <span className="font-semibold text-slate-700">
                         {alert.triggerIngredientName}
                       </span>{" "}
-                      · Harga jual saat ini:{" "}
+                      · Current selling price:{" "}
                       <span className="font-semibold text-slate-700">
                         {formatRupiah(alert.sellingPrice)}
                       </span>
                     </p>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="text-xs font-medium text-slate-500">Margin turun:</span>
+                    <span className="text-xs font-medium text-slate-500">Margin dropped:</span>
                     <span className="text-xs font-bold px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 tabular-nums">
                       {formatPercent(alert.costBefore.marginPercent)}
                     </span>
@@ -112,7 +112,7 @@ export function PriceShockImpactModal({ isOpen, onClose, alerts }: PriceShockImp
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 p-3 rounded-xl bg-slate-50 border border-slate-200/70 text-center">
                   <div>
                     <span className="text-[11px] font-medium text-slate-500 block">
-                      HPP Bahan Awal
+                      Initial Ingredient Cost
                     </span>
                     <span className="text-xs sm:text-sm font-semibold text-slate-700 tabular-nums">
                       {formatRupiah(alert.costBefore.hppBahan)}
@@ -120,7 +120,7 @@ export function PriceShockImpactModal({ isOpen, onClose, alerts }: PriceShockImp
                   </div>
                   <div>
                     <span className="text-[11px] font-medium text-rose-600 block">
-                      HPP Bahan Baru
+                      New Ingredient Cost
                     </span>
                     <span className="text-xs sm:text-sm font-bold text-rose-700 tabular-nums">
                       {formatRupiah(alert.costAfter.hppBahan)}
@@ -128,7 +128,7 @@ export function PriceShockImpactModal({ isOpen, onClose, alerts }: PriceShockImp
                   </div>
                   <div>
                     <span className="text-[11px] font-medium text-slate-500 block">
-                      HPP Penuh Awal
+                      Initial Full Cost (HPP)
                     </span>
                     <span className="text-xs sm:text-sm font-semibold text-slate-700 tabular-nums">
                       {formatRupiah(alert.costBefore.hppPenuh)}
@@ -136,7 +136,7 @@ export function PriceShockImpactModal({ isOpen, onClose, alerts }: PriceShockImp
                   </div>
                   <div>
                     <span className="text-[11px] font-medium text-rose-600 block">
-                      HPP Penuh Baru
+                      New Full Cost (HPP)
                     </span>
                     <span className="text-xs sm:text-sm font-bold text-rose-700 tabular-nums">
                       {formatRupiah(alert.costAfter.hppPenuh)}
@@ -151,7 +151,7 @@ export function PriceShockImpactModal({ isOpen, onClose, alerts }: PriceShockImp
                     <div className="space-y-1.5">
                       <div className="flex items-center gap-1.5 text-sky-800 text-xs font-bold uppercase tracking-wider">
                         <TrendingUp className="w-3.5 h-3.5" />
-                        Opsi A: Naikkan Harga Jual
+                        Option A: Increase Selling Price
                       </div>
                       <div className="flex items-baseline gap-2">
                         <span className="text-xl sm:text-2xl font-black text-slate-900 tabular-nums">
@@ -162,11 +162,11 @@ export function PriceShockImpactModal({ isOpen, onClose, alerts }: PriceShockImp
                         </span>
                       </div>
                       <p className="text-xs text-slate-600">
-                        Margin pulih ke{" "}
+                        Margin recovers to{" "}
                         <strong className="text-slate-800">
                           {formatPercent(alert.optionA.projectedMarginPercent)}
                         </strong>{" "}
-                        ({formatRupiah(alert.optionA.projectedMarginKontribusi)}/porsi).
+                        ({formatRupiah(alert.optionA.projectedMarginKontribusi)}/portion).
                       </p>
                     </div>
 
@@ -183,11 +183,11 @@ export function PriceShockImpactModal({ isOpen, onClose, alerts }: PriceShockImp
                       {isApplied ? (
                         <>
                           <CheckCircle2 className="w-3.5 h-3.5" />
-                          Harga Berhasil Diterapkan
+                          Price Applied Successfully
                         </>
                       ) : (
                         <>
-                          Terapkan Harga {formatRupiah(alert.optionA.recommendedPrice)}
+                          Apply Price {formatRupiah(alert.optionA.recommendedPrice)}
                           <ChevronRight className="w-3.5 h-3.5" />
                         </>
                       )}
@@ -199,7 +199,7 @@ export function PriceShockImpactModal({ isOpen, onClose, alerts }: PriceShockImp
                     <div className="space-y-1.5">
                       <div className="flex items-center gap-1.5 text-slate-700 text-xs font-bold uppercase tracking-wider">
                         <Scissors className="w-3.5 h-3.5" />
-                        Opsi B: Tahan Harga & Kurangi Takaran
+                        Option B: Keep Price & Reduce Portion
                       </div>
                       <div className="flex items-baseline gap-2">
                         <span className="text-lg sm:text-xl font-bold text-slate-900 tabular-nums">
@@ -210,8 +210,8 @@ export function PriceShockImpactModal({ isOpen, onClose, alerts }: PriceShockImp
                         </span>
                       </div>
                       <p className="text-xs text-slate-600">
-                        Hemat biaya {formatRupiah(alert.optionB.costSavingNeeded)} dengan mengurangi
-                        porsi {alert.triggerIngredientName} sebesar{" "}
+                        Save {formatRupiah(alert.optionB.costSavingNeeded)} in cost by reducing{" "}
+                        {alert.triggerIngredientName} portion by{" "}
                         {formatPercent(alert.optionB.reductionPercent)}.
                       </p>
                     </div>
@@ -219,13 +219,13 @@ export function PriceShockImpactModal({ isOpen, onClose, alerts }: PriceShockImp
                     <div>
                       {alert.optionB.isFeasible ? (
                         <div className="text-[11px] px-2.5 py-1.5 rounded-md bg-emerald-50 border border-emerald-200 text-emerald-800 font-medium">
-                          ✓ Pengurangan ≤ 50%, profil rasa menu tetap stabil.
+                          ✓ Reduction ≤ 50%, menu flavor profile remains stable.
                         </div>
                       ) : (
                         <div className="text-[11px] px-2.5 py-1.5 rounded-md bg-amber-50 border border-amber-200 text-amber-800 font-medium">
                           ⚠️{" "}
                           {alert.optionB.infeasibleReason ??
-                            "Pengurangan > 50%, rasa akan berubah drastis."}
+                            "Reduction > 50%, flavor profile will be drastically affected."}
                         </div>
                       )}
                     </div>
@@ -243,7 +243,7 @@ export function PriceShockImpactModal({ isOpen, onClose, alerts }: PriceShockImp
             onClick={onClose}
             className="text-xs sm:text-sm font-semibold text-sky-600 hover:text-sky-700 flex items-center gap-1"
           >
-            Buka Pusat Peringatan
+            Open Margin Alerts Center
             <ExternalLink className="w-3.5 h-3.5" />
           </Link>
 
@@ -252,7 +252,7 @@ export function PriceShockImpactModal({ isOpen, onClose, alerts }: PriceShockImp
             onClick={onClose}
             className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-900 text-white text-xs sm:text-sm font-bold transition-all shadow-xs cursor-pointer active:scale-98"
           >
-            Selesai & Tutup
+            Done & Close
           </button>
         </div>
       </div>

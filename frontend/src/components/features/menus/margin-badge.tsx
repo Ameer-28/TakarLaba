@@ -28,10 +28,10 @@ export function MarginBadge({
         className={`inline-flex items-center gap-1.5 font-bold rounded-lg border transition-colors ${
           size === "sm" ? "px-2.5 py-1 text-xs" : "px-3 py-1.5 text-sm"
         } bg-slate-50 text-slate-600 border-slate-200/80 ${className}`}
-        title="Menu belum memiliki susunan takaran bahan"
+        title="Menu does not have recipe ingredients configured yet"
       >
         <BookOpen className={size === "sm" ? "w-3.5 h-3.5" : "w-4 h-4"} />
-        <span>Perlu Resep</span>
+        <span>Recipe Needed</span>
       </span>
     );
   }
@@ -40,8 +40,8 @@ export function MarginBadge({
   if (!costSummary.isCostComplete || costSummary.marginStatus === "INCOMPLETE") {
     const missingIngredientsText =
       costSummary.missingCostIngredients && costSummary.missingCostIngredients.length > 0
-        ? `Belum ada riwayat pembelian untuk: ${costSummary.missingCostIngredients.join(", ")}`
-        : "Ada bahan baku dalam resep yang belum memiliki nota pembelian";
+        ? `No purchase history for: ${costSummary.missingCostIngredients.join(", ")}`
+        : "Some recipe ingredients have no purchase records";
 
     return (
       <span
@@ -53,7 +53,7 @@ export function MarginBadge({
         <AlertCircle
           className={size === "sm" ? "w-3.5 h-3.5 text-amber-600" : "w-4 h-4 text-amber-600"}
         />
-        <span>Harga bahan belum lengkap</span>
+        <span>Incomplete Cost Data</span>
       </span>
     );
   }
@@ -69,12 +69,12 @@ export function MarginBadge({
         className={`inline-flex items-center gap-1.5 font-bold rounded-lg border transition-colors ${
           size === "sm" ? "px-2.5 py-1 text-xs" : "px-3 py-1.5 text-sm"
         } bg-emerald-50 text-emerald-700 border-emerald-200/80 shadow-2xs ${className}`}
-        title={`Status Aman: Margin ${marginPct}% memenuhi atau di atas target ${effectiveTarget}% (HPP Penuh: ${hppPenuhText})`}
+        title={`Safe: Margin ${marginPct}% meets or exceeds target ${effectiveTarget}% (Full Cost: ${hppPenuhText})`}
       >
         <CheckCircle2
           className={size === "sm" ? "w-3.5 h-3.5 text-emerald-600" : "w-4 h-4 text-emerald-600"}
         />
-        <span className="tabular-nums">Aman ({marginPct}%)</span>
+        <span className="tabular-nums">Safe ({marginPct}%)</span>
       </span>
     );
   }
@@ -85,12 +85,12 @@ export function MarginBadge({
         className={`inline-flex items-center gap-1.5 font-bold rounded-lg border transition-colors ${
           size === "sm" ? "px-2.5 py-1 text-xs" : "px-3 py-1.5 text-sm"
         } bg-amber-50 text-amber-700 border-amber-200/80 shadow-2xs ${className}`}
-        title={`Status Waspada: Margin ${marginPct}% berada di bawah target ${effectiveTarget}% namun masih dalam rentang 5 pp (HPP Penuh: ${hppPenuhText})`}
+        title={`Warning: Margin ${marginPct}% is below target ${effectiveTarget}% but within 5 pp (Full Cost: ${hppPenuhText})`}
       >
         <AlertTriangle
           className={size === "sm" ? "w-3.5 h-3.5 text-amber-600" : "w-4 h-4 text-amber-600"}
         />
-        <span className="tabular-nums">Waspada ({marginPct}%)</span>
+        <span className="tabular-nums">Warning ({marginPct}%)</span>
       </span>
     );
   }
@@ -101,12 +101,12 @@ export function MarginBadge({
       className={`inline-flex items-center gap-1.5 font-bold rounded-lg border transition-colors ${
         size === "sm" ? "px-2.5 py-1 text-xs" : "px-3 py-1.5 text-sm"
       } bg-rose-50 text-rose-700 border-rose-200/80 shadow-2xs ${className}`}
-      title={`Status Bahaya: Margin ${marginPct}% anjlok lebih dari 5 pp di bawah target ${effectiveTarget}% (HPP Penuh: ${hppPenuhText})`}
+      title={`Critical: Margin ${marginPct}% is more than 5 pp below target ${effectiveTarget}% (Full Cost: ${hppPenuhText})`}
     >
       <AlertOctagon
         className={size === "sm" ? "w-3.5 h-3.5 text-rose-600" : "w-4 h-4 text-rose-600"}
       />
-      <span className="tabular-nums">Bahaya ({marginPct}%)</span>
+      <span className="tabular-nums">Critical ({marginPct}%)</span>
     </span>
   );
 }

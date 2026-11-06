@@ -52,10 +52,10 @@ describe("calculateCashChange", () => {
 });
 
 describe("formatPaymentMethodLabel", () => {
-  it("translates payment method codes to localized Indonesian text", () => {
-    expect(formatPaymentMethodLabel("CASH")).toBe("Tunai");
+  it("translates payment method codes to localized English text", () => {
+    expect(formatPaymentMethodLabel("CASH")).toBe("Cash");
     expect(formatPaymentMethodLabel("QRIS")).toBe("QRIS");
-    expect(formatPaymentMethodLabel("TRANSFER")).toBe("Transfer Bank");
+    expect(formatPaymentMethodLabel("TRANSFER")).toBe("Bank Transfer");
   });
 });
 

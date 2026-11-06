@@ -5,24 +5,22 @@ export const registerSchema = z
     name: z
       .string()
       .trim()
-      .min(2, { error: "Nama minimal 2 karakter" })
-      .max(100, { error: "Nama maksimal 100 karakter" }),
+      .min(2, { error: "Name must be at least 2 characters" })
+      .max(100, { error: "Name must be at most 100 characters" }),
     businessName: z
       .string()
       .trim()
-      .min(2, { error: "Nama usaha kuliner minimal 2 karakter" })
-      .max(100, { error: "Nama usaha kuliner maksimal 100 karakter" }),
-    email: z
-      .email({ error: "Format email tidak valid" })
-      .transform((val) => val.toLowerCase().trim()),
+      .min(2, { error: "Business name must be at least 2 characters" })
+      .max(100, { error: "Business name must be at most 100 characters" }),
+    email: z.email({ error: "Invalid email format" }).transform((val) => val.toLowerCase().trim()),
     password: z
       .string()
-      .min(8, { error: "Kata sandi minimal 8 karakter" })
-      .max(100, { error: "Kata sandi maksimal 100 karakter" }),
-    confirmPassword: z.string().min(1, { error: "Konfirmasi kata sandi wajib diisi" }),
+      .min(8, { error: "Password must be at least 8 characters" })
+      .max(100, { error: "Password must be at most 100 characters" }),
+    confirmPassword: z.string().min(1, { error: "Please confirm your password" }),
   })
   .refine((data) => data.password === data.confirmPassword, {
-    message: "Konfirmasi kata sandi tidak cocok",
+    message: "Passwords do not match",
     path: ["confirmPassword"],
   });
 

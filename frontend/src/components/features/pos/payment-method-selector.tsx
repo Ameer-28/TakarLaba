@@ -10,7 +10,7 @@ export function PaymentMethodSelector({ value, onChange }: PaymentMethodSelector
   return (
     <div className="space-y-2">
       <label className="text-xs font-bold text-slate-700 uppercase tracking-wider block">
-        Metode Pembayaran
+        Payment Method
       </label>
       <div className="grid grid-cols-3 gap-2">
         <button
@@ -25,7 +25,7 @@ export function PaymentMethodSelector({ value, onChange }: PaymentMethodSelector
           <Banknote
             className={`w-5 h-5 mb-1 ${value === "CASH" ? "text-[#CCD0CF]" : "text-[#253745]"}`}
           />
-          <span className="text-xs">Tunai</span>
+          <span className="text-xs">Cash</span>
         </button>
 
         <button

@@ -23,7 +23,7 @@ export function WasteHistoryList({ onOpenRecordModal }: WasteHistoryListProps) {
     return (
       <div className="p-12 text-center space-y-3 bg-white rounded-2xl border border-slate-200">
         <Loader2 className="w-8 h-8 animate-spin mx-auto text-emerald-600" />
-        <p className="text-xs sm:text-sm text-slate-500">Memuat riwayat bahan terbuang...</p>
+        <p className="text-xs sm:text-sm text-slate-500">Loading waste history...</p>
       </div>
     );
   }
@@ -32,15 +32,15 @@ export function WasteHistoryList({ onOpenRecordModal }: WasteHistoryListProps) {
     return (
       <div className="p-8 text-center space-y-3 bg-rose-50/50 rounded-2xl border border-rose-200">
         <AlertCircle className="w-8 h-8 mx-auto text-rose-500" />
-        <p className="text-sm font-semibold text-rose-800">Gagal memuat riwayat bahan terbuang</p>
+        <p className="text-sm font-semibold text-rose-800">Failed to load waste history</p>
         <p className="text-xs text-rose-600">
-          {error instanceof Error ? error.message : "Terjadi kesalahan internal server"}
+          {error instanceof Error ? error.message : "Internal server error occurred"}
         </p>
         <button
           onClick={() => refetch()}
           className="px-4 py-2 rounded-xl bg-white border border-rose-200 text-xs font-semibold text-rose-700 hover:bg-rose-50"
         >
-          Coba Lagi
+          Try Again
         </button>
       </div>
     );
@@ -55,9 +55,7 @@ export function WasteHistoryList({ onOpenRecordModal }: WasteHistoryListProps) {
             <Trash2 className="w-5 h-5" />
           </div>
           <div>
-            <div className="text-xs font-medium text-slate-500">
-              Total Kerugian Limbah Terbuang (Waste)
-            </div>
+            <div className="text-xs font-medium text-slate-500">Total Food Waste Loss</div>
             <div className="text-xl font-black text-rose-600 font-mono tabular-nums">
               {formatRupiah(totalLoss)}
             </div>
@@ -68,7 +66,7 @@ export function WasteHistoryList({ onOpenRecordModal }: WasteHistoryListProps) {
           className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs sm:text-sm font-semibold shadow-xs transition-colors"
         >
           <Trash2 className="w-4 h-4" />
-          <span>Catat Bahan Terbuang</span>
+          <span>Record Food Waste</span>
         </button>
       </div>
 
@@ -76,10 +74,10 @@ export function WasteHistoryList({ onOpenRecordModal }: WasteHistoryListProps) {
       {history.length === 0 ? (
         <div className="p-12 text-center space-y-3 bg-white rounded-2xl border border-slate-200">
           <Trash2 className="w-10 h-10 mx-auto text-slate-300" />
-          <h4 className="text-sm font-bold text-slate-700">Belum Ada Bahan Terbuang</h4>
+          <h4 className="text-sm font-bold text-slate-700">No Food Waste Recorded</h4>
           <p className="text-xs text-slate-400 max-w-sm mx-auto">
-            Semua bahan baku tercatat aman. Klik tombol di atas untuk mencatat bila ada bahan yang
-            basi, tumpah, atau kedaluwarsa.
+            All ingredients are intact. Click the button above to record spoiled, spilled, or
+            expired items.
           </p>
         </div>
       ) : (
@@ -95,7 +93,7 @@ export function WasteHistoryList({ onOpenRecordModal }: WasteHistoryListProps) {
                     {item.ingredientName}
                   </span>
                   <span className="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-rose-50 text-rose-700 border border-rose-200">
-                    Terbuang: {formatNumber(Number(item.qtyBase))} {item.baseUnit.toLowerCase()}
+                    Wasted: {formatNumber(Number(item.qtyBase))} {item.baseUnit.toLowerCase()}
                   </span>
                 </div>
                 <p className="text-xs text-slate-600 italic">&ldquo;{item.reason}&rdquo;</p>
@@ -107,14 +105,14 @@ export function WasteHistoryList({ onOpenRecordModal }: WasteHistoryListProps) {
                   {item.createdByName && (
                     <span className="flex items-center gap-1">
                       <User className="w-3 h-3" />
-                      <span>Dicatat oleh: {item.createdByName}</span>
+                      <span>Recorded by: {item.createdByName}</span>
                     </span>
                   )}
                 </div>
               </div>
 
               <div className="text-right shrink-0">
-                <div className="text-xs text-slate-400">Nilai Kerugian</div>
+                <div className="text-xs text-slate-400">Financial Loss</div>
                 <div className="text-base sm:text-lg font-bold text-rose-600 font-mono tabular-nums">
                   {formatRupiah(Number(item.wastedValue))}
                 </div>

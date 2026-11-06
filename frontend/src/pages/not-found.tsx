@@ -13,12 +13,10 @@ export function NotFoundPage() {
           <span className="text-xs font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-md">
             Error 404
           </span>
-          <h1 className="text-xl font-extrabold text-slate-900 tracking-tight">
-            Halaman Tidak Ditemukan
-          </h1>
+          <h1 className="text-xl font-extrabold text-slate-900 tracking-tight">Page Not Found</h1>
           <p className="text-sm text-slate-500 leading-relaxed max-w-sm mx-auto">
-            Halaman yang Anda tuju mungkin telah dipindahkan, dihapus, atau tautan yang dimasukkan
-            salah.
+            The page you are looking for might have been removed, had its name changed, or is
+            temporarily unavailable.
           </p>
         </div>
 
@@ -28,7 +26,7 @@ export function NotFoundPage() {
             className="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-emerald-700 text-white rounded-xl text-xs font-semibold hover:bg-emerald-800 transition shadow-xs focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-600"
           >
             <Home className="w-4 h-4" />
-            Kembali ke Beranda
+            Back to Home
           </Link>
         </div>
       </div>

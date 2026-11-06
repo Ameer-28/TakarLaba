@@ -42,7 +42,7 @@ export function PosPage() {
 
   const handleOpenCheckout = () => {
     if (cartState.items.length === 0) {
-      toast.error("Keranjang belanja masih kosong");
+      toast.error("Cart is empty");
       return;
     }
     setIsMobileDrawerOpen(false);
@@ -62,7 +62,7 @@ export function PosPage() {
     onClearCart: () => {
       if (cartState.items.length === 0) return;
       handleClear();
-      toast.info("Keranjang pesanan telah dikosongkan");
+      toast.info("Cart has been cleared");
     },
     onCloseModals: () => {
       setIsCheckoutModalOpen(false);
@@ -75,11 +75,11 @@ export function PosPage() {
 
   const handleAddToCart = (menu: PosMenuItem, temperature?: DrinkTemperature) => {
     if (menu.capacity <= 0) {
-      toast.error(`Menu "${menu.name}" sedang habis stok`);
+      toast.error(`Menu "${menu.name}" is out of stock`);
       return;
     }
     if (!menu.hasRecipe) {
-      toast.error(`Menu "${menu.name}" belum memiliki susunan takaran resep`);
+      toast.error(`Menu "${menu.name}" does not have a recipe configured`);
       return;
     }
 
@@ -119,13 +119,13 @@ export function PosPage() {
     setCompletedSale(sale);
     setCompletedCashReceived(cashReceived);
     setIsReceiptModalOpen(true);
-    toast.success(`Transaksi ${sale.invoiceNo} berhasil dicatat`);
+    toast.success(`Transaction ${sale.invoiceNo} completed successfully`);
   };
 
   return (
     <div className="flex-1 flex flex-col lg:flex-row min-h-screen w-full">
       {/* Left Column: Menu Catalog Grid */}
-      <div className="flex-1 min-w-0 p-4 sm:p-6 lg:p-8 pb-36 lg:pb-8 space-y-6 overflow-y-auto lg:h-screen">
+      <div className="flex-1 min-w-0 p-4 sm:p-6 lg:p-8 pb-48 lg:pb-8 space-y-6 overflow-y-auto lg:h-screen">
         <PosMenuGrid
           menus={menus}
           cartItems={cartState.items}
@@ -142,37 +142,37 @@ export function PosPage() {
           searchInputRef={searchInputRef}
         />
 
-        {/* Keyboard Shortcuts Hint Bar (Bawah Katalog) */}
+        {/* Keyboard Shortcuts Hint Bar (Catalog Bottom) */}
         <div className="hidden md:flex items-center justify-center pt-3">
           <div className="inline-flex items-center gap-2 text-xs text-stone-500 bg-white/90 px-4 py-2 rounded-full border border-stone-200/80 shadow-2xs">
             <Keyboard className="w-3.5 h-3.5 text-stone-400" />
-            <span className="font-bold text-slate-800">Pintasan:</span>
+            <span className="font-bold text-slate-800">Shortcuts:</span>
             <span className="flex items-center gap-1">
               <kbd className="px-1.5 py-0.5 text-[10px] font-mono bg-stone-50 border border-stone-200 rounded shadow-2xs font-bold text-stone-600">
                 F1 / /
               </kbd>
-              <span>Cari</span>
+              <span>Search</span>
             </span>
             <span className="text-stone-300">•</span>
             <span className="flex items-center gap-1">
               <kbd className="px-1.5 py-0.5 text-[10px] font-mono bg-stone-50 border border-stone-200 rounded shadow-2xs font-bold text-stone-600">
                 F2
               </kbd>
-              <span>Bayar</span>
+              <span>Pay</span>
             </span>
             <span className="text-stone-300">•</span>
             <span className="flex items-center gap-1">
               <kbd className="px-1.5 py-0.5 text-[10px] font-mono bg-stone-50 border border-stone-200 rounded shadow-2xs font-bold text-stone-600">
                 F4
               </kbd>
-              <span>Kosongkan</span>
+              <span>Clear</span>
             </span>
             <span className="text-stone-300">•</span>
             <span className="flex items-center gap-1">
               <kbd className="px-1.5 py-0.5 text-[10px] font-mono bg-stone-50 border border-stone-200 rounded shadow-2xs font-bold text-stone-600">
                 Esc
               </kbd>
-              <span>Batal</span>
+              <span>Cancel</span>
             </span>
           </div>
         </div>
@@ -190,8 +190,8 @@ export function PosPage() {
         />
       </aside>
 
-      {/* Mobile Floating Bottom Bar (< lg: safely placed above the bottom navigation bar at bottom-16) */}
-      <div className="lg:hidden fixed bottom-16 left-3 right-3 sm:left-6 sm:right-6 z-40 animate-in slide-in-from-bottom duration-200">
+      {/* Mobile & Tablet Floating Cart Bar (< lg: safely placed with clearance above curved bottom nav) */}
+      <div className="lg:hidden fixed bottom-[6.5rem] md:bottom-[7.25rem] inset-x-0 mx-auto w-[calc(100%-1.5rem)] sm:w-[calc(100%-3rem)] md:max-w-2xl z-40 animate-in slide-in-from-bottom duration-200">
         <button
           type="button"
           onClick={() => setIsMobileDrawerOpen(true)}
@@ -208,7 +208,9 @@ export function PosPage() {
             </div>
             <div className="text-left">
               <span className="text-[10px] sm:text-[11px] text-[#9BA8AB] block font-medium">
-                {totalQty > 0 ? `${totalQty} item pesanan` : "Keranjang Belanja"}
+                {totalQty > 0
+                  ? `${totalQty} item${totalQty > 1 ? "s" : ""} ordered`
+                  : "Shopping Cart"}
               </span>
               <span className="text-sm sm:text-base font-black tabular-nums text-white">
                 {formatRupiah(totalAmount)}
@@ -217,7 +219,7 @@ export function PosPage() {
           </div>
 
           <div className="flex items-center gap-1.5 px-3 py-1.5 sm:px-4 sm:py-2 bg-white/10 hover:bg-white/20 text-[#CCD0CF] rounded-full text-xs font-bold transition-all shadow-xs">
-            <span>{totalQty > 0 ? "Bayar" : "Buka"}</span>
+            <span>{totalQty > 0 ? "Pay" : "Open"}</span>
             <ArrowRight className="w-3.5 h-3.5" />
           </div>
         </button>
@@ -228,7 +230,7 @@ export function PosPage() {
         <div className="lg:hidden fixed inset-0 z-50 flex flex-col justify-end bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-200">
           <div className="bg-white rounded-t-3xl shadow-2xl overflow-hidden flex flex-col max-h-[85vh] animate-in slide-in-from-bottom duration-200">
             <div className="p-4 border-b border-slate-100 flex items-center justify-between">
-              <h3 className="font-extrabold text-slate-900 text-base">Rincian Keranjang</h3>
+              <h3 className="font-extrabold text-slate-900 text-base">Cart Details</h3>
               <button
                 type="button"
                 onClick={() => setIsMobileDrawerOpen(false)}

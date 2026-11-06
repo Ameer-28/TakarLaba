@@ -39,9 +39,9 @@ export function DashboardTopMenus({ topMenus = [] }: DashboardTopMenusProps) {
           </div>
           <div>
             <h2 className="text-base font-bold text-slate-900 tracking-tight">
-              Menu Terlaris (7 Hari)
+              Top Selling Menus (7 Days)
             </h2>
-            <p className="text-xs text-slate-500">5 menu dengan penjualan tertinggi minggu ini</p>
+            <p className="text-xs text-slate-500">Top 5 best selling menu items this week</p>
           </div>
         </div>
       </div>
@@ -51,9 +51,9 @@ export function DashboardTopMenus({ topMenus = [] }: DashboardTopMenusProps) {
           <div className="w-10 h-10 mx-auto rounded-full bg-slate-50 flex items-center justify-center text-slate-400">
             <UtensilsCrossed className="w-5 h-5" />
           </div>
-          <p className="text-sm font-medium text-slate-700">Belum Ada Menu Terjual</p>
+          <p className="text-sm font-medium text-slate-700">No Menu Items Sold Yet</p>
           <p className="text-xs text-slate-400">
-            Daftar menu terlaris akan otomatis terisi saat transaksi tercatat.
+            Top selling menus will appear once transactions are recorded.
           </p>
         </div>
       ) : (
@@ -86,7 +86,7 @@ export function DashboardTopMenus({ topMenus = [] }: DashboardTopMenusProps) {
                       {formatRupiah(menu.totalRevenue)}
                     </span>
                     <span className="block text-[11px] font-semibold text-slate-500 tabular-nums">
-                      {menu.totalQty} porsi
+                      {menu.totalQty} portion{menu.totalQty === 1 ? "" : "s"}
                     </span>
                   </div>
                 </div>

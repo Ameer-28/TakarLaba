@@ -49,37 +49,40 @@ export function IngredientUnitManager({
               <Scale className="w-4 h-4" />
             </div>
             <div>
-              <h3 className="text-base font-bold text-slate-900">Konversi Satuan Beli</h3>
+              <h3 className="text-base font-bold text-slate-900">Purchase Unit Conversions</h3>
               <p className="text-xs text-slate-500">
-                Bahan: <span className="font-semibold text-slate-800">{ingredient.name}</span>{" "}
-                (satuan dasar: {ingredient.baseUnit.toLowerCase()})
+                Ingredient: <span className="font-semibold text-slate-800">{ingredient.name}</span>{" "}
+                (base unit: {ingredient.baseUnit.toLowerCase()})
               </p>
             </div>
           </div>
-          <button onClick={onClose} className="text-slate-400 hover:text-slate-600 p-1 rounded-lg">
+          <button
+            onClick={onClose}
+            className="text-slate-400 hover:text-slate-600 p-1 rounded-lg cursor-pointer"
+          >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         <div className="p-6 space-y-6">
-          {/* Form Tambah Satuan */}
+          {/* Add Unit Form */}
           <form
             onSubmit={handleSubmit(handleFormSubmit)}
             className="p-4 rounded-xl bg-slate-50 border border-slate-200/80 space-y-3"
           >
             <div className="flex items-center gap-2">
               <Sparkles className="w-4 h-4 text-purple-600" />
-              <span className="text-xs font-bold text-slate-800">Tambah Satuan Konversi Baru</span>
+              <span className="text-xs font-bold text-slate-800">Add New Conversion Unit</span>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               <div>
                 <label className="block text-[11px] font-semibold text-slate-600 mb-1">
-                  Nama Satuan Beli
+                  Purchase Unit Name
                 </label>
                 <input
                   type="text"
-                  placeholder="Misal: kg, liter, ikat, karung"
+                  placeholder="e.g. kg, liter, bunch, bag"
                   {...register("name")}
                   className="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-purple-500/20 bg-white"
                 />
@@ -90,12 +93,12 @@ export function IngredientUnitManager({
 
               <div>
                 <label className="block text-[11px] font-semibold text-slate-600 mb-1">
-                  Faktor ke {ingredient.baseUnit.toLowerCase()}
+                  Factor to {ingredient.baseUnit.toLowerCase()}
                 </label>
                 <input
                   type="number"
                   step="0.0001"
-                  placeholder="Misal: 1000"
+                  placeholder="e.g. 1000"
                   {...register("toBaseFactor", { valueAsNumber: true })}
                   className="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs font-mono focus:outline-none focus:ring-2 focus:ring-purple-500/20 bg-white"
                 />
@@ -109,32 +112,32 @@ export function IngredientUnitManager({
               <button
                 type="submit"
                 disabled={isAddingUnit}
-                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-semibold shadow-xs disabled:opacity-60 transition-all"
+                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-semibold shadow-xs disabled:opacity-60 transition-all cursor-pointer"
               >
                 {isAddingUnit ? (
                   <>
                     <Loader2 className="w-3 h-3 animate-spin" />
-                    <span>Menambahkan...</span>
+                    <span>Adding...</span>
                   </>
                 ) : (
                   <>
                     <Plus className="w-3.5 h-3.5" />
-                    <span>Tambah Satuan</span>
+                    <span>Add Unit</span>
                   </>
                 )}
               </button>
             </div>
           </form>
 
-          {/* Daftar Satuan yang Ada */}
+          {/* List of Units */}
           <div className="space-y-2">
             <span className="text-xs font-bold text-slate-800 block">
-              Daftar Satuan Beli Terdaftar ({ingredient.units.length})
+              Registered Purchase Units ({ingredient.units.length})
             </span>
 
             {ingredient.units.length === 0 ? (
               <p className="text-xs text-slate-400 italic py-2">
-                Belum ada konversi tambahan. Nota belanja hanya dapat menggunakan satuan dasar (
+                No additional conversions yet. Purchases will use base unit (
                 {ingredient.baseUnit.toLowerCase()}).
               </p>
             ) : (
@@ -156,8 +159,8 @@ export function IngredientUnitManager({
 
                     <button
                       onClick={() => onDeleteUnit(unit.id, unit.name)}
-                      title="Hapus Satuan"
-                      className="p-1.5 rounded-lg text-rose-500 hover:bg-rose-50 transition-colors"
+                      title="Delete Unit"
+                      className="p-1.5 rounded-lg text-rose-500 hover:bg-rose-50 transition-colors cursor-pointer"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
@@ -171,9 +174,9 @@ export function IngredientUnitManager({
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-xl text-xs font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 transition-all"
+              className="px-4 py-2 rounded-xl text-xs font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 transition-all cursor-pointer"
             >
-              Tutup
+              Close
             </button>
           </div>
         </div>

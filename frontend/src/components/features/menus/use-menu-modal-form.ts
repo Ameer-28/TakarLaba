@@ -48,17 +48,17 @@ export function useMenuModalForm({ isOpen, initialData, onSave, onClose }: UseMe
 
     const trimmedName = name.trim();
     if (!trimmedName || trimmedName.length < 2) {
-      setError("Nama menu minimal 2 karakter");
+      setError("Menu name must be at least 2 characters");
       return;
     }
 
     const priceNum = Number(sellingPrice);
     if (isNaN(priceNum) || priceNum <= 0) {
-      setError("Harga jual harus lebih besar dari Rp 0");
+      setError("Selling price must be greater than Rp 0");
       return;
     }
     if (priceNum > 100_000_000) {
-      setError("Harga jual tidak boleh melebihi Rp 100.000.000");
+      setError("Selling price cannot exceed Rp 100,000,000");
       return;
     }
 
@@ -66,7 +66,7 @@ export function useMenuModalForm({ isOpen, initialData, onSave, onClose }: UseMe
     if (targetMargin.trim() !== "") {
       const marginNum = Number(targetMargin);
       if (isNaN(marginNum) || marginNum < 0 || marginNum > 95) {
-        setError("Target margin harus di antara 0% dan 95%");
+        setError("Target margin must be between 0% and 95%");
         return;
       }
       marginVal = marginNum;
@@ -85,7 +85,7 @@ export function useMenuModalForm({ isOpen, initialData, onSave, onClose }: UseMe
       if (err instanceof Error) {
         setError(err.message);
       } else {
-        setError("Terjadi kesalahan saat menyimpan menu");
+        setError("An error occurred while saving menu");
       }
     }
   };
