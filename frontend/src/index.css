@@ -89,6 +89,18 @@
     --danger-foreground: 0 0% 100%;
 
     --radius: 1rem;
+
+    /* Login Page Aesthetic Tokens */
+    --login-primary: #11212d;
+    --login-primary-dark: #06141b;
+    --login-primary-accent: #253745;
+    --login-primary-muted: #4a5c6a;
+    --login-primary-border: #ccd0cf;
+    --login-primary-light: #c2d8e9;
+    --login-primary-soft: #eaf2f8;
+    --login-bg-start: #f8fafc;
+    --login-bg-mid: #eef4f9;
+    --login-bg-end: #e5eff7;
   }
 }
 

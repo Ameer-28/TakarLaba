@@ -3,7 +3,6 @@ import { useNavigate, useLocation, Link } from "react-router";
 import { signIn, useSession, type UserRole } from "@/lib/auth-client";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
-import { BrandLogo } from "@/components/shared/brand-logo";
 import { apiClient } from "@/api/client";
 import { LoginForm } from "@/components/features/auth/login-form";
 import { DemoAccountsPanel } from "@/components/features/auth/demo-accounts-panel";
@@ -86,12 +85,12 @@ export function LoginPage() {
   if (isSessionPending) {
     return (
       <div
-        className="min-h-screen flex flex-col items-center justify-center bg-[#F1F5F9] text-[#4A5C6A] gap-3"
+        className="min-h-screen flex flex-col items-center justify-center bg-[var(--login-bg-mid,#eef4f9)] text-slate-500 gap-3"
         role="status"
         aria-live="polite"
       >
-        <Loader2 className="w-8 h-8 animate-spin text-[#11212D]" />
-        <p className="text-sm font-medium">Loading session data...</p>
+        <Loader2 className="w-8 h-8 animate-spin text-[var(--login-primary,#11212D)]" />
+        <p className="text-xs font-medium">Loading session data...</p>
       </div>
     );
   }
@@ -99,73 +98,66 @@ export function LoginPage() {
   const isAnySubmitting = isSubmitting || isDemoSubmitting !== null;
 
   return (
-    <div className="min-h-screen bg-[#EEF3F8] flex items-center justify-center p-3 sm:p-6 lg:p-10 relative overflow-hidden select-none">
-      {/* Soft Organic Background Corner Blobs matching reference aesthetic */}
-      <div
-        className="absolute -top-24 -right-24 w-80 sm:w-96 h-80 sm:h-96 rounded-full bg-[#BFD4E6]/40 blur-3xl pointer-events-none"
-        aria-hidden="true"
-      />
-      <div
-        className="absolute -bottom-24 -left-24 w-80 sm:w-96 h-80 sm:h-96 rounded-full bg-[#BFD4E6]/40 blur-3xl pointer-events-none"
-        aria-hidden="true"
-      />
-
-      {/* Main Framed Window Card */}
-      <div className="relative max-w-6xl w-full mx-auto bg-white rounded-[2rem] sm:rounded-[2.75rem] border-[2.5px] border-[#11212D] sm:border-[3px] shadow-[0_24px_60px_-15px_rgba(17,33,45,0.18)] p-6 sm:p-10 lg:p-12 overflow-hidden flex flex-col justify-between">
-        {/* Top-Left Brand Logo Header */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-[#11212D] text-white flex items-center justify-center shadow-xs">
-              <BrandLogo className="w-5 h-5 text-white" />
-            </div>
-            <span className="font-extrabold text-[#11212D] tracking-wider text-sm sm:text-base">
-              TAKARLABA
-            </span>
-          </div>
+    <div className="min-h-screen w-full bg-gradient-to-br from-[var(--login-bg-start,#f8fafc)] via-[var(--login-bg-mid,#eef4f9)] to-[var(--login-bg-end,#e5eff7)] p-2.5 sm:p-4 lg:p-6 flex items-center justify-center relative select-none">
+      {/* Whole viewport wrapped in a thin rounded border (~2-3px, primary color, ~16px rounded corners) */}
+      <div className="relative w-full h-[calc(100vh-1.25rem)] sm:h-[calc(100vh-2rem)] lg:h-[calc(100vh-3rem)] min-h-[580px] max-w-[1560px] mx-auto rounded-[16px] border-[2px] sm:border-[2.5px] border-[var(--login-primary,#11212D)] bg-white/40 backdrop-blur-xs flex flex-col justify-between overflow-hidden shadow-xs">
+        {/* Top-Left Corner: Brand Text in small, bold, uppercase, primary-dark color */}
+        <div className="pt-6 sm:pt-7 px-8 sm:px-12 lg:px-16 flex items-center justify-between z-20 shrink-0">
+          <span className="text-xs sm:text-[13px] font-bold uppercase tracking-wider text-[var(--login-primary-dark,#06141B)]">
+            TAKARLABA
+          </span>
         </div>
 
-        {/* 2-Column Split Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center mt-6 lg:mt-8">
-          {/* Left Column: Form & Actions */}
-          <div className="lg:col-span-5 max-w-md w-full mx-auto lg:mx-0 flex flex-col justify-center">
-            <div className="mb-6">
-              <h1 className="text-3xl sm:text-4xl font-extrabold text-[#06141B] tracking-tight">
+        {/* Two-Column Layout */}
+        <div className="flex-1 flex flex-col lg:flex-row items-center justify-between w-full h-full min-h-0 z-10">
+          {/* Left Side: Login Form (~35–40% width, vertically centered, generous left padding) */}
+          <div className="w-full lg:w-[38%] h-full flex flex-col justify-center items-center lg:items-start px-8 sm:px-12 lg:pl-20 lg:pr-6 py-6 overflow-y-auto">
+            <div className="w-full max-w-[280px]">
+              {/* Heading "Login": very large (~40-48px), bold, primary-dark color */}
+              <h1 className="text-[40px] sm:text-[44px] font-bold text-[var(--login-primary-dark,#06141B)] tracking-tight leading-none mb-1.5">
                 Login
               </h1>
-              <p className="mt-1.5 text-xs sm:text-sm text-[#4A5C6A] leading-relaxed">
-                Welcome! Log in to your culinary margin management system.
+
+              {/* Subtitle below it: tiny text (~11-12px), light gray, max width ~260px */}
+              <p className="text-[11.5px] text-slate-400 max-w-[260px] leading-relaxed mb-7">
+                Welcome to log in to your background management system.
               </p>
+
+              {/* Minimal Underline Style Form */}
+              <LoginForm
+                onSubmit={onSubmit}
+                authError={authError}
+                isAnySubmitting={isAnySubmitting}
+                isSubmitting={isSubmitting}
+              />
+
+              {/* Register Link */}
+              <div className="mt-4">
+                <p className="text-[11px] text-slate-400">
+                  Don't have an account?{" "}
+                  <Link
+                    to="/register"
+                    className="font-semibold text-[var(--login-primary,#11212D)] hover:underline transition-colors"
+                  >
+                    Register
+                  </Link>
+                </p>
+              </div>
+
+              {/* Demo Accounts Panel */}
+              <div className="mt-4">
+                <DemoAccountsPanel
+                  onDemoLogin={handleDemoLogin}
+                  isSubmitting={isAnySubmitting}
+                  submittingRole={isDemoSubmitting}
+                />
+              </div>
             </div>
-
-            <LoginForm
-              onSubmit={onSubmit}
-              authError={authError}
-              isAnySubmitting={isAnySubmitting}
-              isSubmitting={isSubmitting}
-            />
-
-            <div className="mt-4 pt-3 border-t border-slate-100 text-center">
-              <p className="text-xs text-[#4A5C6A]">
-                Don't have a business account?{" "}
-                <Link
-                  to="/register"
-                  className="font-bold text-[#11212D] hover:text-[#253745] hover:underline transition-colors"
-                >
-                  Register New Business
-                </Link>
-              </p>
-            </div>
-
-            <DemoAccountsPanel
-              onDemoLogin={handleDemoLogin}
-              isSubmitting={isAnySubmitting}
-              submittingRole={isDemoSubmitting}
-            />
           </div>
 
-          {/* Right Column: Hero Illustration Matching Reference Design */}
-          <div className="hidden lg:flex lg:col-span-7 items-center justify-center relative">
-            <LoginHeroIllustration className="max-w-xl w-full" />
+          {/* Right Side: Large Illustration (~60% width) - Hidden on tablet/mobile */}
+          <div className="hidden lg:flex lg:w-[62%] h-full items-center justify-center p-4 lg:p-8 relative overflow-hidden">
+            <LoginHeroIllustration className="w-full max-w-[720px]" />
           </div>
         </div>
       </div>
