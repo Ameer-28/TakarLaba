@@ -6,8 +6,8 @@ import { Loader2 } from "lucide-react";
 import { apiClient } from "@/api/client";
 import { LoginForm } from "@/components/features/auth/login-form";
 import { DemoAccountsPanel } from "@/components/features/auth/demo-accounts-panel";
-import { LoginHeroIllustration } from "@/components/features/auth/login-hero-illustration";
 import type { LoginFormValues } from "@/components/features/auth/types";
+import loginHeroImage from "@/assets/login-hero.jpg";
 
 export function LoginPage() {
   const navigate = useNavigate();
@@ -98,7 +98,7 @@ export function LoginPage() {
   const isAnySubmitting = isSubmitting || isDemoSubmitting !== null;
 
   return (
-    <div className="min-h-screen w-full bg-gradient-to-br from-[var(--login-bg-start,#f8fafc)] via-[var(--login-bg-mid,#eef4f9)] to-[var(--login-bg-end,#e5eff7)] flex flex-col justify-between relative overflow-hidden select-none">
+    <div className="min-h-screen w-full bg-gradient-to-br from-[var(--login-bg-start,#f8f9fe)] via-[var(--login-bg-mid,#eef4f9)] to-[var(--login-bg-end,#e5eff7)] flex flex-col justify-between relative overflow-hidden select-none">
       {/* Top-Left Corner: Brand Text in small, bold, uppercase, primary-dark color */}
       <div className="pt-6 sm:pt-8 px-8 sm:px-12 lg:px-16 flex items-center justify-between z-20 shrink-0">
         <span className="text-xs sm:text-[13px] font-bold uppercase tracking-wider text-[var(--login-primary-dark,#06141B)]">
@@ -106,7 +106,7 @@ export function LoginPage() {
         </span>
       </div>
 
-      {/* Two-Column Fullscreen Layout (No Border / Edge-to-Edge) */}
+      {/* Two-Column Fullscreen Layout */}
       <div className="flex-1 flex flex-col lg:flex-row items-center justify-between w-full h-full min-h-0 z-10">
         {/* Left Side: Login Form (~35–40% width, vertically centered, generous left padding) */}
         <div className="w-full lg:w-[38%] h-full flex flex-col justify-center items-center lg:items-start px-8 sm:px-12 lg:pl-20 xl:pl-28 lg:pr-6 py-8 overflow-y-auto">
@@ -153,9 +153,14 @@ export function LoginPage() {
           </div>
         </div>
 
-        {/* Right Side: Large Illustration (~60% width) - Hidden on tablet/mobile */}
-        <div className="hidden lg:flex lg:w-[62%] h-full items-center justify-center p-6 lg:p-12 xl:p-16 relative overflow-hidden">
-          <LoginHeroIllustration className="w-full max-w-[780px]" />
+        {/* Right Side: Hero Image from User replacing previous illustration */}
+        <div className="hidden lg:flex lg:w-[62%] h-full items-center justify-center p-6 lg:p-10 xl:p-14 relative overflow-hidden">
+          <img
+            src={loginHeroImage}
+            alt="Matematika dalam Pengelolaan UMKM - TakarLaba"
+            className="w-full max-w-[860px] max-h-[85vh] object-contain select-none"
+            loading="eager"
+          />
         </div>
       </div>
     </div>
