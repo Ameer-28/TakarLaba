@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Lock, Mail, Loader2, AlertCircle, Eye, EyeOff } from "lucide-react";
+import { Loader2, AlertCircle, Eye, EyeOff } from "lucide-react";
 import { loginSchema, type LoginFormValues } from "./types";
 
 interface LoginFormProps {
@@ -27,29 +27,27 @@ export function LoginForm({ onSubmit, authError, isAnySubmitting, isSubmitting }
   });
 
   return (
-    <>
+    <div className="w-full max-w-[280px]">
       {authError && (
         <div
-          className="mb-5 p-3.5 rounded-xl bg-rose-50/90 border border-rose-200/90 flex items-start gap-2.5 text-rose-800 text-xs sm:text-sm animate-in fade-in"
+          className="mb-4 p-2.5 rounded-[4px] bg-rose-50/80 border border-rose-200/70 flex items-start gap-2 text-rose-800 text-[11px] animate-in fade-in"
           role="alert"
         >
-          <AlertCircle className="w-4 h-4 flex-shrink-0 text-rose-600 mt-0.5" />
-          <div>
-            <p className="font-bold">Authentication Failed</p>
-            <p className="text-rose-700 mt-0.5">{authError}</p>
-          </div>
+          <AlertCircle className="w-3.5 h-3.5 flex-shrink-0 text-rose-600 mt-0.5" />
+          <p className="leading-snug">{authError}</p>
         </div>
       )}
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6" noValidate>
+        {/* Email Field with Minimal Underline Style */}
         <div>
-          <label htmlFor="email" className="block text-xs font-bold text-slate-700 mb-1.5">
+          <label
+            htmlFor="email"
+            className="block text-[11px] font-semibold text-slate-600 tracking-wide mb-1"
+          >
             Email
           </label>
-          <div className="relative rounded-xl shadow-2xs">
-            <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-              <Mail className="h-4 w-4" />
-            </div>
+          <div className="relative">
             <input
               id="email"
               type="email"
@@ -57,30 +55,31 @@ export function LoginForm({ onSubmit, authError, isAnySubmitting, isSubmitting }
               disabled={isAnySubmitting}
               aria-invalid={errors.email ? "true" : "false"}
               aria-describedby={errors.email ? "email-error" : undefined}
-              className={`block w-full pl-10 pr-3.5 py-2.5 text-sm rounded-xl border bg-slate-50/40 hover:bg-white focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#11212D]/15 transition-all ${
+              className={`w-full bg-transparent border-0 border-b pb-2 pt-0.5 text-xs sm:text-[13px] text-[var(--login-primary-dark,#06141B)] placeholder:text-slate-300 focus:outline-none transition-colors duration-200 rounded-none ${
                 errors.email
-                  ? "border-rose-300 text-rose-900 focus:border-rose-500"
-                  : "border-[#CCD0CF] text-[#06141B] focus:border-[#11212D]"
+                  ? "border-rose-400 focus:border-rose-500"
+                  : "border-slate-200 focus:border-[var(--login-primary,#11212D)]"
               }`}
-              placeholder="user@business.com"
+              placeholder="Please enter your email"
               {...register("email")}
             />
           </div>
           {errors.email && (
-            <p id="email-error" className="mt-1 text-xs text-rose-600 font-medium">
+            <p id="email-error" className="mt-1 text-[10px] text-rose-500 font-normal">
               {errors.email.message}
             </p>
           )}
         </div>
 
+        {/* Password Field with Minimal Underline & Show/Hide Eye Toggle */}
         <div>
-          <label htmlFor="password" className="block text-xs font-bold text-slate-700 mb-1.5">
+          <label
+            htmlFor="password"
+            className="block text-[11px] font-semibold text-slate-600 tracking-wide mb-1"
+          >
             Password
           </label>
-          <div className="relative rounded-xl shadow-2xs">
-            <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-              <Lock className="h-4 w-4" />
-            </div>
+          <div className="relative">
             <input
               id="password"
               type={showPassword ? "text" : "password"}
@@ -88,10 +87,10 @@ export function LoginForm({ onSubmit, authError, isAnySubmitting, isSubmitting }
               disabled={isAnySubmitting}
               aria-invalid={errors.password ? "true" : "false"}
               aria-describedby={errors.password ? "password-error" : undefined}
-              className={`block w-full pl-10 pr-10 py-2.5 text-sm rounded-xl border bg-slate-50/40 hover:bg-white focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#11212D]/15 transition-all ${
+              className={`w-full bg-transparent border-0 border-b pb-2 pt-0.5 pr-6 text-xs sm:text-[13px] text-[var(--login-primary-dark,#06141B)] placeholder:text-slate-300 focus:outline-none transition-colors duration-200 rounded-none ${
                 errors.password
-                  ? "border-rose-300 text-rose-900 focus:border-rose-500"
-                  : "border-[#CCD0CF] text-[#06141B] focus:border-[#11212D]"
+                  ? "border-rose-400 focus:border-rose-500"
+                  : "border-slate-200 focus:border-[var(--login-primary,#11212D)]"
               }`}
               placeholder="Please enter your password"
               {...register("password")}
@@ -101,30 +100,31 @@ export function LoginForm({ onSubmit, authError, isAnySubmitting, isSubmitting }
               onClick={() => setShowPassword((prev) => !prev)}
               disabled={isAnySubmitting}
               tabIndex={-1}
-              className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-600 cursor-pointer transition-colors"
+              className="absolute right-0 bottom-2 text-slate-400 hover:text-[var(--login-primary,#11212D)] transition-colors cursor-pointer"
               title={showPassword ? "Hide password" : "Show password"}
               aria-label={showPassword ? "Hide password" : "Show password"}
             >
-              {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              {showPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
             </button>
           </div>
           {errors.password && (
-            <p id="password-error" className="mt-1 text-xs text-rose-600 font-medium">
+            <p id="password-error" className="mt-1 text-[10px] text-rose-500 font-normal">
               {errors.password.message}
             </p>
           )}
         </div>
 
+        {/* Action Button: LOGIN */}
         <div className="pt-2">
           <button
             type="submit"
             disabled={isAnySubmitting}
-            className="w-full flex justify-center items-center py-2.5 sm:py-3 px-5 border border-transparent rounded-xl shadow-md shadow-[#11212D]/20 hover:shadow-lg hover:shadow-[#11212D]/30 text-sm font-bold text-white bg-[#11212D] hover:bg-[#253745] active:scale-[0.99] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#11212D] disabled:opacity-60 disabled:cursor-not-allowed transition-all uppercase tracking-wider cursor-pointer"
+            className="w-full h-[36px] flex items-center justify-center rounded-[3.5px] bg-[var(--login-primary,#11212D)] hover:bg-[var(--login-primary-accent,#1C354A)] hover:-translate-y-0.5 active:translate-y-0 text-white text-[11px] font-medium uppercase tracking-[0.14em] shadow-[0_8px_20px_rgba(17,33,45,0.35)] hover:shadow-[0_10px_24px_rgba(17,33,45,0.45)] transition-all duration-200 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:translate-y-0"
           >
             {isSubmitting ? (
               <>
-                <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                Signing In...
+                <Loader2 className="w-3.5 h-3.5 animate-spin mr-1.5" />
+                <span>LOGGING IN...</span>
               </>
             ) : (
               "LOGIN"
@@ -132,6 +132,6 @@ export function LoginForm({ onSubmit, authError, isAnySubmitting, isSubmitting }
           </button>
         </div>
       </form>
-    </>
+    </div>
   );
 }
