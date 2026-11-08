@@ -15,212 +15,172 @@ export function LoginRocketArt({
       aria-hidden="true"
     >
       <defs>
-        {/* Deep Cosmic Space Gradient in TakarLaba Signature Navy */}
+        {/* Cosmic Space Gradient in TakarLaba Signature Midnight Navy */}
         <linearGradient id="cosmicSpaceGrad" x1="0%" y1="0%" x2="100%" y2="100%">
           <stop offset="0%" stopColor="#06141B" />
-          <stop offset="45%" stopColor="#11212D" />
-          <stop offset="100%" stopColor="#1E374D" />
+          <stop offset="42%" stopColor="#11212D" />
+          <stop offset="100%" stopColor="#193248" />
         </linearGradient>
 
         {/* Glowing Planetary Nebulae */}
         <radialGradient id="planetGrad1" cx="35%" cy="35%" r="65%">
-          <stop offset="0%" stopColor="#3A5974" stopOpacity="0.85" />
-          <stop offset="70%" stopColor="#1A3144" stopOpacity="0.4" />
+          <stop offset="0%" stopColor="#2D4860" stopOpacity="0.85" />
+          <stop offset="70%" stopColor="#152737" stopOpacity="0.4" />
           <stop offset="100%" stopColor="#06141B" stopOpacity="0" />
         </radialGradient>
 
         <radialGradient id="planetGrad2" cx="35%" cy="35%" r="65%">
-          <stop offset="0%" stopColor="#2D4860" stopOpacity="0.75" />
-          <stop offset="70%" stopColor="#152737" stopOpacity="0.3" />
+          <stop offset="0%" stopColor="#3A5974" stopOpacity="0.6" />
+          <stop offset="70%" stopColor="#1A3144" stopOpacity="0.25" />
           <stop offset="100%" stopColor="#06141B" stopOpacity="0" />
         </radialGradient>
 
-        {/* Cloud Shadow Underlayers */}
+        {/* Cloud Shadow Underlayer Gradient */}
         <linearGradient id="smokeShadowGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#2B445B" stopOpacity="0.6" />
-          <stop offset="100%" stopColor="#122332" stopOpacity="0.3" />
+          <stop offset="0%" stopColor="#1E3547" stopOpacity="0.75" />
+          <stop offset="100%" stopColor="#0E1E2C" stopOpacity="0.45" />
         </linearGradient>
-
-        {/* Rocket Thruster Flame Gradient */}
-        <linearGradient id="flameGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#FFFFFF" />
-          <stop offset="30%" stopColor="#FDE047" />
-          <stop offset="65%" stopColor="#FB923C" />
-          <stop offset="100%" stopColor="#F43F5E" />
-        </linearGradient>
-
-        <filter id="flameGlow" x="-20%" y="-20%" width="140%" height="140%">
-          <feGaussianBlur stdDeviation="8" result="blur" />
-          <feComposite in="SourceGraphic" in2="blur" operator="over" />
-        </filter>
       </defs>
 
       {/* COSMIC SPACE BACKGROUND */}
       <rect width="1000" height="600" fill="url(#cosmicSpaceGrad)" />
 
-      {/* GLOWING ORBS / PLANETS */}
-      <circle cx="100" cy="110" r="75" fill="url(#planetGrad1)" />
-      <circle cx="210" cy="460" r="55" fill="url(#planetGrad2)" />
+      {/* GLOWING CELESTIAL ORBS (Planets) */}
+      {/* Bottom-left glowing planet */}
+      <circle cx="115" cy="410" r="52" fill="url(#planetGrad1)" />
+      {/* Top-left subtle glowing nebula */}
+      <circle cx="95" cy="95" r="60" fill="url(#planetGrad2)" />
 
       {/* TWINKLING STARS & 4-POINT SPARKLES */}
       <path
-        d="M 240 65 Q 240 75 250 75 Q 240 75 240 85 Q 240 75 230 75 Q 240 75 240 65 Z"
+        d="M 205 70 Q 205 78 213 78 Q 205 78 205 86 Q 205 78 197 78 Q 205 78 205 70 Z"
         fill="#FFFFFF"
         opacity="0.9"
       />
       <path
-        d="M 410 50 Q 410 58 418 58 Q 410 58 410 66 Q 410 58 402 58 Q 410 58 410 50 Z"
+        d="M 410 60 Q 410 67 417 67 Q 410 67 410 74 Q 410 67 403 67 Q 410 67 410 60 Z"
         fill="#93C5FD"
-        opacity="0.9"
+        opacity="0.85"
       />
       <path
-        d="M 75 350 Q 75 357 82 357 Q 75 357 75 364 Q 75 357 68 357 Q 75 357 75 350 Z"
+        d="M 70 340 Q 70 346 76 346 Q 70 346 70 352 Q 70 346 64 346 Q 70 346 70 340 Z"
+        fill="#FFFFFF"
+        opacity="0.8"
+      />
+      <path
+        d="M 505 80 Q 505 84 509 84 Q 505 84 505 88 Q 505 84 501 84 Q 505 84 505 80 Z"
         fill="#FFFFFF"
         opacity="0.75"
       />
       <path
-        d="M 480 75 Q 480 80 485 80 Q 480 80 480 85 Q 480 80 475 80 Q 480 80 480 75 Z"
+        d="M 425 210 Q 425 214 429 214 Q 425 214 425 218 Q 425 214 421 214 Q 425 214 425 210 Z"
         fill="#E2E8F0"
-        opacity="0.8"
+        opacity="0.75"
       />
-      <circle cx="215" cy="65" r="2" fill="#FFFFFF" opacity="0.9" />
-      <circle cx="340" cy="90" r="1.5" fill="#BFDBFE" opacity="0.8" />
-      <circle cx="140" cy="240" r="1.5" fill="#FFFFFF" opacity="0.6" />
-      <circle cx="90" cy="420" r="2" fill="#FFFFFF" opacity="0.75" />
-      <circle cx="150" cy="490" r="1.5" fill="#93C5FD" opacity="0.8" />
-      <circle cx="280" cy="530" r="2" fill="#FFFFFF" opacity="0.7" />
-      <circle cx="370" cy="380" r="1.5" fill="#E2E8F0" opacity="0.6" />
-      <circle cx="430" cy="240" r="2" fill="#FFFFFF" opacity="0.8" />
 
-      {/* DETACHED FLOATING SMOKE PUFFS */}
-      <circle cx="265" cy="505" r="18" fill="#FFFFFF" opacity="0.22" />
-      <circle cx="485" cy="460" r="14" fill="#FFFFFF" opacity="0.28" />
-      <circle cx="360" cy="475" r="22" fill="#FFFFFF" opacity="0.25" />
-      <circle cx="445" cy="510" r="16" fill="#FFFFFF" opacity="0.3" />
-      <circle cx="535" cy="275" r="15" fill="#FFFFFF" opacity="0.25" />
-      <circle cx="540" cy="345" r="20" fill="#FFFFFF" opacity="0.22" />
+      {/* Star Dots */}
+      <circle cx="190" cy="80" r="1.8" fill="#FFFFFF" opacity="0.9" />
+      <circle cx="310" cy="65" r="1.5" fill="#BFDBFE" opacity="0.8" />
+      <circle cx="490" cy="50" r="1.8" fill="#FFFFFF" opacity="0.85" />
+      <circle cx="150" cy="200" r="1.5" fill="#FFFFFF" opacity="0.6" />
+      <circle cx="80" cy="470" r="2" fill="#FFFFFF" opacity="0.7" />
+      <circle cx="145" cy="520" r="1.5" fill="#93C5FD" opacity="0.8" />
+      <circle cx="240" cy="540" r="2" fill="#FFFFFF" opacity="0.7" />
+      <circle cx="285" cy="480" r="1.5" fill="#E2E8F0" opacity="0.6" />
+      <circle cx="440" cy="150" r="2" fill="#FFFFFF" opacity="0.8" />
+      <circle cx="525" cy="180" r="1.5" fill="#FFFFFF" opacity="0.7" />
+
+      {/* DETACHED FLOATING SMOKE PUFFS / BUBBLES */}
+      <circle cx="270" cy="460" r="22" fill="#FFFFFF" opacity="0.22" />
+      <circle cx="475" cy="230" r="16" fill="#FFFFFF" opacity="0.28" />
+      <circle cx="510" cy="320" r="20" fill="#FFFFFF" opacity="0.24" />
+      <circle cx="460" cy="420" r="24" fill="#FFFFFF" opacity="0.26" />
+      <circle cx="350" cy="520" r="18" fill="#FFFFFF" opacity="0.25" />
 
       {/* LAYER 1: DARK UNDERLAYER CLOUD SHADOW */}
       <path
-        d="M 1000 0 L 590 0
-           C 565 10, 550 30, 555 55
-           C 520 65, 510 110, 540 140
-           C 505 160, 500 215, 535 245
-           C 495 270, 490 330, 525 365
-           C 475 390, 460 455, 500 500
-           C 450 520, 430 580, 470 600
+        d="M 1000 0 L 560 0
+           C 530 15, 520 45, 535 75
+           C 510 90, 500 135, 530 165
+           C 490 185, 485 240, 520 270
+           C 440 280, 360 295, 240 280
+           C 270 330, 280 390, 320 440
+           C 310 490, 325 550, 335 600
            L 1000 600 Z"
         fill="url(#smokeShadowGrad)"
       />
 
-      {/* LAYER 2: TRANSLUCENT MID-LAYER CLOUDS */}
+      {/* LAYER 2: TRANSLUCENT MID-LAYER CLOUDS (PASTEL SLATE) */}
       <path
-        d="M 1000 0 L 600 0
-           C 575 15, 565 40, 570 65
-           C 540 75, 530 120, 560 150
-           C 525 170, 520 225, 555 255
-           C 515 280, 510 340, 545 375
-           C 485 400, 470 470, 520 515
-           C 470 540, 455 595, 505 600
+        d="M 1000 0 L 575 0
+           C 550 20, 540 50, 555 80
+           C 530 100, 520 145, 550 175
+           C 515 200, 510 250, 545 285
+           C 465 295, 385 305, 255 290
+           C 285 340, 305 400, 340 450
+           C 335 500, 345 560, 350 600
            L 1000 600 Z"
         fill="#CBDDEB"
-        opacity="0.55"
+        opacity="0.6"
       />
 
-      {/* LAYER 3: MAIN WHITE BILLOWING CLOUD CANVAS (Forms the right half for form) */}
+      {/* LAYER 3: MAIN WHITE BILLOWING CLOUD CANVAS & JET PLUME */}
       <path
-        d="M 1000 0 L 610 0
-           C 580 10, 560 35, 565 65
-           C 568 80, 578 92, 590 100
-           C 560 108, 540 135, 545 165
-           C 550 185, 565 200, 585 208
-           C 555 215, 535 245, 540 278
-           C 545 305, 565 325, 592 332
-           C 558 340, 530 375, 538 412
-           C 545 440, 570 460, 600 465
-           C 565 475, 535 515, 548 555
-           C 558 585, 585 600, 615 600
+        d="M 1000 0 L 595 0
+           C 570 15, 560 40, 570 65
+           C 575 75, 585 85, 595 90
+           C 570 100, 555 125, 560 150
+           C 565 170, 580 185, 600 190
+           C 575 205, 565 235, 575 265
+           C 580 278, 590 288, 605 295
+           C 510 305, 420 310, 265 298
+           C 295 320, 325 350, 345 385
+           C 325 405, 325 435, 355 460
+           C 335 485, 340 525, 365 550
+           C 355 570, 360 590, 368 600
            L 1000 600 Z"
         fill="#FFFFFF"
       />
 
-      {/* ROCKET EXHAUST PLUME */}
-      <g id="exhaust-trail">
-        <path
-          d="M 335 290
-             C 345 320, 360 360, 395 385
-             C 435 410, 480 395, 520 440
-             C 550 475, 540 540, 600 570
-             C 560 580, 520 570, 480 550
-             C 430 525, 410 470, 370 440
-             C 335 415, 330 350, 320 300 Z"
-          fill="#FFFFFF"
-          opacity="0.88"
-        />
-        <path
-          d="M 330 295
-             C 345 330, 375 375, 415 405
-             C 455 435, 505 440, 550 480
-             C 580 505, 590 550, 620 575
-             C 580 575, 550 560, 520 535
-             C 475 495, 440 470, 395 435
-             C 360 405, 345 350, 325 305 Z"
-          fill="#FFFFFF"
-        />
-      </g>
-
-      {/* ROCKET ATMOSPHERIC SPEED HALO / MOTION AURA */}
-      <g transform="translate(290, 245) rotate(-35)">
-        <ellipse cx="0" cy="55" rx="42" ry="120" fill="#FFFFFF" opacity="0.08" />
-        <ellipse cx="0" cy="40" rx="30" ry="90" fill="#FFFFFF" opacity="0.12" />
+      {/* ROCKET SPEED HALO / MOTION AURA */}
+      <g transform="translate(220, 265) rotate(-38)">
+        <ellipse cx="0" cy="55" rx="40" ry="115" fill="#FFFFFF" opacity="0.08" />
+        <ellipse cx="0" cy="42" rx="28" ry="85" fill="#FFFFFF" opacity="0.12" />
       </g>
 
       {/* ROCKET SHIP (Blasting off diagonally towards Top-Left) */}
-      <g id="rocket-ship" transform="translate(290, 245) rotate(-35)">
-        {/* Thruster Flame */}
-        <path
-          d="M -10 42 C -15 65, -5 85, 0 100 C 5 85, 15 65, 10 42 Z"
-          fill="url(#flameGrad)"
-          filter="url(#flameGlow)"
-        />
-        <path d="M -6 42 C -9 58, -3 70, 0 80 C 3 70, 9 58, 6 42 Z" fill="#FFFFFF" />
-
+      <g id="rocket-ship" transform="translate(220, 265) rotate(-38)">
         {/* Left Fin */}
-        <path d="M -18 15 C -35 22, -42 42, -38 52 C -28 50, -20 44, -16 38 Z" fill="#F43F5E" />
+        <path d="M -17 15 C -34 22, -40 42, -36 50 C -26 48, -19 42, -15 36 Z" fill="#F43F5E" />
         {/* Right Fin */}
-        <path d="M 18 15 C 35 22, 42 42, 38 52 C 28 50, 20 44, 16 38 Z" fill="#F43F5E" />
+        <path d="M 17 15 C 34 22, 40 42, 36 50 C 26 48, 19 42, 15 36 Z" fill="#F43F5E" />
         {/* Thruster Base Ring */}
-        <rect x="-12" y="38" width="24" height="6" rx="2" fill="#06141B" />
+        <rect x="-11" y="36" width="22" height="6" rx="2" fill="#06141B" />
 
         {/* Fuselage Body (Capsule) */}
         <path
-          d="M 0 -55
-             C 25 -25, 26 15, 18 40
-             L -18 40
-             C -26 15, -25 -25, 0 -55 Z"
-          fill="#F8FAFC"
+          d="M 0 -52 C 24 -24, 25 15, 17 38 L -17 38 C -25 15, -24 -24, 0 -52 Z"
+          fill="#FFFFFF"
         />
 
         {/* Nose Cone Accent */}
         <path
-          d="M 0 -55
-             C 12 -40, 15 -25, 15 -18
-             L -15 -18
-             C -15 -25, -12 -40, 0 -55 Z"
+          d="M 0 -52 C 11 -38, 14 -24, 14 -16 L -14 -16 C -14 -24, -11 -38, 0 -52 Z"
           fill="#F43F5E"
         />
 
         {/* Center Dorsal Fin */}
-        <path d="M -3 15 L 3 15 L 3 42 L -3 42 Z" fill="#E11D48" />
+        <path d="M -3 15 L 3 15 L 3 39 L -3 39 Z" fill="#E11D48" />
 
         {/* Porthole Window */}
-        <circle cx="0" cy="5" r="11" fill="#11212D" />
-        <circle cx="0" cy="5" r="8.5" fill="#38BDF8" />
-        <circle cx="-2.5" cy="2.5" r="3" fill="#FFFFFF" opacity="0.9" />
+        <circle cx="0" cy="6" r="11" fill="#11212D" />
+        <circle cx="0" cy="6" r="8.5" fill="#F43F5E" />
+        <circle cx="0" cy="6" r="6" fill="#FFFFFF" />
+        <circle cx="1.5" cy="4.5" r="2.5" fill="#38BDF8" />
 
         {/* Shading Stripe */}
         <path
-          d="M -16 0 C -16 -20, -10 -35, -5 -45 C -10 -35, -14 -15, -13 25 L -17 35 Z"
+          d="M -15 0 C -15 -18, -9 -32, -4 -42 C -9 -32, -13 -14, -12 24 L -16 34 Z"
           fill="#E2E8F0"
           opacity="0.7"
         />
