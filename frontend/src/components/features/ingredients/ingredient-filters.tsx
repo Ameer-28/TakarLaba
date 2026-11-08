@@ -1,4 +1,5 @@
 import { Search, X, Plus } from "lucide-react";
+import { CustomSelect, type SelectOption } from "@/components/ui/custom-select";
 
 interface IngredientFiltersProps {
   searchTerm: string;
@@ -15,6 +16,17 @@ const CATEGORY_TABS = [
   { id: "MAIN", label: "Main Ingredients" },
   { id: "SUPPORT", label: "Supporting" },
   { id: "PACKAGING", label: "Packaging" },
+];
+
+const CATEGORY_SELECT_OPTIONS: SelectOption<string>[] = CATEGORY_TABS.map((t) => ({
+  value: t.id,
+  label: t.label,
+}));
+
+const STATUS_SELECT_OPTIONS: SelectOption<"ALL" | "ACTIVE" | "INACTIVE">[] = [
+  { value: "ALL", label: "All Status" },
+  { value: "ACTIVE", label: "Active Only" },
+  { value: "INACTIVE", label: "Inactive Only" },
 ];
 
 export function IngredientFilters({
@@ -52,8 +64,18 @@ export function IngredientFilters({
 
       {/* Filter Controls Row */}
       <div className="flex flex-wrap items-center justify-between gap-2.5">
-        {/* Category Tabs */}
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-0.5 scrollbar-none">
+        {/* Tablet & Mobile Category Dropdown (tampilan tablet kebawah) */}
+        <div className="lg:hidden w-full sm:w-auto min-w-[160px]">
+          <CustomSelect<string>
+            value={categoryFilter}
+            onChange={onCategoryChange}
+            options={CATEGORY_SELECT_OPTIONS}
+            triggerClassName="py-1.5 px-3 text-xs"
+          />
+        </div>
+
+        {/* Desktop Category Tabs */}
+        <div className="hidden lg:flex items-center gap-1.5 overflow-x-auto pb-0.5 scrollbar-none">
           {CATEGORY_TABS.map((tab) => (
             <button
               key={tab.id}
@@ -70,23 +92,22 @@ export function IngredientFilters({
           ))}
         </div>
 
-        {/* Right Controls: Status Filter & Add Ingredient */}
-        <div className="flex items-center gap-2">
-          <select
-            value={statusFilter}
-            onChange={(e) => onStatusChange(e.target.value as "ALL" | "ACTIVE" | "INACTIVE")}
-            className="px-3 py-1.5 rounded-xl border border-slate-200 text-xs font-semibold text-slate-700 bg-slate-50/60 hover:bg-slate-100/70 focus:outline-hidden focus:border-slate-800 transition-colors cursor-pointer"
-          >
-            <option value="ALL">All Status</option>
-            <option value="ACTIVE">Active Only</option>
-            <option value="INACTIVE">Inactive Only</option>
-          </select>
+        {/* Right Controls: Custom Status Filter & Add Ingredient */}
+        <div className="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-end">
+          <div className="min-w-[125px]">
+            <CustomSelect<"ALL" | "ACTIVE" | "INACTIVE">
+              value={statusFilter}
+              onChange={onStatusChange}
+              options={STATUS_SELECT_OPTIONS}
+              triggerClassName="py-1.5 px-3 text-xs"
+            />
+          </div>
 
           {onOpenCreate && (
             <button
               type="button"
               onClick={onOpenCreate}
-              className="inline-flex items-center justify-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold shadow-xs transition-all cursor-pointer whitespace-nowrap"
+              className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold shadow-xs transition-all cursor-pointer whitespace-nowrap"
               title="Add new master ingredient"
             >
               <Plus className="w-3.5 h-3.5" />

@@ -11,6 +11,7 @@ import { StockAdjustmentModal } from "@/components/features/inventory/stock-adju
 import { AdjustmentHistoryList } from "@/components/features/inventory/adjustment-history-list";
 import { useSession } from "@/lib/auth-client";
 import { downloadCsv } from "@/lib/export";
+import { CustomSelect, type SelectOption } from "@/components/ui/custom-select";
 import {
   IngredientCatalogView,
   IngredientModals,
@@ -72,9 +73,75 @@ export function IngredientsPage() {
     });
   }, [ingredients, searchTerm, categoryFilter, statusFilter]);
 
+  const tabOptions = useMemo(() => {
+    const opts: SelectOption<
+      "catalog" | "stock" | "history" | "waste" | "adjustments" | "radar"
+    >[] = [
+      {
+        value: "catalog",
+        label: `Ingredient Catalog (${ingredients.length})`,
+        description: "Master list, units of measure, and active status",
+        icon: Layers,
+      },
+      {
+        value: "stock",
+        label: "Stock & FEFO",
+        description: "Monitor remaining stock batches and expiration dates",
+        icon: Boxes,
+      },
+      {
+        value: "history",
+        label: "Purchase Invoices",
+        description: "Purchase records, receiving dates, and suppliers",
+        icon: Receipt,
+      },
+    ];
+
+    if (isOwner) {
+      opts.push(
+        {
+          value: "waste",
+          label: "Waste Log",
+          description: "Record spoiled, expired, or spilled items",
+          icon: Trash2,
+          badgeColor: "bg-rose-100 text-rose-800",
+        },
+        {
+          value: "adjustments",
+          label: "Stock Adjustments",
+          description: "Physical stock opname deviations and corrections",
+          icon: SlidersHorizontal,
+          badgeColor: "bg-sky-100 text-sky-800",
+        },
+        {
+          value: "radar",
+          label: "Waste Radar",
+          description: "Early warning expiry risks and promo discount floors",
+          icon: AlertTriangle,
+          badgeColor: "bg-amber-100 text-amber-800",
+        }
+      );
+    }
+
+    return opts;
+  }, [ingredients.length, isOwner]);
+
   return (
     <div className="space-y-6 max-w-7xl mx-auto pb-12">
-      <div className="flex items-center gap-2 border-b border-slate-200 overflow-x-auto">
+      {/* Tablet & Mobile Tab Dropdown Selector (tampilan tablet kebawah) */}
+      <div className="lg:hidden bg-white p-3.5 rounded-2xl border border-slate-200 shadow-2xs space-y-1.5">
+        <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-500">
+          Menu / Fitur Bahan &amp; Stok
+        </label>
+        <CustomSelect
+          value={activeTab}
+          onChange={(val) => handleTabChange(val)}
+          options={tabOptions}
+        />
+      </div>
+
+      {/* Desktop Horizontal Tabs */}
+      <div className="hidden lg:flex items-center gap-2 border-b border-slate-200 overflow-x-auto">
         <button
           onClick={() => handleTabChange("catalog")}
           className={`flex items-center gap-2 py-3 px-4 border-b-2 font-semibold text-xs sm:text-sm transition-colors whitespace-nowrap ${

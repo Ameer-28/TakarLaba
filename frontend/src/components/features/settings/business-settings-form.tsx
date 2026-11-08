@@ -2,6 +2,37 @@ import React, { useState, useEffect } from "react";
 import { Save, Loader2, Store, HelpCircle } from "lucide-react";
 import { toast } from "sonner";
 import { useSettings, useUpdateSettings } from "../../../api/hooks/use-settings.js";
+import { CustomSelect, type SelectOption } from "@/components/ui/custom-select";
+
+const PRICE_ROUNDING_OPTIONS: SelectOption<number>[] = [
+  {
+    value: 1,
+    label: "No Rounding (Rp1)",
+    description: "Exact price calculation without multiple rounding",
+  },
+  {
+    value: 50,
+    label: "Rp50 (Multiple of 50)",
+    description: "Rounded up to nearest multiple of Rp50",
+  },
+  {
+    value: 100,
+    label: "Rp100 (Multiple of 100)",
+    description: "Rounded up to nearest multiple of Rp100",
+  },
+  {
+    value: 500,
+    label: "Rp500 (Standard Recommendation)",
+    description: "Standard recommendation for F&B culinary retail",
+    badge: "Recommended",
+    badgeColor: "bg-emerald-100 text-emerald-800",
+  },
+  {
+    value: 1000,
+    label: "Rp1,000 (Multiple of 1,000)",
+    description: "Rounded up to nearest multiple of Rp1,000",
+  },
+];
 
 export function BusinessSettingsForm() {
   const { data: settings, isLoading } = useSettings();
@@ -127,17 +158,11 @@ export function BusinessSettingsForm() {
             <label className="block text-xs font-semibold text-slate-700 mb-1.5">
               Selling Price Rounding Step <span className="text-red-500">*</span>
             </label>
-            <select
+            <CustomSelect<number>
               value={priceRoundingStep}
-              onChange={(e) => setPriceRoundingStep(Number(e.target.value))}
-              className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-sm focus:outline-hidden focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
-            >
-              <option value={1}>No Rounding (Rp1)</option>
-              <option value={50}>Rp50 (Multiple of 50)</option>
-              <option value={100}>Rp100 (Multiple of 100)</option>
-              <option value={500}>Rp500 (Standard Recommendation)</option>
-              <option value={1000}>Rp1,000 (Multiple of 1,000)</option>
-            </select>
+              onChange={setPriceRoundingStep}
+              options={PRICE_ROUNDING_OPTIONS}
+            />
             <p className="text-xs text-slate-500 mt-1">
               Automatic price suggestions will be rounded up to the nearest multiple.
             </p>

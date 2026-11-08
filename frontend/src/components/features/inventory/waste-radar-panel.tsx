@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { useWasteRadar, type WasteRadarItem } from "@/api/hooks/use-waste-radar";
 import { formatRupiah, formatNumber } from "@/lib/format";
+import { CustomSelect } from "@/components/ui/custom-select";
 
 export function WasteRadarPanel() {
   const [warnDays, setWarnDays] = useState<number>(7);
@@ -69,8 +70,21 @@ export function WasteRadarPanel() {
           </p>
         </div>
 
-        {/* Day Range Filter */}
-        <div className="flex items-center gap-1.5 p-1 bg-slate-100 rounded-xl border border-slate-200 self-start sm:self-center">
+        {/* Tablet & Mobile Day Range Dropdown (tampilan tablet kebawah) */}
+        <div className="lg:hidden w-full sm:w-auto min-w-[190px]">
+          <CustomSelect<number>
+            value={warnDays}
+            onChange={setWarnDays}
+            options={dayOptions.map((opt) => ({
+              value: opt.value,
+              label: `Range: ${opt.label}`,
+            }))}
+            triggerClassName="py-1.5 px-3 text-xs bg-slate-50"
+          />
+        </div>
+
+        {/* Desktop Day Range Filter */}
+        <div className="hidden lg:flex items-center gap-1.5 p-1 bg-slate-100 rounded-xl border border-slate-200 self-start sm:self-center">
           <Calendar className="w-3.5 h-3.5 text-slate-400 ml-2" />
           <span className="text-xs font-medium text-slate-500 pr-1">Range:</span>
           {dayOptions.map((opt) => (
