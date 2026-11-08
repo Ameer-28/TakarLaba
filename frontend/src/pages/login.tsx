@@ -4,7 +4,7 @@ import { signIn, useSession, type UserRole } from "@/lib/auth-client";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 import { apiClient } from "@/api/client";
-import { SpaceLogin } from "@/components/ui/space-login";
+import { CardLogin } from "@/components/features/auth/card-login";
 
 export function LoginPage() {
   const navigate = useNavigate();
@@ -77,13 +77,6 @@ export function LoginPage() {
     }
   };
 
-  const handleSocialLogin = (
-    provider: "google" | "github" | "facebook" | "windows" | "passkey"
-  ) => {
-    const name = provider.charAt(0).toUpperCase() + provider.slice(1);
-    toast.info(`Login dengan ${name} belum diaktifkan. Gunakan email & password atau tombol demo.`);
-  };
-
   const handleForgotPassword = () => {
     toast.info(
       "Lupa kata sandi? Silakan hubungi administrator atau gunakan akun demo untuk mencoba."
@@ -93,24 +86,20 @@ export function LoginPage() {
   if (isSessionPending) {
     return (
       <div
-        className="min-h-screen w-full flex flex-col items-center justify-center bg-[#03060f] text-slate-400 gap-3"
+        className="min-h-screen w-full flex flex-col items-center justify-center bg-background text-muted-foreground gap-3"
         role="status"
         aria-live="polite"
       >
-        <Loader2 className="w-8 h-8 animate-spin text-white" />
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
         <p className="text-xs font-medium">Memuat data sesi...</p>
       </div>
     );
   }
 
   return (
-    <SpaceLogin
-      title="Sign In"
-      subtitle="TakarLaba — Asisten Penjaga Margin & Anti-Waste UMKM"
+    <CardLogin
       onSubmit={handleSubmit}
-      onSignUp={() => navigate("/register")}
       onForgotPassword={handleForgotPassword}
-      onSocialLogin={handleSocialLogin}
       onDemoLogin={handleDemoLogin}
       isDemoSubmitting={isDemoSubmitting}
       errorMessage={authError}
