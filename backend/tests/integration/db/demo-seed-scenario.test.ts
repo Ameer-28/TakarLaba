@@ -182,5 +182,17 @@ describeDb("Real DB: Deterministic Seed & Lampiran A Scenario Verification", () 
       where: { id: kopiSusuMenu.id },
     });
     expect(Number(updatedMenu.sellingPrice)).toBe(20000);
+
+    // 11. Verify Menu Engineering classification (Kasavana & Smith) (BR-10, FR-MEG-01)
+    const megRes = await request(app)
+      .get("/api/analytics/menu-engineering?days=30")
+      .set("Cookie", ownerCookie);
+
+    expect(megRes.status).toBe(200);
+    expect(megRes.body.ok).toBe(true);
+    expect(megRes.body.data.isDataSufficient).toBe(true);
+    expect(megRes.body.data.classifiedMenus).toHaveLength(6);
+    expect(megRes.body.data.unclassifiedMenus).toHaveLength(0);
+    expect(megRes.body.data.totalClassifiedPortions).toBeGreaterThanOrEqual(1200);
   }, 30000);
 });
