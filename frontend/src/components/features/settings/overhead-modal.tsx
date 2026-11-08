@@ -2,6 +2,14 @@ import React, { useState, useEffect } from "react";
 import { X, Loader2, DollarSign } from "lucide-react";
 import type { OverheadCost, OverheadType } from "./types.js";
 import { OVERHEAD_TYPE_LABELS } from "./types.js";
+import { CustomSelect, type SelectOption } from "@/components/ui/custom-select";
+
+const overheadTypeOptions: SelectOption<OverheadType>[] = (
+  Object.keys(OVERHEAD_TYPE_LABELS) as OverheadType[]
+).map((t) => ({
+  value: t,
+  label: OVERHEAD_TYPE_LABELS[t].label,
+}));
 
 interface OverheadModalProps {
   isOpen: boolean;
@@ -81,8 +89,8 @@ export function OverheadModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs">
-      <div className="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden border border-slate-200 animate-in fade-in zoom-in-95 duration-150">
-        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 bg-slate-50/50">
+      <div className="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-visible border border-slate-200 animate-in fade-in zoom-in-95 duration-150">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 bg-slate-50/50 rounded-t-2xl">
           <div className="flex items-center gap-2.5">
             <div className="p-2 bg-emerald-50 text-emerald-700 rounded-lg">
               <DollarSign className="w-5 h-5" />
@@ -125,17 +133,11 @@ export function OverheadModal({
             <label className="block text-xs font-semibold text-slate-700 mb-1">
               Overhead Category <span className="text-red-500">*</span>
             </label>
-            <select
+            <CustomSelect<OverheadType>
               value={type}
-              onChange={(e) => setType(e.target.value as OverheadType)}
-              className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-sm focus:outline-hidden focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
-            >
-              {(Object.keys(OVERHEAD_TYPE_LABELS) as OverheadType[]).map((t) => (
-                <option key={t} value={t}>
-                  {OVERHEAD_TYPE_LABELS[t].label}
-                </option>
-              ))}
-            </select>
+              onChange={setType}
+              options={overheadTypeOptions}
+            />
           </div>
 
           <div>

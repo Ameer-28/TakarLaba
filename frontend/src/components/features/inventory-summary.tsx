@@ -1,5 +1,6 @@
 import { useState, useMemo } from "react";
 import { Search, Loader2, AlertCircle, Package, Receipt, Download } from "lucide-react";
+import { CustomSelect, type SelectOption } from "@/components/ui/custom-select";
 import {
   useInventorySummary,
   useInventoryBatches,
@@ -27,6 +28,38 @@ const FILTER_TABS = [
   { id: "KEDALUWARSA", label: "Expired" },
   { id: "LOW_STOCK", label: "Low Stock" },
   { id: "AMAN", label: "Safe" },
+];
+
+const INVENTORY_FILTER_OPTIONS: SelectOption<string>[] = [
+  { value: "ALL", label: "All Stock Statuses", description: "All ingredients in inventory" },
+  {
+    value: "SEGERA",
+    label: "Expiring Soon",
+    description: "Batches expiring within threshold",
+    badge: "Warning",
+    badgeColor: "bg-amber-100 text-amber-800",
+  },
+  {
+    value: "KEDALUWARSA",
+    label: "Expired",
+    description: "Batches past expiration date",
+    badge: "Critical",
+    badgeColor: "bg-rose-100 text-rose-800",
+  },
+  {
+    value: "LOW_STOCK",
+    label: "Low Stock",
+    description: "Stock below minimum safety buffer",
+    badge: "Reorder",
+    badgeColor: "bg-orange-100 text-orange-800",
+  },
+  {
+    value: "AMAN",
+    label: "Safe Stock",
+    description: "Healthy inventory stock level",
+    badge: "Safe",
+    badgeColor: "bg-emerald-100 text-emerald-800",
+  },
 ];
 
 export function InventorySummary({
@@ -113,7 +146,36 @@ export function InventorySummary({
             />
           </div>
 
-          <div className="flex items-center gap-1.5 overflow-x-auto w-full md:w-auto pb-1 md:pb-0 scrollbar-none">
+          {/* Tablet & Mobile Dropdown Filter (tampilan tablet kebawah) */}
+          <div className="lg:hidden w-full flex items-center gap-2">
+            <div className="flex-1 min-w-[170px]">
+              <CustomSelect<string>
+                value={statusFilter}
+                onChange={setStatusFilter}
+                options={INVENTORY_FILTER_OPTIONS}
+                triggerClassName="py-1.5 px-3 text-xs"
+              />
+            </div>
+            {onExportCsv && isOwner && (
+              <button
+                type="button"
+                onClick={onExportCsv}
+                disabled={isExporting}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold transition-all shadow-2xs shrink-0 disabled:opacity-50 cursor-pointer whitespace-nowrap"
+                title="Export Stock &amp; FEFO Batches CSV"
+              >
+                {isExporting ? (
+                  <Loader2 className="w-3.5 h-3.5 animate-spin text-slate-500" />
+                ) : (
+                  <Download className="w-3.5 h-3.5 text-slate-500" />
+                )}
+                <span>Export</span>
+              </button>
+            )}
+          </div>
+
+          {/* Desktop Filter Tabs */}
+          <div className="hidden lg:flex items-center gap-1.5 overflow-x-auto w-auto pb-0 scrollbar-none">
             {FILTER_TABS.map((tab) => (
               <button
                 key={tab.id}
@@ -133,7 +195,7 @@ export function InventorySummary({
                 type="button"
                 onClick={onExportCsv}
                 disabled={isExporting}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold transition-all shadow-2xs ml-auto md:ml-2 disabled:opacity-50 cursor-pointer whitespace-nowrap"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold transition-all shadow-2xs ml-2 disabled:opacity-50 cursor-pointer whitespace-nowrap"
                 title="Export Stock &amp; FEFO Batches CSV"
               >
                 {isExporting ? (
