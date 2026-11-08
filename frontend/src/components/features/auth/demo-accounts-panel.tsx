@@ -24,10 +24,10 @@ export function DemoAccountsPanel({
     <div className="w-full">
       <div className="relative my-3">
         <div className="absolute inset-0 flex items-center">
-          <div className="w-full border-t border-slate-200" />
+          <div className="w-full border-t border-border" />
         </div>
         <div className="relative flex justify-center text-[10px] uppercase">
-          <span className="bg-transparent px-2 text-slate-400 font-medium tracking-wider">
+          <span className="bg-card px-2.5 text-muted-foreground font-semibold tracking-wider">
             Demo Access
           </span>
         </div>
