@@ -1,6 +1,9 @@
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { User, Store, Mail, Lock, Loader2, AlertCircle, ArrowRight } from "lucide-react";
+import { User, Store, Mail, Lock, Loader2, AlertCircle, EyeIcon, EyeOffIcon } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { registerSchema, type RegisterFormValues } from "./register-schema";
 
 interface RegisterFormProps {
@@ -10,6 +13,9 @@ interface RegisterFormProps {
 }
 
 export function RegisterForm({ onSubmit, authError, isSubmitting }: RegisterFormProps) {
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
   const {
     register,
     handleSubmit,
@@ -29,45 +35,33 @@ export function RegisterForm({ onSubmit, authError, isSubmitting }: RegisterForm
     <>
       {authError && (
         <div
-          className="mb-6 p-4 rounded-xl bg-rose-50 border border-rose-200 flex items-start gap-3 text-rose-800 text-sm"
           role="alert"
+          className="mb-6 flex items-center gap-2 p-3 text-xs rounded-xl bg-destructive/10 text-destructive border border-destructive/20 font-medium"
         >
-          <AlertCircle className="w-5 h-5 shrink-0 text-rose-600 mt-0.5" />
-          <div>
-            <p className="font-semibold">Registration Failed</p>
-            <p className="text-rose-700 mt-0.5">{authError}</p>
-          </div>
+          <AlertCircle className="size-4 shrink-0" />
+          <span>{authError}</span>
         </div>
       )}
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
+      <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4" noValidate>
         {/* Name */}
         <div>
-          <label htmlFor="name" className="block text-sm font-medium text-slate-700 mb-1">
-            Business Owner Name
-          </label>
-          <div className="relative rounded-lg shadow-2xs">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
-              <User className="h-5 w-5" />
-            </div>
-            <input
+          <div className="relative">
+            <Input
               id="name"
               type="text"
               autoComplete="name"
               disabled={isSubmitting}
+              placeholder="Business Owner Name"
+              className="bg-transparent ps-10 h-9 text-sm"
               aria-invalid={errors.name ? "true" : "false"}
               aria-describedby={errors.name ? "name-error" : undefined}
-              className={`block w-full pl-10 pr-3 py-2.5 sm:text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-colors ${
-                errors.name
-                  ? "border-rose-300 text-rose-900 focus:border-rose-500 focus:ring-rose-500"
-                  : "border-slate-300 text-slate-900 focus:border-emerald-500"
-              }`}
-              placeholder="e.g. John Doe"
               {...register("name")}
             />
+            <User className="text-muted-foreground absolute start-3 top-1/2 size-5 -translate-y-1/2 pointer-events-none" />
           </div>
           {errors.name && (
-            <p id="name-error" className="mt-1.5 text-xs text-rose-600 font-medium">
+            <p id="name-error" className="mt-1 text-xs text-destructive font-medium">
               {errors.name.message}
             </p>
           )}
@@ -75,31 +69,22 @@ export function RegisterForm({ onSubmit, authError, isSubmitting }: RegisterForm
 
         {/* Business Name */}
         <div>
-          <label htmlFor="businessName" className="block text-sm font-medium text-slate-700 mb-1">
-            Culinary Business Name
-          </label>
-          <div className="relative rounded-lg shadow-2xs">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
-              <Store className="h-5 w-5" />
-            </div>
-            <input
+          <div className="relative">
+            <Input
               id="businessName"
               type="text"
               autoComplete="organization"
               disabled={isSubmitting}
+              placeholder="Culinary Business Name (e.g. Daily Roast)"
+              className="bg-transparent ps-10 h-9 text-sm"
               aria-invalid={errors.businessName ? "true" : "false"}
               aria-describedby={errors.businessName ? "businessName-error" : undefined}
-              className={`block w-full pl-10 pr-3 py-2.5 sm:text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-colors ${
-                errors.businessName
-                  ? "border-rose-300 text-rose-900 focus:border-rose-500 focus:ring-rose-500"
-                  : "border-slate-300 text-slate-900 focus:border-emerald-500"
-              }`}
-              placeholder="e.g. Daily Roast Cafe"
               {...register("businessName")}
             />
+            <Store className="text-muted-foreground absolute start-3 top-1/2 size-5 -translate-y-1/2 pointer-events-none" />
           </div>
           {errors.businessName && (
-            <p id="businessName-error" className="mt-1.5 text-xs text-rose-600 font-medium">
+            <p id="businessName-error" className="mt-1 text-xs text-destructive font-medium">
               {errors.businessName.message}
             </p>
           )}
@@ -107,31 +92,22 @@ export function RegisterForm({ onSubmit, authError, isSubmitting }: RegisterForm
 
         {/* Email */}
         <div>
-          <label htmlFor="email" className="block text-sm font-medium text-slate-700 mb-1">
-            Email Address
-          </label>
-          <div className="relative rounded-lg shadow-2xs">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
-              <Mail className="h-5 w-5" />
-            </div>
-            <input
+          <div className="relative">
+            <Input
               id="email"
               type="email"
               autoComplete="email"
               disabled={isSubmitting}
+              placeholder="Email Address"
+              className="bg-transparent ps-10 h-9 text-sm"
               aria-invalid={errors.email ? "true" : "false"}
               aria-describedby={errors.email ? "email-error" : undefined}
-              className={`block w-full pl-10 pr-3 py-2.5 sm:text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-colors ${
-                errors.email
-                  ? "border-rose-300 text-rose-900 focus:border-rose-500 focus:ring-rose-500"
-                  : "border-slate-300 text-slate-900 focus:border-emerald-500"
-              }`}
-              placeholder="user@business.com"
               {...register("email")}
             />
+            <Mail className="text-muted-foreground absolute start-3 top-1/2 size-5 -translate-y-1/2 pointer-events-none" />
           </div>
           {errors.email && (
-            <p id="email-error" className="mt-1.5 text-xs text-rose-600 font-medium">
+            <p id="email-error" className="mt-1 text-xs text-destructive font-medium">
               {errors.email.message}
             </p>
           )}
@@ -139,31 +115,35 @@ export function RegisterForm({ onSubmit, authError, isSubmitting }: RegisterForm
 
         {/* Password */}
         <div>
-          <label htmlFor="password" className="block text-sm font-medium text-slate-700 mb-1">
-            Password (Min. 8 Characters)
-          </label>
-          <div className="relative rounded-lg shadow-2xs">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
-              <Lock className="h-5 w-5" />
-            </div>
-            <input
+          <div className="relative">
+            <Input
               id="password"
-              type="password"
+              type={showPassword ? "text" : "password"}
               autoComplete="new-password"
               disabled={isSubmitting}
+              placeholder="Password (Min. 8 Characters)"
+              className="bg-transparent ps-10 h-9 text-sm pr-10"
               aria-invalid={errors.password ? "true" : "false"}
               aria-describedby={errors.password ? "password-error" : undefined}
-              className={`block w-full pl-10 pr-3 py-2.5 sm:text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-colors ${
-                errors.password
-                  ? "border-rose-300 text-rose-900 focus:border-rose-500 focus:ring-rose-500"
-                  : "border-slate-300 text-slate-900 focus:border-emerald-500"
-              }`}
-              placeholder="••••••••"
               {...register("password")}
             />
+            <Lock className="text-muted-foreground absolute start-3 top-1/2 size-5 -translate-y-1/2 pointer-events-none" />
+            <Button
+              type="button"
+              variant="ghost"
+              className="absolute end-0 top-0 h-full cursor-pointer px-3 py-2 hover:bg-transparent"
+              onClick={() => setShowPassword((prev) => !prev)}
+              aria-label={showPassword ? "Hide password" : "Show password"}
+            >
+              {showPassword ? (
+                <EyeIcon className="text-muted-foreground size-4" />
+              ) : (
+                <EyeOffIcon className="text-muted-foreground size-4" />
+              )}
+            </Button>
           </div>
           {errors.password && (
-            <p id="password-error" className="mt-1.5 text-xs text-rose-600 font-medium">
+            <p id="password-error" className="mt-1 text-xs text-destructive font-medium">
               {errors.password.message}
             </p>
           )}
@@ -171,59 +151,59 @@ export function RegisterForm({ onSubmit, authError, isSubmitting }: RegisterForm
 
         {/* Confirm Password */}
         <div>
-          <label
-            htmlFor="confirmPassword"
-            className="block text-sm font-medium text-slate-700 mb-1"
-          >
-            Confirm Password
-          </label>
-          <div className="relative rounded-lg shadow-2xs">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
-              <Lock className="h-5 w-5" />
-            </div>
-            <input
+          <div className="relative">
+            <Input
               id="confirmPassword"
-              type="password"
+              type={showConfirmPassword ? "text" : "password"}
               autoComplete="new-password"
               disabled={isSubmitting}
+              placeholder="Confirm Password"
+              className="bg-transparent ps-10 h-9 text-sm pr-10"
               aria-invalid={errors.confirmPassword ? "true" : "false"}
               aria-describedby={errors.confirmPassword ? "confirmPassword-error" : undefined}
-              className={`block w-full pl-10 pr-3 py-2.5 sm:text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-colors ${
-                errors.confirmPassword
-                  ? "border-rose-300 text-rose-900 focus:border-rose-500 focus:ring-rose-500"
-                  : "border-slate-300 text-slate-900 focus:border-emerald-500"
-              }`}
-              placeholder="••••••••"
               {...register("confirmPassword")}
             />
+            <Lock className="text-muted-foreground absolute start-3 top-1/2 size-5 -translate-y-1/2 pointer-events-none" />
+            <Button
+              type="button"
+              variant="ghost"
+              className="absolute end-0 top-0 h-full cursor-pointer px-3 py-2 hover:bg-transparent"
+              onClick={() => setShowConfirmPassword((prev) => !prev)}
+              aria-label={showConfirmPassword ? "Hide confirm password" : "Show confirm password"}
+            >
+              {showConfirmPassword ? (
+                <EyeIcon className="text-muted-foreground size-4" />
+              ) : (
+                <EyeOffIcon className="text-muted-foreground size-4" />
+              )}
+            </Button>
           </div>
           {errors.confirmPassword && (
-            <p id="confirmPassword-error" className="mt-1.5 text-xs text-rose-600 font-medium">
+            <p id="confirmPassword-error" className="mt-1 text-xs text-destructive font-medium">
               {errors.confirmPassword.message}
             </p>
           )}
         </div>
 
         <div className="pt-2">
-          <button
+          <Button
+            className="h-9 px-4 py-2 w-full cursor-pointer"
             type="submit"
             disabled={isSubmitting}
-            className="w-full flex justify-center items-center gap-2 py-2.5 px-4 border border-transparent rounded-xl shadow-xs text-sm font-bold text-white bg-emerald-600 hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 disabled:opacity-60 disabled:cursor-not-allowed transition-all cursor-pointer"
           >
             {isSubmitting ? (
-              <>
-                <Loader2 className="w-4 h-4 animate-spin" />
-                Registering Business...
-              </>
+              <div className="flex items-center gap-2">
+                <Loader2 className="size-4 animate-spin" />
+                <span>Registering Business...</span>
+              </div>
             ) : (
-              <>
-                Register & Get Started
-                <ArrowRight className="w-4 h-4" />
-              </>
+              "Register & Get Started"
             )}
-          </button>
+          </Button>
         </div>
       </form>
     </>
   );
 }
+
+export default RegisterForm;
