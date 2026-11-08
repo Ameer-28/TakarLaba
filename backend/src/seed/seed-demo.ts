@@ -339,6 +339,8 @@ export async function seedDemo(options: SeedDemoOptions = {}) {
       await tx.ingredientUnit.createMany({ data: unitData });
 
       // 4c. Menus & recipes (batch insert)
+      // Menus are backdated 45 days so they are mature (age >= 14 days) for Menu Engineering classification (BR-10, FR-MEG-01)
+      const menuCreatedAt = new Date(refDate.getTime() - 45 * 24 * 60 * 60 * 1000);
       const menuIdMap = new Map<string, string>();
       const menuData = [];
       const recipeItemData = [];
@@ -356,6 +358,7 @@ export async function seedDemo(options: SeedDemoOptions = {}) {
           sellingPrice: menu.sellingPrice,
           targetMargin: menu.targetMargin,
           isActive: true,
+          createdAt: menuCreatedAt,
         });
 
         for (const r of menu.recipes) {
