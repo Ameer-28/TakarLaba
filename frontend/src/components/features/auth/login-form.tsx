@@ -1,7 +1,9 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2, AlertCircle, Eye, EyeOff } from "lucide-react";
+import { Loader2, AlertCircle, Eye, EyeOff, User, Lock } from "lucide-react";
+import { Link } from "react-router";
+import { toast } from "sonner";
 import { loginSchema, type LoginFormValues } from "./types";
 
 interface LoginFormProps {
@@ -13,6 +15,7 @@ interface LoginFormProps {
 
 export function LoginForm({ onSubmit, authError, isAnySubmitting, isSubmitting }: LoginFormProps) {
   const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
 
   const {
     register,
@@ -27,10 +30,18 @@ export function LoginForm({ onSubmit, authError, isAnySubmitting, isSubmitting }
   });
 
   return (
-    <div className="w-full max-w-[280px]">
+    <div className="w-full max-w-[320px]">
+      {/* USER LOGIN Header */}
+      <div className="text-center mb-6">
+        <h1 className="text-base sm:text-lg font-bold text-[#11212D] uppercase tracking-[0.18em]">
+          USER LOGIN
+        </h1>
+        <p className="text-[11px] text-slate-400 mt-0.5">Welcome to TakarLaba</p>
+      </div>
+
       {authError && (
         <div
-          className="mb-4 p-2.5 rounded-[4px] bg-rose-50/80 border border-rose-200/70 flex items-start gap-2 text-rose-800 text-[11px] animate-in fade-in"
+          className="mb-4 p-2.5 rounded-lg bg-rose-50/90 border border-rose-200/80 flex items-start gap-2 text-rose-800 text-[11px] animate-in fade-in"
           role="alert"
         >
           <AlertCircle className="w-3.5 h-3.5 flex-shrink-0 text-rose-600 mt-0.5" />
@@ -38,16 +49,19 @@ export function LoginForm({ onSubmit, authError, isAnySubmitting, isSubmitting }
         </div>
       )}
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6" noValidate>
-        {/* Email Field with Minimal Underline Style */}
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
+        {/* Email / Username Pill Input */}
         <div>
-          <label
-            htmlFor="email"
-            className="block text-[11px] font-semibold text-slate-600 tracking-wide mb-1"
+          <div
+            className={`flex items-center w-full h-11 px-2 rounded-full bg-slate-100/90 border transition-all duration-200 ${
+              errors.email
+                ? "border-rose-400 bg-rose-50/30"
+                : "border-slate-200/80 hover:border-slate-300 focus-within:border-[#11212D] focus-within:bg-white focus-within:ring-2 focus-within:ring-[#11212D]/15"
+            }`}
           >
-            Email
-          </label>
-          <div className="relative">
+            <div className="w-7 h-7 rounded-full bg-[#11212D] text-white flex items-center justify-center shrink-0 shadow-sm ml-0.5">
+              <User className="w-3.5 h-3.5 text-white" />
+            </div>
             <input
               id="email"
               type="email"
@@ -55,31 +69,30 @@ export function LoginForm({ onSubmit, authError, isAnySubmitting, isSubmitting }
               disabled={isAnySubmitting}
               aria-invalid={errors.email ? "true" : "false"}
               aria-describedby={errors.email ? "email-error" : undefined}
-              className={`w-full bg-transparent border-0 border-b pb-2 pt-0.5 text-xs sm:text-[13px] text-[var(--login-primary-dark,#06141B)] placeholder:text-slate-300 focus:outline-none transition-colors duration-200 rounded-none ${
-                errors.email
-                  ? "border-rose-400 focus:border-rose-500"
-                  : "border-slate-200 focus:border-[var(--login-primary,#11212D)]"
-              }`}
-              placeholder="Please enter your email"
+              className="w-full bg-transparent border-0 px-3 py-1.5 text-xs sm:text-[13px] text-[#06141B] placeholder:text-slate-400 focus:outline-none"
+              placeholder="Username / Email"
               {...register("email")}
             />
           </div>
           {errors.email && (
-            <p id="email-error" className="mt-1 text-[10px] text-rose-500 font-normal">
+            <p id="email-error" className="mt-1 ml-4 text-[10px] text-rose-500 font-medium">
               {errors.email.message}
             </p>
           )}
         </div>
 
-        {/* Password Field with Minimal Underline & Show/Hide Eye Toggle */}
+        {/* Password Pill Input */}
         <div>
-          <label
-            htmlFor="password"
-            className="block text-[11px] font-semibold text-slate-600 tracking-wide mb-1"
+          <div
+            className={`flex items-center w-full h-11 px-2 rounded-full bg-slate-100/90 border transition-all duration-200 ${
+              errors.password
+                ? "border-rose-400 bg-rose-50/30"
+                : "border-slate-200/80 hover:border-slate-300 focus-within:border-[#11212D] focus-within:bg-white focus-within:ring-2 focus-within:ring-[#11212D]/15"
+            }`}
           >
-            Password
-          </label>
-          <div className="relative">
+            <div className="w-7 h-7 rounded-full bg-[#11212D] text-white flex items-center justify-center shrink-0 shadow-sm ml-0.5">
+              <Lock className="w-3.5 h-3.5 text-white" />
+            </div>
             <input
               id="password"
               type={showPassword ? "text" : "password"}
@@ -87,12 +100,8 @@ export function LoginForm({ onSubmit, authError, isAnySubmitting, isSubmitting }
               disabled={isAnySubmitting}
               aria-invalid={errors.password ? "true" : "false"}
               aria-describedby={errors.password ? "password-error" : undefined}
-              className={`w-full bg-transparent border-0 border-b pb-2 pt-0.5 pr-6 text-xs sm:text-[13px] text-[var(--login-primary-dark,#06141B)] placeholder:text-slate-300 focus:outline-none transition-colors duration-200 rounded-none ${
-                errors.password
-                  ? "border-rose-400 focus:border-rose-500"
-                  : "border-slate-200 focus:border-[var(--login-primary,#11212D)]"
-              }`}
-              placeholder="Please enter your password"
+              className="w-full bg-transparent border-0 px-3 py-1.5 text-xs sm:text-[13px] text-[#06141B] placeholder:text-slate-400 focus:outline-none"
+              placeholder="Password"
               {...register("password")}
             />
             <button
@@ -100,18 +109,38 @@ export function LoginForm({ onSubmit, authError, isAnySubmitting, isSubmitting }
               onClick={() => setShowPassword((prev) => !prev)}
               disabled={isAnySubmitting}
               tabIndex={-1}
-              className="absolute right-0 bottom-2 text-slate-400 hover:text-[var(--login-primary,#11212D)] transition-colors cursor-pointer"
+              className="p-1.5 mr-1 text-slate-400 hover:text-[#11212D] transition-colors cursor-pointer"
               title={showPassword ? "Hide password" : "Show password"}
               aria-label={showPassword ? "Hide password" : "Show password"}
             >
-              {showPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+              {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
             </button>
           </div>
           {errors.password && (
-            <p id="password-error" className="mt-1 text-[10px] text-rose-500 font-normal">
+            <p id="password-error" className="mt-1 ml-4 text-[10px] text-rose-500 font-medium">
               {errors.password.message}
             </p>
           )}
+        </div>
+
+        {/* Utilities: Remember & Forgot Password */}
+        <div className="flex items-center justify-between text-xs px-2 pt-0.5">
+          <label className="flex items-center gap-1.5 text-[11px] text-slate-500 cursor-pointer select-none hover:text-slate-700">
+            <input
+              type="checkbox"
+              checked={rememberMe}
+              onChange={(e) => setRememberMe(e.target.checked)}
+              className="w-3.5 h-3.5 rounded border-slate-300 text-[#11212D] focus:ring-[#11212D] accent-[#11212D] cursor-pointer"
+            />
+            <span>Remember</span>
+          </label>
+          <button
+            type="button"
+            onClick={() => toast.info("Password reset feature will be available soon.")}
+            className="text-[11px] text-slate-400 hover:text-[#11212D] transition-colors cursor-pointer"
+          >
+            Forgot password ?
+          </button>
         </div>
 
         {/* Action Button: LOGIN */}
@@ -119,7 +148,7 @@ export function LoginForm({ onSubmit, authError, isAnySubmitting, isSubmitting }
           <button
             type="submit"
             disabled={isAnySubmitting}
-            className="w-full h-[36px] flex items-center justify-center rounded-[3.5px] bg-[var(--login-primary,#11212D)] hover:bg-[var(--login-primary-accent,#1C354A)] hover:-translate-y-0.5 active:translate-y-0 text-white text-[11px] font-medium uppercase tracking-[0.14em] shadow-[0_8px_20px_rgba(17,33,45,0.35)] hover:shadow-[0_10px_24px_rgba(17,33,45,0.45)] transition-all duration-200 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:translate-y-0"
+            className="w-full h-10 flex items-center justify-center rounded-md bg-[#11212D] hover:bg-[#253745] active:scale-[0.99] text-white text-xs font-semibold uppercase tracking-widest shadow-md shadow-[#11212D]/20 transition-all duration-200 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
           >
             {isSubmitting ? (
               <>
@@ -130,6 +159,16 @@ export function LoginForm({ onSubmit, authError, isAnySubmitting, isSubmitting }
               "LOGIN"
             )}
           </button>
+        </div>
+
+        {/* Create Account Link */}
+        <div className="text-center pt-2">
+          <Link
+            to="/register"
+            className="text-xs text-slate-500 hover:text-[#11212D] font-medium transition-colors"
+          >
+            Create Account
+          </Link>
         </div>
       </form>
     </div>
