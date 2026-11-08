@@ -100,38 +100,29 @@ export function LoginPage() {
   return (
     <div className="min-h-screen w-full relative overflow-x-hidden select-none bg-[#06141B]">
       {/* ========================================================
-          DESKTOP FULLSCREEN LAYOUT (lg+) — ZERO BORDER EDGES
+          DESKTOP FULLSCREEN LAYOUT (lg+) — EXACT 1:1 REFERENCE REPLICA
           ======================================================== */}
       <div className="hidden lg:flex min-h-screen w-full relative overflow-hidden">
-        {/* Fullscreen Rocket Art Background covering entire 100vw x 100vh */}
+        {/* Fullscreen Rocket & Cloud Plume Art Background */}
         <div className="absolute inset-0 w-full h-full pointer-events-none">
           <LoginRocketArt className="w-full h-full" preserveAspectRatio="none" />
         </div>
 
-        {/* Left Side: Business Growth Title & Space Scene (56% width) */}
-        <div className="w-[56%] min-h-screen p-10 xl:p-16 flex flex-col justify-between relative z-10 pointer-events-none">
-          {/* Top Branding & Heading */}
-          <div>
-            <span className="inline-block text-xs font-bold tracking-widest text-slate-300 uppercase mb-2">
-              TAKARLABA
-            </span>
-            <h1 className="text-3xl xl:text-4xl font-bold text-white tracking-tight leading-tight">
-              Business Growth
+        {/* Left Side: Business Startup Title & Subtitle */}
+        <div className="w-[55%] min-h-screen flex flex-col justify-start pt-16 xl:pt-20 pl-16 xl:pl-28 relative z-10 pointer-events-none">
+          <div className="max-w-xs">
+            <h1 className="text-2xl sm:text-3xl xl:text-4xl font-bold text-white tracking-normal leading-tight font-sans">
+              Business Startup
             </h1>
-            <p className="text-xs xl:text-sm text-slate-300/80 font-normal mt-1.5 max-w-sm leading-relaxed">
-              Welcome to TakarLaba — Smart Margin & Anti-Waste Assistant
+            <p className="text-xs sm:text-sm text-slate-200/90 font-normal mt-1 tracking-wide">
+              Welcome to the website
             </p>
-          </div>
-
-          {/* Bottom Branding Tagline */}
-          <div className="flex items-center gap-2 text-slate-400 text-xs">
-            <span>TakarLaba · Precision Costing & Inventory Optimization</span>
           </div>
         </div>
 
-        {/* Right Side: Solid White Cloud Canvas with Form (44% width) */}
-        <div className="w-[44%] min-h-screen flex flex-col justify-center items-center px-8 xl:px-14 py-10 relative z-10">
-          <div className="w-full max-w-[320px]">
+        {/* Right Side: Form on Pure White Cloud Canvas */}
+        <div className="w-[45%] min-h-screen flex flex-col justify-center items-center pr-10 xl:pr-16 py-10 relative z-10">
+          <div className="w-full max-w-[260px] sm:max-w-[275px]">
             <LoginForm
               onSubmit={onSubmit}
               authError={authError}
@@ -152,29 +143,26 @@ export function LoginPage() {
       </div>
 
       {/* ========================================================
-          MOBILE & TABLET FULLSCREEN LAYOUT (< lg) — ZERO BORDER EDGES
+          MOBILE & TABLET FULLSCREEN LAYOUT (< lg)
           ======================================================== */}
       <div className="flex lg:hidden flex-col min-h-screen w-full bg-white">
-        {/* Top Cosmic Rocket Banner (full width edge-to-edge, no borders) */}
-        <div className="h-48 sm:h-60 w-full relative overflow-hidden bg-[#06141B] shrink-0">
+        {/* Top Cosmic Rocket Banner (edge-to-edge) */}
+        <div className="h-52 sm:h-64 w-full relative overflow-hidden bg-[#06141B] shrink-0">
           <LoginRocketArt
             className="w-full h-full object-cover"
             preserveAspectRatio="xMinYMid slice"
           />
-          <div className="absolute top-5 left-6 z-10">
-            <span className="text-[10px] font-bold tracking-widest text-slate-300 uppercase block mb-1">
-              TAKARLABA
-            </span>
-            <h1 className="text-2xl font-bold text-white tracking-tight leading-snug">
-              Business Growth
+          <div className="absolute top-6 left-6 z-10">
+            <h1 className="text-2xl font-bold text-white tracking-normal leading-tight font-sans">
+              Business Startup
             </h1>
-            <p className="text-xs text-slate-300/80 mt-0.5">Welcome to TakarLaba</p>
+            <p className="text-xs text-slate-200/90 mt-0.5">Welcome to the website</p>
           </div>
         </div>
 
-        {/* Bottom Form Section (full width edge-to-edge, pure white, no borders) */}
+        {/* Bottom Form Section (edge-to-edge pure white) */}
         <div className="flex-1 w-full bg-white flex flex-col justify-center items-center px-6 py-8">
-          <div className="w-full max-w-[320px]">
+          <div className="w-full max-w-[275px]">
             <LoginForm
               onSubmit={onSubmit}
               authError={authError}
