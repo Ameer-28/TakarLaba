@@ -98,119 +98,98 @@ export function LoginPage() {
   const isAnySubmitting = isSubmitting || isDemoSubmitting !== null;
 
   return (
-    <div className="min-h-screen w-full bg-gradient-to-br from-[#06141B] via-[#0E1E2C] to-[#162B3D] flex items-center justify-center p-4 sm:p-6 lg:p-10 relative overflow-hidden select-none">
-      {/* Outer Cosmic Background Decorations */}
-      {/* Top-Left Glowing Nebula Orb */}
-      <div className="absolute -top-24 -left-24 w-96 h-96 rounded-full bg-gradient-to-br from-[#1E3A52]/40 to-transparent blur-3xl pointer-events-none" />
-      {/* Bottom-Right Soft Ambient Cloud Glow */}
-      <div className="absolute -bottom-20 -right-20 w-[420px] h-[420px] rounded-full bg-gradient-to-tl from-[#CBDDEB]/15 to-transparent blur-3xl pointer-events-none" />
-
-      {/* Floating Sparkle Stars outside the card */}
-      <div className="absolute top-10 left-12 text-white/50 pointer-events-none hidden sm:block">
-        <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
-          <path d="M10 0 Q10 10 20 10 Q10 10 10 20 Q10 10 0 10 Q10 10 10 0 Z" />
-        </svg>
-      </div>
-      <div className="absolute top-28 left-1/4 text-white/30 pointer-events-none hidden lg:block">
-        <svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor">
-          <path d="M10 0 Q10 10 20 10 Q10 10 10 20 Q10 10 0 10 Q10 10 10 0 Z" />
-        </svg>
-      </div>
-      <div className="absolute bottom-16 right-16 text-white/40 pointer-events-none hidden sm:block">
-        <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor">
-          <path d="M10 0 Q10 10 20 10 Q10 10 10 20 Q10 10 0 10 Q10 10 10 0 Z" />
-        </svg>
-      </div>
-      <div className="absolute bottom-24 left-16 text-white/25 pointer-events-none hidden md:block">
-        <div className="w-2 h-2 rounded-full bg-white/60" />
-      </div>
-
-      {/* Outer Bottom-Right Cloud Waves (Echoing Reference Image) */}
-      <div className="absolute -bottom-16 -right-16 w-80 h-80 rounded-full bg-[#CBDDEB]/10 pointer-events-none hidden lg:block" />
-      <div className="absolute -bottom-28 right-32 w-72 h-72 rounded-full bg-[#CBDDEB]/10 pointer-events-none hidden lg:block" />
-
+    <div className="min-h-screen w-full relative overflow-x-hidden select-none bg-[#06141B]">
       {/* ========================================================
-          HERO LOGIN CARD
+          DESKTOP FULLSCREEN LAYOUT (lg+) — ZERO BORDER EDGES
           ======================================================== */}
-      {/* DESKTOP VIEW (lg+) */}
-      <div className="hidden lg:flex w-full max-w-4xl xl:max-w-5xl h-[560px] rounded-[24px] shadow-[0_25px_60px_-15px_rgba(0,0,0,0.6)] overflow-hidden relative border border-white/10 z-10">
-        {/* Background Rocket Art SVG */}
+      <div className="hidden lg:flex min-h-screen w-full relative overflow-hidden">
+        {/* Fullscreen Rocket Art Background covering entire 100vw x 100vh */}
         <div className="absolute inset-0 w-full h-full pointer-events-none">
           <LoginRocketArt className="w-full h-full" preserveAspectRatio="none" />
         </div>
 
-        {/* Left Side: Business Growth Title & Cosmic Atmosphere */}
-        <div className="w-[55%] h-full p-10 xl:p-12 flex flex-col justify-between relative z-10 pointer-events-none">
+        {/* Left Side: Business Growth Title & Space Scene (56% width) */}
+        <div className="w-[56%] min-h-screen p-10 xl:p-16 flex flex-col justify-between relative z-10 pointer-events-none">
+          {/* Top Branding & Heading */}
           <div>
-            <h2 className="text-2xl sm:text-3xl font-bold text-white tracking-tight leading-snug">
+            <span className="inline-block text-xs font-bold tracking-widest text-slate-300 uppercase mb-2">
+              TAKARLABA
+            </span>
+            <h1 className="text-3xl xl:text-4xl font-bold text-white tracking-tight leading-tight">
               Business Growth
-            </h2>
-            <p className="text-xs sm:text-sm text-slate-300/80 font-normal mt-1">
-              Welcome to TakarLaba
+            </h1>
+            <p className="text-xs xl:text-sm text-slate-300/80 font-normal mt-1.5 max-w-sm leading-relaxed">
+              Welcome to TakarLaba — Smart Margin & Anti-Waste Assistant
             </p>
           </div>
 
-          {/* Small branding badge at the bottom left */}
-          <div className="flex items-center gap-2">
-            <span className="text-[11px] font-semibold text-slate-400 tracking-wider uppercase">
-              TakarLaba · Smart Margin & Anti-Waste
-            </span>
+          {/* Bottom Branding Tagline */}
+          <div className="flex items-center gap-2 text-slate-400 text-xs">
+            <span>TakarLaba · Precision Costing & Inventory Optimization</span>
           </div>
         </div>
 
-        {/* Right Side: White Cloud Canvas with Form */}
-        <div className="w-[45%] h-full flex flex-col justify-center items-center px-8 xl:px-12 py-8 relative z-10">
-          <LoginForm
-            onSubmit={onSubmit}
-            authError={authError}
-            isAnySubmitting={isAnySubmitting}
-            isSubmitting={isSubmitting}
-          />
-
-          {/* Demo Accounts Panel */}
+        {/* Right Side: Solid White Cloud Canvas with Form (44% width) */}
+        <div className="w-[44%] min-h-screen flex flex-col justify-center items-center px-8 xl:px-14 py-10 relative z-10">
           <div className="w-full max-w-[320px]">
-            <DemoAccountsPanel
-              onDemoLogin={handleDemoLogin}
-              isSubmitting={isAnySubmitting}
-              submittingRole={isDemoSubmitting}
+            <LoginForm
+              onSubmit={onSubmit}
+              authError={authError}
+              isAnySubmitting={isAnySubmitting}
+              isSubmitting={isSubmitting}
             />
+
+            {/* Demo Accounts Panel */}
+            <div className="mt-4">
+              <DemoAccountsPanel
+                onDemoLogin={handleDemoLogin}
+                isSubmitting={isAnySubmitting}
+                submittingRole={isDemoSubmitting}
+              />
+            </div>
           </div>
         </div>
       </div>
 
-      {/* MOBILE & TABLET VIEW (< lg) */}
-      <div className="flex lg:hidden flex-col w-full max-w-md rounded-[24px] shadow-[0_25px_60px_-15px_rgba(0,0,0,0.6)] overflow-hidden border border-white/10 z-10 bg-white">
-        {/* Top Cosmic Rocket Banner */}
-        <div className="h-44 sm:h-52 w-full relative overflow-hidden bg-[#06141B]">
+      {/* ========================================================
+          MOBILE & TABLET FULLSCREEN LAYOUT (< lg) — ZERO BORDER EDGES
+          ======================================================== */}
+      <div className="flex lg:hidden flex-col min-h-screen w-full bg-white">
+        {/* Top Cosmic Rocket Banner (full width edge-to-edge, no borders) */}
+        <div className="h-48 sm:h-60 w-full relative overflow-hidden bg-[#06141B] shrink-0">
           <LoginRocketArt
             className="w-full h-full object-cover"
             preserveAspectRatio="xMinYMid slice"
           />
-          {/* Header Text overlay */}
           <div className="absolute top-5 left-6 z-10">
-            <h2 className="text-xl sm:text-2xl font-bold text-white tracking-tight leading-snug">
+            <span className="text-[10px] font-bold tracking-widest text-slate-300 uppercase block mb-1">
+              TAKARLABA
+            </span>
+            <h1 className="text-2xl font-bold text-white tracking-tight leading-snug">
               Business Growth
-            </h2>
+            </h1>
             <p className="text-xs text-slate-300/80 mt-0.5">Welcome to TakarLaba</p>
           </div>
         </div>
 
-        {/* Bottom White Card Content */}
-        <div className="p-6 sm:p-8 flex flex-col items-center">
-          <LoginForm
-            onSubmit={onSubmit}
-            authError={authError}
-            isAnySubmitting={isAnySubmitting}
-            isSubmitting={isSubmitting}
-          />
-
-          {/* Demo Accounts Panel */}
+        {/* Bottom Form Section (full width edge-to-edge, pure white, no borders) */}
+        <div className="flex-1 w-full bg-white flex flex-col justify-center items-center px-6 py-8">
           <div className="w-full max-w-[320px]">
-            <DemoAccountsPanel
-              onDemoLogin={handleDemoLogin}
-              isSubmitting={isAnySubmitting}
-              submittingRole={isDemoSubmitting}
+            <LoginForm
+              onSubmit={onSubmit}
+              authError={authError}
+              isAnySubmitting={isAnySubmitting}
+              isSubmitting={isSubmitting}
             />
+
+            {/* Demo Accounts Panel */}
+            <div className="mt-4">
+              <DemoAccountsPanel
+                onDemoLogin={handleDemoLogin}
+                isSubmitting={isAnySubmitting}
+                submittingRole={isDemoSubmitting}
+              />
+            </div>
           </div>
         </div>
       </div>

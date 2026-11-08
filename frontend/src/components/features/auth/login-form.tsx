@@ -50,13 +50,13 @@ export function LoginForm({ onSubmit, authError, isAnySubmitting, isSubmitting }
       )}
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
-        {/* Email / Username Pill Input */}
+        {/* Email / Username Pill Input (Border-free Soft Fill) */}
         <div>
           <div
-            className={`flex items-center w-full h-11 px-2 rounded-full bg-slate-100/90 border transition-all duration-200 ${
+            className={`flex items-center w-full h-11 px-2 rounded-full bg-slate-100 transition-all duration-200 ${
               errors.email
-                ? "border-rose-400 bg-rose-50/30"
-                : "border-slate-200/80 hover:border-slate-300 focus-within:border-[#11212D] focus-within:bg-white focus-within:ring-2 focus-within:ring-[#11212D]/15"
+                ? "bg-rose-50/60 ring-1 ring-rose-400"
+                : "hover:bg-slate-200/70 focus-within:bg-white focus-within:ring-2 focus-within:ring-[#11212D]/15"
             }`}
           >
             <div className="w-7 h-7 rounded-full bg-[#11212D] text-white flex items-center justify-center shrink-0 shadow-sm ml-0.5">
@@ -81,13 +81,13 @@ export function LoginForm({ onSubmit, authError, isAnySubmitting, isSubmitting }
           )}
         </div>
 
-        {/* Password Pill Input */}
+        {/* Password Pill Input (Border-free Soft Fill) */}
         <div>
           <div
-            className={`flex items-center w-full h-11 px-2 rounded-full bg-slate-100/90 border transition-all duration-200 ${
+            className={`flex items-center w-full h-11 px-2 rounded-full bg-slate-100 transition-all duration-200 ${
               errors.password
-                ? "border-rose-400 bg-rose-50/30"
-                : "border-slate-200/80 hover:border-slate-300 focus-within:border-[#11212D] focus-within:bg-white focus-within:ring-2 focus-within:ring-[#11212D]/15"
+                ? "bg-rose-50/60 ring-1 ring-rose-400"
+                : "hover:bg-slate-200/70 focus-within:bg-white focus-within:ring-2 focus-within:ring-[#11212D]/15"
             }`}
           >
             <div className="w-7 h-7 rounded-full bg-[#11212D] text-white flex items-center justify-center shrink-0 shadow-sm ml-0.5">
@@ -148,7 +148,7 @@ export function LoginForm({ onSubmit, authError, isAnySubmitting, isSubmitting }
           <button
             type="submit"
             disabled={isAnySubmitting}
-            className="w-full h-10 flex items-center justify-center rounded-md bg-[#11212D] hover:bg-[#253745] active:scale-[0.99] text-white text-xs font-semibold uppercase tracking-widest shadow-md shadow-[#11212D]/20 transition-all duration-200 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+            className="w-full h-10 flex items-center justify-center rounded-md bg-[#11212D] hover:bg-[#253745] active:scale-[0.99] text-white text-xs font-semibold uppercase tracking-widest shadow-md shadow-[#11212D]/20 transition-all duration-200 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed border-0"
           >
             {isSubmitting ? (
               <>
