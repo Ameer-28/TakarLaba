@@ -8,11 +8,14 @@ import {
   useDismissAlert,
   type AlertListItem,
 } from "@/api/hooks/use-alerts";
-import { AlertKpiCards } from "@/components/features/alerts/alert-kpi-cards";
-import { AlertTabsBar, type AlertTabValue } from "@/components/features/alerts/alert-tabs-bar";
-import { AlertCard } from "@/components/features/alerts/alert-card";
-import { AlertDetailModal } from "@/components/features/alerts/alert-detail-modal";
-import { DismissAlertDialog } from "@/components/features/alerts/dismiss-alert-dialog";
+import {
+  AlertKpiCards,
+  AlertTabsBar,
+  AlertCard,
+  AlertDetailModal,
+  DismissAlertDialog,
+} from "@/components/features/alerts";
+import type { AlertTabValue } from "@/components/features/alerts/alert-tabs-bar";
 import { formatRupiah } from "@/lib/format";
 
 export function AlertsPage() {

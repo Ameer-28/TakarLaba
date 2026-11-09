@@ -7,7 +7,7 @@ import {
   createTestIngredient,
   createTestBatch,
   createTestMenuWithRecipe,
-} from "./helpers/index.js";
+} from "./helper.js";
 import { it, expect, afterEach, afterAll } from "vitest";
 import { SaleRepository } from "../../../src/repositories/sale.repo.js";
 import { prisma } from "../../../src/lib/db.js";

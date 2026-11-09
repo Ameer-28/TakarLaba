@@ -1,5 +1,5 @@
 import type { Ingredient } from "@/api/hooks/use-ingredients";
-import { PurchaseModal } from "@/components/features/purchase-modal";
+import { PurchaseModal } from "@/components/features/purchases";
 import { IngredientCreateModal } from "./ingredient-create-modal";
 import { IngredientEditModal } from "./ingredient-edit-modal";
 import { IngredientUnitManager } from "./ingredient-unit-manager";

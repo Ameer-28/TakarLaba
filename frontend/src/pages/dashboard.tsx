@@ -1,13 +1,15 @@
 import { RefreshCw, AlertCircle } from "lucide-react";
 import { useSession } from "@/lib/auth-client";
 import { useDashboardSummary } from "@/api/hooks/use-dashboard";
-import { DashboardKpiGrid } from "@/components/features/dashboard/dashboard-kpi-grid";
-import { DashboardSalesTrendChart } from "@/components/features/dashboard/dashboard-sales-trend-chart";
-import { DashboardTopMenus } from "@/components/features/dashboard/dashboard-top-menus";
-import { DashboardTopAlerts } from "@/components/features/dashboard/dashboard-top-alerts";
-import { DashboardLowestCapacity } from "@/components/features/dashboard/dashboard-lowest-capacity";
-import { DashboardRecentSales } from "@/components/features/dashboard/dashboard-recent-sales";
-import { DashboardEmptyState } from "@/components/features/dashboard/dashboard-empty-state";
+import {
+  DashboardKpiGrid,
+  DashboardSalesTrendChart,
+  DashboardTopMenus,
+  DashboardTopAlerts,
+  DashboardLowestCapacity,
+  DashboardRecentSales,
+  DashboardEmptyState,
+} from "@/components/features/dashboard";
 import { formatDate } from "@/lib/format";
 
 export function DashboardPage() {

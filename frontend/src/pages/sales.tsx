@@ -3,11 +3,13 @@ import { Receipt, RefreshCw, Download } from "lucide-react";
 import { useSalesList, type SaleDetail, type PaymentMethod } from "../api/hooks/use-sales.js";
 import { useSession } from "../lib/auth-client.js";
 import { downloadCsv } from "../lib/export.js";
-import { SaleKpiCards } from "../components/features/sales/sale-kpi-cards.js";
-import { SaleFiltersBar } from "../components/features/sales/sale-filters-bar.js";
-import { SaleDetailModal } from "../components/features/sales/sale-detail-modal.js";
-import { SaleTable } from "../components/features/sales/sale-table.js";
-import { SalePagination } from "../components/features/sales/sale-pagination.js";
+import {
+  SaleKpiCards,
+  SaleFiltersBar,
+  SaleDetailModal,
+  SaleTable,
+  SalePagination,
+} from "../components/features/sales";
 
 export function SalesPage() {
   const { data: session } = useSession();

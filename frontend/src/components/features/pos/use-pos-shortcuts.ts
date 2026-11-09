@@ -20,6 +20,15 @@ function isInputElement(target: unknown): boolean {
   return tagName === "INPUT" || tagName === "TEXTAREA" || tagName === "SELECT" || isContentEditable;
 }
 
+function hasBlurMethod(target: unknown): target is { blur: () => void } {
+  return (
+    typeof target === "object" &&
+    target !== null &&
+    "blur" in target &&
+    typeof (target as Record<string, unknown>)["blur"] === "function"
+  );
+}
+
 /**
  * Pure handler for POS keyboard shortcuts.
  * Separated for direct unit testing and event handling.
@@ -38,12 +47,10 @@ export function handlePosKeyDown(e: KeyboardEvent, options: PosShortcutsOptions)
       return;
     }
     if (isInputActive) {
-      if (
-        target &&
-        "blur" in target &&
-        typeof (target as unknown as { blur: () => void }).blur === "function"
-      ) {
-        (target as unknown as { blur: () => void }).blur();
+      if (typeof HTMLElement !== "undefined" && target instanceof HTMLElement) {
+        target.blur();
+      } else if (hasBlurMethod(target)) {
+        target.blur();
       }
       options.onCloseModals?.();
       return;

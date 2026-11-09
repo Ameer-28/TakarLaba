@@ -6,7 +6,7 @@ import {
   createTestIngredient,
   createTestBatch,
   createTestMenuWithRecipe,
-} from "./helpers/index.js";
+} from "./helper.js";
 import { it, expect, afterEach, afterAll } from "vitest";
 import request from "supertest";
 import { createApp } from "../../../src/create-app.js";

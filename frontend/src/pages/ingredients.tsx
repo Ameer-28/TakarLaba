@@ -2,13 +2,15 @@ import { useState, useMemo } from "react";
 import { useSearchParams } from "react-router";
 import { Receipt, Layers, Trash2, Boxes, AlertTriangle, SlidersHorizontal } from "lucide-react";
 import { useIngredients } from "@/api/hooks/use-ingredients";
-import { PurchaseHistory } from "@/components/features/purchase-history";
-import { InventorySummary } from "@/components/features/inventory-summary";
-import { WasteHistoryList } from "@/components/features/inventory/waste-history-list";
-import { WasteRecordModal } from "@/components/features/inventory/waste-record-modal";
-import { WasteRadarPanel } from "@/components/features/inventory/waste-radar-panel";
-import { StockAdjustmentModal } from "@/components/features/inventory/stock-adjustment-modal";
-import { AdjustmentHistoryList } from "@/components/features/inventory/adjustment-history-list";
+import { PurchaseHistory } from "@/components/features/purchases";
+import {
+  InventorySummary,
+  WasteHistoryList,
+  WasteRecordModal,
+  WasteRadarPanel,
+  StockAdjustmentModal,
+  AdjustmentHistoryList,
+} from "@/components/features/inventory";
 import { useSession } from "@/lib/auth-client";
 import { downloadCsv } from "@/lib/export";
 import { CustomSelect, type SelectOption } from "@/components/ui/custom-select";

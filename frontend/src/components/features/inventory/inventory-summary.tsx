@@ -8,11 +8,11 @@ import {
   type StockBatchItem,
 } from "@/api/hooks/use-inventory";
 import { useSession } from "@/lib/auth-client";
-import { InventoryMetricsHeader } from "./inventory/inventory-metrics-header";
-import { InventoryBatchModal } from "./inventory/inventory-batch-modal";
-import { InventoryItemCard } from "./inventory/inventory-item-card";
-import { WasteRecordModal } from "./inventory/waste-record-modal";
-import { StockAdjustmentModal } from "./inventory/stock-adjustment-modal";
+import { InventoryMetricsHeader } from "./inventory-metrics-header";
+import { InventoryBatchModal } from "./inventory-batch-modal";
+import { InventoryItemCard } from "./inventory-item-card";
+import { WasteRecordModal } from "./waste-record-modal";
+import { StockAdjustmentModal } from "./stock-adjustment-modal";
 
 interface InventorySummaryProps {
   onOpenPurchase?: () => void;
