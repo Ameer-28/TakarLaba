@@ -10,9 +10,11 @@ import {
 } from "lucide-react";
 import { useCapacity } from "@/api/hooks/use-capacity";
 import { useMenuEngineering } from "@/api/hooks/use-menu-engineering";
-import { MenuEngineeringQuadrantChart } from "@/components/features/analytics/menu-engineering-quadrant-chart";
-import { MenuEngineeringTable } from "@/components/features/analytics/menu-engineering-table";
-import { MenuEngineeringRecommendations } from "@/components/features/analytics/menu-engineering-recommendations";
+import {
+  MenuEngineeringQuadrantChart,
+  MenuEngineeringTable,
+  MenuEngineeringRecommendations,
+} from "@/components/features/analytics";
 import { formatRupiah, formatNumber } from "@/lib/format";
 
 export function AnalyticsPage() {

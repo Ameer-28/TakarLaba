@@ -1,19 +1,18 @@
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useForm, useFieldArray, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { Plus, Sparkles } from "lucide-react";
-import { useState } from "react";
 import { useCreatePurchase } from "@/api/hooks/use-purchases";
 import type { Ingredient } from "@/api/hooks/use-ingredients";
 import type { ImpactedMenuAlert } from "@/api/hooks/use-alerts";
-import { PriceShockImpactModal } from "./purchases/price-shock-impact-modal";
+import { PriceShockImpactModal } from "./price-shock-impact-modal";
 import { ApiError } from "@/api/client";
-import { purchaseFormSchema, type PurchaseFormValues } from "./purchases/purchase-form-types";
-import { PurchaseLineItem } from "./purchases/purchase-line-item";
-import { PurchaseInvoiceFields } from "./purchases/purchase-invoice-fields";
-import { PurchaseModalFooter } from "./purchases/purchase-modal-footer";
-import { PurchaseModalHeader } from "./purchases/purchase-modal-header";
+import { purchaseFormSchema, type PurchaseFormValues } from "./purchase-form-types";
+import { PurchaseLineItem } from "./purchase-line-item";
+import { PurchaseInvoiceFields } from "./purchase-invoice-fields";
+import { PurchaseModalFooter } from "./purchase-modal-footer";
+import { PurchaseModalHeader } from "./purchase-modal-header";
 
 interface PurchaseModalProps {
   isOpen: boolean;

@@ -1,7 +1,7 @@
 # TODO.md — Pelacak Progres & Memori Proyek
 
 > AI **wajib** memperbarui file ini setiap selesai/mulai/terblokir pada satu tugas (lihat `WORKFLOW.md` §5).
-> Terakhir diperbarui: 2026-11-02 · Stack: React 19 + Vite / Express 5 / Prisma 7 · Status: Demo Seed & Reset Selesai 100% (T-060, T-061, T-062)
+> Terakhir diperbarui: 2026-11-09 · Stack: React 19 + Vite / Express 5 / Prisma 7 · Status: Audit & Refactoring Pra-Kompetisi GTNIC 2026 Selesai 100%
 
 ## Status Legend
 
@@ -149,6 +149,7 @@ Aturan: hanya satu tugas `[/]` per agent pada satu waktu.
 
 | Tanggal    | Agent/Orang | Ringkasan                                                                                                                                                                                                                                                                                                             | Tugas terkait              |
 | ---------- | ----------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------- |
+| 2026-11-09 | Agent       | Audit menyeluruh & refactoring kebersihan kode (code hygiene) pra-kompetisi GTNIC 2026: pembersihan dead code auth (~1330 baris), konsolidasi folder & barrel exports features (inventory, purchases, alerts, analytics, sales, dashboard), perbaikan file typo dorpdown-navigation.tsx, unifikasi test helpers integrasi DB (helper.ts), verifikasi strict typing (0 any, 0 @ts-ignore, 0 console.log), verifikasi keamanan kredensial (.env.example only), serta kelulusan 100% quality gate (lint, typecheck, unit/HTTP tests, production build) di backend & frontend | Audit & Code Hygiene       |
 | 2026-11-05 | Agent       | Adaptasi visual kafe modern (Purr'Coffee theme: palet cream/orange hangat, rounded cards, segmented control), desktop sidebar collapsible (minimize icon-only + tooltip + persistensi localStorage), auto-provision & fallback login demo, serta fitur opsi suhu minuman Dingin vs Panas pada POS & struk transaksi | UI & POS Polish            |
 | 2026-11-05 | Agent       | Selesai T-204: Fitur stock adjustment / opname fisik bahan baku atomik (StockMovement ADJUSTMENT), endpoint POST/GET /api/inventory/adjustments & /api/stock/adjustments (OWNER only), UI modal StockAdjustmentModal & tab Riwayat Opname AdjustmentHistoryList di halaman stok, dokumentasi docs/api.md, dan HTTP tests | T-204                      |
 | 2026-11-05 | Agent       | Selesai T-206: Pintasan keyboard POS (F1// fokus cari menu, F2 buka bayar checkout, F4 kosongkan keranjang, Esc tutup modal/batal), hook murni usePosShortcuts & handler handlePosKeyDown, indikator visual kbd pada katalog & keranjang, hint bar desktop, serta 11 unit tests                                      | T-206                      |

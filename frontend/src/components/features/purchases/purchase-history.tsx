@@ -14,8 +14,8 @@ import { usePurchases, type PurchaseRecord } from "@/api/hooks/use-purchases";
 import { formatRupiah, formatDate } from "@/lib/format";
 import { Calendar as DateRangePicker, type RangeValue } from "@/components/ui/calendar";
 import { parseYMD, formatToYMD } from "@/components/ui/calendar-utils";
-import { PurchaseBatchDetailModal } from "./purchases/purchase-batch-detail-modal";
-import { PurchaseVoidModal } from "./purchases/purchase-void-modal";
+import { PurchaseBatchDetailModal } from "./purchase-batch-detail-modal";
+import { PurchaseVoidModal } from "./purchase-void-modal";
 
 interface PurchaseHistoryProps {
   onOpenCreate: () => void;

@@ -6,7 +6,7 @@ import {
   disconnectDb,
   createTestIngredient,
   createTestBatch,
-} from "./helpers/index.js";
+} from "./helper.js";
 import { it, expect, afterEach, afterAll } from "vitest";
 import { InventoryRepository } from "../../../src/repositories/inventory.repo.js";
 import { prisma } from "../../../src/lib/db.js";
