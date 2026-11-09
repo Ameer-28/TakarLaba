@@ -12,33 +12,15 @@ interface AuthSwitchProps {
   initialMode?: "login" | "register";
 }
 
-export function AuthSwitch({ initialMode = "login" }: AuthSwitchProps) {
+export function AuthSwitch({ initialMode }: AuthSwitchProps) {
   const navigate = useNavigate();
   const location = useLocation();
   const { data: session, isPending: isSessionPending } = useSession();
 
-  const [isSignUp, setIsSignUp] = useState(
-    initialMode === "register" ||
-      (typeof window !== "undefined" && window.location.pathname === "/register")
-  );
-
-  // Sync state with browser back/forward buttons
-  useEffect(() => {
-    const handlePopState = () => {
-      setIsSignUp(window.location.pathname === "/register");
-    };
-    window.addEventListener("popstate", handlePopState);
-    return () => window.removeEventListener("popstate", handlePopState);
-  }, []);
-
-  // Update mode if URL route changes externally
-  useEffect(() => {
-    if (location.pathname === "/register" && !isSignUp) {
-      setIsSignUp(true);
-    } else if (location.pathname === "/login" && isSignUp) {
-      setIsSignUp(false);
-    }
-  }, [location.pathname, isSignUp]);
+  // Mode is derived from route path or initialMode fallback
+  const isSignUp =
+    location.pathname === "/register" ||
+    (location.pathname !== "/login" && initialMode === "register");
 
   // Session redirect if already logged in
   useEffect(() => {
@@ -73,13 +55,14 @@ export function AuthSwitch({ initialMode = "login" }: AuthSwitchProps) {
 
   const registerMutation = useRegisterOwner();
 
-  // Smooth mode toggle without unmounting component
+  // Smooth mode toggle through React Router navigate
   const handleToggleMode = (signUpMode: boolean) => {
-    setIsSignUp(signUpMode);
     setLoginError(null);
     setRegisterError(null);
     const targetPath = signUpMode ? "/register" : "/login";
-    window.history.replaceState(null, "", targetPath);
+    if (location.pathname !== targetPath) {
+      navigate(targetPath, { replace: true });
+    }
   };
 
   const handleLoginSubmit = async (e: FormEvent<HTMLFormElement>) => {
@@ -243,6 +226,7 @@ export function AuthSwitch({ initialMode = "login" }: AuthSwitchProps) {
           height: 100%;
           top: 0;
           left: 0;
+          z-index: 5;
         }
 
         .auth-switch .signin-signup {
@@ -251,7 +235,7 @@ export function AuthSwitch({ initialMode = "login" }: AuthSwitchProps) {
           transform: translate(-50%, -50%);
           left: 75%;
           width: 50%;
-          transition: left 1.1s cubic-bezier(0.65, 0, 0.35, 1);
+          transition: left 1s cubic-bezier(0.65, 0, 0.35, 1);
           display: grid;
           grid-template-columns: 1fr;
           z-index: 5;
@@ -264,7 +248,7 @@ export function AuthSwitch({ initialMode = "login" }: AuthSwitchProps) {
           justify-content: center;
           flex-direction: column;
           padding: 1rem 4rem;
-          transition: opacity 0.4s ease-in-out, transform 0.5s cubic-bezier(0.65, 0, 0.35, 1);
+          transition: opacity 0.35s ease-in-out, transform 0.45s cubic-bezier(0.65, 0, 0.35, 1);
           overflow-y: auto;
           max-height: 100vh;
           grid-column: 1 / 2;
@@ -290,7 +274,7 @@ export function AuthSwitch({ initialMode = "login" }: AuthSwitchProps) {
           display: flex;
           align-items: center;
           gap: 8px;
-          margin-bottom: 8px;
+          margin-bottom: 6px;
         }
 
         .auth-switch .brand-name {
@@ -301,9 +285,9 @@ export function AuthSwitch({ initialMode = "login" }: AuthSwitchProps) {
         }
 
         .auth-switch .title {
-          font-size: 2rem;
+          font-size: 1.85rem;
           color: #11212D;
-          margin-bottom: 16px;
+          margin-bottom: 12px;
           font-weight: 700;
           letter-spacing: -0.02em;
         }
@@ -312,9 +296,9 @@ export function AuthSwitch({ initialMode = "login" }: AuthSwitchProps) {
           max-width: 380px;
           width: 100%;
           background-color: #f1f5f9;
-          margin: 7px 0;
-          height: 50px;
-          border-radius: 50px;
+          margin: 6px 0;
+          height: 48px;
+          border-radius: 48px;
           display: grid;
           grid-template-columns: 14% 72% 14%;
           align-items: center;
@@ -391,15 +375,15 @@ export function AuthSwitch({ initialMode = "login" }: AuthSwitchProps) {
           background-color: #11212D;
           border: none;
           outline: none;
-          height: 48px;
-          border-radius: 48px;
+          height: 46px;
+          border-radius: 46px;
           color: #ffffff;
           text-transform: uppercase;
           font-weight: 600;
-          margin: 16px 0 8px 0;
+          margin: 12px 0 6px 0;
           cursor: pointer;
           transition: background-color 0.25s, transform 0.2s, box-shadow 0.25s;
-          font-size: 0.88rem;
+          font-size: 0.86rem;
           letter-spacing: 0.04em;
           display: inline-flex;
           align-items: center;
@@ -419,6 +403,33 @@ export function AuthSwitch({ initialMode = "login" }: AuthSwitchProps) {
           cursor: not-allowed;
         }
 
+        .auth-switch .form-footer-toggle {
+          margin-top: 10px;
+          font-size: 0.82rem;
+          color: #64748b;
+          text-align: center;
+          display: flex;
+          align-items: center;
+          gap: 6px;
+        }
+
+        .auth-switch .form-footer-toggle button {
+          background: none;
+          border: none;
+          color: #11212D;
+          font-weight: 600;
+          cursor: pointer;
+          text-decoration: underline;
+          text-underline-offset: 3px;
+          padding: 0;
+          font-family: inherit;
+          transition: color 0.2s;
+        }
+
+        .auth-switch .form-footer-toggle button:hover {
+          color: #253745;
+        }
+
         .auth-switch .panels-container {
           position: absolute;
           height: 100%;
@@ -427,6 +438,8 @@ export function AuthSwitch({ initialMode = "login" }: AuthSwitchProps) {
           left: 0;
           display: grid;
           grid-template-columns: repeat(2, 1fr);
+          z-index: 10;
+          pointer-events: none;
         }
 
         .auth-switch .panel {
@@ -435,26 +448,26 @@ export function AuthSwitch({ initialMode = "login" }: AuthSwitchProps) {
           align-items: flex-end;
           justify-content: space-around;
           text-align: center;
-          z-index: 6;
+          z-index: 10;
+          pointer-events: none;
         }
 
         .auth-switch .left-panel {
-          pointer-events: all;
           padding: 3rem 16% 2rem 10%;
         }
 
         .auth-switch .right-panel {
-          pointer-events: none;
           padding: 3rem 10% 2rem 16%;
         }
 
         .auth-switch .panel .content {
           color: #ffffff;
-          transition: transform 1.1s cubic-bezier(0.65, 0, 0.35, 1), opacity 0.7s ease-in-out;
+          transition: transform 1s cubic-bezier(0.65, 0, 0.35, 1), opacity 0.6s ease-in-out;
           display: flex;
           flex-direction: column;
           align-items: center;
           will-change: transform, opacity;
+          pointer-events: auto;
         }
 
         .auth-switch .panel h3 {
@@ -483,22 +496,33 @@ export function AuthSwitch({ initialMode = "login" }: AuthSwitchProps) {
           font-size: 0.82rem;
           color: #ffffff;
           letter-spacing: 0.05em;
+          pointer-events: auto !important;
+          cursor: pointer !important;
+          position: relative;
+          z-index: 20;
+          user-select: none;
         }
 
         .auth-switch .btn.transparent:hover {
-          background: rgba(255, 255, 255, 0.15);
+          background: rgba(255, 255, 255, 0.18);
           transform: translateY(-2px);
-          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+          box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
+        }
+
+        .auth-switch .btn.transparent:active {
+          transform: translateY(0);
         }
 
         .auth-switch .right-panel .content {
           transform: translateX(100%);
           opacity: 0;
+          pointer-events: none;
         }
 
         .auth-switch .left-panel .content {
           transform: translateX(0);
           opacity: 1;
+          pointer-events: auto;
         }
 
         .auth-switch .container.sign-up-mode:before {
@@ -533,15 +557,7 @@ export function AuthSwitch({ initialMode = "login" }: AuthSwitchProps) {
         .auth-switch .container.sign-up-mode .right-panel .content {
           transform: translateX(0%);
           opacity: 1;
-          pointer-events: all;
-        }
-
-        .auth-switch .container.sign-up-mode .left-panel {
-          pointer-events: none;
-        }
-
-        .auth-switch .container.sign-up-mode .right-panel {
-          pointer-events: all;
+          pointer-events: auto;
         }
 
         .auth-switch .container:before {
@@ -553,10 +569,11 @@ export function AuthSwitch({ initialMode = "login" }: AuthSwitchProps) {
           right: 48%;
           transform: translateY(-50%);
           background: linear-gradient(-45deg, #06141B 0%, #11212D 55%, #253745 100%);
-          transition: transform 1.2s cubic-bezier(0.65, 0, 0.35, 1), right 1.2s cubic-bezier(0.65, 0, 0.35, 1);
+          transition: transform 1.1s cubic-bezier(0.65, 0, 0.35, 1), right 1.1s cubic-bezier(0.65, 0, 0.35, 1);
           border-radius: 50%;
-          z-index: 6;
+          z-index: 2;
           will-change: transform, right;
+          pointer-events: none !important;
         }
 
         .auth-switch .demo-container {
@@ -565,100 +582,205 @@ export function AuthSwitch({ initialMode = "login" }: AuthSwitchProps) {
           margin-top: 6px;
         }
 
-        @media (max-width: 870px) {
-          .auth-switch .container {
-            min-height: 100vh;
-            min-height: 100dvh;
-            height: 100vh;
-          }
-          .auth-switch .signin-signup {
-            width: 100%;
-            top: 92%;
-            transform: translate(-50%, -100%);
-            transition: top 1.1s cubic-bezier(0.65, 0, 0.35, 1);
-          }
-          .auth-switch .signin-signup,
-          .auth-switch .container.sign-up-mode .signin-signup {
-            left: 50%;
-          }
-          .auth-switch .panels-container {
-            grid-template-columns: 1fr;
-            grid-template-rows: 1fr 2fr 1fr;
-          }
-          .auth-switch .panel {
-            flex-direction: row;
-            justify-content: space-around;
-            align-items: center;
-            padding: 2rem 8%;
-            grid-column: 1 / 2;
-          }
-          .auth-switch .right-panel {
-            grid-row: 3 / 4;
-          }
-          .auth-switch .left-panel {
-            grid-row: 1 / 2;
-          }
-          .auth-switch .panel .content {
-            padding-right: 8%;
-            transition: transform 1.1s cubic-bezier(0.65, 0, 0.35, 1), opacity 0.7s ease-in-out;
-          }
-          .auth-switch .panel h3 {
-            font-size: 1.35rem;
-          }
-          .auth-switch .panel p {
-            font-size: 0.8rem;
-            padding: 0.3rem 0;
-            max-width: 240px;
-          }
-          .auth-switch .btn.transparent {
-            width: 120px;
-            height: 38px;
-            font-size: 0.75rem;
-          }
-          .auth-switch .container:before {
-            width: 1800px;
-            height: 1800px;
-            transform: translateX(-50%);
-            left: 30%;
-            bottom: 68%;
-            right: initial;
-            top: initial;
-            transition: transform 1.2s cubic-bezier(0.65, 0, 0.35, 1), bottom 1.2s cubic-bezier(0.65, 0, 0.35, 1);
-          }
-          .auth-switch .container.sign-up-mode:before {
-            transform: translate(-50%, 100%);
-            bottom: 32%;
-            right: initial;
-          }
-          .auth-switch .container.sign-up-mode .left-panel .content {
-            transform: translateY(-100%);
-            opacity: 0;
-          }
-          .auth-switch .container.sign-up-mode .right-panel .content {
-            transform: translateY(0px);
-            opacity: 1;
-          }
-          .auth-switch .right-panel .content {
-            transform: translateY(100%);
-            opacity: 0;
-          }
-          .auth-switch .container.sign-up-mode .signin-signup {
-            top: 8%;
-            transform: translate(-50%, 0);
-          }
+        /* Mobile Segmented Switcher */
+        .auth-switch .mobile-top-bar {
+          display: none;
         }
 
-        @media (max-width: 570px) {
-          .auth-switch form {
-            padding: 1rem 1.25rem;
+        /* MOBILE & TABLET LAYOUT (< 870px) */
+        @media (max-width: 870px) {
+          .auth-switch {
+            position: relative;
+            min-height: 100vh;
+            min-height: 100dvh;
+            height: auto;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            padding: 1.5rem 1rem 2.5rem 1rem;
+            align-items: flex-start;
           }
-          .auth-switch .panel .content {
-            padding: 0.5rem 0.8rem;
+
+          .auth-switch .container {
+            width: 100%;
+            max-width: 440px;
+            min-height: auto;
+            height: auto;
+            margin: auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow: visible;
+          }
+
+          /* Hide desktop sliding circle on mobile */
+          .auth-switch .container:before {
+            display: none !important;
+          }
+
+          /* Hide desktop sliding side panels on mobile */
+          .auth-switch .panels-container {
+            display: none !important;
+          }
+
+          /* Mobile Top Segmented Tab Switcher */
+          .auth-switch .mobile-top-bar {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            margin-bottom: 1.5rem;
+          }
+
+          .auth-switch .mobile-brand-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 1.25rem;
+          }
+
+          .auth-switch .mobile-brand-title {
+            font-size: 1.45rem;
+            font-weight: 700;
+            color: #11212D;
+            letter-spacing: -0.02em;
+          }
+
+          .auth-switch .mobile-tab-pill {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            width: 100%;
+            max-width: 380px;
+            background-color: #f1f5f9;
+            padding: 4px;
+            border-radius: 9999px;
+            border: 1px solid #e2e8f0;
+          }
+
+          .auth-switch .mobile-tab-btn {
+            background: none;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 9999px;
+            font-size: 0.88rem;
+            font-weight: 600;
+            color: #64748b;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            font-family: inherit;
+          }
+
+          .auth-switch .mobile-tab-btn.active {
+            background-color: #11212D;
+            color: #ffffff;
+            box-shadow: 0 4px 12px rgba(17, 33, 45, 0.25);
+          }
+
+          /* Forms positioning on mobile */
+          .auth-switch .forms-container {
+            position: relative;
+            width: 100%;
+            height: auto;
+          }
+
+          .auth-switch .signin-signup {
+            position: relative;
+            top: auto;
+            left: auto !important;
+            transform: none !important;
+            width: 100%;
+            display: block;
+          }
+
+          .auth-switch form {
+            position: relative;
+            padding: 0;
+            max-height: none;
+            overflow: visible;
+            width: 100%;
+          }
+
+          .auth-switch .brand-header {
+            display: none;
+          }
+
+          .auth-switch .title {
+            font-size: 1.65rem;
+            margin-bottom: 12px;
+            text-align: center;
+          }
+
+          /* Smooth form visibility swap on mobile */
+          .auth-switch form.sign-in-form {
+            display: flex;
+            opacity: 1;
+            transform: none;
+            pointer-events: all;
+          }
+
+          .auth-switch form.sign-up-form {
+            display: none;
+            opacity: 0;
+            pointer-events: none;
+          }
+
+          .auth-switch .container.sign-up-mode form.sign-in-form {
+            display: none;
+            opacity: 0;
+            pointer-events: none;
+          }
+
+          .auth-switch .container.sign-up-mode form.sign-up-form {
+            display: flex;
+            opacity: 1;
+            transform: none;
+            pointer-events: all;
+          }
+
+          .auth-switch .input-field {
+            max-width: 100%;
+            height: 48px;
+          }
+
+          .auth-switch .btn {
+            width: 100%;
+            max-width: 380px;
+            height: 48px;
+            margin-top: 14px;
+          }
+
+          .auth-switch .demo-container {
+            max-width: 100%;
           }
         }
       `}</style>
 
       <div className={isSignUp ? "container sign-up-mode" : "container"}>
+        {/* MOBILE TOP TAB SWITCHER */}
+        <div className="mobile-top-bar">
+          <div className="mobile-brand-header">
+            <BrandLogo className="size-8 text-[#11212D]" />
+            <span className="mobile-brand-title">TakarLaba</span>
+          </div>
+
+          <div className="mobile-tab-pill">
+            <button
+              type="button"
+              className={`mobile-tab-btn ${!isSignUp ? "active" : ""}`}
+              onClick={() => handleToggleMode(false)}
+            >
+              Masuk
+            </button>
+            <button
+              type="button"
+              className={`mobile-tab-btn ${isSignUp ? "active" : ""}`}
+              onClick={() => handleToggleMode(true)}
+            >
+              Daftar
+            </button>
+          </div>
+        </div>
+
+        {/* FORMS */}
         <div className="forms-container">
           <div className="signin-signup">
             {/* SIGN IN FORM */}
@@ -736,6 +858,13 @@ export function AuthSwitch({ initialMode = "login" }: AuthSwitchProps) {
                   isSubmitting={isLoginSubmitting || isDemoSubmitting !== null}
                   submittingRole={isDemoSubmitting}
                 />
+              </div>
+
+              <div className="form-footer-toggle">
+                <span>Belum punya akun?</span>
+                <button type="button" onClick={() => handleToggleMode(true)}>
+                  Daftar di sini
+                </button>
               </div>
             </form>
 
@@ -868,11 +997,18 @@ export function AuthSwitch({ initialMode = "login" }: AuthSwitchProps) {
                   "Sign up"
                 )}
               </button>
+
+              <div className="form-footer-toggle">
+                <span>Sudah punya akun?</span>
+                <button type="button" onClick={() => handleToggleMode(false)}>
+                  Masuk di sini
+                </button>
+              </div>
             </form>
           </div>
         </div>
 
-        {/* PANELS */}
+        {/* DESKTOP PANELS */}
         <div className="panels-container">
           <div className="panel left-panel">
             <div className="content">
