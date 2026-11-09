@@ -14,8 +14,14 @@ dist-ssr/
 build/
 *.tsbuildinfo
 
-# Neon & agent skills
+# Local database config
 .neon
+
+# Local development and planning files
+AGENTS.md
+SKILL.md
+WORKFLOW.md
+TODO.md
 .agents/
 skills-lock.json
 

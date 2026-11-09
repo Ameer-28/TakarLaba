@@ -253,7 +253,7 @@ erDiagram
   - `[businessId, invoiceNo]` dan `[businessId, idempotencyKey]` pada `Sale` menjamin nomor faktur dan idempoten tidak tumpang tindih.
 
 ### 2.2 Presisi Numerik & Matematika Uang (Anti-Float Policy)
-Sesuai aturan ketat AGENTS.md §3.1 & §4 Rule 4, sistem melarang tipe bilangan mengambang (`float`/`double`) untuk mencegah error akumulasi pembulatan (mis. `0.1 + 0.2 = 0.30000000000000004`):
+Sesuai prinsip keandalan kalkulasi finansial, sistem melarang tipe bilangan mengambang (`float`/`double`) untuk mencegah error akumulasi pembulatan (mis. `0.1 + 0.2 = 0.30000000000000004`):
 
 | Domain | Tipe Database (PostgreSQL) | Tipe Runtime Backend | Format JSON / API DTO | Contoh Nilai |
 | :--- | :--- | :--- | :--- | :--- |

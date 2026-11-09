@@ -9,7 +9,7 @@
 | Subtema | Accelerating Digital Transformation for Business and SMEs (fokus: Business, UMKM & Digital Economy) |
 | Masa pengerjaan | 19 Okt – 10 Nov 2026. Batas submit 10 Nov 23:59 WIB; **target internal submit 9 Nov** |
 | Grand Final | 14 Nov 2026 (live pitching via Zoom). Website & repo wajib publik dan hidup sampai kompetisi selesai |
-| Dokumen terkait | AGENTS.md · ARCHITECTURE.md · TODO.md · WORKFLOW.md · SKILL.md |
+| Dokumen terkait | ARCHITECTURE.md · docs/api.md · docs/erd.md |
 
 **One-liner:** POS mencatat *apa yang terjadi*. TakarLaba memberi tahu *menu mana yang mulai rugi, kenapa, dan harus berbuat apa*.
 
@@ -269,7 +269,7 @@ Konvensi: **P0** = kritis/MVP, **P1** = penting, **P2** = nice to have. Semua ua
 | Ketersediaan | Uptime selama 19 Okt–14 Nov | ≥ 99%; `/api/health` dipantau tiap 5 menit | Uptime monitor |
 | Responsivitas | Lebar 360 / 768 / 1024 / 1440 px | Tanpa scroll horizontal; POS usable di 360 px | Uji manual |
 | Browser | Chrome, Firefox, Edge, Safari | Versi stabil terbaru & −1 (batas Tailwind v4: Safari 16.4+, Chrome 111+, Firefox 128+); **login dan sesi wajib lulus di Safari** (cookie lewat proxy origin yang sama) | Matriks uji manual |
-| Keamanan | OWASP Top 10 (terbaru), tenant isolation, RBAC, validasi server-side (Zod), hash password oleh library auth, cookie httpOnly+secure, rate limit login, security headers pemeriksaan Origin untuk request non-GET, DTO per peran, tanpa secret di variabel VITE_*, tanpa secret di repo | 0 temuan kritis pada checklist SKILL.md | Security review + test |
+| Keamanan | OWASP Top 10 (terbaru), tenant isolation, RBAC, validasi server-side (Zod), hash password oleh library auth, cookie httpOnly+secure, rate limit login, security headers pemeriksaan Origin untuk request non-GET, DTO per peran, tanpa secret di variabel VITE_*, tanpa secret di repo | 0 temuan kritis pada audit keamanan | Security review + test |
 | Integritas data | Decimal untuk uang/kuantitas, transaksi ACID, CHECK constraint DB | 0 float untuk uang; 0 stok negatif | Code review + test |
 | Maintainability | TypeScript strict, 0 `any`, lint bersih | Coverage `domain/` ≥ 85%, `services/` ≥ 70% | CI |
 | Observability | Log server terstruktur tanpa PII/secret, error boundary UI | Ada | Review |
