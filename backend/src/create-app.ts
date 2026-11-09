@@ -64,7 +64,7 @@ export function createApp() {
   // Sessions rely on PostgreSQL (Better Auth tables), which persists across serverless instances.
   // For strict distributed rate limiting, an external store (e.g. Redis/Upstash) should be used.
 
-  // 4. Handler Better Auth WAJIB dipasang sebelum express.json() (lihat AGENTS.md §2 & §4).
+  // 4. Handler Better Auth WAJIB dipasang sebelum express.json().
   // Better Auth consumes the raw request stream; mounting express.json() earlier causes auth requests to hang or fail.
   app.all(["/api/auth", "/api/auth/*splat"], toNodeHandler(auth));
 

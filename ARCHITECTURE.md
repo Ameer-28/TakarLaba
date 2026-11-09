@@ -38,8 +38,7 @@
 
 ```text
 takarlaba/
-├── AGENTS.md  CLAUDE.md  PRD.md  ARCHITECTURE.md  TODO.md  SKILL.md  WORKFLOW.md
-├── README.md  LICENSE  .gitignore
+├── PRD.md  ARCHITECTURE.md  README.md  LICENSE  .gitignore
 ├── package.json                      # script kenyamanan saja (npm --prefix …), tanpa workspaces
 ├── .github/workflows/ci.yml          # job backend & frontend
 ├── frontend/
@@ -198,7 +197,7 @@ export const prisma = new PrismaClient({
 | **4. POS + FEFO**                 | 29 Okt–1 Nov               | `domain/fefo.ts`, `POST /sales` atomik + idempotency, UI POS, struk, riwayat                                                                                                                                                 | AC FR-POS-01/02; test: urutan FEFO, rollback stok kurang, 2 checkout paralel, idempotensi                                                                                                           |
 | **5. Price Shock + dashboard v1** | 2–3 Nov                    | `domain/pricing.ts`, evaluasi saat pembelian, Pusat Peringatan, terapkan harga, dashboard dasar                                                                                                                              | Skenario PRD Lampiran A langkah 1–4 menghasilkan angka persis (45,3% → Rp20.000; opsi B 115 ml)                                                                                                     |
 | **6. Analitik**                   | 4–6 Nov                    | Kapasitas & bottleneck, Menu Engineering (domain + endpoint + chart + tabel + rekomendasi)                                                                                                                                   | Fixture B 6/6 benar sebelum & sesudah price shock; guard data minimum                                                                                                                               |
-| **7. Hardening & polish**         | 7–8 Nov                    | Seed penuh + tombol demo, UX polish, responsif & lintas browser, security review, Lighthouse + bundle size, void & waste log                                                                                                 | Checklist SKILL.md §2 lulus; demo ≤ 5 menit tanpa error; Lighthouse sesuai target                                                                                                                   |
+| **7. Hardening & polish**         | 7–8 Nov                    | Seed penuh + tombol demo, UX polish, responsif & lintas browser, security review, Lighthouse + bundle size, void & waste log                                                                                                 | Checklist audit keamanan lulus; demo ≤ 5 menit tanpa error; Lighthouse sesuai target                                                                                                                   |
 | **8. Submit**                     | 9 Nov (batas 10 Nov 23:59) | README final, ERD, screenshot, proposal PDF, video 3–5 menit, surat keaslian, Google Form                                                                                                                                    | Semua tautan publik & dapat diakses; `GTNIC2026_WebDev_NamaTim.pdf`                                                                                                                                 |
 
 Dokumentasi, proposal, dan skrip video dikerjakan **paralel** mulai Fase 3. Stretch (P2): Waste Radar, CSV, E2E. **Frontend & backend dikerjakan paralel per fitur** menggunakan `docs/api.md` sebagai kontrak.

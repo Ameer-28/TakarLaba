@@ -3,7 +3,7 @@
 - **Status:** Diterima
 - **Tanggal:** 2026-10-21
 - **Pembuat:** Tim Pengembang TakarLaba
-- **Konteks Terkait:** `AGENTS.md` §1, `ARCHITECTURE.md` §1 & §7, ADR 0001
+- **Konteks Terkait:** `ARCHITECTURE.md` §1 & §7, ADR 0001
 
 ---
 

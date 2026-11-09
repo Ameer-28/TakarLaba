@@ -41,7 +41,7 @@
 | **Nama Karya** | TakarLaba (*Sistem Penjaga Margin & Anti-Waste UMKM Kuliner*) |
 | **Kategori Lomba** | Web Development Competition — GTNIC 2026 |
 | **Nama Tim** | *[Nama Tim]* |
-| **Institusi** | *[Nama Institusi]* |
+| **Institusi** | SMK Telkom Malang |
 | **Tautan Live Aplikasi** | [https://takar-laba.vercel.app](https://takar-laba.vercel.app) |
 | **Tautan API Serverless** | [https://takar-laba-api.vercel.app](https://takar-laba-api.vercel.app) |
 | **Repositori GitHub** | [https://github.com/Ameer-28/TakarLaba](https://github.com/Ameer-28/TakarLaba) |

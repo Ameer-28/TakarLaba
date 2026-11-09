@@ -1,7 +1,7 @@
 # Laporan Audit Keamanan Sistem (Security Audit Report)
 
 > **Evaluasi Keamanan Defensif TakarLaba untuk GTNIC 2026**  
-> Mengacu pada: SKILL.md §2 (Checklist S-2 & OWASP Top 10). Terakhir diaudit: November 2026.
+> Mengacu pada: Standar Keamanan OWASP Top 10 & Prinsip Least Privilege. Terakhir diaudit: November 2026.
 
 Laporan ini mendokumentasikan hasil audit postur keamanan defensif TakarLaba pada seluruh lapisan arsitektur (Frontend, Backend REST API, Database ORM, Autentikasi, dan Jaringan).
 
@@ -24,7 +24,7 @@ Laporan ini mendokumentasikan hasil audit postur keamanan defensif TakarLaba pad
 
 ---
 
-## 2. Rincian Pemeriksaan Defensif (Checklist SKILL.md S-2)
+## 2. Rincian Pemeriksaan Defensif (Checklist Keamanan OWASP)
 
 ### 2.1 Multi-Tenant Isolation & Kontrol Akses (A01)
 - **Verifikasi Otoritatif:** Middleware `requireAuth` memvalidasi cookie sesi dan mengisi `req.ctx = { userId, businessId, role }`.
@@ -38,7 +38,7 @@ Laporan ini mendokumentasikan hasil audit postur keamanan defensif TakarLaba pad
   - Telah diuji melalui suite integration test [`tenant-isolation.test.ts`](file:///c:/TakarLaba/backend/tests/http/tenant-isolation.test.ts) dan [`tenant-isolation.test.ts` (Real DB)](file:///c:/TakarLaba/backend/tests/integration/db/tenant-isolation.test.ts).
 
 ### 2.2 Perlindungan Kerahasiaan Kasir / Cashier Shield (Rule 7)
-- **Persyaratan PRD & AGENTS.md:** Staf kasir tidak boleh mengetahui harga modal beli bahan, HPP per porsi, maupun margin keuntungan bisnis.
+- **Persyaratan Privasi & Keamanan Bisnis:** Staf kasir tidak boleh mengetahui harga modal beli bahan, HPP per porsi, maupun margin keuntungan bisnis.
 - **Implementasi:**
   - DTO Mapper di `backend/src/dto/` memfilter allowlist properti untuk peran `CASHIER`.
   - Endpoint `GET /api/pos/menus` hanya mengembalikan `id, name, category, sellingPrice, hasRecipe, capacity, bottleneckIngredientName`. Field biaya, HPP Bahan, HPP Penuh, dan margin ditiadakan dari payload JSON.
