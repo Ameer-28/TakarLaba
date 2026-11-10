@@ -1,340 +1,386 @@
-# PROPOSAL KARYA WEB DEVELOPMENT — GTNIC 2026
+# PROPOSAL KARYA (UX CASE STUDY)
+# GARDA TECH NATIONAL INNOVATION COMPETITION (GTNIC) 2026
 
-**TakarLaba: Asisten Penjaga Margin & Anti-Waste untuk UMKM Kuliner Berbasis Multi-Tenant Decision Layer**
+**KATEGORI:** Web Development  
+**Sub-Tema:** "Accelerating Digital Transformation for Business and SMEs"  
+**JUDUL KARYA / APLIKASI WEB:** TakarLaba: Asisten Penjaga Margin & Anti-Waste untuk UMKM Kuliner Berbasis Multi-Tenant Decision Layer  
 
 ---
 
 <!-- ============================================================
-     HALAMAN SAMPUL (Cover Page)
-     Saat dikonversi ke PDF, halaman ini menjadi halaman pertama.
-     Logo GTNIC 2026 (dan logo Garda Tech) WAJIB dicantumkan.
+     HALAMAN SAMPUL / COVER
+     Logo GTNIC 2026 tersedia pada berkas: docs/gtnic-logo.png
      ============================================================ -->
 
-**[HALAMAN SAMPUL — halaman terpisah saat cetak PDF]**
+![Logo GTNIC 2026](gtnic-logo.png)
 
-> Logo GTNIC 2026 & Garda Tech *(sisipkan di sini saat ekspor ke Word/PDF)*
-
-**PROPOSAL KARYA — GARDA TECH NATIONAL INNOVATION COMPETITION (GTNIC) 2026**
-
-**Kategori: Web Development**
-
-**Judul Karya:** TakarLaba — Asisten Penjaga Margin & Anti-Waste untuk UMKM Kuliner
-
-**Nama Tim:** *[Nama Tim]* *(isi sesuai nama tim pendaftar resmi)*
-
-**Anggota Tim:**
-
-1. *[Nama Ketua Tim]* — Ketua / Fullstack Architect
-2. *[Nama Anggota 1]* — Frontend Developer / UI/UX
-3. *[Nama Anggota 2]* — Backend & Database Engineer
-
-**Institusi / Asal Sekolah:** *[Nama Institusi / Sekolah]*
+**Disusun Oleh Tim:** [NAMA TIM]
+1. [Nama Ketua Tim] - [Asal sekolah/Kampus] (Ketua / Fullstack Architect)
+2. [Nama Anggota 1] - [Asal sekolah/Kampus] (Frontend Developer / UI-UX Designer)
+3. [Nama Anggota 2] - [Asal sekolah/Kampus] (Backend & Database Engineer)
 
 ---
 
-<!-- page break -->
+## 1. LATAR BELAKANG MASALAH
 
-### Identitas Karya & Tautan
+Berdasarkan data Kementerian Koperasi dan UKM serta Badan Pusat Statistik (Sakernas Agustus 2025), Indonesia memiliki antara 56 hingga 65 juta unit Usaha Mikro, Kecil, dan Menengah (UMKM), di mana 96,8% di antaranya merupakan usaha berskala mikro. Sektor makanan dan minuman (*Food and Beverage* / F&B) merupakan penyerap tenaga kerja terbesar dan penggerak utama ekonomi kerakyatan dengan perputaran permodalan harian yang sangat cepat.
 
-| Informasi | Keterangan |
-|---|---|
-| **Nama Karya** | TakarLaba (*Sistem Penjaga Margin & Anti-Waste UMKM Kuliner*) |
-| **Kategori Lomba** | Web Development Competition — GTNIC 2026 |
-| **Nama Tim** | *[Nama Tim]* |
-| **Institusi** | SMK Telkom Malang |
-| **Tautan Live Aplikasi** | [https://takar-laba.vercel.app](https://takar-laba.vercel.app) |
-| **Tautan API Serverless** | [https://takar-laba-api.vercel.app](https://takar-laba-api.vercel.app) |
-| **Repositori GitHub** | [https://github.com/Ameer-28/TakarLaba](https://github.com/Ameer-28/TakarLaba) |
-| **Video Demo** | *[Tautan YouTube / Google Drive — isi saat submit]* |
+Meskipun menyumbang kontribusi ekonomi yang signifikan, mayoritas pelaku UMKM kuliner di Indonesia menghadapi risiko kegagalan operasional yang tinggi. Observasi lapangan dan studi empiris akuntansi biaya UMKM menunjukkan bahwa akar masalah utama terletak pada ketiadaan sistem pendukung keputusan (*decision-support system*) yang andal dalam menjaga margin laba dan mengendalikan persediaan bahan baku:
+
+1. **Perhitungan HPP Statis & Terjebak Margin Semu (*Illusionary Margin*):**  
+   Pelaku UMKM kuliner umumnya hanya menghitung Harga Pokok Penjualan (HPP) satu kali saat pertama kali meluncurkan produk. Ketika terjadi kenaikan harga bahan baku mentah di pasar tradisional (seperti telur, minyak goreng, cabai, gula, atau susu), pengusaha tidak pernah memperbarui HPP resep mereka. Akibatnya, timbul fenomena *margin semu*—kedai terlihat ramai dan omzet penjualan tampak tinggi, namun uang kas operasional di akhir bulan selalu tekor karena margin keuntungan telah tergerus inflasi bahan tanpa disadari.
+
+2. **Pengabaian Beban Biaya Overhead & Bahan Penolong (*Cost Distortion*):**  
+   Pencatatan konvensional UMKM hampir selalu hanya menghitung bahan baku utama dan mengabaikan beban utilitas harian (listrik, gas elpiji, air galon), biaya penyusutan peralatan dapur, upah tenaga kerja per porsi, serta kemasan penolong (kantong kresek, sedotan, cup lid, stiker). Studi empiris *recipe-based full costing* (Universitas Tanjungpura) mencatat bahwa pencatatan biaya konvensional menghasilkan HPP terdistorsi terlalu rendah antara **20% hingga 35%**, menciptakan ilusi keuntungan palsu.
+
+3. **Limbah Stok Tanpa Manajemen FEFO (*First Expired, First Out*):**  
+   Bahan baku makanan dan minuman memiliki karakteristik mudah rusak (*perishable*) dengan masa kedaluwarsa yang ketat. Tanpa alokasi persediaan berbasis tanggal kedaluwarsa, bahan baku yang dibeli lebih awal sering tertimbun di belakang rak penyimpanan dan membusuk (*food waste*). Hal ini memicu kerugian langsung yang menggerus modal kerja usaha mikro.
+
+4. **Ilusi Menu Terlaris (*Popularity Trap*):**  
+   Banyak pemilik usaha mencurahkan tenaga dan biaya promosi pada menu yang paling banyak terjual, tanpa menyadari bahwa menu tersebut memiliki margin kontribusi rupiah yang sangat tipis. Keputusan bisnis kerap diambil atas dasar intuisi dan perasaan (*gut feeling*), bukan berbasis analitik profitabilitas objektif.
+
+5. **Kesenjangan Solusi Kasir (POS) di Pasaran:**  
+   Solusi kasir digital (*Point of Sale*) yang beredar saat ini umumnya hanya berfungsi sebagai pencatat transaksi kasir (*system of record*). Fitur penghitungan resep Bill of Materials (BOM) sering kali dikunci di paket langganan enterprise yang mahal (Rp150.000–Rp500.000/gerai/bulan), tanpa menyediakan lapisan intelijen (*decision layer*) yang mampu mensimulasikan solusi taktis seketika saat terjadi lonjakan harga bahan baku.
 
 ---
 
-## BAB 1. PENDAHULUAN
+## 2. TUJUAN, MANFAAT, DAN SOLUSI
 
-### 1.1 Latar Belakang Masalah
+### 2.1 Tujuan
+1. **Mengembangkan Sistem Otomasi Costing Dinamis:** Merancang platform web yang menghitung HPP Bahan (*raw cost*), HPP Penuh (*full costing* dengan penyerapan overhead per porsi), HPP Pengganti (*replacement cost*), dan HPP Aktual (*historical batch cost*) secara real-time.
+2. **Membangun Mesin Deteksi & Mitigasi Price Shock:** Menyediakan deteksi instan anjloknya margin akibat kenaikan harga beli bahan baku beserta simulasi taktis: penyesuaian harga jual baru psikologis (Opsi A) dan rekayasa porsi takaran bahan (Opsi B).
+3. **Mewujudkan Pengelolaan Stok Anti-Waste Berbasis FEFO:** Mengotomatisasikan pemotongan batch stok kedaluwarsa paling awal secara atomik melalui transaksi *database row-level locking*, dilengkapi mekanisme pemulihan stok (*void restore*).
+4. **Menyajikan Analitik Profitabilitas Menu Ilmiah:** Mengimplementasikan matriks *Menu Engineering* 4 kuadran Kasavana & Smith (*Star, Plowhorse, Puzzle, Dog*) untuk memandu strategi penetapan harga dan promosi menu.
+5. **Menerapkan Perlindungan Kerahasiaan Finansial Kasir:** Memisahkan hak akses pemilik (*Owner*) dan staf kasir (*Cashier*) dengan pembersihan data biaya (*Cashier Privacy Shield*) di lapisan backend.
 
-Berdasarkan data Kementerian Koperasi dan UKM serta Badan Pusat Statistik (Sakernas), Indonesia memiliki antara 56 hingga 65 juta unit Usaha Mikro, Kecil, dan Menengah (UMKM), di mana 96,8% di antaranya merupakan usaha berskala mikro. Sektor makanan dan minuman (*Food and Beverage* / F&B) merupakan salah satu kontributor terbesar dalam penyerapan tenaga kerja dan perputaran ekonomi rakyat.
+### 2.2 Manfaat
+- **Bagi Pemilik Usaha (Owner):**
+  - Memperoleh visibilitas margin laba riil per menu dalam hitungan detik tanpa membuka buku catatan atau rumus spreadsheet rumit.
+  - Memperoleh rekomendasi taktis instan saat harga pasar naik sehingga tidak terlambat merespons inflasi.
+  - Mengeliminasi risiko kerugian finansial akibat bahan kedaluwarsa melalui panel deteksi risiko dini (*Waste Radar*).
+  - Melindungi kerahasiaan margin keuntungan dan harga kulakan bahan dari jangkauan staf kasir.
+- **Bagi Kasir & Staf Operasional:**
+  - Mengoperasikan kasir POS dengan cepat dan intuitif melalui tampilan *mobile-first* yang optimal pada layar sentuh ponsel (360 px).
+  - Mengetahui sisa kapasitas porsi menu yang dapat dibuat secara instan beserta bahan baku yang menjadi penghambat utama (*bottleneck*), mencegah pesanan ditolak setelah transaksi dibayar.
+  - Mempercepat proses cetak struk nota belanja thermal langsung dari browser peramban.
+- **Bagi Industri UMKM & Lingkungan:**
+  - Membantu menurunkan angka kegagalan usaha mikro kuliner nasional melalui digitalisasi pembukuan finansial yang presisi.
+  - Mendukung inisiatif keberlanjutan lingkungan dengan mengurangi limbah makanan (*food waste*) melalui alokasi FEFO dan pemanfaatan promo bahan menjelang kedaluwarsa.
 
-Meskipun memiliki perputaran omzet harian yang cepat, mayoritas UMKM kuliner menghadapi tantangan keberlanjutan bisnis yang kritis:
+### 2.3 Solusi Teknologi yang Ditawarkan
+TakarLaba hadir bukan sekadar sebagai aplikasi kasir (*system of record*), melainkan sebagai **Asisten Penjaga Margin & Anti-Waste berbasis *Multi-Tenant Decision Layer***. 
 
-1. **Perhitungan HPP Statis & Munculnya Margin Semu:** Pengusaha kuliner umumnya hanya menghitung Harga Pokok Penjualan (HPP) satu kali saat membuka usaha. Ketika harga bahan mentah (seperti telur, minyak goreng, cabai, atau susu) mengalami inflasi mendadak di pasar tradisional, pengusaha tidak memperbarui HPP mereka. Akibatnya, terjadi fenomena *margin semu*—warung atau kafe terlihat ramai pembeli, namun uang kas di akhir bulan selalu tekor karena harga jual tidak lagi menutup biaya riil.
-2. **Pengabaian Beban Overhead & Bahan Penolong:** Perhitungan konvensional hanya menghitung bahan baku utama dan mengabaikan beban utilitas (listrik, gas elpiji, air), penyusutan peralatan masak, serta kemasan penolong. Berbagai studi akuntansi biaya UMKM (misal kajian *recipe-based full costing* Universitas Tanjungpura) mencatat bahwa pencatatan konvensional menghasilkan HPP terdistorsi terlalu rendah antara 20% hingga 35%.
-3. **Limbah Stok Tanpa Manajemen FEFO (*First Expired, First Out*):** Bahan baku kuliner memiliki masa simpan yang terbatas (*perishable*). Tanpa sistem alokasi stok berbasis tanggal kedaluwarsa, bahan baku yang dibeli terdahulu sering tertimbun di belakang rak dapur dan membusuk, memicu kerugian *food waste* yang menguapkan modal kerja.
-4. **Ilusi Menu Terlaris (*Popularity Trap*):** Banyak pemilik usaha memfokuskan promosi pada menu yang paling banyak terjual, tanpa menyadari bahwa menu tersebut memiliki margin kontribusi rupiah yang sangat tipis. Keputusan menu sering kali diambil berdasarkan perasaan atau intuisi (*gut feeling*), bukan berbasis analitik profitabilitas objektif.
-5. **Keterbatasan Solusi POS Konvensional:** Aplikasi kasir (*Point of Sale*) yang beredar di pasaran umumnya hanya berfungsi sebagai mesin pencatat transaksi dan kasir (*system of record*). Fitur perhitungan resep sering kali hanya ada di paket langganan enterprise yang mahal (Rp150.000–Rp500.000/gerai/bulan), tanpa menyediakan lapisan pendukung keputusan (*decision layer*) ketika terjadi lonjakan harga bahan baku.
+Sistem ini menggabungkan:
+1. **Mesin Costing Multi-Metode Murni:** Menghitung konversi satuan otomatis (misal kg ke gram, Liter ke mililiter), faktor *yield* bahan usable, dan pembagian beban utilitas bulanan ke tiap porsi resep secara presisi desimal tanpa pembulatan *floating-point*.
+2. **Price Shock Mitigation Engine (BR-05, BR-06):** Ketika nota pembelian baru dicatat dan harga beli melonjak, sistem seketika memunculkan modal mitigasi:
+   - **Opsi A (Naikkan Harga Jual):** Rekomendasi harga baru dengan pembulatan ke atas (*ceiling*) kelipatan langkah psikologis UMKM (misal kelipatan Rp500).
+   - **Opsi B (Rekayasa Takaran Porsi):** Menghitung pengurangan gramatur takaran bahan yang naik agar harga jual tetap stabil, dengan ambang batas penurunan maksimal 50% untuk menjaga cita rasa.
+3. **Atomic FEFO Stock Engine (BR-07):** Algoritma pemotongan stok otomatis yang mengonsumsi batch dengan tanggal kedaluwarsa paling awal menggunakan transaksi terkunci `SELECT ... FOR UPDATE`, mencegah *race condition* stok negatif saat kasir bertransaksi simultan.
+4. **Matriks Menu Engineering 4 Kuadran (BR-08, BR-10):** Memetakan menu selama 30 hari ke dalam kuadran *Star, Plowhorse, Puzzle,* dan *Dog* menggunakan margin kontribusi rupiah dan ambang popularitas Kasavana & Smith, dilengkapi rekomendasi taktis otomatis.
 
-### 1.2 Rumusan Masalah
+---
 
-1. Bagaimana merancang sistem perhitungan HPP dinamis yang mampu memperhitungkan biaya bahan baku usable (*yield*), kemasan penolong, dan alokasi overhead bulanan per porsi secara otomatis?
-2. Bagaimana mendeteksi lonjakan harga bahan baku (*Price Shock Impact*) dan memberikan simulasi rekomendasi taktis (kenaikan harga jual vs rekayasa porsi) dalam hitungan detik?
-3. Bagaimana mengotomatisasikan pemotongan stok bahan baku kasir berbasis FEFO secara atomik guna mencegah limbah dan menjaga konsistensi data stok bahan?
-4. Bagaimana memetakan performa menu kuliner ke dalam matriks *Menu Engineering* 4 kuadran (*Star*, *Plowhorse*, *Puzzle*, *Dog*) berbasis margin kontribusi riil?
+## 3. TARGET PENGGUNA / PASAR APLIKASI
 
-### 1.3 Tujuan & Manfaat Karya
+### 3.1 Karakteristik Target Pasar
+Target pasar TakarLaba difokuskan pada pelaku UMKM kuliner di Indonesia dengan karakteristik:
+- **Skala Usaha:** Usaha mikro dan kecil mandiri (1–3 gerai) dengan omzet bulanan antara Rp5 juta hingga Rp50 juta.
+- **Jenis Industri:** Kedai kopi (*coffee shop*), kedai teh kekinian, bakery & pastry, warung makan, kuliner *cloud kitchen*, katering harian, dan usaha makanan beku (*frozen food*).
+- **Infrastruktur Perangkat:** Menggunakan perangkat yang sudah dimiliki (ponsel cerdas Android/iOS, tablet, atau laptop standar) tanpa kewajiban membeli perangkat kasir POS berbayar yang mahal.
+- **Kondisi Literasi:** Memerlukan antarmuka berbahasa Indonesia yang sederhana, visual, bebas dari istilah jargon akuntansi rumit, dan dapat dioperasikan dalam hitungan menit tanpa pelatihan teknis khusus.
 
-- **Bagi Pemilik Usaha (Owner):** Memperoleh visibilitas margin riil dalam 10 detik, memitigasi risiko lonjakan biaya bahan secara instan, dan memiliki panduan strategis berbasis data untuk promosi menu.
-- **Bagi Kasir & Operasional:** Mempercepat operasional kasir dengan tampilan POS *mobile-first* yang intuitif di layar ponsel (360 px), mencegah penjualan menu yang bahannya telah habis melalui indikator kapasitas dan *bottleneck*, serta melindungi rahasia margin laba bisnis dari staf kasir.
-- **Bagi Perekonomian & Lingkungan:** Menekan tingkat kegagalan usaha mikro kuliner serta mengurangi limbah makanan (*food waste*) melalui alokasi stok terencana.
+### 3.2 User Persona
 
-### 1.4 Target Pengguna / Pasar Aplikasi
+#### Persona 1: Pemilik Usaha (Owner)
+- **Nama:** Budi Santoso (38 tahun)
+- **Peran:** Pemilik Kedai Kopi "Kopi Sahabat" (1 gerai, 12 varian minuman, omzet Rp18 juta/bulan).
+- **Tantangan / Pain Points:**
+  - Sering terkejut saat membeli susu UHT dan sirup yang harganya naik di toko grosir, namun bingung harus menaikkan harga jual berapa agar pelanggan tidak lari.
+  - Sering menemukan stok susu dan krimer kedaluwarsa di pojok gudang, rugi ratusan ribu rupiah tiap bulan.
+  - Menganggap menu yang paling laku otomatis paling menguntungkan, padahal margin labanya sangat tipis setelah dipotong biaya gelas plastik dan sedotan.
+- **Mengapa TakarLaba Relevan:**  
+  TakarLaba memberikan notifikasi *Price Shock* saat ia mencatat belanja susu, menghitungkan rekomendasi harga baru atau saran pengurangan takaran dalam 10 detik, serta menampilkan visual kuadran menu terlaris vs menu paling menguntungkan.
 
-TakarLaba dirancang untuk melayani segmen pasar berikut:
+#### Persona 2: Kasir & Staf Operasional (Cashier)
+- **Nama:** Siti Rahmawati (21 tahun)
+- **Peran:** Kasir & Barista paruh waktu.
+- **Tantangan / Pain Points:**
+  - Menggunakan ponsel pribadi di meja kasir yang sempit; aplikasi kasir konvensional sering memiliki tombol kecil dan berbelit-belit.
+  - Pernah menerima pesanan dan pembayaran dari pelanggan, tetapi saat dibuat di bar ternyata sirup gula arennya sudah habis, memicu komplain pembeli.
+- **Mengapa TakarLaba Relevan:**  
+  Antarmuka POS TakarLaba dirancang *mobile-first* (nyaman di layar 360 px), dilengkapi tombol angka cepat, pencarian instan, dan indikator kapasitas sisa porsi yang memberi peringatan bahan mana yang habis sebelum transaksi dibayar. Data rahasia harga kulakan dan margin laba pemilik juga terlindungi dari pandangannya.
 
-| Segmen Pengguna | Profil | Peran dalam Sistem |
+---
+
+## 4. FITUR UTAMA & KEUNIKAN APLIKASI
+
+### 4.1 Fitur Utama
+
+| No | Fitur | Deskripsi Fungsional | Hak Akses Owner | Hak Akses Kasir |
+|:---:|---|---|:---:|:---:|
+| 1 | **Dashboard Usaha & KPI** | Menampilkan omzet riil, estimasi laba kotor, grafik tren penjualan 7 hari, ranking menu terlaris, ringkasan margin terancam, dan stok kritis. | ✅ Lengkap | ❌ Dibatasi |
+| 2 | **Pusat Peringatan (Price Shock Alerts)** | Mendeteksi penurunan margin menu di bawah target bisnis pasca-pembelian bahan, menyajikan simulasi Opsi A (naikkan harga) dan Opsi B (rekayasa porsi), serta aksi terapkan instan. | ✅ Penuh | ❌ Tidak Ada |
+| 3 | **Manajemen Bahan & Konversi Satuan** | Pengelolaan master bahan baku, satuan beli vs satuan dasar (kg $\rightarrow$ g, L $\rightarrow$ ml, lusin $\rightarrow$ pcs), konversi faktor *yield* bahan olahan, dan ambang batas stok minimum. | ✅ Penuh | ❌ Tidak Ada |
+| 4 | **Editor Resep & Live Costing Preview** | Penyusunan Bill of Materials (BOM) resep menu dengan pratinjau kalkulasi seketika (debounced 300 ms) untuk HPP Bahan, HPP Penuh, HPP Aktual, dan HPP Pengganti. | ✅ Penuh | ❌ Tidak Ada |
+| 5 | **Pengaturan Usaha & Beban Overhead** | Pengaturan target margin default (mis. 50%), langkah pembulatan harga jual (mis. Rp500), target porsi bulanan, dan pencatatan beban utilitas/sewa/alat per porsi (*full costing*). | ✅ Penuh | ❌ Tidak Ada |
+| 6 | **Katalog Menu & Riwayat Harga** | Daftar menu kuliner, riwayat perubahan harga jual, filter kategori, serta badge status margin semantik (Aman / Waspada / Bahaya). | ✅ Penuh | ❌ Tidak Ada |
+| 7 | **Kasir POS Mobile-First Cerdas** | Grid katalog menu cepat, keranjang belanja interaktif, kalkulator nominal bayar dan kembalian, pintasan keyboard kasir, proteksi *Idempotency-Key*, dan dialog cetak struk nota belanja thermal CSS. | ✅ Penuh | ✅ Penuh (Tanpa Info Biaya) |
+| 8 | **Alokasi Stok FEFO Otomatis Atomik** | Pemotongan stok otomatis dari batch kedaluwarsa paling awal dengan row-level lock (`SELECT ... FOR UPDATE`), mencegah *race condition* stok negatif. | ✅ Sistem | ✅ Sistem |
+| 9 | **Kapasitas & Deteksi Bottleneck Porsi** | Perhitungan sisa porsi menu yang dapat dibuat berdasarkan ketersediaan bahan baku real-time, menyorot bahan baku pembatas (*bottleneck ingredient*). | ✅ Lengkap | ✅ Tanpa Data Biaya |
+| 10 | **Riwayat Penjualan & Void Restore** | Pencatatan transaksi penjualan, filter tanggal dan metode bayar, modal rincian alokasi batch stok terpotong, serta fitur pembatalan (*Void*) dengan pemulihan stok atomik ke batch asal. | ✅ Lengkap | ✅ Transaksi Sendiri |
+| 11 | **Matriks Menu Engineering** | Analisis performa 30 hari dalam 4 kuadran Kasavana & Smith (*Star, Plowhorse, Puzzle, Dog*) berbasis margin kontribusi rupiah, dilengkapi rekomendasi taktis bisnis. | ✅ Penuh | ❌ Tidak Ada |
+| 12 | **Waste Radar & Catat Kerugian Limbah** | Deteksi batch bahan mendekati/melewati kedaluwarsa, perhitungan potensi nilai rupiah kerugian limbah, rekomendasi harga lantai promo dan diskon aman, serta formulir pencatatan bahan terbuang (*Waste*). | ✅ Penuh | ❌ Tidak Ada |
+| 13 | **Penyesuaian Stok (Stock Opname)** | Pencatatan rekonsiliasi fisik bahan baku di gudang dengan mutasi penyesuaian stok (*ADJUSTMENT*) untuk mengoreksi selisih stok riil. | ✅ Penuh | ❌ Tidak Ada |
+| 14 | **Ekspor Laporan Finansial CSV** | Pengunduhan data transaksi penjualan dan status stok gudang berformat CSV standar RFC 4180 dengan proteksi formula injection untuk olah data mandiri. | ✅ Penuh | ❌ Tidak Ada |
+| 15 | **Mode Demo Deterministik Juri** | Tombol login sekali klik (Demo Owner dan Demo Kasir) serta fitur reset instan basis data sesuai skenario PRD Lampiran B (16 bahan, 6 menu, 1.300 porsi historis) dengan proteksi jeda 60 detik. | ✅ Penuh | ❌ Dibatasi |
+
+### 4.2 Keunikan / Nilai Inovasi Dibanding Sistem Serupa
+
+| Dimensi Fitur & Strategi | Aplikasi Kasir / POS Konvensional di Pasar (Moka, Pawoon, Olsera, Majoo) | TakarLaba (Asisten Penjaga Margin & Anti-Waste) |
 |---|---|---|
-| **Pemilik UMKM Kuliner Mikro/Kecil** | Pengusaha warung makan, kedai kopi, gerai bakery, atau catering harian yang mengelola 1–3 outlet dengan 5–30 menu aktif. Omzet bulanan Rp5 juta – Rp50 juta. | **Owner** — akses penuh ke seluruh fitur analitik, costing, manajemen bahan, dan pengaturan bisnis. |
-| **Kasir / Staf Operasional** | Karyawan operasional yang bertugas melayani pembayaran pelanggan di *counter*. Tidak memerlukan pemahaman akuntansi. | **Cashier** — akses terbatas ke POS kasir, riwayat penjualan milik sendiri, dan indikator kapasitas porsi (tanpa informasi biaya/margin). |
-| **Pengusaha Kuliner Pemula** | Individu yang baru memulai bisnis kuliner rumahan dan membutuhkan panduan *costing* yang mudah dipahami. | **Owner** — menggunakan fitur *onboarding wizard* 3 langkah (bahan → resep → overhead) untuk memulai. |
-
-**Karakteristik Target Pasar:**
-- Berlokasi di Indonesia (Bahasa Indonesia sebagai bahasa antarmuka utama).
-- Memiliki akses internet dasar melalui ponsel atau laptop.
-- Belum atau jarang menggunakan sistem pembukuan digital karena biaya berlangganan tinggi.
-- Membutuhkan alat yang bekerja langsung tanpa pelatihan panjang.
-
----
-
-## BAB 2. TINJAUAN PUSTAKA & METODOLOGI PERHITUNGAN
-
-TakarLaba mengadopsi kaidah akuntansi manajemen teruji yang diimplementasikan ke dalam kode murni (*pure domain logic*):
-
-### 2.1 Formula Margin Kontribusi & HPP Penuh (BR-01, BR-02, BR-04)
-
-- **Konversi Yield Bahan:** Stok disimpan dalam satuan dasar mentah (*raw base unit*: gram, mililiter, atau pcs). Resep menyimpan takaran siap pakai (*usable quantity*):
-  $$\text{Raw Qty} = \frac{\text{Recipe Qty} \times 100}{\text{Yield Percent}}$$
-  $$\text{Biaya per Usable Unit} = \frac{\text{Cost per Base} \times 100}{\text{Yield Percent}}$$
-- **HPP Bahan (*Raw Material Cost*):** Total akumulasi biaya seluruh bahan usable dan kemasan dalam satu resep.
-- **Overhead per Porsi (*Full Costing*):** Total estimasi beban utilitas, sewa, tenaga kerja, dan penyusutan bulanan dibagi target porsi bulanan:
-  $$\text{Overhead per Porsi} = \frac{\sum \text{Biaya Overhead Bulanan}}{\text{Target Porsi Bulanan}}$$
-- **HPP Penuh (*Full Recipe Cost*):** $\text{HPP Penuh} = \text{HPP Bahan} + \text{Overhead per Porsi}$.
-- **Margin Kontribusi (Rp & %):**
-  $$\text{Margin (Rp)} = \text{Harga Jual} - \text{HPP Penuh}$$
-  $$\text{Margin (\%)} = \frac{\text{Harga Jual} - \text{HPP Penuh}}{\text{Harga Jual}} \times 100\%$$
-
-### 2.2 Logika Mitigasi Lonjakan Harga / Price Shock (BR-05, BR-06)
-
-Ketika terjadi pembelian bahan baku baru yang menaikkan HPP Penuh dan menurunkan margin di bawah target bisnis, sistem membangkitkan *Price Shock Alert* dengan dua pilihan rekomendasi:
-
-- **Opsi A (Penyesuaian Harga Jual Baru):**
-  $$\text{Harga Baru Mentah} = \frac{\text{HPP Penuh Baru}}{1 - \text{Target Margin}}$$
-  Harga kemudian dibulatkan ke atas (*ceiling*) mengikuti langkah pembulatan UMKM (`priceRoundingStep`, misal kelipatan Rp500).
-- **Opsi B (Rekayasa Takaran / Efisiensi Bahan):** Menghitung pengurangan takaran gramatur/mililiter bahan yang mengalami kenaikan agar harga jual tetap dipertahankan, dengan batas kelayakan efisiensi maksimal 50% dari resep awal guna menjaga kualitas rasa.
-
-### 2.3 Matriks Menu Engineering Kasavana & Smith (BR-08, BR-10)
-
-Menu dianalisis selama horizon 30 hari berdasarkan dua dimensi:
-
-1. **Ambang Batas Popularitas:** $70\% \times \left(\frac{1}{n}\right) \times \text{Total Porsi Terjual}$.
-2. **Ambang Batas Margin Kontribusi:** Rata-rata margin kontribusi tertimbang seluruh menu.
-
-Pengelompokan 4 kuadran:
-- ⭐ **Star (Populer Tinggi, Margin Tinggi):** Pertahankan kualitas dan konsistensi resep.
-- 🐎 **Plowhorse (Populer Tinggi, Margin Rendah):** Naikkan harga bertahap atau kurangi porsi bahan secara hati-hati.
-- 🧩 **Puzzle (Populer Rendah, Margin Tinggi):** Tingkatkan promosi, reposisi di papan menu, atau bundel dengan menu lain.
-- 🐕 **Dog (Populer Rendah, Margin Rendah):** Evaluasi resep, naikkan margin secara radikal, atau eliminasi dari katalog.
+| **Paradigma Peran Sistem** | Sekadar mesin pencatat transaksi kasir (*system of record*). | Lapisan intelijen pendukung keputusan operasional (*decision layer / system of intelligence*). |
+| **Deteksi Lonjakan Harga Bahan (*Price Shock*)** | Pasif; hanya mencatat riwayat pembelian di pembukuan tanpa analisis dampak ke menu. | Proaktif; seketika menghitung anjloknya margin per menu dan menampilkan modal dampak pasca-simpan pembelian. |
+| **Rekomendasi Solusi Inflasi Taktis** | Tidak ada; pengusaha harus menebak harga baru sendiri di luar aplikasi. | Menyediakan dua opsi matematis otomatis: **Opsi A** (kenaikan harga jual dengan pembulatan psikologis) dan **Opsi B** (rekayasa efisiensi gramatur porsi dengan batas rasa 50%). |
+| **Metodologi Perhitungan HPP Resep** | Rata-rata bahan mentah saja (*Raw Material Average Cost*); mengabaikan beban operasional dapur. | **Dual HPP:** HPP Bahan vs **HPP Penuh** (menyerap overhead utilitas per porsi), serta **HPP Pengganti** (harga kulakan terbaru) vs **HPP Aktual** (batch terpakai). |
+| **Analisis Menu & Profitabilitas** | Terbatas pada laporan "Menu Terlaris" berdasarkan volume kuantitas penjualan. | Matriks 4 Kuadran **Menu Engineering Kasavana & Smith** (*Star, Plowhorse, Puzzle, Dog*) berbasis margin kontribusi rupiah dan ambang batas ilmiah. |
+| **Manajemen Limbah & Stok FEFO** | Pemotongan stok global tanpa *row-locking* atau FIFO sederhana tanpa proteksi kedaluwarsa. | Pemotongan stok berbasis **FEFO** dengan penguncian baris atomik (`SELECT ... FOR UPDATE`), panel risiko rupiah *Waste Radar*, dan pemulihan stok *Void-Restore*. |
+| **Kerahasiaan Finansial Kasir (*Rule 7*)** | Sering mengekspos harga beli modal, HPP, atau margin keuntungan di layar kasir. | **Sanitasi DTO Backend Otoritatif:** Kasir tidak pernah menerima data harga beli, HPP, maupun margin laba dalam respon API JSON. |
+| **Aksesibilitas & Biaya Adopsi** | Fitur resep dan analitik hanya ada pada paket langganan mahal (Rp150rb–Rp500rb/bulan/outlet). | Terbuka (*accessible*), tanpa biaya berlangganan gerai bulanan, dan ramah bagi pelaku usaha mikro. |
 
 ---
 
-## BAB 3. ARSITEKTUR TEKNIS & KEUNGGULAN DESAIN SISTEM
+## 5. ARSITEKTUR SISTEM, SKEMA DATABASE & TEKNOLOGI
 
-### 3.1 Stack Teknologi Modern
+### 5.1 Stack Teknologi / Tools yang Digunakan
 
-| Lapisan | Teknologi | Keterangan |
-|---|---|---|
-| **Frontend SPA** | React 19, Vite 6, TypeScript Strict, Tailwind CSS v4, shadcn/ui, React Router 8 (Data Router), TanStack Query v5, Recharts | Single Page Application responsif (*mobile-first*, nyaman di 360 px) |
-| **Backend API** | Node.js 22 LTS, Express 5, TypeScript NodeNext (ESM), Zod 4, Prisma 7, Better Auth, Pino 9, decimal.js | RESTful API dengan validasi otoritatif dan autentikasi cookie sesi |
-| **Basis Data** | PostgreSQL 17 (Neon Serverless) | Driver `@prisma/adapter-pg` dengan koneksi pooling; 15 entitas relasional |
-| **Deployment** | Vercel (Frontend + Backend Serverless Functions), Neon (Database) | Single-origin reverse proxy, region Singapore (sin1) |
+| Komponen Arsitektur | Teknologi / Pustaka | Versi | Peran & Justifikasi Pemilihan |
+|---|---|:---:|---|
+| **Frontend Framework** | React | 19.x | Library antarmuka deklaratif dengan React Server Components compatibility dan performa rendering optimal. |
+| **Frontend Build Tool** | Vite | 6.x | Bundler ultra-cepat dengan Hot Module Replacement (HMR) instan dan optimasi *code splitting* per rute. |
+| **Bahasa Pemrograman** | TypeScript | 5.x | *Type safety* ketat (*strict mode*, `noUncheckedIndexedAccess`) pada frontend dan backend guna mencegah *runtime error*. |
+| **Styling & Komponen** | Tailwind CSS v4 & shadcn/ui | 4.x | CSS-first styling via `@tailwindcss/vite`, desain token semantik (success, warning, danger), dan aksesibilitas ARIA. |
+| **Routing Peramban** | React Router | 8.x | Data Router modern dengan pemuatan rute *lazy loading* untuk menjaga ukuran bundle awal tetap ringan (~162 KB gzip). |
+| **State Server Klien** | TanStack Query | 5.x | Pengelolaan cache data async, sinkronisasi otomatis, *query key factory* terstruktur, dan *mutation invalidation*. |
+| **Visualisasi Data** | Recharts & SVG Murni | 2.x | Grafik tren penjualan responsif dan scatter plot interaktif matriks 4 kuadran Menu Engineering. |
+| **Backend Runtime** | Node.js | 22 LTS | Lingkungan runtime asynchronous berperforma tinggi dengan modul ECMAScript (ESM NodeNext) murni. |
+| **Backend Web Framework** | Express | 5.x | Framework REST API generasi terbaru dengan penanganan error async bawaan dan routing wildcard bernama. |
+| **Validasi Skema Otoritatif**| Zod | 4.x | Validasi input ketat di perbatasan sistem (body, query, params) dengan sanitasi fail-fast dan *stringbool*. |
+| **Matematika Finansial** | decimal.js | 10.x | Presisi kalkulasi angka desimal uang dan kuantitas bebas dari distorsi *floating point* IEEE 754. |
+| **Autentikasi & Sesi** | Better Auth | 1.x | Autentikasi multi-tenant berbasis cookie sesi *HttpOnly first-party*, proteksi brute-force, dan RBAC. |
+| **Database & ORM** | PostgreSQL 17 via Prisma ORM | 7.x | Relational database ACID-compliant di Neon Serverless dengan driver `@prisma/adapter-pg` dan connection pooling. |
+| **Keamanan & Observabilitas**| Helmet 8 & Pino 9 | Terbaru | Proteksi header keamanan HTTP, pembatasan ukuran payload, rate limiter, dan logging terstruktur tanpa PII. |
+| **Pengujian Kualitas** | Vitest & Supertest | 5.x | Framework pengujian modern; **74 berkas uji dengan 504 tests lulus 100% HIJAU**. |
+| **Lisensi Proyek** | Open-Source MIT License | - | Memenuhi kaidah orisinalitas dan ketentuan kompetisi GTNIC 2026. |
 
-### 3.2 Arsitektur Sistem & Alur Data
+### 5.2 Arsitektur Sistem
+
+TakarLaba mengadopsi arsitektur **Single-Origin Reverse Proxy** yang terintegrasi secara modular antara antarmuka pengguna, lapisan logika bisnis berlapis (*Layered Domain Architecture*), dan basis data relasional serverless:
 
 ```
-┌─────────────────────────────────────────────────────────┐
-│              Browser Klien (Frontend SPA)                │
-└────────────────────────┬────────────────────────────────┘
-                         │ Request relatif: /api/*
-                         ▼
-┌─────────────────────────────────────────────────────────┐
-│         Vercel Edge Network (Reverse Proxy)              │
-│    Rewrite /api/(.*) → Backend Serverless Function       │
-│  (Satu Origin: Bebas CORS, Cookie Sesi First-Party)      │
-└────────────────────────┬────────────────────────────────┘
-                         │ Forwarding internal
-                         ▼
-┌─────────────────────────────────────────────────────────┐
-│       Backend Express 5 (Vercel Function / VPS)          │
-│ Middleware: Helmet → Pino → Better Auth → Rate Limit     │
-│  → Same-Origin Guard → Authoritative Zod Validation      │
-└──────────┬───────────────────────────────┬──────────────┘
-           │ Layered Domain Architecture   │
-           ▼                               ▼
-┌──────────────────────┐ ┌────────────────────────────────┐
-│  Pure Domain Engines │ │    Tenant Repositories         │
-│ (Costing, FEFO,      │ │ (Prisma 7 Client + pg Pool,    │
-│  Pricing, Capacity,  │ │  Strict businessId Scoping)    │
-│  Menu Engineering)   │ │                                │
-└──────────────────────┘ └──────────────┬─────────────────┘
-                                        │ Query SQL
-                                        ▼
-┌─────────────────────────────────────────────────────────┐
-│        Neon Serverless PostgreSQL 17 Database             │
-│  15 Entitas + Tabel Better Auth + FK Integrity           │
-└─────────────────────────────────────────────────────────┘
+┌───────────────────────────────────────────────────────────────────────────┐
+│                      Browser Klien (Frontend SPA)                         │
+│       React 19 · React Router 8 · TanStack Query v5 · Tailwind CSS v4     │
+└─────────────────────────────────────┬─────────────────────────────────────┘
+                                      │ Request relatif: /api/*
+                                      ▼
+┌───────────────────────────────────────────────────────────────────────────┐
+│                   Vercel Edge Network (Reverse Proxy)                     │
+│              Rewrite /api/(.*) -> Backend Serverless Function             │
+│    (Satu Origin: Bebas Masalah CORS, Cookie Sesi HttpOnly First-Party)    │
+└─────────────────────────────────────┬─────────────────────────────────────┘
+                                      │ Forwarding internal (Region sin1)
+                                      ▼
+┌───────────────────────────────────────────────────────────────────────────┐
+│                     Backend Express 5 (RESTful API)                       │
+│    Middleware: Helmet 8 -> Request ID & Pino -> Better Auth Session       │
+│    -> Rate Limit -> Same-Origin Check -> Authoritative Zod Validation     │
+└──────────────────┬─────────────────────────────────────┬──────────────────┘
+                   │ Layered Domain Architecture         │
+                   ▼                                     ▼
+┌──────────────────────────────────────┐ ┌──────────────────────────────────┐
+│         Pure Domain Engines          │ │       Tenant Repositories        │
+│   (Fungsi Murni Tanpa I/O / DB):     │ │ (Prisma 7 Client + pg Pool):     │
+│   - Costing Engine (BR-01, 02, 04)   │ │ - Enforce tenant isolation       │
+│   - Price Shock Engine (BR-05, 06)   │ │   (where: { businessId })        │
+│   - FEFO Allocation Engine (BR-07)   │ │ - DTO Allowlist (Rule 7 Cashier) │
+│   - Menu Engineering (BR-08, 10)     │ │ - Transaksi atomik FOR UPDATE    │
+│   - Capacity & Waste Radar Engine    │ │                                  │
+└──────────────────────────────────────┘ └─────────────────┬────────────────┘
+                                                           │ Query Parameterized
+                                                           ▼
+┌───────────────────────────────────────────────────────────────────────────┐
+│                 Neon Serverless PostgreSQL 17 Database                    │
+│      15 Entitas Relasional · Foreign Key Cascades · Composite Indexes     │
+└───────────────────────────────────────────────────────────────────────────┘
 ```
 
-### 3.3 Skema Basis Data (Entity-Relationship Diagram)
+#### Alur Sistem Inti (Core System Flows)
+1. **Alur Transaksi Kasir POS (Checkout FEFO Atomik):**
+   - Kasir memilih menu dan memasukkan kuantitas di keranjang belanja frontend.
+   - Frontend mengirimkan `POST /api/sales` dengan header unik `Idempotency-Key` (UUIDv4) untuk mencegah transaksi ganda jika koneksi terputus.
+   - Backend memverifikasi sesi kasir, melakukan validasi schema Zod, dan membuka transaksi database dengan durasi timeout terkontrol.
+   - Sistem menjalankan query berparameter `SELECT ... FOR UPDATE` untuk mengunci baris batch bahan yang relevan.
+   - *FEFO Engine* mengalokasikan pemotongan stok dari batch dengan tanggal kedaluwarsa terdekat. Jika stok tidak mencukupi, seluruh transaksi dibatalkan (*atomic rollback*).
+   - Snapshot HPP Aktual dan porsi overhead direkam ke dalam `SaleItem` untuk memastikan histori laba tidak berubah jika harga bahan di masa depan naik.
+   - Saldo stok batch dipotong, pergerakan stok `StockMovement` dicatat, dan respons struk dikembalikan ke kasir tanpa mengekspos angka margin laba.
+2. **Alur Deteksi Price Shock Pasca-Pembelian:**
+   - Pemilik mencatat nota pembelian bahan baru via `POST /api/purchases`.
+   - Backend menghitung *replacement cost* bahan dan secara otomatis mengevaluasi seluruh resep menu yang menggunakan bahan tersebut.
+   - Jika margin menu turun di bawah target, sistem membangkitkan `MarginAlert` berstatus *OPEN* dan menghitung solusi Opsi A & B.
+   - Frontend menangkap respons dan seketika membuka modal interaktif *Price Shock Impact* untuk konfirmasi penyesuaian harga jual dalam 1 klik.
 
-Sistem TakarLaba menggunakan 15 entitas relasional utama yang dirancang untuk mendukung multi-tenancy, *batch tracking*, FEFO, dan *audit trail* lengkap:
+### 5.3 Skema Basis Data (Database Diagram)
+
+Sistem basis data TakarLaba dibangun di atas PostgreSQL 17 dengan 15 entitas relasional yang menjamin integritas data multi-tenant dan keterlacakan batch persediaan:
 
 ```
-┌──────────┐    ┌──────────┐    ┌──────────────┐
-│ Business │───▶│   User   │───▶│   Session    │
-│          │    │ (Owner/  │    │  (Auth)      │
-│          │    │  Cashier)│    └──────────────┘
-└─────┬────┘    └──────────┘
-      │
-      ├──▶ Ingredient ──▶ IngredientUnit (konversi satuan)
-      │         │
-      │         ├──▶ StockBatch ──▶ StockMovement
-      │         │    (batch FEFO)   (PURCHASE/SALE/VOID/WASTE/ADJUST)
-      │         │
-      │         └──▶ RecipeItem ◀── Menu ──▶ MenuPriceHistory
-      │                                │
-      ├──▶ OverheadCost                 ├──▶ SaleItem ◀── Sale
-      │    (utilitas/bulan)             │
-      ├──▶ Purchase ────────────────────┤
-      │    (nota pembelian)             │
-      └──▶ MarginAlert ◀───────────────┘
-           (Price Shock Impact)
+┌──────────────┐         ┌──────────────┐         ┌──────────────┐
+│   Business   │───1:N──▶│     User     │───1:N──▶│   Session    │
+│  (Tenant ID) │         │(Owner/Cashier│         │ (Better Auth)│
+└───────┬──────┘         └──────────────┘         └──────────────┘
+        │
+        ├───1:N──▶ Ingredient ───1:N──▶ IngredientUnit (Konversi Satuan)
+        │               │
+        │               ├───1:N──▶ StockBatch ───1:N──▶ StockMovement
+        │               │          (Batch FEFO)         (PURCHASE/SALE/VOID/WASTE)
+        │               │
+        │               └───1:N──▶ RecipeItem ◀──N:1─── Menu ───1:N──▶ MenuPriceHistory
+        │                                                │
+        ├───1:N──▶ OverheadCost (Beban Bulanan)          ├───1:N──▶ SaleItem ◀──N:1─── Sale
+        │                                                │                            (Faktur Kasir)
+        ├───1:N──▶ Purchase (Nota Pembelian Bahan)       │
+        │               │                                │
+        │               └───────────────┐                │
+        │                               ▼                ▼
+        └───1:N──────────────────▶ MarginAlert (Price Shock Impact)
 ```
 
-**Entitas Inti:** Business, User, Ingredient, IngredientUnit, StockBatch, StockMovement, Purchase, Menu, RecipeItem, MenuPriceHistory, OverheadCost, Sale, SaleItem, MarginAlert, serta tabel autentikasi Better Auth (Session, Account, Verification).
+#### Ringkasan 15 Entitas Basis Data:
+1. **Business:** Entitas induk *multi-tenant* (menyimpan preferensi target margin, langkah pembulatan harga, target porsi bulanan, dan status akun demo).
+2. **User:** Pengguna sistem dengan peran otoritatif `OWNER` atau `CASHIER`.
+3. **Session, Account, Verification:** Tabel keamanan sesi terenkripsi yang dikelola Better Auth.
+4. **Ingredient:** Master bahan baku mentah (menyimpan nama, kategori, *base unit*, *yield percent*, dan stok minimum).
+5. **IngredientUnit:** Faktor pengali konversi satuan beli ke satuan dasar (misal 1 kg = 1000 gram).
+6. **StockBatch:** Batch persediaan fisik yang menyimpan kuantitas masuk, sisa kuantitas, harga kulakan, tanggal terima, dan tanggal kedaluwarsa.
+7. **StockMovement:** Rekaman mutasi riwayat pergerakan stok (*audit trail*) dengan tipe: `PURCHASE`, `SALE`, `VOID_RESTORE`, `WASTE`, atau `ADJUSTMENT`.
+8. **Purchase:** Nota faktur transaksi belanja bahan baku kuliner dari pemasok.
+9. **Menu:** Katalog produk yang dijual kepada pelanggan beserta harga jual aktif.
+10. **RecipeItem:** Rincian takaran bahan baku siap pakai (*usable quantity*) per porsi menu.
+11. **MenuPriceHistory:** Riwayat rekam jejak perubahan harga jual menu untuk audit finansial.
+12. **OverheadCost:** Alokasi beban bulanan usaha (listrik, gas elpiji, air, sewa tempat, penyusutan alat, gaji).
+13. **Sale:** Transaksi penjualan di meja kasir lengkap dengan nomor nota unik dan metode bayar.
+14. **SaleItem:** Baris produk terjual dengan snapshot HPP Aktual dan porsi overhead saat transaksi terjadi.
+15. **MarginAlert:** Catatan peringatan lonjakan biaya bahan baku (*Price Shock Alert*) dengan kalkulasi solusi Opsi A & B.
 
-Diagram ERD visual lengkap tersedia di repositori: `docs/erd-diagram.svg` dan `docs/erd.md`.
-
-### 3.4 Keunggulan Arsitektur Defensif
-
-1. **Arsitektur Single-Origin Reverse Proxy:** Frontend me-*rewrite* rute `/api/*` secara transparan ke backend serverless melalui konfigurasi Vercel Edge. Browser klien hanya berkomunikasi dengan satu origin yang sama. Hal ini meniadakan kebutuhan CORS terbuka (*zero CORS*) dan memastikan cookie sesi autentikasi berstatus *first-party*, aman dari pemblokiran *Intelligent Tracking Prevention* (ITP) pada Apple Safari dan iOS.
-2. **Matematika Finansial Presisi Tanpa Float:** Seluruh penghitungan uang, kuantitas, dan persentase di lapisan domain backend diproses menggunakan pustaka `decimal.js`, mencegah akumulasi eror pembulatan floating-point IEEE 754.
-3. **Pemberian Kunci Baris Atomik (Atomic FEFO Locking):** Alokasi pengurangan stok saat transaksi penjualan diproses dalam satu transaksi basis data dengan klausa `SELECT ... FOR UPDATE` tagged template literals. Hal ini menjamin tidak terjadi *race condition* stok minus saat terjadi transaksi simultan.
-4. **Cashier Privacy Shield (Rule 7):** Di lapisan backend, DTO untuk peran `CASHIER` disaring ketat melalui allowlist mapper. Data harga beli, biaya per base unit, HPP Bahan, HPP Penuh, dan margin bisnis tidak pernah dikirimkan ke peramban kasir.
-5. **Idempotensi Transaksi Kasir:** Header `Idempotency-Key` (UUIDv4) mewajibkan setiap proses checkout memiliki kunci unik, mencegah terjadinya penduplikasian transaksi akibat gangguan koneksi internet kasir.
-
----
-
-## BAB 4. FITUR UTAMA & KEUNIKAN DIBANDING SISTEM SERUPA
-
-### 4.1 Fitur Utama Aplikasi
-
-| # | Fitur | Deskripsi | Owner | Kasir |
-|---|---|---|:---:|:---:|
-| 1 | **Dashboard Usaha** | Ringkasan omzet, laba kotor estimasi, grafik tren penjualan 7 hari, ranking menu terlaris, peringatan margin, dan stok kritis | ✅ | ❌ |
-| 2 | **Pusat Peringatan (Price Shock)** | Deteksi anjloknya margin pasca-pembelian, simulasi Opsi A (naikkan harga) & Opsi B (rekayasa porsi), aksi terapkan instan | ✅ | ❌ |
-| 3 | **Manajemen Bahan & Konversi** | Master bahan baku, satuan konversi otomatis (mis. kg → g, L → ml), faktor *yield* | ✅ | ❌ |
-| 4 | **Editor Resep & Live Costing** | Penyusunan BOM resep, live preview HPP Bahan/Penuh, HPP Pengganti vs Aktual | ✅ | ❌ |
-| 5 | **Beban Overhead Bulanan** | Pengaturan target porsi dan biaya utilitas/penyusutan per porsi | ✅ | ❌ |
-| 6 | **Katalog Menu & Harga** | Daftar menu, riwayat harga jual, margin status badge (Aman / Waspada / Bahaya) | ✅ | ❌ |
-| 7 | **POS Kasir Cerdas** | Grid menu cepat, keranjang belanja, kalkulator kembalian, struk cetak thermal CSS, Idempotency-Key | ✅ | ✅ |
-| 8 | **Alokasi Stok FEFO Otomatis** | Pemotongan stok dari batch kedaluwarsa paling awal dengan row-level lock | ✅ | ✅ |
-| 9 | **Kapasitas & Bottleneck Porsi** | Sisa porsi yang dapat dibuat dan bahan baku yang paling membatasi | ✅ | ✅ |
-| 10 | **Riwayat Penjualan & Void** | Log penjualan, filter tanggal/metode bayar, void dengan pengembalian stok atomik | ✅ | ✅ |
-| 11 | **Matriks Menu Engineering** | Analisis 4 kuadran Kasavana & Smith (*Star*, *Plowhorse*, *Puzzle*, *Dog*) | ✅ | ❌ |
-| 12 | **Waste Radar Anti-Limbah** | Nilai risiko Rp batch mendekati kedaluwarsa, harga lantai promo, batas diskon aman | ✅ | ❌ |
-| 13 | **Ekspor CSV** | Unduh data penjualan dan stok dalam format CSV | ✅ | ❌ |
-| 14 | **Mode Demo Deterministik** | Reset data simulasi juri (16 bahan, 6 menu, 1.300 porsi) dalam sekali klik | ✅ | ❌ |
-
-### 4.2 Keunikan TakarLaba Dibanding Sistem Serupa
-
-Berdasarkan penelusuran dokumentasi publik solusi kasir di Indonesia, TakarLaba memiliki diferensiasi sebagai ***decision layer*** yang melampaui fungsi *system of record* konvensional:
-
-| Dimensi Fitur | Aplikasi Kasir/POS Umum (Moka, Pawoon, Olsera, Majoo) | TakarLaba |
-|---|---|---|
-| **Deteksi Lonjakan Harga (Price Shock)** | Hanya mencatat riwayat harga beli baru di mutasi pembelian. | Menghitung seketika penurunan margin per porsi dan membuka modal simulasi dampak. |
-| **Mitigasi Harga & Resep Otomatis** | Pengusaha harus mengira-ngira sendiri harga jual baru. | Memberikan dua solusi taktis otomatis: **Opsi A** (kenaikan harga dengan *step rounding*) dan **Opsi B** (rekayasa porsi/takaran). |
-| **Metode Costing Resep** | Umumnya hanya HPP Bahan rata-rata (*Average Raw Cost*). | **Dual HPP:** HPP Bahan vs **HPP Penuh** (menyerap overhead per porsi), serta **HPP Pengganti** vs **HPP Aktual**. |
-| **Menu Engineering Kasavana & Smith** | Terbatas pada laporan *"Menu Terlaris"* berdasarkan kuantitas. | Matriks 4 kuadran otomatis berbasis **margin kontribusi rupiah** dan ambang batas ilmiah. |
-| **Pencegahan Limbah FEFO Atomik** | Pemotongan stok FIFO/agregat tanpa row-locking. | Alokasi FEFO dengan *row-level locking* (`SELECT ... FOR UPDATE`) dan mekanisme *Void-Restore* atomik. |
-| **Proteksi Informasi Kasir** | Sering menampilkan data margin/modal di rincian produk kasir. | **Sanitasi DTO Otoritatif:** Kasir tidak pernah menerima field biaya, HPP, maupun margin. |
+*Diagram visual ERD beresolusi tinggi tersedia pada berkas `docs/erd-diagram.svg` dan kamus data lengkap pada `docs/erd.md`.*
 
 ---
 
-## BAB 5. SKENARIO IMPLEMENTASI & HASIL EVALUASI
+## 6. BATASAN SISTEM APLIKASI
 
-### 5.1 Pengujian Terotomatisasi
+Untuk menjaga fokus pengembangan pada keunggulan *decision layer* dan memperjelas ruang lingkup evaluasi kompetisi, batasan sistem TakarLaba mencakup:
 
-TakarLaba telah melalui serangkaian pengujian terotomatisasi yang ketat dan menyeluruh:
-
-- **Pengujian Unit & HTTP (Vitest & Supertest):** Sebanyak **74 berkas uji** dengan **504 pengujian** fungsional lulus 100% tanpa catatan eror (328 backend + 176 frontend).
-- **Pengujian Integrasi Basis Data Riil (Real DB against PostgreSQL 17):** Menguji transaksi FEFO multi-batch, konkurensi simultan `Promise.all`, idempotensi checkout, isolasi tenant, serta pembatalan transaksi (*void restore*).
-- **Uji Keterpakaian Pengguna Awam:** Validasi dengan 3 pengguna non-akuntan menghasilkan skor SUS (*System Usability Scale*) **86,67** (Grade A), rata-rata waktu penyelesaian skenario inti **6 menit 56 detik** (target ≤ 10 menit), dan *completion rate* 100%.
-
-### 5.2 Mode Demo Deterministik untuk Juri
-
-Dilengkapi dengan sistem seed dan reset data instan berbasis skenario Lampiran B PRD (16 bahan, 6 menu, riwayat 1.300 porsi selama 30 hari) yang dapat dijalankan juri dalam sekali klik pada akun Demo Owner dengan jeda pendinginan (*cooldown*) 60 detik. Halaman login menyediakan tombol *"Masuk sebagai Demo Owner"* dan *"Masuk sebagai Demo Kasir"* untuk akses cepat tanpa registrasi.
-
----
-
-## BAB 6. TANGKAPAN LAYAR ANTARMUKA SISTEM
-
-Berikut adalah tangkapan layar halaman-halaman utama aplikasi TakarLaba yang telah diimplementasikan:
-
-*[Sisipkan screenshot saat ekspor ke PDF]*
-
-1. **Halaman Login** — Tampilan autentikasi dengan akses demo sekali klik.
-2. **Dashboard Owner** — Ringkasan KPI, grafik tren penjualan, ranking menu, dan peringatan.
-3. **Halaman Bahan Baku & Stok** — Manajemen bahan, ringkasan stok batch, badge kedaluwarsa.
-4. **Halaman Pembelian** — Form catat pembelian baru, riwayat pembelian, dan modal Price Shock Impact.
-5. **Halaman Menu & Editor Resep** — Katalog menu dengan badge margin, editor BOM dengan live preview HPP.
-6. **POS Kasir** — Grid menu, keranjang belanja, kalkulator kembalian, dan struk thermal.
-7. **Riwayat Penjualan** — Log transaksi dengan filter dan detail alokasi batch FEFO.
-8. **Pusat Peringatan (Alerts)** — KPI cards, daftar alert Price Shock, modal detail Opsi A/B.
-9. **Analitik Menu Engineering** — Scatter plot 4 kuadran, tabel padanan, dan rekomendasi taktis.
-10. **Pengaturan Bisnis** — Konfigurasi overhead, target margin, dan langkah pembulatan harga.
+1. **Bahasa Antarmuka Tunggal:**  
+   Antarmuka aplikasi secara penuh menggunakan Bahasa Indonesia sehari-hari yang ramah bagi pelaku UMKM. Sistem belum menyediakan fitur multi-bahasa (internasionalisasi).
+2. **Cakupan Gerai Tunggal (*Single-Outlet per Tenant*):**  
+   Sistem dirancang untuk mengelola satu gerai/toko per akun bisnis. Fitur konsolidasi inventori antar-cabang (*multi-branch warehouse transfer*) berada di luar ruang lingkup versi ini.
+3. **Pencetakan Struk Berbasis Fitur Browser (*Browser Print CSS*):**  
+   Pencetakan struk transaksi kasir menggunakan stylesheet cetak thermal standar browser (`@media print` 58mm/80mm). Sistem tidak terhubung langsung melalui driver proprietary USB atau protokol Bluetooth printer kasir tertentu.
+4. **Pencatatan Pembayaran Non-Tunai Manual:**  
+   Sistem memfasilitasi pencatatan metode pembayaran Tunai, QRIS, dan Transfer Bank. Namun, verifikasi pembayaran digital dilakukan secara mandiri oleh kasir; sistem belum terhubung langsung ke API *Payment Gateway* otomatis (seperti Midtrans atau Xendit).
+5. **Fokus pada Costing & Margin (Bukan Software Akuntansi Lengkap):**  
+   TakarLaba berfokus secara mendalam pada penjagaan margin laba kotor, HPP resep, dan pengendalian limbah bahan. Aplikasi tidak mencakup pembukuan akuntansi umum seperti jurnal umum debit-kredit, laporan neraca keuangan, atau pelaporan pajak badan usaha.
+6. **Metode Alokasi Overhead Sederhana (*Volume-Based Costing*):**  
+   Penyerapan biaya operasional overhead bulanan menggunakan pendekatan akuntansi biaya teruji berdasarkan pembagian rata target porsi menu per bulan (*simple unit averaging*), bukan menggunakan metode *Activity-Based Costing* (ABC) industri manufaktur besar.
+7. **Kebutuhan Konektivitas Internet (*Cloud-First*):**  
+   Aplikasi berjalan sebagai aplikasi web berbasis cloud untuk menjamin konkurensi alokasi stok terpusat. Sistem belum mendukung operasi kasir *offline-first* mandiri tanpa koneksi internet.
 
 ---
 
-## BAB 7. BATASAN SISTEM APLIKASI
+## 7. TANGKAPAN LAYAR (SCREENSHOT) ANTARMUKA
 
-Meskipun TakarLaba menyediakan kemampuan analitik dan operasional yang komprehensif, terdapat beberapa batasan pada versi saat ini:
+Aplikasi TakarLaba telah selesai diimplementasikan secara penuh dan aktif di lingkungan produksi:
 
-1. **Bahasa Antarmuka Tunggal:** Antarmuka pengguna hanya tersedia dalam Bahasa Indonesia. Dukungan multi-bahasa (internasionalisasi) belum diimplementasikan.
-2. **Satu Outlet per Bisnis (Single-Branch):** Sistem saat ini dirancang untuk satu gerai per akun bisnis. Manajemen multi-outlet (cabang) dengan konsolidasi stok dan laporan antar cabang belum tersedia.
-3. **Tanpa Integrasi Hardware Kasir Langsung:** Sistem tidak terhubung langsung ke perangkat keras kasir eksternal seperti *barcode scanner*, laci kas (*cash drawer*), atau printer struk Bluetooth. Pencetakan struk dilakukan melalui fitur cetak CSS peramban (*browser print*).
-4. **Tanpa Integrasi Payment Gateway:** Metode pembayaran digital (QRIS, e-wallet) dicatat secara manual oleh kasir; belum ada integrasi langsung ke payment gateway pihak ketiga.
-5. **Modul Akuntansi Terbatas:** TakarLaba berfokus pada costing dan margin, bukan modul akuntansi lengkap. Laporan laba-rugi, neraca, dan arus kas tidak tersedia.
-6. **Perhitungan Overhead Sederhana:** Alokasi overhead menggunakan metode rata-rata per porsi (*simple averaging*), belum menggunakan *Activity-Based Costing* (ABC).
-7. **Koneksi Internet Wajib:** Aplikasi memerlukan koneksi internet aktif; tidak terdapat mode *offline-first*.
+### 7.1 Halaman Autentikasi & Akses Cepat Demo
+- **URL:** `/login` & `/register`
+- **Fungsi:** Menyediakan autentikasi sesi aman, pendaftaran pemilik usaha baru, serta tombol akses instan sekali klik **"Masuk sebagai Demo Owner"** dan **"Masuk sebagai Demo Kasir"** guna mempermudah pengujian dewan juri tanpa perlu mengisi formulir pendaftaran.
+
+### 7.2 Dashboard Analitik Usaha & Peringatan Margin
+- **URL:** `/dashboard`
+- **Fungsi:** Menyajikan ringkasan omzet penjualan, estimasi laba kotor, indikator persentase margin laba rata-rata, grafik bar interaktif tren omzet 7 hari terakhir, daftar peringkat 5 menu terlaris, daftar bahan yang mendekati kedaluwarsa, dan jalan pintas ke Pusat Peringatan.
+
+### 7.3 Manajemen Bahan Baku & Alokasi Stok FEFO
+- **URL:** `/ingredients` (Tab Bahan & Stok)
+- **Fungsi:** Menampilkan inventaris seluruh bahan baku kuliner, rasio konversi satuan dasar, faktor *yield*, status stok gudang, dan rincian alokasi batch stok lengkap dengan badge status kedaluwarsa visual (Aman / Waspada / Kedaluwarsa).
+
+### 7.4 Pencatatan Pembelian Bahan & Modal Price Shock Impact
+- **URL:** `/purchases`
+- **Fungsi:** Formulir pencatatan nota belanja bahan baku multi-baris dari pemasok. Ketika harga beli bahan naik, modal dampak *Price Shock Impact* seketika muncul menampilkan perbandingan HPP lama vs baru serta tombol penerapan rekomendasi harga baru dalam 1 klik.
+
+### 7.5 Manajemen Menu & Editor Resep Live Costing
+- **URL:** `/menus`
+- **Fungsi:** Katalog produk kuliner dengan badge status kesehatan margin (Aman / Waspada / Bahaya). Dilengkapi modal *Recipe Editor* interaktif untuk menyusun takaran bahan baku (BOM) dengan pratinjau kalkulasi live HPP Bahan, HPP Penuh, dan margin laba secara instan saat gramatur diubah.
+
+### 7.6 Mesin Kasir POS Mobile-First & Struk Thermal
+- **URL:** `/pos`
+- **Fungsi:** Antarmuka kasir cepat yang optimal pada layar ponsel (360 px) hingga desktop. Menampilkan sisa kapasitas porsi menu, bahan pembatas (*bottleneck*), keranjang pesanan interaktif, kalkulator nominal bayar dan uang kembalian, pintasan keyboard kasir, serta cetak struk thermal 58mm/80mm.
+
+### 7.7 Riwayat Transaksi Penjualan & Void Restore
+- **URL:** `/sales`
+- **Fungsi:** Menampilkan seluruh log faktur kasir dengan filter rentang tanggal dan metode pembayaran. Membuka modal rincian transaksi untuk menelusuri batch bahan baku mana yang terpotong secara FEFO, serta tombol *Void* untuk membatalkan transaksi salah dengan pengembalian stok otomatis.
+
+### 7.8 Pusat Peringatan (Margin Warning Center)
+- **URL:** `/alerts`
+- **Fungsi:** Panel pemantauan menu yang mengalami penurunan margin keuntungan. Menyajikan simulasi taktis **Opsi A** (rekomendasi harga baru dengan pembulatan langkah psikologis) dan **Opsi B** (rekayasa efisiensi takaran gramatur bahan) serta tombol eksekusi pembaruan harga menu.
+
+### 7.9 Analitik Matriks Menu Engineering 4 Kuadran
+- **URL:** `/analytics` (Menu Engineering)
+- **Fungsi:** Visualisasi scatter plot 4 kuadran Kasavana & Smith (*Star, Plowhorse, Puzzle, Dog*) berbasis margin kontribusi rupiah dan volume porsi penjualan riil 30 hari, dilengkapi tabel padanan dan rekomendasi taktis terhitung otomatis untuk tiap kuadran.
+
+### 7.10 Pengaturan Usaha, Biaya Overhead & Waste Radar
+- **URL:** `/settings` & `/ingredients?tab=waste`
+- **Fungsi:** Konfigurasi target margin usaha, langkah pembulatan harga, target porsi bulanan, pencatatan beban utilitas bulanan (listrik, gas, air, sewa, alat), serta panel *Waste Radar* untuk menghitung nilai rupiah bahan berisiko kedaluwarsa beserta batas diskon aman.
 
 ---
 
-## BAB 8. RENCANA PENGEMBANGAN LANJUTAN (FUTURE DEVELOPMENT)
+## 8. RENCANA PENGEMBANGAN LANJUTAN (FUTURE DEVELOPMENT)
 
-Berdasarkan umpan balik dari uji keterpakaian dan analisis kebutuhan pasar, berikut adalah rencana pengembangan fitur TakarLaba ke depan:
+Untuk mewujudkan dampak bisnis nyata yang berkelanjutan pasca-kompetisi GTNIC 2026, peta jalan (*roadmap*) pengembangan TakarLaba direncanakan dalam 3 horizon:
 
-### Jangka Pendek (1–3 Bulan)
-1. **Multi-Outlet / Multi-Branch:** Dukungan pengelolaan beberapa cabang dalam satu akun bisnis dengan konsolidasi stok dan laporan terpisah per outlet.
-2. **Integrasi QRIS & Payment Gateway:** Koneksi langsung ke penyedia pembayaran digital (Midtrans, Xendit) untuk otomatisasi pencatatan transaksi non-tunai.
-3. **Progressive Web App (PWA) & Mode Offline:** Mengaktifkan *Service Worker* agar POS kasir tetap berfungsi saat koneksi internet terputus sementara, dengan sinkronisasi otomatis saat kembali online.
-4. **Notifikasi Push:** Pemberitahuan otomatis ke pemilik bisnis saat stok bahan mendekati kedaluwarsa atau margin anjlok.
+### 8.1 Jangka Pendek (1–3 Bulan Pasca-Kompetisi)
+1. **Fitur Multi-Outlet / Multi-Cabang:**  
+   Menambahkan dukungan pengelolaan beberapa outlet kuliner dalam satu akun kepemilikan bisnis, mencakup transfer bahan antar-cabang dan perbandingan profitabilitas menu antar-lokasi gerai.
+2. **Integrasi Dinamis QRIS & Payment Gateway:**  
+   Menghubungkan kasir langsung dengan penyedia QRIS dinamis (seperti Midtrans/Xendit) sehingga status transaksi kasir otomatis terbayar saat pelanggan memindai kode QR.
+3. **Progressive Web App (PWA) & Mode Offline Kasir:**  
+   Mengimplementasikan Service Worker dan basis data lokal (IndexedDB) pada antarmuka kasir POS agar kasir tetap dapat menginput transaksi saat internet terputus, dengan sinkronisasi batch otomatis saat online kembali.
+4. **Notifikasi Peringatan Instan via WhatsApp Bot:**  
+   Mengintegrasikan layanan perpesanan WhatsApp untuk mengirimkan notifikasi harian langsung ke ponsel pemilik saat ada bahan yang akan kedaluwarsa dalam H-2 atau saat terjadi lonjakan harga bahan baku.
 
-### Jangka Menengah (3–6 Bulan)
-5. **Integrasi Printer Bluetooth & Barcode Scanner:** Dukungan pencetakan struk langsung ke printer thermal Bluetooth dan pemindaian barcode bahan baku.
-6. **Laporan Analitik Lanjutan:** Grafik tren margin bulanan, analisis *break-even point*, dan proyeksi kebutuhan bahan baku.
-7. **Manajemen Tenaga Kerja Sederhana:** Pencatatan jadwal shift kasir dan perhitungan biaya tenaga kerja per porsi yang lebih presisi.
-8. **Dukungan Multi-Bahasa:** Internasionalisasi antarmuka untuk bahasa Inggris dan bahasa daerah.
+### 8.2 Jangka Menengah (3–6 Bulan)
+5. **Dukungan Printer Thermal Bluetooth & Barcode Scanner:**  
+   Menyediakan integrasi langsung dengan protokol Web Bluetooth API dan pemindai barcode kamera untuk mempercepat operasional kasir dan penerimaan bahan baku di gudang.
+6. **Analisis Titik Impas (*Break-Even Point*) & Proyeksi Finansial:**  
+   Menghadirkan grafik analitik pencapaian titik impas bulanan berdasarkan penyerapan biaya overhead tetap terhadap akumulasi margin kontribusi harian.
+7. **Pencatatan Jam Kerja Staf & Alokasi Upah Presisi:**  
+   Memperhitungkan biaya tenaga kerja per porsi menu secara lebih dinamis berdasarkan jam shift kerja karyawan dapur.
 
-### Jangka Panjang (6–12 Bulan)
-9. **Marketplace Resep & Template Bisnis:** Platform berbagi resep standar antar pelaku UMKM kuliner sejenis.
-10. **Prediksi Permintaan Berbasis AI:** Menggunakan data historis penjualan untuk memprediksi kebutuhan bahan baku harian dan mengurangi kelebihan stok.
-11. **Integrasi Marketplace (Grab, GoFood, Shopee Food):** Sinkronisasi otomatis pesanan dari platform *food delivery* ke dalam sistem POS dan stok.
+### 8.3 Jangka Panjang (6–12 Bulan)
+8. **Prediksi Kebutuhan Belanja Bahan Berbasis AI:**  
+   Memanfaatkan data historis penjualan harian, tren musiman, dan pola cuaca lokal untuk memperkirakan kebutuhan kulakan bahan baku mingguan secara otomatis, menekan potensi limbah *food waste* hingga mendekati nol.
+9. **Integrasi Pesanan Marketplace Pesan-Antar Makanan:**  
+   Menyinkronkan pesanan online dari platform pesan-antar makanan (GoFood, GrabFood, ShopeeFood) langsung ke antarmuka POS dan pemotongan stok bahan baku secara terpusat.
 
 ---
 
-## BAB 9. KESIMPULAN & PENUTUP
+## 9. TAUTAN PENTING (LAMPIRAN)
 
-TakarLaba berhasil menjawab kebutuhan kritis UMKM kuliner dengan menghadirkan sebuah sistem terpadu yang bukan hanya mencatat penjualan, melainkan secara proaktif menjaga margin keuntungan dan mencegah pemborosan bahan baku (*anti-waste*). Melalui pendekatan *mobile-first*, arsitektur keamanan *defense-in-depth*, dan metode akuntansi manajemen teruji, TakarLaba siap menjadi katalisator digitalisasi yang tangguh dan berdampak nyata bagi jutaan UMKM kuliner di Indonesia.
+Sebagai bahan verifikasi dan evaluasi menyeluruh bagi Dewan Juri GTNIC 2026, berikut adalah tautan proyek kami:
 
-Dengan fitur unggulan *Price Shock Impact Detection*, *Dual HPP Full Costing*, *FEFO Atomic Stock Allocation*, dan *Menu Engineering Matrix* yang belum ditemukan secara terpadu pada solusi kasir sekelas di pasar Indonesia, TakarLaba membuktikan bahwa inovasi teknologi web dapat memberikan dampak langsung dan terukur bagi keberlanjutan bisnis rakyat.
+- **Tautan Sistem / Prototype Live :** [https://takar-laba.vercel.app](https://takar-laba.vercel.app) *(Aktif & Dapat Diuji Langsung)*
+- **Tautan API Serverless :** [https://takar-laba-api.vercel.app](https://takar-laba-api.vercel.app) *(Vercel Serverless Function, Region sin1)*
+- **Tautan Repositori / Dokumentasi :** [https://github.com/Ameer-28/TakarLaba](https://github.com/Ameer-28/TakarLaba) *(Akses Publik)*
+- **Tautan Video Demo YouTube :** [https://youtu.be/contoh-link-video-demo](https://youtu.be/contoh-link-video-demo) *(Durasi 3–5 Menit, Mode Publik)*
 
 ---
 

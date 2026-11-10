@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Save, Loader2, Store, HelpCircle } from "lucide-react";
 import { toast } from "sonner";
 import { useSettings, useUpdateSettings } from "../../../api/hooks/use-settings.js";
+import { useDemoReset } from "@/api/hooks/use-demo";
 import { CustomSelect, type SelectOption } from "@/components/ui/custom-select";
 
 const PRICE_ROUNDING_OPTIONS: SelectOption<number>[] = [
@@ -37,6 +38,7 @@ const PRICE_ROUNDING_OPTIONS: SelectOption<number>[] = [
 export function BusinessSettingsForm() {
   const { data: settings, isLoading } = useSettings();
   const updateSettings = useUpdateSettings();
+  const resetDemoMutation = useDemoReset();
 
   const [name, setName] = useState("");
   const [targetMarginDefault, setTargetMarginDefault] = useState("50");
@@ -248,6 +250,31 @@ export function BusinessSettingsForm() {
           </button>
         </div>
       </form>
+
+      {settings?.isDemo && (
+        <div className="mt-8 pt-6 border-t border-slate-200">
+          <div className="rounded-2xl border border-amber-200 bg-amber-50/50 p-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+              <h4 className="text-sm font-bold text-amber-900">Reset Data Simulasi</h4>
+              <p className="text-xs text-amber-700/80 mt-1 max-w-xl">
+                Akun ini menggunakan data simulasi untuk evaluasi GTNIC 2026. Anda dapat mengembalikan seluruh data (stok, riwayat belanja, alert harga, dan transaksi) ke kondisi semula kapan saja.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                if (window.confirm("Apakah Anda yakin ingin mereset seluruh data simulasi ke kondisi awal?")) {
+                  resetDemoMutation.mutate();
+                }
+              }}
+              disabled={resetDemoMutation.isPending}
+              className="shrink-0 px-4 py-2 bg-white hover:bg-amber-100/80 text-amber-900 border border-amber-300 rounded-xl text-xs font-bold transition-colors disabled:opacity-50"
+            >
+              {resetDemoMutation.isPending ? "Mereset..." : "Reset ke Data Awal"}
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
