@@ -2,7 +2,6 @@ import { useState, useRef } from "react";
 import { Link, Outlet, useLocation, useNavigate } from "react-router";
 import { signOut, useSession, type UserRole } from "@/lib/auth-client";
 import { toast } from "sonner";
-import { DemoBanner } from "@/components/shared/demo-banner";
 import { ErrorBoundary } from "@/components/shared/error-boundary";
 import { BrandLogo } from "@/components/shared/brand-logo";
 import { CurvedBottomNav } from "@/components/shared/curved-bottom-nav";
@@ -327,11 +326,6 @@ export function AppShell() {
         >
           {allowedNavItems.map((item) => renderItem(item))}
         </nav>
-
-        {/* Demo Mode Information Widget (Sidebar) */}
-        <div className="px-3 pb-1">
-          <DemoBanner isCollapsed={isCollapsed} />
-        </div>
 
         {/* Bottom Profile Card matching reference */}
         {!isCollapsed ? (

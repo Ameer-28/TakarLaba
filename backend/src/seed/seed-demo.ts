@@ -139,14 +139,14 @@ export async function cleanDemoBusiness(businessId = DEMO_BUSINESS_ID, deleteUse
         where: { businessId },
       });
 
-      // 4. MarginAlert
-      await tx.marginAlert.deleteMany({
-        where: { businessId },
-      });
-
-      // 5. MenuPriceHistory
+      // 4. MenuPriceHistory
       await tx.menuPriceHistory.deleteMany({
         where: { menu: { businessId } },
+      });
+
+      // 5. MarginAlert
+      await tx.marginAlert.deleteMany({
+        where: { businessId },
       });
 
       // 6. RecipeItem
@@ -252,6 +252,7 @@ export async function seedDemo(options: SeedDemoOptions = {}) {
   // 3. Ensure demo users exist
   const demoUsers = getDemoUsers(password);
   let cashierUserId = "demo-cashier-id";
+  let ownerUserId = "demo-owner-id";
 
   for (const demoUser of demoUsers) {
     let user = await prisma.user.findUnique({
@@ -287,6 +288,8 @@ export async function seedDemo(options: SeedDemoOptions = {}) {
 
       if (demoUser.role === "CASHIER") {
         cashierUserId = user.id;
+      } else if (demoUser.role === "OWNER") {
+        ownerUserId = user.id;
       }
     }
   }
@@ -384,7 +387,25 @@ export async function seedDemo(options: SeedDemoOptions = {}) {
         overheadPerPortion: 1200,
       });
 
-      const salesData = [];
+      interface SeedSaleRecord {
+        id: string;
+        businessId: string;
+        invoiceNo: string;
+        idempotencyKey: string;
+        soldAt: Date;
+        cashierId: string;
+        paymentMethod: "CASH" | "QRIS" | "TRANSFER";
+        totalAmount: string;
+        totalIngredientCost: string;
+        totalOverhead: string;
+        status: "COMPLETED" | "VOIDED";
+        voidedAt?: Date | null;
+        voidReason?: string | null;
+        voidedById?: string | null;
+        createdAt: Date;
+      }
+
+      const salesData: SeedSaleRecord[] = [];
       const saleItemsData = [];
 
       for (const sale of sales) {
@@ -419,6 +440,16 @@ export async function seedDemo(options: SeedDemoOptions = {}) {
         }
       }
 
+      // Designate 1 historical sale as VOIDED to showcase POS void & cancellation feature
+      const voidSaleIndex = Math.max(0, salesData.length - 12);
+      const voidedSale = salesData[voidSaleIndex];
+      if (voidedSale) {
+        voidedSale.status = "VOIDED";
+        voidedSale.voidedAt = new Date(voidedSale.soldAt.getTime() + 12 * 60 * 1000);
+        voidedSale.voidReason = "Pelanggan salah memilih varian minuman dingin dan meminta pembatalan";
+        voidedSale.voidedById = ownerUserId;
+      }
+
       // Batch insert in chunks of 500 to keep parameter count safely below PG limits
       const CHUNK_SIZE = 500;
       for (let i = 0; i < salesData.length; i += CHUNK_SIZE) {
@@ -433,7 +464,50 @@ export async function seedDemo(options: SeedDemoOptions = {}) {
         });
       }
 
-      // 4e. Seed opening stock batches AFTER sales (opening balance)
+      // 4e. Seed realistic historical purchases (for Purchase History & PO inspection)
+      const purchaseDate1 = new Date(refDate.getTime() - 5 * 24 * 60 * 60 * 1000);
+      const purchaseDate2 = new Date(refDate.getTime() - 3 * 24 * 60 * 60 * 1000);
+      const purchaseDate3 = new Date(refDate.getTime() - 1 * 24 * 60 * 60 * 1000);
+
+      const purchaseId1 = `${businessId}-po-001`;
+      const purchaseId2 = `${businessId}-po-002`;
+      const purchaseId3 = `${businessId}-po-003`;
+
+      const purchaseData = [
+        {
+          id: purchaseId1,
+          businessId: business.id,
+          supplierName: "PT Sumber Kopi Makmur",
+          purchasedAt: purchaseDate1,
+          note: "Pengadaan rutin biji kopi premium, susu UHT segar, dan persediaan paper cup set.",
+          totalAmount: "1350000.00",
+          createdById: ownerUserId,
+          createdAt: purchaseDate1,
+        },
+        {
+          id: purchaseId2,
+          businessId: business.id,
+          supplierName: "Toko Bahan Kue & Minuman Sejahtera",
+          purchasedAt: purchaseDate2,
+          note: "Restok gula aren cair organik, susu oat barista, bubuk matcha Uji, dan teh celup melati.",
+          totalAmount: "840000.00",
+          createdById: ownerUserId,
+          createdAt: purchaseDate2,
+        },
+        {
+          id: purchaseId3,
+          businessId: business.id,
+          supplierName: "Depo Bakery & Bahan Segar Jaya",
+          purchasedAt: purchaseDate3,
+          note: "Pengadaan bahan roti tawar kupas, mentega Anchor, meses coklat, dan croissant butter beku.",
+          totalAmount: "765000.00",
+          createdById: ownerUserId,
+          createdAt: purchaseDate3,
+        },
+      ];
+      await tx.purchase.createMany({ data: purchaseData });
+
+      // 4f. Seed opening stock batches AFTER sales (opening balance)
       const batchData = [];
       for (const batch of DEMO_OPENING_BATCHES) {
         const actualIngId = ingIdMap.get(batch.ingredientId);
@@ -445,10 +519,35 @@ export async function seedDemo(options: SeedDemoOptions = {}) {
           expiryDate.setDate(expiryDate.getDate() + batch.daysExpiryOffset);
         }
 
+        // Link batch to historical purchase order
+        let purchaseId: string | null = null;
+        if (
+          batch.id === "demo-batch-kopi" ||
+          batch.id === "demo-batch-susu-uht-a" ||
+          batch.id === "demo-batch-cup-set"
+        ) {
+          purchaseId = purchaseId1;
+        } else if (
+          batch.id === "demo-batch-gula-aren" ||
+          batch.id === "demo-batch-susu-oat" ||
+          batch.id === "demo-batch-bubuk-matcha" ||
+          batch.id === "demo-batch-teh-celup"
+        ) {
+          purchaseId = purchaseId2;
+        } else if (
+          batch.id === "demo-batch-croissant-valid" ||
+          batch.id === "demo-batch-roti-tawar" ||
+          batch.id === "demo-batch-mentega" ||
+          batch.id === "demo-batch-meses-coklat"
+        ) {
+          purchaseId = purchaseId3;
+        }
+
         batchData.push({
           id: `${businessId}-${batch.id}`,
           businessId: business.id,
           ingredientId: actualIngId,
+          purchaseId,
           receivedAt: refDate,
           expiryDate,
           purchaseQty: batch.purchaseQty,
@@ -460,12 +559,168 @@ export async function seedDemo(options: SeedDemoOptions = {}) {
         });
       }
       await tx.stockBatch.createMany({ data: batchData });
+
+      // 4g. Stock Movements: Void restoration, Waste log, and Stock Opname physical adjustments
+      const movementData = [];
+
+      if (voidedSale) {
+        movementData.push({
+          id: `${businessId}-mov-void-001`,
+          businessId: business.id,
+          ingredientId: ingIdMap.get("demo-ing-susu-uht")!,
+          batchId: `${businessId}-demo-batch-susu-uht-a`,
+          type: "VOID_RESTORE" as const,
+          qtyBaseDelta: "200.000",
+          costPerBase: "18.000000",
+          refType: "SALE_VOID",
+          refId: voidedSale.id,
+          note: "Restorasi stok dari pembatalan transaksi POS (Void)",
+          createdById: ownerUserId,
+          createdAt: voidedSale.voidedAt ?? refDate,
+        });
+      }
+
+      // Waste records (Catatan Buang / Food Waste)
+      const wasteDate1 = new Date(refDate.getTime() - 1 * 24 * 60 * 60 * 1000);
+      movementData.push({
+        id: `${businessId}-mov-waste-001`,
+        businessId: business.id,
+        ingredientId: ingIdMap.get("demo-ing-croissant-beku")!,
+        batchId: `${businessId}-demo-batch-croissant-expired`,
+        type: "WASTE" as const,
+        qtyBaseDelta: "-2.000",
+        costPerBase: "10500.000000",
+        refType: "MANUAL_WASTE",
+        refId: null,
+        note: "Kedaluwarsa di rak penyimpanan chiller (melewati best-before)",
+        createdById: ownerUserId,
+        createdAt: wasteDate1,
+      });
+
+      const wasteDate2 = new Date(refDate.getTime() - 2 * 24 * 60 * 60 * 1000);
+      movementData.push({
+        id: `${businessId}-mov-waste-002`,
+        businessId: business.id,
+        ingredientId: ingIdMap.get("demo-ing-roti-tawar")!,
+        batchId: `${businessId}-demo-batch-roti-tawar`,
+        type: "WASTE" as const,
+        qtyBaseDelta: "-1.000",
+        costPerBase: "1500.000000",
+        refType: "MANUAL_WASTE",
+        refId: null,
+        note: "Kemasan sobek saat penerimaan barang dan tekstur roti mengering",
+        createdById: ownerUserId,
+        createdAt: wasteDate2,
+      });
+
+      // Stock Opname Adjustments (Penyesuaian Fisik)
+      const adjDate1 = new Date(refDate.getTime() - 3 * 24 * 60 * 60 * 1000);
+      movementData.push({
+        id: `${businessId}-mov-adj-001`,
+        businessId: business.id,
+        ingredientId: ingIdMap.get("demo-ing-kopi")!,
+        batchId: `${businessId}-demo-batch-kopi`,
+        type: "ADJUSTMENT" as const,
+        qtyBaseDelta: "-50.000",
+        costPerBase: "180.000000",
+        refType: "STOCK_OPNAME",
+        refId: null,
+        note: "Penyesuaian fisik opname mingguan - selisih bubuk tertinggal di hopper grinder",
+        createdById: ownerUserId,
+        createdAt: adjDate1,
+      });
+
+      const adjDate2 = new Date(refDate.getTime() - 2 * 24 * 60 * 60 * 1000);
+      movementData.push({
+        id: `${businessId}-mov-adj-002`,
+        businessId: business.id,
+        ingredientId: ingIdMap.get("demo-ing-gula-pasir")!,
+        batchId: `${businessId}-demo-batch-gula-pasir`,
+        type: "ADJUSTMENT" as const,
+        qtyBaseDelta: "100.000",
+        costPerBase: "16.000000",
+        refType: "STOCK_OPNAME",
+        refId: null,
+        note: "Koreksi kelebihan timbangan fisik stok di toples station bar",
+        createdById: ownerUserId,
+        createdAt: adjDate2,
+      });
+
+      await tx.stockMovement.createMany({ data: movementData });
+
+      // 4h. MarginAlerts: 1 OPEN alert (Roti Bakar) and 1 RESOLVED alert (Es Teh Manis)
+      const alert1Id = `${businessId}-alert-001`;
+      const alert2Id = `${businessId}-alert-002`;
+
+      const alertData = [
+        {
+          id: alert1Id,
+          businessId: business.id,
+          menuId: menuIdMap.get("demo-menu-roti-bakar")!,
+          status: "OPEN" as const,
+          resolution: null,
+          triggerPurchaseId: purchaseId3,
+          triggerIngredientId: ingIdMap.get("demo-ing-mentega")!,
+          ingredientCostBefore: "7000.000000",
+          ingredientCostAfter: "7800.000000",
+          fullCostBefore: "8200.00",
+          fullCostAfter: "9000.00",
+          marginBeforePct: "51.25",
+          marginAfterPct: "43.75",
+          targetPct: "50.00",
+          sellingPriceAtTrigger: "16000.00",
+          recommendedPrice: "18000.00",
+          note: "Kenaikan harga beli mentega Anchor menyebabkan margin proyeksi turun di bawah target 50%. Rekomendasi: naikkan harga jual ke Rp18.000 atau kurangi takaran mentega.",
+          createdAt: purchaseDate3,
+          updatedAt: purchaseDate3,
+        },
+        {
+          id: alert2Id,
+          businessId: business.id,
+          menuId: menuIdMap.get("demo-menu-es-teh")!,
+          status: "RESOLVED" as const,
+          resolution: "PRICE_RAISED" as const,
+          triggerPurchaseId: purchaseId2,
+          triggerIngredientId: ingIdMap.get("demo-ing-teh-celup")!,
+          ingredientCostBefore: "1800.000000",
+          ingredientCostAfter: "2200.000000",
+          fullCostBefore: "3000.00",
+          fullCostAfter: "3400.00",
+          marginBeforePct: "50.00",
+          marginAfterPct: "43.33",
+          targetPct: "50.00",
+          sellingPriceAtTrigger: "6000.00",
+          recommendedPrice: "7000.00",
+          resolvedAt: purchaseDate2,
+          resolvedById: ownerUserId,
+          note: "Harga jual berhasil dinaikkan dari Rp6.000 menjadi Rp7.000 untuk mempertahankan margin 50%.",
+          createdAt: purchaseDate2,
+          updatedAt: purchaseDate2,
+        },
+      ];
+      await tx.marginAlert.createMany({ data: alertData });
+
+      // MenuPriceHistory for the resolved alert
+      await tx.menuPriceHistory.createMany({
+        data: [
+          {
+            id: `${businessId}-mph-001`,
+            menuId: menuIdMap.get("demo-menu-es-teh")!,
+            oldPrice: "6000.00",
+            newPrice: "7000.00",
+            reason: "PRICE_SHOCK_ALERT" as const,
+            alertId: alert2Id,
+            changedById: ownerUserId,
+            changedAt: purchaseDate2,
+          },
+        ],
+      });
     },
     { maxWait: 10000, timeout: 60000 }
   );
 
   logger.info(
     { businessId },
-    "Seed demo deterministik selesai: Bisnis, Overhead, Bahan, Resep, Riwayat 1.300 Porsi, dan Stok Awal siap."
+    "Seed demo deterministik selesai: Bisnis, Overhead, Bahan, Resep, Riwayat 1.300 Porsi, Pembelian, Stok Awal, Catatan Buang, Penyesuaian Fisik, Alert Margin, dan Riwayat Harga siap."
   );
 }
