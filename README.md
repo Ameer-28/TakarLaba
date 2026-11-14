@@ -1,7 +1,6 @@
 # TakarLaba
 
-> **Asisten Penjaga Margin & Anti-Waste untuk UMKM Kuliner**  
-> Dibuat untuk kompetisi **GTNIC 2026 (Web Development)**.
+> **Asisten Penjaga Margin & Anti-Waste untuk UMKM Kuliner**
 
 TakarLaba adalah aplikasi web modern berbasis *multi-tenant* yang dirancang khusus untuk pengusaha UMKM kuliner. TakarLaba bukan sekadar aplikasi kasir (POS), melainkan sebuah ***decision layer*** cerdas yang membantu pengusaha menghitung HPP (*Harga Pokok Penjualan*) secara akurat dan dinamis, melindungi bisnis dari lonjakan harga bahan baku (*Price Shock Impact*), mengalokasikan stok berbasis FEFO (*First Expired, First Out*), memitigasi risiko limbah bahan (*anti-waste*), dan memetakan profitabilitas menu melalui matriks *Menu Engineering*.
 
@@ -113,7 +112,7 @@ TakarLaba hadir sebagai *decision-support system* dengan pilar utama:
 | **Riwayat Penjualan** | Log penjualan, filter metode bayar/tanggal, modal rincian transaksi | ✅ *(Lengkap)* | ✅ *(Milik Sendiri)* |
 | **Void Transaksi Penjualan** | Pembatalan transaksi salah dengan pengembalian stok atomik ke batch asal (`VOID_RESTORE`) | ✅ | ❌ |
 | **Matriks Menu Engineering** | Analisis 4 kuadran Kasavana & Smith (*Star*, *Plowhorse*, *Puzzle*, *Dog*) beserta rekomendasi taktis | ✅ | ❌ |
-| **Mode Demo Deterministik** | Reset instan data simulasi juri sesuai PRD Lampiran B dengan cooldown 60 detik | ✅ | ❌ |
+| **Mode Demo Deterministik** | Reset instan data simulasi evaluasi fitur dengan cooldown 60 detik | ✅ | ❌ |
 
 ---
 
@@ -230,9 +229,9 @@ Buka peramban di `http://localhost:5173`. Request `/api/*` akan di-*proxy* otoma
 
 ---
 
-## 🧪 Panduan Skenario Demo Juri (PRD Lampiran A & B)
+## 🧪 Panduan Skenario Demo & Pengujian Fungsionalitas
 
-TakarLaba menyediakan sistem demonstrasi deterministik instan yang dirancang khusus untuk mempermudah evaluasi juri kompetisi **GTNIC 2026**:
+TakarLaba menyediakan sistem demonstrasi deterministik instan yang dirancang untuk mempermudah evaluasi fitur secara komprehensif:
 
 ### 1. Akun Demo Bawaan & Login Sekali Klik
 Pada halaman `/login`, tersedia tombol pintas:
@@ -242,8 +241,8 @@ Endpoint `POST /api/demo/login` dilengkapi proteksi laju *rate limiting* dan *se
 
 ### 2. Reset Data Bersih Deterministik
 - Masuk sebagai **Demo Owner**.
-- Pada bagian atas layar muncul **Demo Banner**. Klik tombol **"Reset Data Contoh"** dan konfirmasi.
-- Basis data akan secara instan diisi kembali sesuai **Fixture PRD Lampiran B**:
+- Pada menu **Settings > Business Parameters**, tersedia opsi **"Reset Data Simulasi"**. Klik tombol tersebut dan konfirmasi.
+- Basis data akan secara instan diisi kembali sesuai dataset demonstrasi:
   - **16 Bahan Baku:** Lengkap dengan rasio konversi satuan dasar (g, ml, pcs) dan harga pokok awal.
   - **Overhead:** Rp1.560.000/bulan (Listrik gas air Rp900k, penyusutan alat Rp300k, biaya lain Rp360k) dengan target 1.300 porsi $\rightarrow$ **Rp1.200/porsi**.
   - **6 Menu & Resep:** Es Kopi Susu Aren, Americano, Es Teh Manis, Roti Bakar, Matcha Latte, Croissant Beku.
@@ -313,7 +312,6 @@ Dokumentasi arsitektur, basis data, dan spesifikasi API tersedia secara rinci:
 | :--- | :--- | :--- |
 | **Entity-Relationship Diagram (ERD)** | Pemetaan skema relasional 15 entitas, kamus data, siklus hidup FEFO, dan aturan presisi desimal | [docs/erd.md](docs/erd.md) · [Diagram SVG](docs/erd-diagram.svg) |
 | **Spesifikasi Kontrak REST API** | Kontrak API 14 domain endpoint, envelope data, batas laju, otorisasi peran, dan kode status HTTP | [docs/api.md](docs/api.md) |
-| **Proposal Teknis GTNIC 2026** | Latar belakang masalah UMKM kuliner, solusi inovatif, arsitektur sistem, dan roadmap produk | [docs/proposal-gtnic-2026.md](docs/proposal-gtnic-2026.md) |
 | **Laporan Audit Keamanan OWASP** | Audit defensif OWASP Top 10, sanitasi input Zod, proteksi SSRF, DTO Rule 7, dan rate limiting | [docs/security-audit-report.md](docs/security-audit-report.md) |
 | **Audit Responsif & Kompatibilitas Peramban** | Verifikasi tampilan mobile 360 px, tablet, desktop, dan pengujian Safari/Chrome/Firefox | [docs/responsive-and-browser-audit.md](docs/responsive-and-browser-audit.md) |
 | **Laporan Uji Keterpakaian Pengguna Awam** | Validasi Goal G7 (3 pengguna non-akuntan, waktu rata-rata 6m 56s, skor SUS 86.67) | [docs/usability-testing-report.md](docs/usability-testing-report.md) |
@@ -333,4 +331,4 @@ Dokumentasi arsitektur, basis data, dan spesifikasi API tersedia secara rinci:
 
 ## 📄 Lisensi & Orisinalitas
 
-Proyek TakarLaba dikembangkan secara orisinal oleh tim pengembang untuk kompetisi **GTNIC 2026 (Web Development)** di bawah lisensi [MIT](LICENSE). Seluruh pustaka pihak ketiga yang digunakan bersifat *open-source* dengan lisensi permisif.
+Proyek TakarLaba dikembangkan secara orisinal oleh tim pengembang di bawah lisensi [MIT](LICENSE). Seluruh pustaka pihak ketiga yang digunakan bersifat *open-source* dengan lisensi permisif.

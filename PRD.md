@@ -5,10 +5,9 @@
 
 | Item | Isi |
 |---|---|
-| Kompetisi | Garda Tech National Innovation Competition (GTNIC) 2026 — Web Development |
-| Subtema | Accelerating Digital Transformation for Business and SMEs (fokus: Business, UMKM & Digital Economy) |
-| Masa pengerjaan | 19 Okt – 10 Nov 2026. Batas submit 10 Nov 23:59 WIB; **target internal submit 9 Nov** |
-| Grand Final | 14 Nov 2026 (live pitching via Zoom). Website & repo wajib publik dan hidup sampai kompetisi selesai |
+| Kategori Produk | Solusi Manajemen Biaya, HPP Real-Time & Kasir Atomik UMKM Kuliner |
+| Fokus Solusi | Accelerating Digital Transformation for Business and SMEs (UMKM & Digital Economy) |
+| Target Rilis | Rilis Produksi & Deployment Terverifikasi (November 2026) |
 | Dokumen terkait | ARCHITECTURE.md · docs/api.md · docs/erd.md |
 
 **One-liner:** POS mencatat *apa yang terjadi*. TakarLaba memberi tahu *menu mana yang mulai rugi, kenapa, dan harus berbuat apa*.
@@ -36,7 +35,7 @@ Pemilik UMKM kuliner (kafe, bakery, katering, frozen food) menetapkan harga jual
 
 **Skala pasar:** UMKM Indonesia sekitar 56,68 juta unit (Kementerian UMKM, Sakernas Agustus 2025), 96,8% di antaranya usaha mikro; BI menyebut lebih dari 65 juta. Tulis **"56–65 juta tergantung sumber"**.
 
-**Tidak boleh dipakai di proposal sebelum diverifikasi sumber aslinya:** "25% UMKM gagal di 2 tahun pertama", "44 juta UMKM non-bankable", artikel Qasir (17 Apr 2026) dan Mekari (30 Jan 2026).
+**Tidak boleh dipakai dalam publikasi sebelum diverifikasi sumber aslinya:** "25% UMKM gagal di 2 tahun pertama", "44 juta UMKM non-bankable", artikel Qasir (17 Apr 2026) dan Mekari (30 Jan 2026).
 
 **Sumber (diakses 2026-10-19, cek ulang sebelum dikutip):**
 - https://masoemuniversity.ac.id/?p=128294
@@ -64,7 +63,7 @@ Margin bocor tanpa disadari, bahan terbuang, harga jual terlambat disesuaikan, d
 | G3 | Stok bahan akurat & FEFO benar | Urutan potong batch, stok negatif, race condition | 100% urutan FEFO benar; 0 stok negatif; 2 checkout paralel tidak oversell |
 | G4 | Keputusan menu berbasis data | Klasifikasi menu engineering vs fixture B | 6/6 menu terklasifikasi benar sebelum & sesudah price shock |
 | G5 | Visibilitas waste | Nilai Rp bahan kedaluwarsa ≤ N hari tampil di dashboard | Tampil & akurat di fixture |
-| G6 | Siap dinilai juri | Alur demo end-to-end, deploy, repo | Demo ≤ 5 menit tanpa error; URL live publik; ≥ 30 commit bermakna; README lengkap |
+| G6 | Kesiapan produksi & evaluasi | Alur demonstrasi end-to-end, deploy, repo | Demonstrasi lancar tanpa error; URL live publik; ≥ 30 commit bermakna; README lengkap |
 | G7 | Mudah dipakai non-akuntan | Uji coba 3 orang awam: input bahan → resep → penjualan pertama | ≤ 10 menit tanpa bantuan (target P1) |
 | G8 | Kualitas teknis | Typecheck, lint, test, Lighthouse | 0 error; coverage `domain/` ≥ 85%; Lighthouse mobile perf ≥ 80, a11y ≥ 90 |
 
@@ -90,9 +89,9 @@ Margin bocor tanpa disadari, bahan terbuang, harga jual terlambat disesuaikan, d
 - **Pain points:** Harga terigu/mentega naik; tidak tahu menu mana yang beban.
 - **Skenario:** Membuka Menu Engineering, menemukan "Croissant" berstatus Dog dan memutuskan evaluasi resep.
 
-### Persona 4 — Juri GTNIC (evaluator, bukan target bisnis)
+### Persona 4 — Peninjau / Evaluator Teknis (evaluator, bukan target bisnis)
 - **Kebutuhan:** Menguji alur utama cepat tanpa registrasi panjang, melihat fitur pintar bekerja, UI responsif.
-- **Skenario:** Klik "Masuk sebagai Demo Owner" → data contoh siap → ikuti skrip demo di Lampiran A. Wajib berjalan tanpa error.
+- **Skenario:** Klik "Masuk sebagai Demo Owner" → data contoh siap → ikuti skrip pengujian di Lampiran A. Wajib berjalan tanpa error.
 
 ---
 
@@ -101,7 +100,7 @@ Margin bocor tanpa disadari, bahan terbuang, harga jual terlambat disesuaikan, d
 | ID | Prio | Story | FR |
 |---|---|---|---|
 | US-01 | P0 | Sebagai pemilik, saya ingin login dengan peran berbeda untuk kasir dan pemilik, supaya kasir tidak melihat harga beli dan margin | FR-AUTH-01/03 |
-| US-02 | P0 | Sebagai juri, saya ingin masuk ke akun demo dan mengisi data contoh dengan satu klik, supaya bisa menguji tanpa setup | FR-DEMO-01 |
+| US-02 | P0 | Sebagai evaluator, saya ingin masuk ke akun demo dan mengisi data contoh dengan satu klik, supaya bisa menguji tanpa setup | FR-DEMO-01 |
 | US-03 | P0 | Sebagai pemilik, saya ingin mencatat bahan baku dengan satuan beli dan satuan pakai, supaya resep dalam gram/ml tetap akurat | FR-ING-01 |
 | US-04 | P0 | Sebagai pemilik, saya ingin mengisi nota belanja beserta tanggal kedaluwarsa, supaya stok dan harga terbaru tercatat per batch | FR-PUR-01 |
 | US-05 | P0 | Sebagai pemilik, saya ingin melihat status stok (Aman/Segera/Kedaluwarsa), supaya tahu bahan yang harus dipakai dulu | FR-ING-02 |
@@ -263,7 +262,7 @@ Konvensi: **P0** = kritis/MVP, **P1** = penting, **P2** = nice to have. Semua ua
 | Performa API | Respons endpoint baca (backend) | p95 ≤ 500 ms (warm, di luar latensi jaringan) | Log/Vercel analytics, uji manual dengan data seed |
 | Performa transaksi | Mutasi umum / checkout (≤ 10 item) | ≤ 1 dtk / ≤ 1,5 dtk | Integration test + pengukuran |
 | Performa dashboard | Dengan ±1.300 SaleItem | ≤ 2 dtk | Uji manual |
-| Cold start | Request pertama setelah idle (backend + DB) | ≤ 2 dtk dengan instance backend selalu hidup; fallback free tier: tidur 15 menit, bangun ±1 menit → wajib monitor uptime + warm-up sebelum sesi juri | Uji manual |
+| Cold start | Request pertama setelah idle (backend + DB) | ≤ 2 dtk dengan instance backend selalu hidup; fallback free tier: tidur 15 menit, bangun ±1 menit → wajib monitor uptime + warm-up berkala | Uji manual |
 | Frontend | Lighthouse Mobile (login & dashboard) | Performance ≥ 80, Accessibility ≥ 90, bundle JS awal ≤ 250 KB gzip (route-level code splitting) | Lighthouse CI/manual |
 | Konkurensi | Pengguna simultan | ≥ 20 tanpa error; 2 checkout paralel aman | Integration test `Promise.all` |
 | Ketersediaan | Uptime selama 19 Okt–14 Nov | ≥ 99%; `/api/health` dipantau tiap 5 menit | Uptime monitor |
@@ -284,10 +283,10 @@ Konvensi: **P0** = kritis/MVP, **P1** = penting, **P2** = nice to have. Semua ua
 - **Target (P1):** kapasitas & bottleneck, Menu Engineering, void transaksi, catat bahan terbuang, riwayat, registrasi + onboarding.
 - **Stretch (P2):** Waste Radar, ekspor CSV, E2E smoke test.
 
-### Out-of-Scope (ditunda, masuk *Future Development* proposal)
+### Out-of-Scope (ditunda, masuk *Future Roadmap*)
 Integrasi marketplace/e-commerce, WhatsApp API, payment gateway & mutasi bank, multi-outlet & multi-gudang, akuntansi penuh/SAK EMKM & laporan keuangan, HR & payroll, aplikasi mobile native, mode offline/PWA, manajemen supplier & purchase order, perencana belanja otomatis, forecasting/ML, scan barcode, integrasi printer thermal, multi-bahasa, mesin promo otomatis.
 
-**Batasan sistem (untuk proposal):** satu outlet per bisnis; overhead per porsi adalah estimasi pemilik (alokasi rata); pembayaran hanya dicatat; klasifikasi menu bersifat relatif terhadap menu lain.
+**Batasan sistem:** satu outlet per bisnis; overhead per porsi adalah estimasi pemilik (alokasi rata); pembayaran hanya dicatat; klasifikasi menu bersifat relatif terhadap menu lain.
 
 ---
 

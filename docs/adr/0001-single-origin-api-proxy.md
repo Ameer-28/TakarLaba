@@ -14,7 +14,7 @@ Aplikasi TakarLaba menggunakan arsitektur decoupled: antarmuka pengguna berbasis
 Dalam browser modern (khususnya Safari di iOS dan macOS dengan Intelligent Tracking Prevention / ITP):
 1. Cookie sesi lintas domain (*cross-site / third-party cookies*) diblokir secara ketat secara default.
 2. Mekanisme CORS dengan kredensial lintas origin rentan terhadap pemblokiran cookie saat navigasi dan refresh.
-3. Mengharuskan pengguna menyimpan token di `localStorage` melanggar aturan keamanan dan standar kompetisi GTNIC karena rentan terhadap serangan Cross-Site Scripting (XSS).
+3. Mengharuskan pengguna menyimpan token di `localStorage` melanggar aturan keamanan standar karena rentan terhadap serangan Cross-Site Scripting (XSS).
 
 ## Keputusan
 

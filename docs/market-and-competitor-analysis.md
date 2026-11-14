@@ -1,15 +1,15 @@
 # Analisis Pasar, Verifikasi Statistik & Lanskap Kompetitor
 
-> **Dokumen Verifikasi Pendukung Proposal GTNIC 2026 (Web Development)**  
+> **Dokumen Verifikasi Analisis Pasar & Lanskap Produk**  
 > Basis acuan: PRD.md §1.2 & §1.3. Terakhir diverifikasi: November 2026.
 
-Dokumen ini disusun untuk memastikan bahwa seluruh data statistik pasar, klaim keunggulan, serta perbandingan fitur kompetitor pada proposal dan materi presentasi TakarLaba berbasis bukti nyata (*fact-based*), terverifikasi secara metodologis, dan mematuhi etika kompetisi tanpa klaim berlebihan (*overclaiming*).
+Dokumen ini disusun untuk memastikan bahwa seluruh data statistik pasar, klaim keunggulan, serta perbandingan fitur kompetitor TakarLaba berbasis bukti nyata (*fact-based*), terverifikasi secara metodologis, tanpa klaim berlebihan (*overclaiming*).
 
 ---
 
 ## 1. Skala Pasar & Karakteristik UMKM Kuliner Indonesia
 
-### Data Terverifikasi (Dapat Digunakan dalam Proposal)
+### Data Terverifikasi (Dapat Digunakan dalam Publikasi Produk)
 
 | Parameter | Angka / Fakta | Sumber Resmi | Catatan Kutipan dalam Dokumen |
 |---|---|---|---|
@@ -19,7 +19,7 @@ Dokumen ini disusun untuk memastikan bahwa seluruh data statistik pasar, klaim k
 
 ### Data yang Dilarang Dikutip (Status Belum Terverifikasi Sumber Primer)
 
-Untuk menjaga integritas proposal kompetisi, tim dilarang mengutip angka-angka berikut karena tidak ditemukan rilis survei primer atau metodologi yang valid:
+Untuk menjaga integritas data produk, tim dilarang mengutip angka-angka berikut karena tidak ditemukan rilis survei primer atau metodologi yang valid:
 - ❌ *"25% UMKM kuliner gagal dalam 2 tahun pertama"* (klaim klise internet tanpa survei akademis primer).
 - ❌ *"44 juta UMKM non-bankable"* (angka sekunder tanpa sumber referensi terbitan resmi).
 - ❌ Artikel blog komersial vendor POS tanpa tanggal rilis primer atau survei independen.
@@ -40,7 +40,7 @@ Untuk menjaga integritas proposal kompetisi, tim dilarang mengutip angka-angka b
 
 ## 3. Lanskap Kompetitor & Fitur Paritas Pasar
 
-Untuk bersikap objektif dan mematuhi etika akademik GTNIC 2026, fitur operasional standar yang sudah umum tersedia di pasar **tidak diklaim sebagai inovasi unik TakarLaba**:
+Untuk bersikap objektif, fitur operasional standar yang sudah umum tersedia di pasar **tidak diklaim sebagai inovasi unik TakarLaba**:
 
 ### Fitur Paritas (Sudah Ada di Solusi Lain)
 - **Pemotongan Stok Resep (Recipe Deduction):** Ditemukan pada paket berbayar Qasir (Pro/Pro Plus), Moka POS, dan Majoo.
@@ -70,7 +70,7 @@ Mayoritas aplikasi di pasar berfokus sebagai *system of record* (mencatat transa
 
 ---
 
-## 5. Kaidah Klaim pada Proposal & Presentasi
+## 5. Kaidah Klaim dan Komunikasi Produk
 
 1. **Gunakan Frasa yang Tepat:**
    - Gunakan: *"Berdasarkan penelusuran dokumentasi publik solusi kasir di Indonesia, fitur simulasi mitigasi Price Shock dan kalkulasi HPP Penuh per porsi belum kami temukan pada platform sekelas."*

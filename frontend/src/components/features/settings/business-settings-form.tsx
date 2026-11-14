@@ -257,7 +257,7 @@ export function BusinessSettingsForm() {
             <div>
               <h4 className="text-sm font-bold text-amber-900">Reset Data Simulasi</h4>
               <p className="text-xs text-amber-700/80 mt-1 max-w-xl">
-                Akun ini menggunakan data simulasi untuk evaluasi GTNIC 2026. Anda dapat mengembalikan seluruh data (stok, riwayat belanja, alert harga, dan transaksi) ke kondisi semula kapan saja.
+                Akun ini menggunakan data simulasi untuk evaluasi fitur. Anda dapat mengembalikan seluruh data (stok, riwayat belanja, alert harga, dan transaksi) ke kondisi semula kapan saja.
               </p>
             </div>
             <button

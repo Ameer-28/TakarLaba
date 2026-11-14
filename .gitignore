@@ -25,6 +25,20 @@ TODO.md
 .agents/
 skills-lock.json
 
+# Competition, Proposal, and Event files
+*proposal*
+*Proposal*
+*gtnic*
+*GTNIC*
+*lomba*
+*Lomba*
+*guide_book*
+*Guide_Book*
+*guidebook*
+*Guidebook*
+docs/proposal*.md
+docs/*gtnic*
+
 # Vercel
 .vercel
 .vercel/
