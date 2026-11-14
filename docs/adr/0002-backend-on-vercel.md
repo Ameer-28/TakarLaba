@@ -12,7 +12,7 @@
 Awalnya backend REST API TakarLaba direncanakan untuk di-deploy ke Render (free tier atau Starter tier kecil). Namun:
 
 1. Layanan web service Render saat ini memerlukan informasi penagihan (kartu kredit) bahkan untuk memulai instance.
-2. Free tier Render memiliki perilaku _spin-down_ saat idle setelah 15 menit, menyebabkan _cold start_ 50+ detik yang mengganggu evaluasi juri kompetisi GTNIC 2026.
+2. Free tier Render memiliki perilaku _spin-down_ saat idle setelah 15 menit, menyebabkan _cold start_ 50+ detik yang mengganggu pengalaman pengguna.
 3. Tim membutuhkan lingkungan deployment produksi yang andal, tanpa biaya awal kartu kredit, dan terintegrasi langsung dengan repository GitHub.
 
 Vercel mendukung deployment zero-config untuk framework backend Express melalui Vercel Serverless Functions pada project terpisah (Root Directory = `backend`, Hobby plan).

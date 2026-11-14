@@ -50,7 +50,7 @@ export function App() {
       </main>
 
       <footer className="mt-16 text-center text-xs text-slate-400">
-        GTNIC 2026 Web Development &bull; TakarLaba Team
+        TakarLaba Platform &bull; Engineered for F&B SMEs
       </footer>
     </div>
   );

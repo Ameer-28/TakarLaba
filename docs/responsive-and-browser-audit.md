@@ -92,4 +92,4 @@ Endpoint utama pemilik bisnis (`GET /api/dashboard/summary`) dirancang dengan pr
 
 ## 6. Kesimpulan Responsivitas & Kinerja
 
-Desain antarmuka TakarLaba terbukti adaptif, memiliki performa rendering instan di bawah target latensi kompetisi GTNIC 2026, dan hemat kuota data seluler bagi pengusaha UMKM kuliner.
+Desain antarmuka TakarLaba terbukti adaptif, memiliki performa rendering instan di bawah target latensi produksi, dan hemat kuota data seluler bagi pengusaha UMKM kuliner.

@@ -25,7 +25,7 @@
 
 ### Keputusan arsitektur (ADR ringkas)
 
-- **ADR-1 Satu repo, dua aplikasi:** `frontend/` dan `backend/` berpackage.json sendiri (tanpa workspaces), plus `database/` dan `docs/`. Cocok dengan contoh struktur slide TM dan mudah diperiksa juri.
+- **ADR-1 Satu repo, dua aplikasi:** `frontend/` dan `backend/` berpackage.json sendiri (tanpa workspaces), plus `database/` dan `docs/`. Struktur rapi, terisolasi, dan mudah ditinjau serta diuji secara independen.
 - **ADR-2 Satu origin lewat proxy:** browser hanya memanggil domain frontend; Vercel me-_rewrite_ `/api/*` ke backend (`vercel.json`). Alasan: cookie sesi tetap _first-party_ (Safari memblokir cookie lintas-situs), tanpa CORS. Di dev, Vite me-_proxy_ `/api` → `localhost:4000`. **Plan B** bila uji Safari gagal (T-017): domain kustom dengan subdomain yang sama, atau Better Auth bearer plugin (konsekuensi keamanan dicatat di ADR baru).
 - **ADR-3 Backend otoritatif:** validasi, otorisasi, dan semua rumus ada di backend. Frontend tidak menduplikasi logika; _live preview_ HPP memanggil `POST /api/menus/preview-cost` (debounce 300 ms).
 - **ADR-4 Domain murni terpisah dari I/O:** rumus bisnis dites tanpa DB dan menjadi bukti arsitektur yang masuk akal.
@@ -83,7 +83,7 @@ takarlaba/
 │   ├── sql/constraints.sql           # CHECK & partial index (dirujuk dari migrasi)
 │   └── docker-compose.yml            # Postgres 17 lokal
 └── docs/
-    ├── erd.md                        # ERD Mermaid (+ gambar untuk proposal)
+    ├── erd.md                        # ERD Mermaid (+ diagram skema)
     ├── api.md                        # kontrak API (sumber kebenaran FE↔BE)
     ├── adr/                          # keputusan arsitektur
     └── screenshots/
@@ -198,9 +198,9 @@ export const prisma = new PrismaClient({
 | **5. Price Shock + dashboard v1** | 2–3 Nov                    | `domain/pricing.ts`, evaluasi saat pembelian, Pusat Peringatan, terapkan harga, dashboard dasar                                                                                                                              | Skenario PRD Lampiran A langkah 1–4 menghasilkan angka persis (45,3% → Rp20.000; opsi B 115 ml)                                                                                                     |
 | **6. Analitik**                   | 4–6 Nov                    | Kapasitas & bottleneck, Menu Engineering (domain + endpoint + chart + tabel + rekomendasi)                                                                                                                                   | Fixture B 6/6 benar sebelum & sesudah price shock; guard data minimum                                                                                                                               |
 | **7. Hardening & polish**         | 7–8 Nov                    | Seed penuh + tombol demo, UX polish, responsif & lintas browser, security review, Lighthouse + bundle size, void & waste log                                                                                                 | Checklist audit keamanan lulus; demo ≤ 5 menit tanpa error; Lighthouse sesuai target                                                                                                                   |
-| **8. Submit**                     | 9 Nov (batas 10 Nov 23:59) | README final, ERD, screenshot, proposal PDF, video 3–5 menit, surat keaslian, Google Form                                                                                                                                    | Semua tautan publik & dapat diakses; `GTNIC2026_WebDev_NamaTim.pdf`                                                                                                                                 |
+| **8. Rilis Final**                 | 9–10 Nov                   | README final, ERD, screenshot dokumentasi sistem, dan panduan penggunaan                                                                                                                     | Semua tautan publik & dapat diakses; rilis produksi terverifikasi                                                                                                                                    |
 
-Dokumentasi, proposal, dan skrip video dikerjakan **paralel** mulai Fase 3. Stretch (P2): Waste Radar, CSV, E2E. **Frontend & backend dikerjakan paralel per fitur** menggunakan `docs/api.md` sebagai kontrak.
+Dokumentasi dan skrip pengujian dikerjakan **paralel** mulai Fase 3. Stretch (P2): Waste Radar, CSV, E2E. **Frontend & backend dikerjakan paralel per fitur** menggunakan `docs/api.md` sebagai kontrak.
 
 ## 5. Core Algorithms (spesifikasi logika)
 

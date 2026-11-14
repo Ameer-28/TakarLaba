@@ -1563,7 +1563,7 @@ Mengambil metrik ringkasan harian (omzet hari ini WIB, transaksi, estimasi laba 
 
 ### 3.10 Akses Demo & Reset (`/api/demo`)
 
-Fitur khusus evaluasi juri dan demonstrasi deterministik (FR-DEMO-01/02). Hanya aktif jika `DEMO_MODE=true` di backend dan hanya mengoperasikan bisnis bertanda `isDemo: true`.
+Fitur khusus pengujian dan demonstrasi deterministik (FR-DEMO-01/02). Hanya aktif jika `DEMO_MODE=true` di backend dan hanya mengoperasikan bisnis bertanda `isDemo: true`.
 
 #### GET `/api/demo/status`
 Memeriksa status ketersediaan mode demo dan sisa waktu jeda pendinginan (cooldown).

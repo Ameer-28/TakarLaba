@@ -1,6 +1,6 @@
 # Laporan Audit Keamanan Sistem (Security Audit Report)
 
-> **Evaluasi Keamanan Defensif TakarLaba untuk GTNIC 2026**  
+> **Evaluasi Postur Keamanan Defensif TakarLaba**  
 > Mengacu pada: Standar Keamanan OWASP Top 10 & Prinsip Least Privilege. Terakhir diaudit: November 2026.
 
 Laporan ini mendokumentasikan hasil audit postur keamanan defensif TakarLaba pada seluruh lapisan arsitektur (Frontend, Backend REST API, Database ORM, Autentikasi, dan Jaringan).
@@ -85,4 +85,4 @@ Laporan ini mendokumentasikan hasil audit postur keamanan defensif TakarLaba pad
 
 ## 3. Kesimpulan Audit
 
-Arsitektur aplikasi TakarLaba telah memenuhi standar pertahanan berlapis (*defense-in-depth*) dan siap digunakan secara aman dalam pengujian langsung oleh dewan juri kompetisi GTNIC 2026.
+Arsitektur aplikasi TakarLaba telah memenuhi standar pertahanan berlapis (*defense-in-depth*) dan siap digunakan secara aman dalam pengujian langsung maupun lingkungan produksi.

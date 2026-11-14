@@ -271,7 +271,7 @@ Sesuai prinsip keandalan kalkulasi finansial, sistem melarang tipe bilangan meng
 Mewakili satu entitas usaha kuliner (tenant).
 - **`id`** (`String`, PK, default CUID): Identifikasi unik tenant.
 - **`name`** (`String`): Nama komersial usaha (mis. "Kopi Takar Laba").
-- **`isDemo`** (`Boolean`, default `false`): Menandai akun contoh demo untuk juri kompetisi GTNIC 2026.
+- **`isDemo`** (`Boolean`, default `false`): Menandai akun contoh simulasi/evaluasi fitur deterministik.
 - **`targetMarginDefault`** (`Decimal(5,2)`, default `50.00`): Sasaran margin kotor standar usaha (%).
 - **`expiryWarnDays`** (`Int`, default `3`): Jendela ambang batas peringatan dini kedaluwarsa bahan baku (hari).
 - **`priceRoundingStep`** (`Int`, default `500`): Langkah pembulatan ke atas (*ceiling step*) rekomendasi harga jual (Rp).
